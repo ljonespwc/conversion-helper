@@ -27,8 +27,8 @@ export async function POST(request: Request) {
       agent_id: agentId,
       // Include conversation_id if resuming a conversation
       ...(requestBody.conversation_id && { conversation_id: requestBody.conversation_id }),
-      // Include any metadata from the frontend
-      ...(requestBody.metadata && { metadata: requestBody.metadata })
+      // Include any metadata from the frontend using custom_metadata
+      ...(requestBody.metadata && { custom_metadata: requestBody.metadata })
     }
 
     console.log('🔐 Sending to Layercode:', authRequest)

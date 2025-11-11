@@ -34,6 +34,11 @@ type WebhookRequest = {
     page_url?: string
     timestamp?: string
   }
+  custom_metadata?: {
+    source?: string
+    page_url?: string
+    timestamp?: string
+  }
   type: 'message' | 'session.start' | 'session.update' | 'session.end' | 'user.transcript.interim_delta' | string
   content?: string
   delta_counter?: number
@@ -51,17 +56,16 @@ export async function POST(request: Request) {
     }
 
     // Handle different webhook event types
-    const { type, text, turn_id, session_id, conversation_id, interruption_context, metadata } = requestBody
+    const { type, text, turn_id, session_id, conversation_id, interruption_context, custom_metadata } = requestBody
 
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
 
-    // Look up metadata from our store (Layercode doesn't forward it)
-    const storedMetadata = conversationMetadata.get(conversationKey)
-    const pageUrl = storedMetadata?.page_url || metadata?.page_url || ''
+    // Extract page URL from custom_metadata (forwarded by Layercode)
+    const pageUrl = custom_metadata?.page_url || ''
 
     // Debug logging
-    console.log('📋 Webhook received:', { type, conversation_id, storedMetadata, pageUrl })
+    console.log('📋 Webhook received:', { type, conversation_id, custom_metadata, pageUrl })
 
     return streamResponse(requestBody, async ({ stream }) => {
       try {
