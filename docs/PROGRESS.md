@@ -23,6 +23,43 @@
 
 ---
 
+## 🔧 Recent Issues & Fixes
+
+**Admin Content Management Tool** (2025-11-11)
+- **Goal**: Build self-service admin page for scraping, indexing, and managing File Search content
+- **Implementation**: Complete admin workflow at `/admin/content`
+  - **Database**: `scraping_jobs` table with status tracking (pending → scraping → scraped → uploading → completed)
+  - **API Routes** (4 endpoints):
+    - `POST /api/admin/scrape` - Initiates Firecrawl scraping in background
+    - `GET /api/admin/scraping-jobs` - Fetches all jobs for polling
+    - `POST /api/admin/upload-to-file-search` - Bulk upload selected pages to Google File Search
+    - `DELETE /api/admin/indexed-pages/[id]` - Soft delete (marks as deleted in DB)
+  - **Components**:
+    - `ScrapeForm` - URL input with validation
+    - `ScrapedPagesList` - Table with status icons, checkboxes, file size/word count
+    - `FileSearchUpload` - Bulk upload with success stats
+  - **Features**: Real-time polling (2s intervals), status animations (spinner → checkmark), bulk selection
+- **Result**: Non-technical users can now scrape pages and index content without scripts or CLI tools
+
+**PN Level 1 Knowledge Base Complete** (2025-11-11)
+- **Issue**: Original scrape missing FAQ section - couldn't answer CEU, exam failure, job interview, recertification questions.
+- **Root Cause**: Firecrawl initially captured only ~40% of sales page (FAQ section missing from File Search).
+- **Fix**: Re-scraped full page + indexed 21 documents total (1 sales page + 20 Zendesk support articles).
+- **Result**: All previously failing questions now answered correctly from unified knowledge base.
+- **Tools Added**:
+  - `scripts/inspect-file-search-store.mjs` - Shows store contents, rate limits, usage stats
+  - `scripts/index-pn-level1-full.mjs` - Bulk upload tool for knowledge bases
+  - **Future**: Inspector script can be adapted for admin dashboard to view/manage indexed pages
+
+**File Search Content Truncation** (2025-11-11)
+- **Issue**: Gemini File Search only indexed 996 bytes of the PN page (should be 80KB+). Failed to answer basic questions about chapters, textbooks, authors.
+- **Cause**: Initial upload to File Search was incomplete - only a fragment was embedded.
+- **Fix**: Re-uploaded full markdown from Firecrawl. Store now has complete content (14KB across 4 documents).
+- **Verification**: All 5 test queries now pass (20 chapters, 3 textbooks, authors, exam structure, 75% passing grade).
+- **Tools Added**: Vitest test suite + diagnostic scripts for future File Search debugging.
+
+---
+
 ## Overview
 
 This document tracks actual development progress against the project roadmap.

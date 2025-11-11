@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: join(__dirname, '.env.local') })
+dotenv.config({ path: join(__dirname, '..', '.env.local') })
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
@@ -38,11 +38,18 @@ async function testFileSearch() {
   console.log('  Indexed:', page.scraped_at)
 
   const tests = [
+    // Original working tests
     { q: 'How many chapters are in the program?', expected: '20 chapters' },
     { q: 'How many textbooks?', expected: '3 textbooks' },
     { q: 'Who are the program authors?', expected: 'John Berardi' },
     { q: 'What is the exam structure?', expected: '10 questions' },
-    { q: 'What is the passing grade?', expected: '75%' }
+    { q: 'What is the passing grade?', expected: '75%' },
+
+    // New tests from user feedback
+    { q: 'Are there testimonials from current grads?', expected: 'testimonial' },
+    { q: 'What if I fail an exam?', expected: 'fail' },
+    { q: 'Am I eligible for CEUs?', expected: 'CEU' },
+    { q: 'What about the guaranteed job interview?', expected: 'interview' }
   ]
 
   for (const test of tests) {
