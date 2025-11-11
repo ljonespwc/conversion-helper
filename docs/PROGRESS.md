@@ -1,7 +1,25 @@
 # Development Progress Tracker
 
 **Last Updated**: 2025-11-11
-**Current Phase**: Initial Setup - Ready for Deployment
+**Current Phase**: Phase 3 - Ready for Testing
+
+---
+
+## 🎯 Ready for Testing Tomorrow!
+
+**What's Done:**
+- ✅ Gemini File Search integration complete
+- ✅ Precision Nutrition page scraped & indexed
+- ✅ Voice widget captures page URLs
+- ✅ Webhook queries File Search with page filtering
+- ✅ Test page created at `/test`
+- ✅ Build passing
+
+**To Test:**
+1. Run `npm run dev`
+2. Visit `http://localhost:3000/test`
+3. Ask questions about PN certification (pricing, duration, content, etc.)
+4. Verify answers come from indexed page content
 
 ---
 
@@ -13,9 +31,9 @@ This document tracks actual development progress against the project roadmap.
 
 ```
 ✅ Initial Setup (Complete) - 100%
-⏳ Phase 1: Planning & Setup (Not Started) - 0%
-⏳ Phase 2: Core Development (Not Started) - 0%
-⏳ Phase 3: Polish & Launch (Not Started) - 0%
+✅ Phase 1: Gemini File Search Setup (Complete) - 100%
+✅ Phase 2: API Endpoints & Integration (Complete) - 100%
+⏳ Phase 3: Testing & Launch (Ready) - 0%
 ```
 
 ---
@@ -105,58 +123,101 @@ This document tracks actual development progress against the project roadmap.
 
 ---
 
-## Phase 1: Planning & Setup ⏳ NOT STARTED
+## Phase 1: Gemini File Search Setup & Infrastructure ✅ COMPLETE
 
-**Status**: Planning
-**Started**: TBD
-**Target Completion**: TBD
+**Status**: Complete
+**Started**: 2025-11-11
+**Completed**: 2025-11-11
 
-### Goals
-- Define project scope and requirements
-- Set up development environment
-- Create initial architecture
+**Goal**: Implement page-specific Q&A using Gemini File Search for content storage and retrieval
 
-### Tasks
-- [ ] Define project requirements
-- [ ] Set up project structure
-- [ ] Configure development environment
-- [ ] Create initial database schema (if needed)
+### Architecture
+- **Content Storage**: Gemini File Search (semantic search with embeddings)
+- **Scraping**: Firecrawl MCP → Markdown
+- **Organization**: Single File Search store, filter by page URL metadata
+- **Proof of Concept**: https://www.precisionnutrition.com/nutrition-certification-level-1-register-now
 
----
+### 1.1 Setup & Dependencies
+- [x] Install `@google/genai` package
+- [x] Verify Gemini API key has File Search access
 
-## Phase 2: Core Development ⏳ NOT STARTED
+### 1.2 Database Schema
+- [x] Create Supabase migration: `create_indexed_pages_table.sql`
+  - Table: `indexed_pages` (id, page_url, page_title, document_id, file_search_store_name, markdown_preview, scraped_at, status, metadata)
+  - Indexes on page_url and status
+- [x] RLS policies for public access
 
-**Status**: Not started
-**Started**: TBD
-**Target Completion**: TBD
-
-### Goals
-(To be defined)
-
-### Feature Completion Matrix
-
-| Feature | Priority | Status | Notes |
-|---------|----------|--------|-------|
-| TBD | - | ⏳ | - |
+### 1.3 File Search Helper Library
+- [x] Create `src/lib/gemini-file-search.ts`
+  - `getOrCreateStore()` - Get/create main File Search store
+  - `scrapePage(url)` - Use Firecrawl to scrape page to Markdown
+  - `indexPage(url, markdown)` - Upload to File Search with metadata
+  - `queryPage(question, pageUrl)` - Query with page URL filter
+  - `getIndexedPage(pageUrl)` - Check if page is already indexed
 
 ---
 
-## Phase 3: Polish & Launch ⏳ NOT STARTED
+## Phase 2: API Endpoints & Integration ✅ COMPLETE
 
-**Status**: Not started
-**Started**: TBD
+**Status**: Complete
+**Started**: 2025-11-11
+**Completed**: 2025-11-11
+
+### 2.1 Page Scraping Endpoint
+- [x] Create `src/app/api/admin/scrape-page/route.ts`
+  - POST endpoint: scrape URL → upload to File Search → save to Supabase
+  - Returns document_id and success status
+  - GET endpoint: check if page is indexed
+
+### 2.2 Widget Query Endpoint
+- [x] Create `src/app/api/page-assistant/route.ts`
+  - POST endpoint: receives question + page_url
+  - Queries File Search with metadata filter
+  - Returns answer + citations
+
+### 2.3 Widget Integration
+- [x] Modify `src/components/widget/SimplifiedVoiceInterface.tsx`
+  - Capture `window.location.href` on mount
+  - Pass page_url in metadata to Layercode
+- [x] Modify `src/app/api/layercode/webhook/route.ts`
+  - Added File Search integration with page_url filtering
+  - Falls back to FAQ matching when no page_url
+  - Returns grounded answers from indexed page content
+  - Tracks file_search_match vs faq_match in analytics
+
+---
+
+## Phase 3: Testing & Launch 🔄 READY FOR TESTING
+
+**Status**: Ready for manual testing
+**Started**: 2025-11-11
 **Target Completion**: TBD
 
-### Goals
-- Testing and quality assurance
-- Deployment preparation
-- Launch
+### 3.1 Setup Complete ✅
+- [x] Scraped & indexed Precision Nutrition sales page
+  - Store: `conversionhelperpages-kk1562zy76aq`
+  - Verified in Supabase `indexed_pages` table
+- [x] Created test page at `/test`
+  - Blank white page with voice widget
+  - Simulates being on PN page for testing
+- [x] Build passing locally
 
-### Tasks
-- [ ] End-to-end testing
-- [ ] Performance optimization
-- [ ] Documentation
-- [ ] Production deployment
+### 3.2 Ready for Testing ⏳
+- [ ] Start dev server: `npm run dev`
+- [ ] Visit `http://localhost:3000/test`
+- [ ] Test voice queries:
+  - "How much does the certification cost?"
+  - "What's the money-back guarantee?"
+  - "How long does it take to complete?"
+  - "What's included in the program?"
+- [ ] Verify File Search returns accurate answers
+- [ ] Check citations/grounding metadata
+
+### 3.3 Production Deployment ⏳
+- [ ] Deploy to Vercel
+- [ ] Verify `GEMINI_API_KEY` and `FIRECRAWL_API_KEY` in production
+- [ ] Test on production URL
+- [ ] Monitor File Search usage/costs
 
 ---
 
@@ -179,13 +240,15 @@ This document tracks actual development progress against the project roadmap.
 1. ✅ ~~Set up infrastructure (Supabase, Layercode, environment)~~
 2. ✅ ~~Deploy to Vercel~~
 3. ✅ ~~Update all project references~~
-4. Define customization requirements for conversion-helper use case
-5. Create PRD or requirements document
+4. ✅ ~~Implement Gemini File Search integration~~
+5. ✅ ~~Index Precision Nutrition POC page~~
+6. **→ Test voice queries on `/test` page** (Next up!)
+7. Deploy to production and verify
 
 **Research & Documentation**:
-- ✅ Gemini File Search for content/data store - Created `/docs/GEMINI_FILE_SEARCH.md` with TypeScript implementation guide (source: https://ai.google.dev/gemini-api/docs/file-search)
+- ✅ Gemini File Search - Created `/docs/GEMINI_FILE_SEARCH.md` with TypeScript implementation guide (source: https://ai.google.dev/gemini-api/docs/file-search)
 
 ---
 
 **Last Updated**: 2025-11-11
-**Next Review**: After initial deployment
+**Next Review**: After manual testing complete

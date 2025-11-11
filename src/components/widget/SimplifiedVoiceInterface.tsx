@@ -15,6 +15,14 @@ export default function SimplifiedVoiceInterface({ onClose }: SimplifiedVoiceInt
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
   const [showURLs, setShowURLs] = useState(false)
+  const [pageUrl, setPageUrl] = useState<string>('')
+
+  // Capture the page URL on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPageUrl(window.location.href)
+    }
+  }, [])
 
   const {
     isConnected,
@@ -25,7 +33,8 @@ export default function SimplifiedVoiceInterface({ onClose }: SimplifiedVoiceInt
     startNewConversation
   } = useLayercodeVoice({
     metadata: {
-      source: 'huberman-lab-widget',
+      source: 'conversion-helper-widget',
+      page_url: pageUrl,
       timestamp: new Date().toISOString()
     },
     onDataMessage: (data) => {
