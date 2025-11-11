@@ -24,29 +24,28 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* Widget Demo - Always visible */}
-          <Link
-            href="/widget"
-            className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
-          >
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                <Mic className="w-8 h-8 text-white" />
+        {user ? (
+          // Authenticated: Show all three cards in grid
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <Link
+              href="/widget"
+              className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                  <Mic className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-center">
+                  <span className="font-semibold text-xl text-white block mb-2">
+                    My Widget Demo
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    Try your personalized voice assistant
+                  </span>
+                </div>
               </div>
-              <div className="text-center">
-                <span className="font-semibold text-xl text-white block mb-2">
-                  {user ? 'My Widget Demo' : 'Widget Demo'}
-                </span>
-                <span className="text-sm text-gray-400">
-                  {user ? 'Try your personalized voice assistant' : 'Try the voice assistant demo'}
-                </span>
-              </div>
-            </div>
-          </Link>
+            </Link>
 
-          {/* Reports - Only visible when authenticated */}
-          {user && (
             <Link
               href="/admin"
               className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
@@ -65,10 +64,7 @@ export default async function Home() {
                 </div>
               </div>
             </Link>
-          )}
 
-          {/* Content Admin - Only visible when authenticated */}
-          {user && (
             <Link
               href="/admin/content"
               className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
@@ -87,8 +83,30 @@ export default async function Home() {
                 </div>
               </div>
             </Link>
-          )}
-        </div>
+          </div>
+        ) : (
+          // Unauthenticated: Show single centered card
+          <div className="flex justify-center">
+            <Link
+              href="/widget"
+              className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-12 py-10 rounded-2xl shadow-xl hover:shadow-2xl max-w-sm"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                  <Mic className="w-10 h-10 text-white" />
+                </div>
+                <div className="text-center">
+                  <span className="font-semibold text-2xl text-white block mb-2">
+                    Widget Demo
+                  </span>
+                  <span className="text-base text-gray-400">
+                    Try the voice assistant demo
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        )}
 
         {!user && (
           <div className="text-center mt-12">
