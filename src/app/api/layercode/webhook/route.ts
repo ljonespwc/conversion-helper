@@ -3,6 +3,7 @@ import { matchFAQWithAI, type FAQMatch, type NoMatchResponse } from '@/lib/faq-a
 import { streamFAQMatch, extractStreamMetadata } from '@/lib/faq-ai-matcher-streaming'
 import { extractURLsFromAnswer } from '@/lib/url-extractor'
 import { queryPage, getIndexedPage } from '@/lib/gemini-file-search'
+import { conversationMetadata } from '@/lib/conversation-metadata'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,14 +53,15 @@ export async function POST(request: Request) {
     // Handle different webhook event types
     const { type, text, turn_id, session_id, conversation_id, interruption_context, metadata } = requestBody
 
-    // Extract page URL from metadata
-    const pageUrl = metadata?.page_url || ''
-
-    // Debug logging
-    console.log('📋 Webhook received:', { type, pageUrl, metadata })
-
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
+
+    // Look up metadata from our store (Layercode doesn't forward it)
+    const storedMetadata = conversationMetadata.get(conversationKey)
+    const pageUrl = storedMetadata?.page_url || metadata?.page_url || ''
+
+    // Debug logging
+    console.log('📋 Webhook received:', { type, conversation_id, storedMetadata, pageUrl })
 
     return streamResponse(requestBody, async ({ stream }) => {
       try {

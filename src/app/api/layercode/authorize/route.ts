@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { conversationMetadata } from '@/lib/conversation-metadata'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,10 +51,18 @@ export async function POST(request: Request) {
 
     const data = await response.json()
 
+    // Store metadata keyed by conversation_id for webhook lookup
+    // Since Layercode doesn't forward metadata to webhooks
+    const conversationId = data.conversation_id || data.session_id
+    if (conversationId && requestBody.metadata) {
+      conversationMetadata.set(conversationId, requestBody.metadata)
+      console.log('💾 Stored metadata for conversation:', conversationId, requestBody.metadata)
+    }
+
     // Return the session key and conversation ID to the frontend
     return NextResponse.json({
       client_session_key: data.client_session_key,
-      conversation_id: data.conversation_id || data.session_id, // Handle both old and new API responses
+      conversation_id: conversationId,
       config: data.config
     })
   } catch (error: any) {
