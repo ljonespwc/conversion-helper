@@ -20,12 +20,13 @@ export default function SimplifiedVoiceInterface({ onClose, testPageUrl }: Simpl
 
   // Capture the page URL on mount (or use testPageUrl for testing)
   useEffect(() => {
-    if (testPageUrl) {
-      setPageUrl(testPageUrl)
-    } else if (typeof window !== 'undefined') {
+    if (!testPageUrl && typeof window !== 'undefined') {
       setPageUrl(window.location.href)
     }
   }, [testPageUrl])
+
+  // Use testPageUrl directly if provided, otherwise use captured pageUrl
+  const effectivePageUrl = testPageUrl || pageUrl
 
   const {
     isConnected,
@@ -37,7 +38,7 @@ export default function SimplifiedVoiceInterface({ onClose, testPageUrl }: Simpl
   } = useLayercodeVoice({
     metadata: {
       source: 'conversion-helper-widget',
-      page_url: pageUrl,
+      page_url: effectivePageUrl,
       timestamp: new Date().toISOString()
     },
     onDataMessage: (data) => {
