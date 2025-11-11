@@ -78,7 +78,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Huberman Lab Voice Assistant</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
           <p className="text-gray-600 mt-2">Embed code and usage analytics</p>
         </div>
 
