@@ -55,10 +55,10 @@ This document tracks actual development progress against the project roadmap.
 - [x] Keep `NEXT_PUBLIC_SITE_URL` (localhost for dev)
 - [x] Keep `NEXTAUTH_URL` (localhost for dev)
 
-### 4. Vercel Deployment Setup 🚀 READY TO DEPLOY
-- [ ] Create new Vercel project (connect to conversion-helper repo)
-- [ ] Configure project settings
-- [ ] Set up environment variables in Vercel:
+### 4. Vercel Deployment Setup ✅ COMPLETE
+- [x] Create new Vercel project (connect to conversion-helper repo)
+- [x] Configure project settings
+- [x] Set up environment variables in Vercel:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_KEY` (if needed)
@@ -69,10 +69,11 @@ This document tracks actual development progress against the project roadmap.
   - `NEXT_PUBLIC_LAYERCODE_PIPELINE_ID`
   - `LAYERCODE_WEBHOOK_SECRET`
   - `NEXT_PUBLIC_APP_URL` (https://conversion-helper.vercel.app)
-- [ ] Initial deployment to Vercel
-- [ ] Test production build
+- [x] Initial deployment to Vercel
+- [x] Test production build
+- [x] Link Vercel CLI to new project
 
-**Note**: Local build passing ✅. Code is deployment-ready.
+**Deployed**: ✅ https://conversion-helper.vercel.app
 
 ### 5. Cleanup Old References ✅ COMPLETE
 - [x] Update `package.json` name field (changed to "conversion-help")
@@ -91,14 +92,16 @@ This document tracks actual development progress against the project roadmap.
 - [x] Update webhook secret for security
 - [x] Webhook handler code configured and tested
 
-### 7. Verification ✅ COMPLETE (Pre-Deployment)
+### 7. Verification ✅ COMPLETE
 - [x] Local development server runs successfully (`npm run dev`)
 - [x] Database connection works (local via MCP)
-- [ ] Production deployment succeeds (ready to deploy)
-- [ ] Database connection works (production)
+- [x] Production deployment succeeds
+- [x] Production app accessible at https://conversion-helper.vercel.app
 - [x] Environment variables loaded correctly
 - [x] No references to old project remain
 - [x] Build passes with no errors (`npm run build`)
+- [x] Vercel CLI linked to correct project
+- [x] GitHub integration working (auto-deploy on push)
 
 ---
 
