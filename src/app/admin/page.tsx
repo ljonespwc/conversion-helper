@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Copy, Check, MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Copy, Check, MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, LogOut } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { signOut } from '../login/actions'
 import StatsCard from '@/components/admin/StatsCard'
 
 interface ConversationMessage {
@@ -36,6 +39,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const router = useRouter()
 
   const embedCode = `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`
 
@@ -46,8 +51,21 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
+    checkUser()
     fetchStats()
   }, [])
+
+  const checkUser = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      setUserEmail(user.email || null)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+  }
 
   const fetchStats = async () => {
     try {
@@ -77,9 +95,26 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
-          <p className="text-gray-600 mt-2">Embed code and usage analytics</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
+            <p className="text-gray-600 mt-2">Embed code and usage analytics</p>
+          </div>
+          {userEmail && (
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Signed in as</p>
+                <p className="text-sm font-medium text-gray-900">{userEmail}</p>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Embed Code Section */}

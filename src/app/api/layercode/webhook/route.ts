@@ -75,7 +75,7 @@ export async function POST(request: Request) {
           // Initialize conversation history with system prompt
           const systemPrompt = pageUrl
             ? `You are a helpful assistant for the page at ${pageUrl}. Answer questions based ONLY on the content of this specific page. If asked about something not on this page, politely decline and suggest they ask about the page content.`
-            : "You are a helpful assistant. Answer questions based on available information."
+            : "You are a friendly demo assistant. This is a demonstration of the voice assistant technology. You can answer general questions politely, but remind users that this is just a demo and the real system would be customized with their specific content and knowledge base."
 
           conversationMessages[conversationKey] = [
             { role: 'system', content: systemPrompt }
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
           // Send welcome message and store it in history
           const welcomeMsg = pageUrl
             ? "Hello! I can answer questions about this page. What would you like to know?"
-            : "Hello! How can I help you today?"
+            : "Hello! This is a demo of the voice assistant technology. The production version would be customized with your specific content. How can I help you understand how this system works?"
           stream.tts(welcomeMsg)
 
           conversationMessages[conversationKey].push({
@@ -119,8 +119,11 @@ export async function POST(request: Request) {
         if (type === 'message' && text) {
           // Initialize conversation if not exists (in case session.start was missed)
           if (!conversationMessages[conversationKey]) {
+            const fallbackPrompt = pageUrl
+              ? `You are a helpful assistant for the page at ${pageUrl}. Answer questions based ONLY on the content of this specific page.`
+              : "You are a friendly demo assistant. This is a demonstration of the voice assistant technology. Remind users that this is just a demo and the production version would be customized with their specific content."
             conversationMessages[conversationKey] = [
-              { role: 'system', content: "You are a helpful assistant for the Huberman Lab podcast website." }
+              { role: 'system', content: fallbackPrompt }
             ]
           }
 
