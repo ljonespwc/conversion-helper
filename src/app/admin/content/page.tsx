@@ -3,7 +3,21 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
+import ScrapeForm from '@/components/admin/ScrapeForm'
+import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
+import FileSearchUpload from '@/components/admin/FileSearchUpload'
 import { FileText, ExternalLink, Calendar } from 'lucide-react'
+
+interface ScrapingJob {
+  id: string
+  url: string
+  status: string
+  file_size: number | null
+  word_count: number | null
+  error_message: string | null
+  created_at: string
+  completed_at: string | null
+}
 
 interface IndexedPage {
   id: string
@@ -18,12 +32,17 @@ interface IndexedPage {
 }
 
 export default function ContentManagementPage() {
-  const [pages, setPages] = useState<IndexedPage[]>([])
+  const [jobs, setJobs] = useState<ScrapingJob[]>([])
+  const [selectedJobs, setSelectedJobs] = useState<string[]>([])
+  const [indexedPages, setIndexedPages] = useState<IndexedPage[]>([])
   const [loading, setLoading] = useState(true)
+  const [indexedLoading, setIndexedLoading] = useState(true)
+  const [polling, setPolling] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
 
   useEffect(() => {
     checkUser()
+    fetchJobs()
     fetchIndexedPages()
   }, [])
 
@@ -35,16 +54,58 @@ export default function ContentManagementPage() {
     }
   }
 
+  // Poll for updates while jobs are in progress
+  useEffect(() => {
+    const hasActiveJobs = jobs.some(job =>
+      ['pending', 'scraping', 'uploading'].includes(job.status)
+    )
+
+    if (hasActiveJobs && !polling) {
+      setPolling(true)
+      const interval = setInterval(() => {
+        fetchJobs()
+      }, 3000)
+
+      return () => {
+        clearInterval(interval)
+        setPolling(false)
+      }
+    }
+  }, [jobs, polling])
+
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch('/api/admin/scraping-jobs')
+      const data = await response.json()
+      setJobs(data.jobs || [])
+    } catch (error) {
+      console.error('Failed to fetch jobs:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const fetchIndexedPages = async () => {
     try {
       const response = await fetch('/api/admin/indexed-pages')
       const data = await response.json()
-      setPages(data.pages || [])
+      setIndexedPages(data.pages || [])
     } catch (error) {
       console.error('Failed to fetch indexed pages:', error)
     } finally {
-      setLoading(false)
+      setIndexedLoading(false)
     }
+  }
+
+  const handleScrapeStarted = () => {
+    fetchJobs()
+  }
+
+  const handleUploadComplete = () => {
+    // Refresh jobs list and clear selection after upload
+    setSelectedJobs([])
+    fetchJobs()
+    fetchIndexedPages()
   }
 
   const formatDate = (dateString: string) => {
@@ -65,41 +126,69 @@ export default function ContentManagementPage() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Content Management</h1>
-          <p className="text-gray-400 mt-2">Manage pages indexed in Gemini File Search</p>
+          <p className="text-gray-400 mt-2">Scrape pages and manage File Search content</p>
         </div>
 
-        {/* Stats Card */}
+        {/* Indexed Pages Stats */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white mb-2">Indexed Pages</h2>
+              <h2 className="text-xl font-bold text-white mb-2">Indexed in File Search</h2>
               <p className="text-gray-400">
-                {loading ? 'Loading...' : `${pages.length} ${pages.length === 1 ? 'page' : 'pages'} in Gemini File Search`}
+                {indexedLoading ? 'Loading...' : `${indexedPages.length} ${indexedPages.length === 1 ? 'page' : 'pages'} available for AI Q&A`}
               </p>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-500/30">
               <FileText className="w-5 h-5 text-blue-400" />
-              <span className="text-2xl font-bold text-white">{pages.length}</span>
+              <span className="text-2xl font-bold text-white">{indexedPages.length}</span>
             </div>
           </div>
+        </div>
+
+        {/* Scrape Form */}
+        <div className="mb-8">
+          <ScrapeForm onScrapeStarted={handleScrapeStarted} />
+        </div>
+
+        {/* Scraped Pages List */}
+        <div className="mb-8">
+          {loading ? (
+            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
+              <p className="text-gray-400">Loading scraped pages...</p>
+            </div>
+          ) : (
+            <ScrapedPagesList
+              jobs={jobs}
+              selectedJobs={selectedJobs}
+              onSelectionChange={setSelectedJobs}
+            />
+          )}
+        </div>
+
+        {/* File Search Upload */}
+        <div className="mb-8">
+          <FileSearchUpload
+            selectedJobs={selectedJobs}
+            onUploadComplete={handleUploadComplete}
+          />
         </div>
 
         {/* Indexed Pages List */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
           <div className="p-6 border-b border-gray-700 bg-gray-900">
-            <h2 className="text-xl font-bold text-white">Your Indexed Pages</h2>
+            <h2 className="text-xl font-bold text-white">Currently Indexed Pages</h2>
             <p className="text-sm text-gray-400 mt-1">
-              These pages are available for AI-powered Q&A through the widget
+              These pages are currently available for AI-powered Q&A through the widget
             </p>
           </div>
 
-          {loading ? (
+          {indexedLoading ? (
             <div className="px-6 py-12 text-center text-gray-400">
               Loading indexed pages...
             </div>
-          ) : pages.length > 0 ? (
+          ) : indexedPages.length > 0 ? (
             <div className="divide-y divide-gray-700">
-              {pages.map((page) => (
+              {indexedPages.map((page) => (
                 <div key={page.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -152,7 +241,7 @@ export default function ContentManagementPage() {
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
               <h3 className="text-lg font-semibold text-white mb-2">No pages indexed yet</h3>
               <p className="text-gray-400 text-sm max-w-md mx-auto">
-                Pages uploaded to Gemini File Search will appear here. They power the AI-powered Q&A in your widget.
+                Pages uploaded to Gemini File Search will appear here. Scrape and upload pages above to get started.
               </p>
             </div>
           )}
