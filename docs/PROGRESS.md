@@ -177,10 +177,13 @@ This document tracks actual development progress against the project roadmap.
 
 **Immediate Priorities**:
 1. ✅ ~~Set up infrastructure (Supabase, Layercode, environment)~~
-2. 🚀 Deploy to Vercel (in progress)
+2. ✅ ~~Deploy to Vercel~~
 3. ✅ ~~Update all project references~~
 4. Define customization requirements for conversion-helper use case
 5. Create PRD or requirements document
+
+**Research & Documentation**:
+- ✅ Gemini File Search for content/data store - Created `/docs/GEMINI_FILE_SEARCH.md` with TypeScript implementation guide (source: https://ai.google.dev/gemini-api/docs/file-search)
 
 ---
 
