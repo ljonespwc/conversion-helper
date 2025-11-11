@@ -6,7 +6,7 @@ import { Header } from '@/components/Header'
 import ScrapeForm from '@/components/admin/ScrapeForm'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
-import { FileText, ExternalLink, Calendar } from 'lucide-react'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface ScrapingJob {
   id: string
@@ -19,31 +19,31 @@ interface ScrapingJob {
   completed_at: string | null
 }
 
-interface IndexedPage {
+interface FileSearchDocument {
   id: string
-  page_url: string
-  page_title: string | null
-  document_id: string
-  file_search_store_name: string
-  status: string
-  created_at: string
-  updated_at: string
-  metadata: any
+  displayName: string
+  createTime: string
+  updateTime: string
+  customMetadata: Array<{
+    key: string
+    stringValue?: string
+  }>
 }
 
 export default function ContentManagementPage() {
   const [jobs, setJobs] = useState<ScrapingJob[]>([])
   const [selectedJobs, setSelectedJobs] = useState<string[]>([])
-  const [indexedPages, setIndexedPages] = useState<IndexedPage[]>([])
+  const [fileSearchDocuments, setFileSearchDocuments] = useState<FileSearchDocument[]>([])
   const [loading, setLoading] = useState(true)
   const [indexedLoading, setIndexedLoading] = useState(true)
   const [polling, setPolling] = useState(false)
+  const [isIndexedSectionExpanded, setIsIndexedSectionExpanded] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
 
   useEffect(() => {
     checkUser()
     fetchJobs()
-    fetchIndexedPages()
+    fetchFileSearchDocuments()
   }, [])
 
   const checkUser = async () => {
@@ -85,13 +85,13 @@ export default function ContentManagementPage() {
     }
   }
 
-  const fetchIndexedPages = async () => {
+  const fetchFileSearchDocuments = async () => {
     try {
-      const response = await fetch('/api/admin/indexed-pages')
+      const response = await fetch('/api/admin/file-search-documents')
       const data = await response.json()
-      setIndexedPages(data.pages || [])
+      setFileSearchDocuments(data.documents || [])
     } catch (error) {
-      console.error('Failed to fetch indexed pages:', error)
+      console.error('Failed to fetch File Search documents:', error)
     } finally {
       setIndexedLoading(false)
     }
@@ -105,7 +105,7 @@ export default function ContentManagementPage() {
     // Refresh jobs list and clear selection after upload
     setSelectedJobs([])
     fetchJobs()
-    fetchIndexedPages()
+    fetchFileSearchDocuments()
   }
 
   const formatDate = (dateString: string) => {
@@ -118,6 +118,12 @@ export default function ContentManagementPage() {
     })
   }
 
+  // Helper to extract metadata from custom metadata array
+  const getMetadata = (doc: FileSearchDocument, key: string): string | null => {
+    const metadata = doc.customMetadata?.find(m => m.key === key)
+    return metadata?.stringValue || null
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       <Header user={user} />
@@ -127,22 +133,6 @@ export default function ContentManagementPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Content Management</h1>
           <p className="text-gray-400 mt-2">Scrape pages and manage File Search content</p>
-        </div>
-
-        {/* Indexed Pages Stats */}
-        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-white mb-2">Indexed in File Search</h2>
-              <p className="text-gray-400">
-                {indexedLoading ? 'Loading...' : `${indexedPages.length} ${indexedPages.length === 1 ? 'page' : 'pages'} available for AI Q&A`}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-500/30">
-              <FileText className="w-5 h-5 text-blue-400" />
-              <span className="text-2xl font-bold text-white">{indexedPages.length}</span>
-            </div>
-          </div>
         </div>
 
         {/* Scrape Form */}
@@ -173,77 +163,121 @@ export default function ContentManagementPage() {
           />
         </div>
 
-        {/* Indexed Pages List */}
-        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-          <div className="p-6 border-b border-gray-700 bg-gray-900">
-            <h2 className="text-xl font-bold text-white">Currently Indexed Pages</h2>
-            <p className="text-sm text-gray-400 mt-1">
-              These pages are currently available for AI-powered Q&A through the widget
-            </p>
-          </div>
-
-          {indexedLoading ? (
-            <div className="px-6 py-12 text-center text-gray-400">
-              Loading indexed pages...
-            </div>
-          ) : indexedPages.length > 0 ? (
-            <div className="divide-y divide-gray-700">
-              {indexedPages.map((page) => (
-                <div key={page.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                        <span className="truncate">{page.page_title || 'Untitled Page'}</span>
-                      </h3>
-
-                      <a
-                        href={page.page_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
-                      >
-                        <span className="truncate">{page.page_url}</span>
-                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                      </a>
-
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>Added {formatDate(page.created_at)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            page.status === 'active'
-                              ? 'bg-green-900/30 text-green-400'
-                              : 'bg-gray-900/30 text-gray-400'
-                          }`}>
-                            {page.status}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex-shrink-0">
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500 mb-1">Store</p>
-                        <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
-                          {page.file_search_store_name.split('/').pop()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="px-6 py-16 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-              <h3 className="text-lg font-semibold text-white mb-2">No pages indexed yet</h3>
-              <p className="text-gray-400 text-sm max-w-md mx-auto">
-                Pages uploaded to Gemini File Search will appear here. Scrape and upload pages above to get started.
+        {/* Indexed Pages Stats */}
+        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2">Indexed in File Search</h2>
+              <p className="text-gray-400">
+                {indexedLoading ? 'Loading...' : `${fileSearchDocuments.length} ${fileSearchDocuments.length === 1 ? 'document' : 'documents'} available for AI Q&A`}
               </p>
             </div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-500/30">
+              <FileText className="w-5 h-5 text-blue-400" />
+              <span className="text-2xl font-bold text-white">{fileSearchDocuments.length}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Indexed Pages List - Collapsible */}
+        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
+          <button
+            onClick={() => setIsIndexedSectionExpanded(!isIndexedSectionExpanded)}
+            className="w-full p-6 border-b border-gray-700 bg-gray-900 hover:bg-gray-800/50 transition-colors text-left"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  Currently Indexed Documents
+                  {!indexedLoading && (
+                    <span className="text-sm font-normal text-gray-400">
+                      ({fileSearchDocuments.length})
+                    </span>
+                  )}
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">
+                  These documents are currently stored in Google File Search and available for AI-powered Q&A
+                </p>
+              </div>
+              <div className="flex-shrink-0 ml-4">
+                {isIndexedSectionExpanded ? (
+                  <ChevronUp className="w-6 h-6 text-gray-400" />
+                ) : (
+                  <ChevronDown className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
+            </div>
+          </button>
+
+          {isIndexedSectionExpanded && (
+            <>
+              {indexedLoading ? (
+                <div className="px-6 py-12 text-center text-gray-400">
+                  Loading File Search documents...
+                </div>
+              ) : fileSearchDocuments.length > 0 ? (
+                <div className="divide-y divide-gray-700">
+                  {fileSearchDocuments.map((doc) => {
+                    const pageUrl = getMetadata(doc, 'page_url')
+                    const pageTitle = getMetadata(doc, 'page_title') || doc.displayName
+
+                    return (
+                      <div key={doc.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                              <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                              <span className="truncate">{pageTitle}</span>
+                            </h3>
+
+                            {pageUrl && (
+                              <a
+                                href={pageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
+                              >
+                                <span className="truncate">{pageUrl}</span>
+                                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                              </a>
+                            )}
+
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>Indexed {formatDate(doc.createTime)}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-green-900/30 text-green-400">
+                                  active
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex-shrink-0">
+                            <div className="text-right">
+                              <p className="text-xs text-gray-500 mb-1">Document ID</p>
+                              <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
+                                {doc.id.split('/').pop()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="px-6 py-16 text-center">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                  <h3 className="text-lg font-semibold text-white mb-2">No documents indexed yet</h3>
+                  <p className="text-gray-400 text-sm max-w-md mx-auto">
+                    Documents uploaded to Google File Search will appear here. Scrape and upload pages above to get started.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
