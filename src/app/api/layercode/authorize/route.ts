@@ -19,6 +19,8 @@ export async function POST(request: Request) {
     // Parse request body
     const requestBody = await request.json()
 
+    console.log('🔐 Authorize request metadata:', requestBody.metadata)
+
     // Prepare the authorization request
     const authRequest = {
       agent_id: agentId,
@@ -27,6 +29,8 @@ export async function POST(request: Request) {
       // Include any metadata from the frontend
       ...(requestBody.metadata && { metadata: requestBody.metadata })
     }
+
+    console.log('🔐 Sending to Layercode:', authRequest)
 
     // Call Layercode authorization endpoint
     const response = await fetch('https://api.layercode.com/v1/agents/web/authorize_session', {

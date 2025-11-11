@@ -55,12 +55,17 @@ export async function POST(request: Request) {
     // Extract page URL from metadata
     const pageUrl = metadata?.page_url || ''
 
+    // Debug logging
+    console.log('📋 Webhook received:', { type, pageUrl, metadata })
+
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
 
     return streamResponse(requestBody, async ({ stream }) => {
       try {
         if (type === 'session.start') {
+          console.log('🎬 Session start - pageUrl:', pageUrl, 'Will use File Search:', !!pageUrl)
+
           // Initialize conversation history with system prompt
           const systemPrompt = pageUrl
             ? `You are a helpful assistant for the page at ${pageUrl}. Answer questions based ONLY on the content of this specific page. If asked about something not on this page, politely decline and suggest they ask about the page content.`
@@ -154,6 +159,8 @@ export async function POST(request: Request) {
           const useFileSearch = !!pageUrl
           let finalResponse = ''
           let matched = false
+
+          console.log('🔀 Routing decision - pageUrl:', pageUrl, 'useFileSearch:', useFileSearch)
 
           if (useFileSearch) {
             console.log('🔍 Using File Search for page:', pageUrl)
