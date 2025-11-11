@@ -29,6 +29,7 @@ export async function GET() {
     })
 
     // Collect all documents (async iterator handles pagination)
+    let pageCount = 0
     for await (const doc of documentPager) {
       documents.push({
         id: doc.name || '',
@@ -37,9 +38,15 @@ export async function GET() {
         updateTime: doc.updateTime || new Date().toISOString(),
         customMetadata: doc.customMetadata || [],
       })
+
+      // Log pagination progress
+      if (documents.length % 10 === 0) {
+        pageCount++
+        console.log(`  Page ${pageCount}: ${documents.length} documents so far...`)
+      }
     }
 
-    console.log(`Retrieved ${documents.length} documents from File Search`)
+    console.log(`Retrieved ${documents.length} total documents from File Search`)
 
     return NextResponse.json({
       documents,

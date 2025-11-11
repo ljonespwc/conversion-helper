@@ -57,6 +57,161 @@ All protected pages now show:
 
 ---
 
+## 📚 Google File Search Operations Guide (2025-11-11 - Critical)
+
+### IMPORTANT: SDK Limitations
+The `@google/genai` SDK has significant bugs that will cause issues in production. Always use the patterns below.
+
+### ❌ DO NOT Use SDK for Listing Documents
+**Problem**: The SDK's async iterator stops after ~10 documents due to pagination bugs.
+
+```typescript
+// ❌ WRONG - Only returns ~10 documents
+const documentPager = await ai.fileSearchStores.documents.list({
+  parent: STORE_NAME
+})
+for await (const doc of documentPager) {
+  console.log(doc)
+}
+```
+
+### ✅ PROPER Way to List ALL Documents
+Use REST API with manual pagination:
+
+```typescript
+import https from 'https'
+
+const STORE_NAME = 'fileSearchStores/your-store-id'
+
+function httpsGet(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = ''
+      res.on('data', chunk => data += chunk)
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          resolve(JSON.parse(data))
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${data}`))
+        }
+      })
+    }).on('error', reject)
+  })
+}
+
+async function listAllDocuments() {
+  const allDocuments = []
+  let pageToken = null
+
+  do {
+    // pageSize max is 20 (API enforced)
+    const url = `https://generativelanguage.googleapis.com/v1beta/${STORE_NAME}/documents?pageSize=20${pageToken ? `&pageToken=${pageToken}` : ''}&key=${process.env.GEMINI_API_KEY}`
+
+    const data = await httpsGet(url)
+    const docs = data.documents || []
+
+    allDocuments.push(...docs)
+    pageToken = data.nextPageToken // Continue if more pages exist
+
+  } while (pageToken)
+
+  return allDocuments
+}
+```
+
+### ✅ PROPER Way to Delete Documents
+Documents have chunks that must be deleted. Use `force: true` flag:
+
+```typescript
+// ✅ CORRECT - Deletes document and all its chunks
+await ai.fileSearchStores.documents.delete({
+  name: fullDocumentPath,
+  config: { force: true }
+})
+```
+
+**Without force flag**:
+```typescript
+// ❌ FAILS with "Cannot delete non-empty Document"
+await ai.fileSearchStores.documents.delete({
+  name: fullDocumentPath
+})
+```
+
+### Understanding Document IDs vs Operation IDs
+When uploading documents, the operation ID and document ID are DIFFERENT:
+
+```typescript
+// Upload returns operation
+let operation = await ai.fileSearchStores.uploadToFileSearchStore({
+  file: file,
+  fileSearchStoreName: STORE_NAME,
+  config: { displayName, customMetadata }
+})
+
+// Wait for completion
+while (!operation.done) {
+  await new Promise(resolve => setTimeout(resolve, 3000))
+  operation = await ai.operations.get({ operation })
+}
+
+// ❌ WRONG - This is the operation ID
+const wrongId = operation.name
+// Example: "fileSearchStores/.../upload/operations/w4rstb7kagsp-2w1ze09nu5ob"
+
+// ✅ CORRECT - Get document ID from response
+const documentId = operation.response.documentName
+// Example: "fileSearchStores/.../documents/w4rstb7kagsp-2w1ze09nu5ob"
+
+// OR convert: operation IDs and document IDs share the same unique identifier
+const documentId = operation.name.replace('/upload/operations/', '/documents/')
+```
+
+### Full Delete Script Example (for Admin Delete Button)
+```typescript
+import { GoogleGenAI } from '@google/genai'
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+
+async function deleteDocument(documentId: string) {
+  try {
+    await ai.fileSearchStores.documents.delete({
+      name: documentId,
+      config: { force: true }  // CRITICAL: Include force flag
+    })
+    console.log('✅ Document deleted successfully')
+    return { success: true }
+  } catch (error) {
+    console.error('❌ Delete failed:', error.message)
+    return { success: false, error: error.message }
+  }
+}
+
+// Usage in API route
+export async function DELETE(request: Request) {
+  const { documentId } = await request.json()
+  const result = await deleteDocument(documentId)
+  return Response.json(result)
+}
+```
+
+### Key Learnings from Sync Resolution
+1. **Always use REST API for listing** - SDK pagination is broken
+2. **Always use force: true for deletion** - Documents have chunks
+3. **Store document IDs, not operation IDs** - Different paths, same unique ID
+4. **PageSize max is 20** - API enforces this, must paginate properly
+5. **Custom metadata is essential** - Use `page_url`, `page_title` for filtering/matching
+
+### Reference Scripts (Kept for Future Use)
+Utility scripts in `/scripts/` for admin features and debugging:
+- `list-all-docs-rest-api.mjs` - Reference implementation for proper pagination (use for admin UI)
+- `force-delete-with-sdk.mjs` - Reference implementation for delete button (use for admin UI)
+- `verify-supabase-sync-status.mjs` - Verify Supabase sync state
+- `inspect-file-search-store.mjs` - Diagnostic tool (shows store info, rate limits, usage)
+- `SYNC_RESOLUTION_SUMMARY.md` - Full documentation of sync issue resolution
+
+---
+
 ## 🎯 Ready for Testing Tomorrow!
 
 **What's Done:**
