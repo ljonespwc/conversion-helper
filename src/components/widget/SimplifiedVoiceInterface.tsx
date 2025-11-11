@@ -8,21 +8,24 @@ import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
 
 interface SimplifiedVoiceInterfaceProps {
   onClose: () => void
+  testPageUrl?: string
 }
 
-export default function SimplifiedVoiceInterface({ onClose }: SimplifiedVoiceInterfaceProps) {
+export default function SimplifiedVoiceInterface({ onClose, testPageUrl }: SimplifiedVoiceInterfaceProps) {
   const [hasStarted, setHasStarted] = useState(false)
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
   const [showURLs, setShowURLs] = useState(false)
   const [pageUrl, setPageUrl] = useState<string>('')
 
-  // Capture the page URL on mount
+  // Capture the page URL on mount (or use testPageUrl for testing)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (testPageUrl) {
+      setPageUrl(testPageUrl)
+    } else if (typeof window !== 'undefined') {
       setPageUrl(window.location.href)
     }
-  }, [])
+  }, [testPageUrl])
 
   const {
     isConnected,

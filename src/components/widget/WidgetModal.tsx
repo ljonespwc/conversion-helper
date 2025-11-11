@@ -20,9 +20,10 @@ const SimplifiedVoiceInterface = dynamic(
 
 interface WidgetModalProps {
   onClose: () => void
+  testPageUrl?: string
 }
 
-export default function WidgetModal({ onClose }: WidgetModalProps) {
+export default function WidgetModal({ onClose, testPageUrl }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -75,7 +76,7 @@ export default function WidgetModal({ onClose }: WidgetModalProps) {
           </button>
         </div>
 
-        <SimplifiedVoiceInterface onClose={onClose} />
+        <SimplifiedVoiceInterface onClose={onClose} testPageUrl={testPageUrl} />
       </motion.div>
     </motion.div>
   )
