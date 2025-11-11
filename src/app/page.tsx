@@ -1,84 +1,109 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { Header } from '@/components/Header'
+import { Mic, BarChart3, FileText } from 'lucide-react'
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-huberman-dark to-huberman-primary flex items-center justify-center">
-      <div className="text-center space-y-8">
-        <h1 className="text-4xl font-bold text-white mb-12">
-          Conversion Helper
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+      <Header user={user} />
 
-        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            Welcome to Conversion Helper
+          </h1>
+          <p className="text-xl text-gray-300">
+            {user
+              ? 'Manage your AI voice assistant and view analytics'
+              : 'AI-powered voice assistant for your website'
+            }
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {/* Widget Demo - Always visible */}
           <Link
             href="/widget"
-            className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all px-8 py-6 rounded-xl text-white"
+            className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
           >
-            <div className="flex flex-col items-center space-y-2">
-              <svg
-                className="w-8 h-8 text-huberman-secondary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-              <span className="font-semibold text-lg">Widget Demo</span>
-              <span className="text-sm text-white/70">Try the voice assistant</span>
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                <Mic className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-center">
+                <span className="font-semibold text-xl text-white block mb-2">
+                  {user ? 'My Widget Demo' : 'Widget Demo'}
+                </span>
+                <span className="text-sm text-gray-400">
+                  {user ? 'Try your personalized voice assistant' : 'Try the voice assistant demo'}
+                </span>
+              </div>
             </div>
           </Link>
 
-          <Link
-            href="/admin"
-            className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all px-8 py-6 rounded-xl text-white"
-          >
-            <div className="flex flex-col items-center space-y-2">
-              <svg
-                className="w-8 h-8 text-huberman-secondary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
-              </svg>
-              <span className="font-semibold text-lg">Reports</span>
-              <span className="text-sm text-white/70">View analytics & get embed code</span>
-            </div>
-          </Link>
+          {/* Reports - Only visible when authenticated */}
+          {user && (
+            <Link
+              href="/admin"
+              className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                  <BarChart3 className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-center">
+                  <span className="font-semibold text-xl text-white block mb-2">
+                    Reports
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    View analytics & conversations
+                  </span>
+                </div>
+              </div>
+            </Link>
+          )}
 
-          <Link
-            href="/admin/content"
-            className="group relative bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all px-8 py-6 rounded-xl text-white"
-          >
-            <div className="flex flex-col items-center space-y-2">
-              <svg
-                className="w-8 h-8 text-huberman-secondary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <span className="font-semibold text-lg">Content Admin</span>
-              <span className="text-sm text-white/70">Manage knowledge base content</span>
-            </div>
-          </Link>
+          {/* Content Admin - Only visible when authenticated */}
+          {user && (
+            <Link
+              href="/admin/content"
+              className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                  <FileText className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-center">
+                  <span className="font-semibold text-xl text-white block mb-2">
+                    Content Admin
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    Manage knowledge base content
+                  </span>
+                </div>
+              </div>
+            </Link>
+          )}
         </div>
-      </div>
-    </main>
+
+        {!user && (
+          <div className="text-center mt-12">
+            <p className="text-gray-400 mb-4">
+              Want to create your own voice assistant?
+            </p>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all shadow-lg"
+            >
+              Get Started
+            </Link>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }

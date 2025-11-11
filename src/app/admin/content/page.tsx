@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { signOut } from '../../login/actions'
+import { Header } from '@/components/Header'
 import ScrapeForm from '@/components/admin/ScrapeForm'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
@@ -24,7 +23,7 @@ export default function ContentManagementPage() {
   const [selectedJobs, setSelectedJobs] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [polling, setPolling] = useState(false)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -33,14 +32,10 @@ export default function ContentManagementPage() {
 
   const checkUser = async () => {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      setUserEmail(user.email || null)
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (authUser) {
+      setUser({ id: authUser.id, email: authUser.email })
     }
-  }
-
-  const handleSignOut = async () => {
-    await signOut()
   }
 
   // Poll for updates while jobs are in progress
@@ -88,29 +83,14 @@ export default function ContentManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+      <Header user={user} />
+
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Content Management</h1>
-            <p className="text-gray-600 mt-2">Scrape pages and manage File Search content</p>
-          </div>
-          {userEmail && (
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Signed in as</p>
-                <p className="text-sm font-medium text-gray-900">{userEmail}</p>
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </button>
-            </div>
-          )}
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white">Content Management</h1>
+          <p className="text-gray-400 mt-2">Scrape pages and manage File Search content</p>
         </div>
 
         {/* Scrape Form */}
@@ -121,8 +101,8 @@ export default function ContentManagementPage() {
         {/* Scraped Pages List */}
         <div className="mb-8">
           {loading ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-              <p className="text-gray-500">Loading scraped pages...</p>
+            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
+              <p className="text-gray-400">Loading scraped pages...</p>
             </div>
           ) : (
             <ScrapedPagesList
