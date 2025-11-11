@@ -1,7 +1,9 @@
-# Huberman Lab Voice Assistant - Project Status
+# Conversion Helper - Voice Assistant Project
 
 ## Project Overview
-Building a voice-enabled AI assistant widget for the Huberman Lab website that helps visitors find answers to frequently asked questions through natural conversation. The widget appears as a small button on the page that opens a modal with voice interaction capabilities.
+Building a voice-enabled AI assistant widget that helps visitors find answers to frequently asked questions through natural conversation. The widget appears as a small button on the page that opens a modal with voice interaction capabilities.
+
+**Note**: This project is based on the Huberman Lab voice assistant architecture but customized for conversion optimization use cases.
 
 ## Supabase Configuration
 **Project ID**: `fwimhxkkszdaogugslar` (conversionhelper project)
