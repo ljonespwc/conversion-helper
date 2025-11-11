@@ -1,9 +1,7 @@
 import { streamResponse } from '@layercode/node-server-sdk'
-import { matchFAQWithAI, type FAQMatch, type NoMatchResponse } from '@/lib/faq-ai-matcher'
-import { streamFAQMatch, extractStreamMetadata } from '@/lib/faq-ai-matcher-streaming'
-import { extractURLsFromAnswer } from '@/lib/url-extractor'
 import { queryPage, getIndexedPage } from '@/lib/gemini-file-search'
 import { conversationMetadata } from '@/lib/conversation-metadata'
+import { getAIProvider, type AIMessage } from '@/lib/ai-provider'
 
 export const dynamic = 'force-dynamic'
 
@@ -251,59 +249,73 @@ export async function POST(request: Request) {
             }
 
           } else {
-            // FALLBACK: Use FAQ matching if no page URL
-            console.log('📦 Using FAQ matching (no page URL)')
+            // FALLBACK: Use AI provider for generic demo responses (no page URL)
+            console.log('🤖 Using AI provider for generic demo response')
 
-            // Stream the FAQ match response
-            const streamResult = await streamFAQMatch(text, conversationMessages[conversationKey])
+            try {
+              // Use conversation history for context-aware responses
+              const aiMessages: AIMessage[] = conversationMessages[conversationKey].map(msg => ({
+                role: msg.role,
+                content: msg.content
+              }))
 
-            // Get the full response text first to check for markers
-            const fullResponse = await streamResult.text
-
-            // Extract metadata and check for NO_MATCH/FAQ markers
-            const metadata = await extractStreamMetadata(text, fullResponse)
-
-            // Use the clean response (with markers removed) for TTS
-            const responseForTTS = metadata.cleanResponse || fullResponse
-
-            // Send the clean response via TTS
-            stream.tts(responseForTTS)
-
-            // Extract URLs from the original FAQ answer if we have it
-            let urlData: any = { hasLinks: false, links: [] }
-            if (metadata.originalAnswer) {
-              urlData = extractURLsFromAnswer(metadata.originalAnswer)
-            }
-
-            // Track conversation
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'
-            fetch(`${appUrl}/api/track`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                session_id: session_id || conversation_id || 'unknown',
-                question: text,
-                matched: metadata.matched,
-                category: metadata.category || null,
-                page_url: `${appUrl}/widget`
+              // Get AI provider and generate response
+              const aiProvider = getAIProvider()
+              finalResponse = await aiProvider.generateCompletion(aiMessages, {
+                temperature: 0.7,
+                maxTokens: 300
               })
-            }).catch(() => {})
 
-            // Update conversation history with the clean response (no markers)
-            conversationMessages[conversationKey][assistantPlaceholderIndex] = {
-              role: 'assistant',
-              content: responseForTTS,
-              turn_id
+              matched = false // Generic demo responses are not "matched" content
+
+              console.log(`✅ AI Provider (${aiProvider.getName()}) responded:`, finalResponse.substring(0, 100))
+
+              // Send the response via TTS
+              stream.tts(finalResponse)
+
+              // Track conversation
+              const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'
+              fetch(`${appUrl}/api/track`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  session_id: session_id || conversation_id || 'unknown',
+                  question: text,
+                  matched: false,
+                  category: 'demo',
+                  page_url: `${appUrl}/widget`
+                })
+              }).catch(() => {})
+
+              // Update conversation history
+              conversationMessages[conversationKey][assistantPlaceholderIndex] = {
+                role: 'assistant',
+                content: finalResponse,
+                turn_id
+              }
+
+              // Send metadata
+              stream.data({
+                type: 'demo_response',
+                question: text,
+                response: finalResponse,
+                category: 'demo',
+                urls: { hasLinks: false, links: [] }
+              })
+            } catch (error) {
+              console.error('AI Provider error:', error)
+              finalResponse = "I'm having trouble generating a response right now. Please try again."
+
+              stream.tts(finalResponse)
+
+              stream.data({
+                type: 'error',
+                question: text,
+                response: finalResponse,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                urls: { hasLinks: false, links: [] }
+              })
             }
-
-            // Send metadata with extracted URLs
-            stream.data({
-              type: metadata.matched ? 'faq_match' : 'no_match',
-              question: text,
-              response: responseForTTS,
-              category: metadata.category,
-              urls: urlData
-            })
           }
 
           // Clean up old conversations to prevent memory leak (keep last 50 active conversations)

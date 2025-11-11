@@ -21,7 +21,7 @@ export default function LayercodeVoiceInterface() {
     startNewConversation
   } = useLayercodeVoice({
     metadata: {
-      source: 'huberman-lab-widget',
+      source: 'conversion-helper-widget',
       timestamp: new Date().toISOString()
     },
     onDataMessage: (data) => {

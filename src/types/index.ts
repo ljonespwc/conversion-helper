@@ -1,33 +1,3 @@
-export interface FAQData {
-  title: string
-  source_url: string
-  scraped_at: string
-  last_updated: string
-  metadata: {
-    description: string
-    language: string
-  }
-  categories: FAQCategory[]
-  additional_resources: {
-    contact: string
-    popular_topics: string[]
-    tools: {
-      ask_huberman_lab: string
-      search: string
-    }
-  }
-}
-
-export interface FAQCategory {
-  name: string
-  questions: FAQItem[]
-}
-
-export interface FAQItem {
-  question: string
-  answer: string
-}
-
 export interface ChatResponse {
   response: string
   type: 'faq' | 'ai' | 'error'
