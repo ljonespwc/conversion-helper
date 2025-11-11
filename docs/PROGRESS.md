@@ -77,14 +77,43 @@ All protected pages now show:
 
 ## 🔧 Recent Issues & Fixes
 
+**Content Admin UI Restructuring** (2025-11-11 - Latest)
+- **Goal**: Separate scraping workflow (Supabase) from indexed content display (Google File Search API)
+- **Key Changes**:
+  - **New API**: `GET /api/admin/file-search-documents` - Queries Google File Search API directly using `ai.fileSearchStores.documents.list()`
+  - **Data Sources**:
+    - **Scraped Pages** → Supabase `scraping_jobs` table (workflow tracking)
+    - **Indexed Documents** → Google File Search API (source of truth for what's actually indexed)
+  - **UI Restructure**:
+    1. Scrape Form (URL input)
+    2. Scraped Pages List (pending/scraping/completed jobs)
+    3. File Search Upload (bulk upload selected pages)
+    4. Indexed Stats Card (shows real-time document count from Google)
+    5. Collapsible Document List (expandable with chevron, shows page titles, URLs, creation dates)
+- **Result**: Content admin now shows actual Google File Search contents (not just local DB registry), eliminating sync issues between DB and Google's store
+
+**Sync Status Tracking** (2025-11-11 - Latest)
+- **Goal**: Track which documents in Supabase registry are successfully synced to Google File Search
+- **Implementation**:
+  - **Database Migration**: Added `synced_to_file_search` BOOLEAN column to `indexed_pages` table
+  - **Upload Workflow**: Set flag to `true` when document successfully uploads to Google File Search
+  - **UI Display**: Show checkmark ✅ for synced documents, warning ⚠️ for pending
+  - **Auth Security**: Added user authentication check to upload endpoint
+- **Benefits**:
+  - Persistent sync status (no need to query Google API for status checks)
+  - Can track historical sync failures
+  - Enables future retry logic for failed uploads
+  - Clear visual feedback for users on document sync state
+
 **Admin Content Management Tool** (2025-11-11)
 - **Goal**: Build self-service admin page for scraping, indexing, and managing File Search content
 - **Implementation**: Complete admin workflow at `/admin/content`
   - **Database**: `scraping_jobs` table with status tracking (pending → scraping → scraped → uploading → completed)
-  - **API Routes** (4 endpoints):
+  - **API Routes** (5 endpoints):
     - `POST /api/admin/scrape` - Initiates Firecrawl scraping in background
     - `GET /api/admin/scraping-jobs` - Fetches all jobs for polling
     - `POST /api/admin/upload-to-file-search` - Bulk upload selected pages to Google File Search
+    - `GET /api/admin/file-search-documents` - Lists documents directly from Google File Search API
     - `DELETE /api/admin/indexed-pages/[id]` - Soft delete (marks as deleted in DB)
   - **Components**:
     - `ScrapeForm` - URL input with validation

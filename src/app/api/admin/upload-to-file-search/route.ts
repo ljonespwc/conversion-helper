@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
 
@@ -15,6 +16,14 @@ const STORE_NAME = 'fileSearchStores/conversionhelperpages-kk1562zy76aq'
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user
+    const serverSupabase = await createServerClient()
+    const { data: { user } } = await serverSupabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { jobIds } = await request.json()
 
     if (!jobIds || !Array.isArray(jobIds) || jobIds.length === 0) {
@@ -76,10 +85,12 @@ export async function POST(request: NextRequest) {
         const { error: indexError } = await supabase
           .from('indexed_pages')
           .upsert({
+            user_id: user.id,
             page_url: job.url,
             page_title: title,
             document_id: documentId,
             file_search_store_name: STORE_NAME,
+            synced_to_file_search: true,
             markdown_preview: job.markdown_content.substring(0, 500),
             scraped_at: new Date().toISOString(),
             status: 'active',

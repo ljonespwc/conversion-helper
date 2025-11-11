@@ -6,7 +6,7 @@ import { Header } from '@/components/Header'
 import ScrapeForm from '@/components/admin/ScrapeForm'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
-import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface ScrapingJob {
   id: string
@@ -30,11 +30,27 @@ interface FileSearchDocument {
   }>
 }
 
+interface IndexedPage {
+  id: string
+  page_url: string
+  page_title: string | null
+  document_id: string
+  file_search_store_name: string
+  status: string
+  synced_to_file_search: boolean
+  created_at: string
+  updated_at: string
+  metadata: any
+}
+
 export default function ContentManagementPage() {
   const [jobs, setJobs] = useState<ScrapingJob[]>([])
   const [selectedJobs, setSelectedJobs] = useState<string[]>([])
+  const [indexedPages, setIndexedPages] = useState<IndexedPage[]>([])
+  const [selectedIndexedPages, setSelectedIndexedPages] = useState<string[]>([])
   const [fileSearchDocuments, setFileSearchDocuments] = useState<FileSearchDocument[]>([])
   const [loading, setLoading] = useState(true)
+  const [indexedPagesLoading, setIndexedPagesLoading] = useState(true)
   const [indexedLoading, setIndexedLoading] = useState(true)
   const [polling, setPolling] = useState(false)
   const [isIndexedSectionExpanded, setIsIndexedSectionExpanded] = useState(false)
@@ -43,6 +59,7 @@ export default function ContentManagementPage() {
   useEffect(() => {
     checkUser()
     fetchJobs()
+    fetchIndexedPages()
     fetchFileSearchDocuments()
   }, [])
 
@@ -85,6 +102,18 @@ export default function ContentManagementPage() {
     }
   }
 
+  const fetchIndexedPages = async () => {
+    try {
+      const response = await fetch('/api/admin/indexed-pages')
+      const data = await response.json()
+      setIndexedPages(data.pages || [])
+    } catch (error) {
+      console.error('Failed to fetch indexed pages:', error)
+    } finally {
+      setIndexedPagesLoading(false)
+    }
+  }
+
   const fetchFileSearchDocuments = async () => {
     try {
       const response = await fetch('/api/admin/file-search-documents')
@@ -118,11 +147,6 @@ export default function ContentManagementPage() {
     })
   }
 
-  // Helper to extract metadata from custom metadata array
-  const getMetadata = (doc: FileSearchDocument, key: string): string | null => {
-    const metadata = doc.customMetadata?.find(m => m.key === key)
-    return metadata?.stringValue || null
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
@@ -163,6 +187,82 @@ export default function ContentManagementPage() {
           />
         </div>
 
+        {/* Content Library - Shows indexed_pages */}
+        <div className="mb-8">
+          <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
+            <div className="p-6 border-b border-gray-700 bg-gray-900">
+              <h2 className="text-xl font-bold text-white">Content Library</h2>
+              <p className="text-sm text-gray-400 mt-1">
+                Uploaded files and scraped content in your Supabase registry (ready to upload to Google File Search)
+              </p>
+            </div>
+
+            {indexedPagesLoading ? (
+              <div className="px-6 py-12 text-center text-gray-400">
+                Loading content library...
+              </div>
+            ) : indexedPages.length > 0 ? (
+              <div className="divide-y divide-gray-700">
+                {indexedPages.map((page) => (
+                  <div key={page.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                          <span className="truncate">{page.page_title || 'Untitled'}</span>
+                        </h3>
+
+                        <a
+                          href={page.page_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
+                        >
+                          <span className="truncate">{page.page_url}</span>
+                          <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        </a>
+
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>Added {formatDate(page.created_at)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              page.status === 'active'
+                                ? 'bg-green-900/30 text-green-400'
+                                : 'bg-gray-900/30 text-gray-400'
+                            }`}>
+                              {page.status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500 mb-1">Document ID</p>
+                          <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
+                            {page.document_id.split('/').pop()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="px-6 py-16 text-center">
+                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                <h3 className="text-lg font-semibold text-white mb-2">No content in library</h3>
+                <p className="text-gray-400 text-sm max-w-md mx-auto">
+                  Upload files or scrape pages to add content to your library
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Indexed Pages Stats */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
           <div className="flex items-center justify-between">
@@ -179,7 +279,7 @@ export default function ContentManagementPage() {
           </div>
         </div>
 
-        {/* Indexed Pages List - Collapsible */}
+        {/* Currently Indexed Documents - Collapsible */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
           <button
             onClick={() => setIsIndexedSectionExpanded(!isIndexedSectionExpanded)}
@@ -189,14 +289,14 @@ export default function ContentManagementPage() {
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   Currently Indexed Documents
-                  {!indexedLoading && (
+                  {!indexedPagesLoading && (
                     <span className="text-sm font-normal text-gray-400">
-                      ({fileSearchDocuments.length})
+                      ({indexedPages.length} in registry)
                     </span>
                   )}
                 </h2>
                 <p className="text-sm text-gray-400 mt-1">
-                  These documents are currently stored in Google File Search and available for AI-powered Q&A
+                  Documents in Supabase registry with sync status to Google File Search
                 </p>
               </div>
               <div className="flex-shrink-0 ml-4">
@@ -211,45 +311,55 @@ export default function ContentManagementPage() {
 
           {isIndexedSectionExpanded && (
             <>
-              {indexedLoading ? (
+              {indexedPagesLoading || indexedLoading ? (
                 <div className="px-6 py-12 text-center text-gray-400">
-                  Loading File Search documents...
+                  Loading indexed documents...
                 </div>
-              ) : fileSearchDocuments.length > 0 ? (
+              ) : indexedPages.length > 0 ? (
                 <div className="divide-y divide-gray-700">
-                  {fileSearchDocuments.map((doc) => {
-                    const pageUrl = getMetadata(doc, 'page_url')
-                    const pageTitle = getMetadata(doc, 'page_title') || doc.displayName
+                  {indexedPages.map((page) => {
+                    const isSynced = page.synced_to_file_search
 
                     return (
-                      <div key={doc.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
+                      <div key={page.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
                               <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                              <span className="truncate">{pageTitle}</span>
+                              <span className="truncate">{page.page_title || 'Untitled'}</span>
+                              {isSynced ? (
+                                <span title="Synced to Google File Search">
+                                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                                </span>
+                              ) : (
+                                <span title="Not found in Google File Search">
+                                  <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                                </span>
+                              )}
                             </h3>
 
-                            {pageUrl && (
-                              <a
-                                href={pageUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
-                              >
-                                <span className="truncate">{pageUrl}</span>
-                                <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                              </a>
-                            )}
+                            <a
+                              href={page.page_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
+                            >
+                              <span className="truncate">{page.page_url}</span>
+                              <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                            </a>
 
                             <div className="flex items-center gap-4 text-xs text-gray-500">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-                                <span>Indexed {formatDate(doc.createTime)}</span>
+                                <span>Added {formatDate(page.created_at)}</span>
                               </div>
                               <div className="flex items-center gap-1">
-                                <span className="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-green-900/30 text-green-400">
-                                  active
+                                <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                  isSynced
+                                    ? 'bg-green-900/30 text-green-400'
+                                    : 'bg-yellow-900/30 text-yellow-400'
+                                }`}>
+                                  {isSynced ? 'synced' : 'pending'}
                                 </span>
                               </div>
                             </div>
@@ -259,7 +369,7 @@ export default function ContentManagementPage() {
                             <div className="text-right">
                               <p className="text-xs text-gray-500 mb-1">Document ID</p>
                               <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
-                                {doc.id.split('/').pop()}
+                                {page.document_id.split('/').pop()}
                               </p>
                             </div>
                           </div>

@@ -22,12 +22,13 @@ export async function GET() {
     }
 
     // List all documents in the File Search store
+    // The async iterator handles pagination automatically
     const documents = []
     const documentPager = await ai.fileSearchStores.documents.list({
       parent: STORE_NAME
     })
 
-    // Collect all documents (iterate through the async iterable)
+    // Collect all documents (async iterator handles pagination)
     for await (const doc of documentPager) {
       documents.push({
         id: doc.name || '',
@@ -37,6 +38,8 @@ export async function GET() {
         customMetadata: doc.customMetadata || [],
       })
     }
+
+    console.log(`Retrieved ${documents.length} documents from File Search`)
 
     return NextResponse.json({
       documents,
