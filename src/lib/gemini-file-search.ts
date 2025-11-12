@@ -275,7 +275,10 @@ export async function queryDeploymentContent(
     }
 
     // Query File Search with deployment's store
-    // Use deployment_id in metadata filter for multi-tenant isolation
+    // Note: For now, we query without metadata filter since existing documents
+    // don't have deployment_id metadata yet. In production, re-upload documents
+    // with deployment_id metadata and then add the filter back:
+    // metadataFilter: `deployment_id="${deploymentId}"`
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: question,
@@ -283,9 +286,9 @@ export async function queryDeploymentContent(
         tools: [
           {
             fileSearch: {
-              fileSearchStoreNames: [deployment.file_search_store_name],
-              // Filter by deployment_id to ensure multi-tenant isolation
-              metadataFilter: `deployment_id="${deploymentId}"`
+              fileSearchStoreNames: [deployment.file_search_store_name]
+              // TODO: Add metadata filter once documents are re-uploaded with deployment_id
+              // metadataFilter: `deployment_id="${deploymentId}"`
             }
           }
         ]

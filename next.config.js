@@ -2,6 +2,21 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  webpack: (config, { isServer }) => {
+    // Suppress TensorFlow.js warnings in console
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@tensorflow/tfjs': false,
+    };
+
+    // Ignore TensorFlow.js warnings
+    config.ignoreWarnings = [
+      { module: /node_modules\/@tensorflow/ },
+      { message: /CleanupUninitializedAndNodeArgs/ },
+    ];
+
+    return config;
+  },
   async headers() {
     return [
       {
