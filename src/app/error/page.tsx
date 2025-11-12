@@ -24,24 +24,9 @@ export default function ErrorPage() {
           Authentication Error
         </h1>
 
-        <p className="text-gray-600 mb-6">
-          There was a problem signing you in. This could be due to:
+        <p className="text-gray-600 mb-8">
+          There was a problem signing you in. Please check your email and password and try again.
         </p>
-
-        <ul className="text-left text-gray-600 mb-8 space-y-2">
-          <li className="flex items-start">
-            <span className="text-huberman-secondary mr-2">•</span>
-            <span>Invalid email or password</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-huberman-secondary mr-2">•</span>
-            <span>Expired or invalid magic link</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-huberman-secondary mr-2">•</span>
-            <span>Account hasn't been confirmed yet</span>
-          </li>
-        </ul>
 
         <Link
           href="/login"
