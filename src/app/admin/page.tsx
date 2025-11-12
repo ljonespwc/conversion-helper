@@ -64,11 +64,10 @@ export default function AdminDashboard() {
     fetchWidgetPages()
   }, [])
 
-  // Fetch stats when selected page changes
+  // Fetch stats when selected page changes or widget pages are loaded
   useEffect(() => {
-    if (widgetPages.length > 0) {
-      fetchStats()
-    }
+    // Always fetch stats - API will handle empty pages case
+    fetchStats()
   }, [selectedPage, widgetPages.length])
 
   const checkUser = async () => {
