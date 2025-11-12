@@ -28,7 +28,7 @@ export default async function Home() {
           // Authenticated: Show all three cards in grid
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <Link
-              href="/widget"
+              href="/test"
               className="group relative bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all px-8 py-8 rounded-2xl shadow-xl hover:shadow-2xl"
             >
               <div className="flex flex-col items-center space-y-4">
@@ -37,10 +37,10 @@ export default async function Home() {
                 </div>
                 <div className="text-center">
                   <span className="font-semibold text-xl text-white block mb-2">
-                    My Widget Demo
+                    Widget Test
                   </span>
                   <span className="text-sm text-gray-400">
-                    Try your personalized voice assistant
+                    Test with your deployments
                   </span>
                 </div>
               </div>
@@ -85,7 +85,7 @@ export default async function Home() {
             </Link>
           </div>
         ) : (
-          // Unauthenticated: Show single centered card
+          // Unauthenticated: Show single centered card (demo mode - no deployment)
           <div className="flex justify-center">
             <Link
               href="/widget"
@@ -97,10 +97,10 @@ export default async function Home() {
                 </div>
                 <div className="text-center">
                   <span className="font-semibold text-2xl text-white block mb-2">
-                    Widget Demo
+                    Demo Widget
                   </span>
                   <span className="text-base text-gray-400">
-                    Try the voice assistant demo
+                    Try the demo (generic AI)
                   </span>
                 </div>
               </div>
