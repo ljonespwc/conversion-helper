@@ -1,34 +1,73 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload, Check, Loader2, X, AlertTriangle } from 'lucide-react'
+
+interface WidgetPage {
+  id: string
+  page_url: string
+  page_title: string
+}
 
 interface FileSearchUploadProps {
   selectedJobs: string[]
   selectedUploads: string[]
   onUploadComplete: () => void
-  deploymentId?: string
 }
 
 export default function FileSearchUpload({
   selectedJobs,
   selectedUploads,
-  onUploadComplete,
-  deploymentId
+  onUploadComplete
 }: FileSearchUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [stats, setStats] = useState<{ total: number; successful: number; failed: number } | null>(null)
+  const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
+  const [selectedPageUrls, setSelectedPageUrls] = useState<string[]>([])
+  const [loadingPages, setLoadingPages] = useState(true)
 
   const totalSelected = selectedJobs.length + selectedUploads.length
+
+  useEffect(() => {
+    fetchWidgetPages()
+  }, [])
+
+  const fetchWidgetPages = async () => {
+    try {
+      const response = await fetch('/api/admin/widget-pages')
+      const data = await response.json()
+      setWidgetPages(data.pages || [])
+    } catch (error) {
+      console.error('Failed to fetch widget pages:', error)
+    } finally {
+      setLoadingPages(false)
+    }
+  }
+
+  const handleTogglePage = (pageUrl: string) => {
+    if (selectedPageUrls.includes(pageUrl)) {
+      setSelectedPageUrls(selectedPageUrls.filter(url => url !== pageUrl))
+    } else {
+      setSelectedPageUrls([...selectedPageUrls, pageUrl])
+    }
+  }
+
+  const handleSelectAllPages = () => {
+    if (selectedPageUrls.length === widgetPages.length && widgetPages.length > 0) {
+      setSelectedPageUrls([])
+    } else {
+      setSelectedPageUrls(widgetPages.map(p => p.page_url))
+    }
+  }
 
   const handleUpload = async () => {
     if (totalSelected === 0) return
 
-    // Check if deployment is selected when items are selected
-    if (!deploymentId) {
-      setError('Please select a deployment first')
+    // Check if pages are selected when items are selected
+    if (selectedPageUrls.length === 0) {
+      setError('Please select at least one page where this content should be available')
       return
     }
 
@@ -44,7 +83,7 @@ export default function FileSearchUpload({
         body: JSON.stringify({
           jobIds: selectedJobs,
           uploadIds: selectedUploads,
-          deploymentId
+          pageUrls: selectedPageUrls
         })
       })
 
@@ -70,6 +109,55 @@ export default function FileSearchUpload({
       <p className="text-gray-300 mb-6">
         Upload selected pages to Google File Search for AI-powered Q&A
       </p>
+
+      {/* Page Selection */}
+      {!loadingPages && widgetPages.length > 0 && totalSelected > 0 && (
+        <div className="mb-6 p-4 bg-gray-900 rounded-lg border border-gray-700">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-gray-300">Select pages where this content should be available:</h3>
+            <button
+              onClick={handleSelectAllPages}
+              className="text-xs text-blue-400 hover:text-blue-300 font-medium"
+            >
+              {selectedPageUrls.length === widgetPages.length ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            {widgetPages.map((page) => (
+              <label
+                key={page.id}
+                className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-750 cursor-pointer transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedPageUrls.includes(page.page_url)}
+                  onChange={() => handleTogglePage(page.page_url)}
+                  className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white">{page.page_title}</p>
+                  <p className="text-xs text-gray-400 truncate">{page.page_url}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loadingPages && totalSelected > 0 && (
+        <div className="mb-6 p-4 bg-gray-900 rounded-lg border border-gray-700 text-center">
+          <Loader2 className="w-5 h-5 animate-spin mx-auto text-gray-400" />
+          <p className="text-sm text-gray-400 mt-2">Loading pages...</p>
+        </div>
+      )}
+
+      {!loadingPages && widgetPages.length === 0 && totalSelected > 0 && (
+        <div className="mb-6 p-4 bg-orange-900/30 border border-orange-700 rounded-lg">
+          <p className="text-sm text-orange-400">
+            No pages configured yet. Please add pages in the <a href="/admin/pages" className="underline">Pages</a> section first.
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-900/30 border border-red-700 text-red-400 px-4 py-3 rounded-lg text-sm mb-4">

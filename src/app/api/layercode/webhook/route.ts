@@ -1,5 +1,5 @@
 import { streamResponse } from '@layercode/node-server-sdk'
-import { queryPage, getIndexedPage, queryDeploymentContent, getDeploymentById } from '@/lib/gemini-file-search'
+import { queryPageContent, getWidgetPage } from '@/lib/gemini-file-search'
 import { conversationMetadata } from '@/lib/conversation-metadata'
 import { getAIProvider, type AIMessage } from '@/lib/ai-provider'
 
@@ -30,13 +30,11 @@ type WebhookRequest = {
   metadata?: {
     source?: string
     page_url?: string
-    deployment_id?: string
     timestamp?: string
   }
   custom_metadata?: {
     source?: string
     page_url?: string
-    deployment_id?: string
     timestamp?: string
   }
   type: 'message' | 'session.start' | 'session.update' | 'session.end' | 'user.transcript.interim_delta' | string
@@ -61,41 +59,40 @@ export async function POST(request: Request) {
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
 
-    // Extract deployment_id and page URL from custom_metadata (forwarded by Layercode)
-    const deploymentId = custom_metadata?.deployment_id || ''
+    // Extract page URL from custom_metadata (forwarded by Layercode)
     const pageUrl = custom_metadata?.page_url || ''
 
     // Debug logging
-    console.log('📋 Webhook received:', { type, conversation_id, custom_metadata, deploymentId, pageUrl })
+    console.log('📋 Webhook received:', { type, conversation_id, custom_metadata, pageUrl })
 
     return streamResponse(requestBody, async ({ stream }) => {
       try {
         if (type === 'session.start') {
-          console.log('🎬 Session start - deploymentId:', deploymentId, 'pageUrl:', pageUrl, 'Will use File Search:', !!(deploymentId || pageUrl))
+          console.log('🎬 Session start - pageUrl:', pageUrl, 'Will use File Search:', !!pageUrl)
 
           // Initialize conversation history with system prompt
           let systemPrompt = ''
           let welcomeMsg = ''
 
-          if (deploymentId) {
-            // Deployment-based session (queries entire deployment store)
+          if (pageUrl) {
+            // Page-based session - queries content available for this page
             try {
-              const deployment = await getDeploymentById(deploymentId)
-              const companyName = deployment?.company_name || 'this company'
+              const widgetPage = await getWidgetPage(pageUrl)
 
-              systemPrompt = `You are a helpful assistant for ${companyName}. Answer questions based ONLY on the indexed content for this company. Be conversational and helpful. If asked about something not in the knowledge base, politely let them know you can only answer questions about ${companyName}'s content.`
-              welcomeMsg = `Hello! I can answer questions about ${companyName}. What would you like to know?`
+              if (widgetPage) {
+                systemPrompt = `You are a helpful assistant for ${widgetPage.page_title || 'this page'}. Answer questions based ONLY on the indexed content available for this page. Be conversational and helpful. If asked about something not in the knowledge base, politely let them know you can only answer questions about the available content.`
+                welcomeMsg = `Hello! I can answer questions about ${widgetPage.page_title || 'this page'}. What would you like to know?`
+              } else {
+                systemPrompt = "You are a helpful assistant for this page. Answer questions based ONLY on the available content."
+                welcomeMsg = "Hello! How can I help you today?"
+              }
             } catch (error) {
-              console.error('Error loading deployment for session.start:', error)
+              console.error('Error loading widget page for session.start:', error)
               systemPrompt = "You are a helpful assistant. Answer questions based on the available content."
               welcomeMsg = "Hello! How can I help you today?"
             }
-          } else if (pageUrl) {
-            // Page-based session (legacy mode - queries single page)
-            systemPrompt = `You are a helpful assistant for the page at ${pageUrl}. Answer questions based ONLY on the content of this specific page. If asked about something not on this page, politely decline and suggest they ask about the page content.`
-            welcomeMsg = "Hello! I can answer questions about this page. What would you like to know?"
           } else {
-            // Demo mode (no deployment or page)
+            // Demo mode (no page configured)
             systemPrompt = "You are a friendly demo assistant. This is a demonstration of the voice assistant technology. You can answer general questions politely, but remind users that this is just a demo and the real system would be customized with their specific content and knowledge base."
             welcomeMsg = "Hello! This is a demo of the voice assistant technology. The production version would be customized with your specific content. How can I help you understand how this system works?"
           }
@@ -140,12 +137,9 @@ export async function POST(request: Request) {
           if (!conversationMessages[conversationKey]) {
             let fallbackPrompt = ''
 
-            if (deploymentId) {
-              const deployment = await getDeploymentById(deploymentId)
-              const companyName = deployment?.company_name || 'this company'
-              fallbackPrompt = `You are a helpful assistant for ${companyName}. Answer questions based ONLY on the indexed content.`
-            } else if (pageUrl) {
-              fallbackPrompt = `You are a helpful assistant for the page at ${pageUrl}. Answer questions based ONLY on the content of this specific page.`
+            if (pageUrl) {
+              const widgetPage = await getWidgetPage(pageUrl)
+              fallbackPrompt = `You are a helpful assistant for ${widgetPage?.page_title || 'this page'}. Answer questions based ONLY on the indexed content available for this page.`
             } else {
               fallbackPrompt = "You are a friendly demo assistant. This is a demonstration of the voice assistant technology. Remind users that this is just a demo and the production version would be customized with their specific content."
             }
@@ -192,126 +186,38 @@ export async function POST(request: Request) {
             turn_id
           })
 
-          // Routing: Deployment > Page > Demo
-          // Priority: 1) deployment_id (query entire store), 2) page_url (query single page), 3) demo mode
-          const useDeploymentSearch = !!deploymentId
-          const usePageSearch = !deploymentId && !!pageUrl
+          // Routing: Page > Demo
+          // Priority: 1) page_url (query content for page), 2) demo mode
+          const usePageSearch = !!pageUrl
           let finalResponse = ''
           let matched = false
 
-          console.log('🔀 Routing decision - deploymentId:', deploymentId, 'pageUrl:', pageUrl, 'useDeployment:', useDeploymentSearch, 'usePage:', usePageSearch)
+          console.log('🔀 Routing decision - pageUrl:', pageUrl, 'usePage:', usePageSearch)
 
-          if (useDeploymentSearch) {
-            console.log('🔍 Using Deployment File Search for deployment:', deploymentId)
+          if (usePageSearch) {
+            console.log('🔍 Using Page File Search for page:', pageUrl)
 
             try {
-              // Query the entire deployment's File Search store
-              const { answer, citations, deployment } = await queryDeploymentContent(text, deploymentId)
+              // Query content available for this page using page_urls metadata
+              const { answer, citations, organization } = await queryPageContent(text, pageUrl)
               finalResponse = answer
               matched = true
 
-              console.log('✅ Deployment File Search answered:', answer.substring(0, 100))
+              console.log('✅ Page File Search answered:', answer.substring(0, 100))
 
               // Send the response via TTS
               stream.tts(finalResponse)
 
               // Send citations data
               stream.data({
-                type: 'deployment_search_match',
+                type: 'page_search_match',
                 question: text,
                 response: finalResponse,
                 citations,
-                deployment_id: deploymentId,
-                company_name: deployment?.company_name,
+                page_url: pageUrl,
+                organization: organization,
                 urls: { hasLinks: false, links: [] }
               })
-            } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-              const errorStack = error instanceof Error ? error.stack : ''
-
-              console.error('❌ Deployment File Search error:', {
-                deploymentId,
-                error: errorMessage,
-                stack: errorStack
-              })
-
-              finalResponse = "I'm having trouble accessing the knowledge base right now. Please try again later."
-              matched = false
-
-              stream.tts(finalResponse)
-
-              stream.data({
-                type: 'error',
-                question: text,
-                response: finalResponse,
-                error: errorMessage,
-                urls: { hasLinks: false, links: [] }
-              })
-            }
-
-            // Track conversation
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'
-            fetch(`${appUrl}/api/track`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                session_id: session_id || conversation_id || 'unknown',
-                question: text,
-                matched,
-                category: 'deployment_search',
-                deployment_id: deploymentId
-              })
-            }).catch(() => {})
-
-            // Update conversation history
-            conversationMessages[conversationKey][assistantPlaceholderIndex] = {
-              role: 'assistant',
-              content: finalResponse,
-              turn_id
-            }
-
-          } else if (usePageSearch) {
-            console.log('🔍 Using Page File Search for page:', pageUrl)
-
-            try {
-              // Check if page is indexed
-              const indexedPage = await getIndexedPage(pageUrl)
-
-              if (indexedPage) {
-                // Query the File Search store
-                const { answer, citations } = await queryPage(text, pageUrl)
-                finalResponse = answer
-                matched = true
-
-                console.log('✅ File Search answered:', answer.substring(0, 100))
-
-                // Send the response via TTS
-                stream.tts(finalResponse)
-
-                // Send citations data
-                stream.data({
-                  type: 'file_search_match',
-                  question: text,
-                  response: finalResponse,
-                  citations,
-                  page_url: pageUrl,
-                  urls: { hasLinks: false, links: [] }
-                })
-              } else {
-                // Page not indexed - send error message
-                finalResponse = "I'm sorry, but this page hasn't been indexed yet. Please contact support to enable the assistant for this page."
-                matched = false
-
-                stream.tts(finalResponse)
-
-                stream.data({
-                  type: 'page_not_indexed',
-                  question: text,
-                  response: finalResponse,
-                  page_url: pageUrl,
-                  urls: { hasLinks: false, links: [] }
-                })
-              }
             } catch (error) {
               console.error('File Search error:', error)
               finalResponse = "I'm having trouble accessing information about this page right now. Please try again later."

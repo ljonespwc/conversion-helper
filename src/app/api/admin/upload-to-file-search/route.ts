@@ -13,8 +13,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
 })
 
-const STORE_NAME = 'fileSearchStores/conversionhelperpages-kk1562zy76aq'
-
 export async function POST(request: NextRequest) {
   try {
     // Get authenticated user
@@ -25,7 +23,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { jobIds = [], uploadIds = [], deploymentId } = await request.json()
+    // Get user's File Search store
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('file_search_store_name')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.file_search_store_name) {
+      return NextResponse.json(
+        { error: 'User does not have a File Search store. Please contact support.' },
+        { status: 400 }
+      )
+    }
+
+    const userStoreName = userData.file_search_store_name
+
+    const { jobIds = [], uploadIds = [], pageUrls = [] } = await request.json()
 
     if ((!jobIds || !Array.isArray(jobIds)) && (!uploadIds || !Array.isArray(uploadIds))) {
       return NextResponse.json(
@@ -41,21 +55,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate deployment_id if provided
-    if (deploymentId) {
-      const { data: deployment, error: deploymentError } = await supabase
-        .from('widget_deployments')
-        .select('deployment_id, file_search_store_name')
-        .eq('deployment_id', deploymentId)
-        .eq('user_id', user.id)
-        .single()
-
-      if (deploymentError || !deployment) {
-        return NextResponse.json(
-          { error: 'Invalid deployment ID' },
-          { status: 400 }
-        )
-      }
+    // Validate pageUrls if provided
+    if (pageUrls.length > 0 && !Array.isArray(pageUrls)) {
+      return NextResponse.json(
+        { error: 'pageUrls must be an array' },
+        { status: 400 }
+      )
     }
 
     const results = []
@@ -130,7 +135,7 @@ export async function POST(request: NextRequest) {
 
         // Upload to File Search
         const title = new URL(job.url).pathname.split('/').pop() || 'page'
-        const documentId = await uploadToFileSearch(markdown, title, job.url, deploymentId)
+        const documentId = await uploadToFileSearch(markdown, title, job.url, pageUrls, userStoreName)
 
         // Create or update indexed_pages record
         const indexedPageData: any = {
@@ -138,22 +143,18 @@ export async function POST(request: NextRequest) {
           page_url: job.url,
           page_title: title,
           document_id: documentId,
-          file_search_store_name: STORE_NAME,
+          file_search_store_name: userStoreName,
           synced_to_file_search: true,
           source_type: 'scraped', // Mark as scraped content
           markdown_preview: markdown.substring(0, 500),
           scraped_at: new Date().toISOString(),
           status: 'active',
+          page_urls: pageUrls, // Array of pages where this content should be available
           metadata: {
             file_size: job.file_size,
             word_count: job.word_count,
             scraping_job_id: job.id
           }
-        }
-
-        // Add deployment_id if provided
-        if (deploymentId) {
-          indexedPageData.deployment_id = deploymentId
         }
 
         const { error: indexError } = await supabase
@@ -255,7 +256,7 @@ export async function POST(request: NextRequest) {
         const title = upload.filename.replace(/\.(txt|md)$/i, '')
 
         // Upload to File Search
-        const documentId = await uploadToFileSearch(content, title, '', deploymentId)
+        const documentId = await uploadToFileSearch(content, title, '', pageUrls, userStoreName)
 
         // Create indexed_pages record
         const uploadIndexedPageData: any = {
@@ -263,23 +264,19 @@ export async function POST(request: NextRequest) {
           page_url: '', // No URL for uploaded files
           page_title: title,
           document_id: documentId,
-          file_search_store_name: STORE_NAME,
+          file_search_store_name: userStoreName,
           synced_to_file_search: true,
           source_type: 'uploaded',
           markdown_preview: content.substring(0, 500),
           scraped_at: new Date().toISOString(),
           status: 'active',
+          page_urls: pageUrls, // Array of pages where this content should be available
           metadata: {
             file_size: upload.file_size,
             word_count: upload.word_count,
             file_upload_id: upload.id,
             original_filename: upload.filename
           }
-        }
-
-        // Add deployment_id if provided
-        if (deploymentId) {
-          uploadIndexedPageData.deployment_id = deploymentId
         }
 
         const { error: indexError } = await supabase
@@ -353,7 +350,8 @@ async function uploadToFileSearch(
   markdown: string,
   title: string,
   sourceUrl: string,
-  deploymentId?: string
+  pageUrls: string[],
+  userStoreName: string
 ): Promise<string> {
   // Create a file from the markdown content
   const blob = new Blob([markdown], { type: 'text/markdown' })
@@ -363,18 +361,14 @@ async function uploadToFileSearch(
   const customMetadata: Array<{ key: string; stringValue: string }> = [
     { key: 'page_url', stringValue: sourceUrl },
     { key: 'page_title', stringValue: title },
-    { key: 'indexed_at', stringValue: new Date().toISOString() }
+    { key: 'indexed_at', stringValue: new Date().toISOString() },
+    { key: 'page_urls', stringValue: JSON.stringify(pageUrls) } // Array of pages where this content should be available
   ]
-
-  // Add deployment_id if provided (required for multi-tenant isolation)
-  if (deploymentId) {
-    customMetadata.push({ key: 'deployment_id', stringValue: deploymentId })
-  }
 
   // Upload to File Search with metadata
   let operation = await ai.fileSearchStores.uploadToFileSearchStore({
     file: file as any,
-    fileSearchStoreName: STORE_NAME,
+    fileSearchStoreName: userStoreName,
     config: {
       displayName: title,
       customMetadata

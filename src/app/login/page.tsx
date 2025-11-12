@@ -6,9 +6,10 @@ import { useState } from 'react'
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { message?: string }
+  searchParams: { message?: string; error?: string }
 }) {
   const [showPassword, setShowPassword] = useState(false)
+  const [isSignup, setIsSignup] = useState(false)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center p-4">
@@ -23,6 +24,12 @@ export default function LoginPage({
         {searchParams?.message && (
           <div className="mb-6 p-4 bg-green-900/30 border border-green-700 rounded-lg">
             <p className="text-green-400 text-sm text-center">{searchParams.message}</p>
+          </div>
+        )}
+
+        {searchParams?.error && (
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg">
+            <p className="text-red-400 text-sm text-center">{searchParams.error}</p>
           </div>
         )}
 
@@ -114,20 +121,73 @@ export default function LoginPage({
               />
             </div>
 
-            <div className="flex gap-3">
-              <button
-                formAction={login}
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                formAction={signup}
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Create Account
-              </button>
-            </div>
+            {/* Organization fields for signup */}
+            {isSignup && (
+              <>
+                <div>
+                  <label htmlFor="organizationName" className="block text-sm font-medium text-gray-300 mb-1">
+                    Organization Name <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    id="organizationName"
+                    name="organizationName"
+                    type="text"
+                    required={isSignup}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
+                    placeholder="My Company"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-1">
+                    Website URL <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    id="websiteUrl"
+                    name="websiteUrl"
+                    type="url"
+                    required={isSignup}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
+                    placeholder="https://example.com"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Where your widget will be deployed</p>
+                </div>
+              </>
+            )}
+
+            {!isSignup ? (
+              <div className="flex gap-3">
+                <button
+                  formAction={login}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSignup(true)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Create Account
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <button
+                  formAction={signup}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg"
+                >
+                  Create Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSignup(false)}
+                  className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            )}
           </form>
         )}
       </div>

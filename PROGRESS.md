@@ -301,6 +301,20 @@ NEXT_PUBLIC_APP_URL=https://conversion-helper.vercel.app
 - Added retry support for failed uploads/indexing
 - Clear error messages on successful retry
 
+### Phase 6: Architecture Refactor - Page-Based Model (2025-11-12)
+**One-to-One Architecture**: 1 User = 1 Organization = 1 Website = 1 File Search Store
+- **Replaced**: Deployment-based multi-tenant model → Simple page-based filtering
+- **New Tables**: `users` (org_name, website_url, file_search_store_name), `widget_pages` (page_url, page_title)
+- **Removed**: `widget_deployments` table, `deployment_id` from indexed_pages
+- **Content Filtering**: Documents tagged with `page_urls` array, queries filter by page URL
+- **Signup Flow**: Auto-creates File Search store on registration with org details
+- **Widget Pages**: Users add pages where widget should appear (e.g., /pricing, /features)
+- **Content Upload**: Select which pages get access to each document (multi-page support)
+- **Query System**: `queryPageContent(question, pageUrl)` filters by `page_urls` metadata
+- **Test Page**: Select widget page from dropdown to test page-specific responses
+- **Migration**: Dropped old tables, wiped data, clean slate for production
+- **Result**: Simpler architecture, clearer user model, easier to reason about
+
 ---
 
 ## 🐛 Known Issues & Solutions

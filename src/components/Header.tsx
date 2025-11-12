@@ -37,12 +37,18 @@ export function Header({ user, loading = false }: HeaderProps) {
               <>
                 {user ? (
                   <>
-                    {/* Show Reports and Content Admin when logged in */}
+                    {/* Show Reports, Pages, and Content Admin when logged in */}
                     <Link
                       href="/admin"
                       className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
                     >
                       Reports
+                    </Link>
+                    <Link
+                      href="/admin/pages"
+                      className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
+                    >
+                      Pages
                     </Link>
                     <Link
                       href="/admin/content"

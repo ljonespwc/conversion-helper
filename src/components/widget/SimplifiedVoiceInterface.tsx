@@ -8,26 +8,17 @@ import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
 
 interface SimplifiedVoiceInterfaceProps {
   onClose: () => void
-  testPageUrl?: string
-  deploymentId?: string
+  pageUrl?: string
 }
 
-export default function SimplifiedVoiceInterface({ onClose, testPageUrl, deploymentId }: SimplifiedVoiceInterfaceProps) {
+export default function SimplifiedVoiceInterface({ onClose, pageUrl }: SimplifiedVoiceInterfaceProps) {
   const [hasStarted, setHasStarted] = useState(false)
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
   const [showURLs, setShowURLs] = useState(false)
-  const [pageUrl, setPageUrl] = useState<string>('')
 
-  // Capture the page URL on mount (or use testPageUrl for testing)
-  useEffect(() => {
-    if (!testPageUrl && typeof window !== 'undefined') {
-      setPageUrl(window.location.href)
-    }
-  }, [testPageUrl])
-
-  // Use testPageUrl directly if provided, otherwise use captured pageUrl
-  const effectivePageUrl = testPageUrl || pageUrl
+  // Use provided pageUrl or capture from window if not provided
+  const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
   const {
     isConnected,
@@ -40,7 +31,6 @@ export default function SimplifiedVoiceInterface({ onClose, testPageUrl, deploym
     metadata: {
       source: 'conversion-helper-widget',
       ...(effectivePageUrl && { page_url: effectivePageUrl }),
-      ...(deploymentId && { deployment_id: deploymentId }),
       timestamp: new Date().toISOString()
     },
     onDataMessage: (data) => {

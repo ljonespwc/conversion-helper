@@ -1,31 +1,28 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { LogOut, Building2, ChevronDown } from 'lucide-react'
+import { LogOut, Globe, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { signOut } from '../login/actions'
 import VoiceWidget from '@/components/widget/VoiceWidget'
 
-interface Deployment {
+interface WidgetPage {
   id: string
-  deployment_id: string
-  deployment_key: string
-  company_name: string
-  company_domain: string | null
-  file_search_store_name: string
-  status: string
+  page_url: string
+  page_title: string
+  created_at: string
 }
 
 export default function TestPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [deployments, setDeployments] = useState<Deployment[]>([])
-  const [selectedDeployment, setSelectedDeployment] = useState<Deployment | null>(null)
+  const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
+  const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     checkUser()
-    fetchDeployments()
+    fetchWidgetPages()
   }, [])
 
   const checkUser = async () => {
@@ -36,20 +33,20 @@ export default function TestPage() {
     }
   }
 
-  const fetchDeployments = async () => {
+  const fetchWidgetPages = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/deployments')
+      const response = await fetch('/api/admin/widget-pages')
       const data = await response.json()
-      const activeDeployments = (data.deployments || []).filter((d: Deployment) => d.status === 'active')
-      setDeployments(activeDeployments)
+      const pages = data.pages || []
+      setWidgetPages(pages)
 
-      // Auto-select first deployment
-      if (activeDeployments.length > 0) {
-        setSelectedDeployment(activeDeployments[0])
+      // Auto-select first page
+      if (pages.length > 0) {
+        setSelectedPage(pages[0])
       }
     } catch (error) {
-      console.error('Error fetching deployments:', error)
+      console.error('Error fetching widget pages:', error)
     } finally {
       setLoading(false)
     }
@@ -78,20 +75,20 @@ export default function TestPage() {
         </div>
       )}
 
-      {/* Deployment Selector - Top Left */}
+      {/* Widget Page Selector - Top Left */}
       <div className="fixed top-4 left-4 z-40 bg-gray-800 rounded-lg shadow-lg px-4 py-3 border border-gray-700 min-w-[300px]">
         <div className="flex items-center gap-2 mb-2">
-          <Building2 className="w-4 h-4 text-blue-400" />
-          <span className="text-xs font-medium text-gray-300">Testing Deployment</span>
+          <Globe className="w-4 h-4 text-blue-400" />
+          <span className="text-xs font-medium text-gray-300">Testing Widget Page</span>
         </div>
 
         {loading ? (
-          <p className="text-sm text-gray-400">Loading deployments...</p>
-        ) : deployments.length === 0 ? (
+          <p className="text-sm text-gray-400">Loading pages...</p>
+        ) : widgetPages.length === 0 ? (
           <div>
-            <p className="text-sm text-red-400 mb-2">No deployments found</p>
-            <a href="/admin/deployments" className="text-xs text-blue-400 hover:text-blue-300">
-              Create a deployment →
+            <p className="text-sm text-red-400 mb-2">No widget pages found</p>
+            <a href="/admin/pages" className="text-xs text-blue-400 hover:text-blue-300">
+              Add a page →
             </a>
           </div>
         ) : (
@@ -100,32 +97,32 @@ export default function TestPage() {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-between hover:border-gray-500 transition-colors"
             >
-              {selectedDeployment ? (
-                <div className="text-left">
-                  <p className="text-sm font-medium text-white">{selectedDeployment.company_name}</p>
-                  <p className="text-xs text-gray-400">{selectedDeployment.deployment_key}</p>
+              {selectedPage ? (
+                <div className="text-left flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{selectedPage.page_title}</p>
+                  <p className="text-xs text-gray-400 truncate">{selectedPage.page_url}</p>
                 </div>
               ) : (
-                <span className="text-sm text-gray-400">Select deployment...</span>
+                <span className="text-sm text-gray-400">Select page...</span>
               )}
-              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isDropdownOpen && (
               <div className="absolute z-10 w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                {deployments.map((deployment) => (
+                {widgetPages.map((page) => (
                   <button
-                    key={deployment.id}
+                    key={page.id}
                     onClick={() => {
-                      setSelectedDeployment(deployment)
+                      setSelectedPage(page)
                       setIsDropdownOpen(false)
                     }}
                     className={`w-full px-3 py-2 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0 ${
-                      selectedDeployment?.id === deployment.id ? 'bg-gray-700' : ''
+                      selectedPage?.id === page.id ? 'bg-gray-700' : ''
                     }`}
                   >
-                    <p className="text-sm font-medium text-white">{deployment.company_name}</p>
-                    <p className="text-xs text-gray-400">{deployment.deployment_key}</p>
+                    <p className="text-sm font-medium text-white truncate">{page.page_title}</p>
+                    <p className="text-xs text-gray-400 truncate">{page.page_url}</p>
                   </button>
                 ))}
               </div>
@@ -133,13 +130,13 @@ export default function TestPage() {
           </div>
         )}
 
-        {selectedDeployment && (
+        {selectedPage && (
           <div className="mt-3 pt-3 border-t border-gray-700">
             <p className="text-xs text-gray-400">
-              <span className="font-medium">Deployment ID:</span>
+              <span className="font-medium">Page URL:</span>
               <br />
-              <code className="text-xs bg-gray-700 px-1 py-0.5 rounded mt-1 inline-block text-gray-300">
-                {selectedDeployment.deployment_id}
+              <code className="text-xs bg-gray-700 px-1 py-0.5 rounded mt-1 inline-block text-gray-300 break-all">
+                {selectedPage.page_url}
               </code>
             </p>
           </div>
@@ -148,10 +145,10 @@ export default function TestPage() {
 
       {/* Test Instructions */}
       <div className="text-center">
-        <p className="text-gray-400 text-sm mb-2">Testing widget with deployment</p>
-        {selectedDeployment && (
+        <p className="text-gray-400 text-sm mb-2">Testing widget on page</p>
+        {selectedPage && (
           <p className="text-blue-400 text-xs font-medium">
-            {selectedDeployment.company_name}
+            {selectedPage.page_title}
           </p>
         )}
       </div>
@@ -159,7 +156,7 @@ export default function TestPage() {
       {/* Widget */}
       <VoiceWidget
         embedded={true}
-        deploymentId={selectedDeployment?.deployment_id}
+        pageUrl={selectedPage?.page_url}
       />
     </div>
   )

@@ -7,8 +7,7 @@ import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileUploadSection from '@/components/admin/FileUploadSection'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
 import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal'
-import DeploymentSelector from '@/components/admin/DeploymentSelector'
-import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2, Globe } from 'lucide-react'
 
 interface ScrapingJob {
   id: string
@@ -43,19 +42,10 @@ interface IndexedPage {
   status: string
   synced_to_file_search: boolean
   source_type: 'scraped' | 'uploaded'
+  page_urls: string[] | null
   created_at: string
   updated_at: string
   metadata: any
-}
-
-interface Deployment {
-  id: string
-  deployment_id: string
-  deployment_key: string
-  company_name: string
-  company_domain: string | null
-  file_search_store_name: string
-  status: string
 }
 
 export default function ContentManagementPage() {
@@ -72,7 +62,6 @@ export default function ContentManagementPage() {
   const [isDeleteIndexedModalOpen, setIsDeleteIndexedModalOpen] = useState(false)
   const [isDeletingIndexed, setIsDeletingIndexed] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
-  const [selectedDeployment, setSelectedDeployment] = useState<Deployment | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -219,15 +208,7 @@ export default function ContentManagementPage() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Content Management</h1>
-          <p className="text-gray-400 mt-2">Scrape pages and manage File Search content</p>
-        </div>
-
-        {/* Deployment Selector */}
-        <div className="mb-6">
-          <DeploymentSelector
-            selectedDeployment={selectedDeployment}
-            onDeploymentChange={setSelectedDeployment}
-          />
+          <p className="text-gray-400 mt-2">Scrape pages, upload files, and manage File Search content</p>
         </div>
 
         {/* Scraped Pages */}
@@ -268,7 +249,6 @@ export default function ContentManagementPage() {
             selectedJobs={selectedJobs}
             selectedUploads={selectedUploads}
             onUploadComplete={handleUploadComplete}
-            deploymentId={selectedDeployment?.deployment_id}
           />
         </div>
 
@@ -383,20 +363,42 @@ export default function ContentManagementPage() {
                               </a>
                             )}
 
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>Added {formatDate(page.created_at)}</span>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>Added {formatDate(page.created_at)}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                    isSynced
+                                      ? 'bg-green-900/30 text-green-400'
+                                      : 'bg-yellow-900/30 text-yellow-400'
+                                  }`}>
+                                    {isSynced ? 'synced' : 'pending'}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                  isSynced
-                                    ? 'bg-green-900/30 text-green-400'
-                                    : 'bg-yellow-900/30 text-yellow-400'
-                                }`}>
-                                  {isSynced ? 'synced' : 'pending'}
-                                </span>
-                              </div>
+
+                              {/* Available on Pages */}
+                              {page.page_urls && page.page_urls.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <Globe className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                                  <div className="flex-1">
+                                    <p className="text-xs text-gray-500 mb-1">Available on:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {page.page_urls.map((url, idx) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-blue-900/30 text-blue-400 border border-blue-700/50"
+                                        >
+                                          {new URL(url).pathname || '/'}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                             </div>
 
