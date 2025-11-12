@@ -226,7 +226,15 @@ export async function POST(request: Request) {
                 urls: { hasLinks: false, links: [] }
               })
             } catch (error) {
-              console.error('Deployment File Search error:', error)
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+              const errorStack = error instanceof Error ? error.stack : ''
+
+              console.error('❌ Deployment File Search error:', {
+                deploymentId,
+                error: errorMessage,
+                stack: errorStack
+              })
+
               finalResponse = "I'm having trouble accessing the knowledge base right now. Please try again later."
               matched = false
 
@@ -236,7 +244,7 @@ export async function POST(request: Request) {
                 type: 'error',
                 question: text,
                 response: finalResponse,
-                error: error instanceof Error ? error.message : 'Unknown error',
+                error: errorMessage,
                 urls: { hasLinks: false, links: [] }
               })
             }
