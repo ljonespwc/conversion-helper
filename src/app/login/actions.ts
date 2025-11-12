@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -51,8 +52,13 @@ export async function signup(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(authError?.message || 'Failed to create account')}`)
   }
 
-  // Save organization details to users table
-  const { error: userError } = await supabase
+  // Save organization details to users table using service role (bypasses RLS)
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { error: userError } = await supabaseAdmin
     .from('users')
     .upsert({
       id: authData.user.id,
