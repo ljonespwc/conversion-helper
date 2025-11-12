@@ -10,9 +10,10 @@ interface VoiceWidgetProps {
   onClose?: () => void
   embedded?: boolean
   testPageUrl?: string
+  deploymentId?: string
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, testPageUrl }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, testPageUrl, deploymentId }: VoiceWidgetProps) {
   const [internalOpen, setInternalOpen] = useState(false)
 
   const isModalOpen = embedded ? internalOpen : isOpen
@@ -26,7 +27,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
 
       <AnimatePresence>
         {isModalOpen && (
-          <WidgetModal onClose={handleClose} testPageUrl={testPageUrl} />
+          <WidgetModal onClose={handleClose} testPageUrl={testPageUrl} deploymentId={deploymentId} />
         )}
       </AnimatePresence>
     </>

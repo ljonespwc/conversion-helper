@@ -7,12 +7,14 @@ interface FileSearchUploadProps {
   selectedJobs: string[]
   selectedUploads: string[]
   onUploadComplete: () => void
+  deploymentId?: string
 }
 
 export default function FileSearchUpload({
   selectedJobs,
   selectedUploads,
-  onUploadComplete
+  onUploadComplete,
+  deploymentId
 }: FileSearchUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -23,6 +25,12 @@ export default function FileSearchUpload({
 
   const handleUpload = async () => {
     if (totalSelected === 0) return
+
+    // Check if deployment is selected when items are selected
+    if (!deploymentId) {
+      setError('Please select a deployment first')
+      return
+    }
 
     setError('')
     setSuccess(false)
@@ -35,7 +43,8 @@ export default function FileSearchUpload({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jobIds: selectedJobs,
-          uploadIds: selectedUploads
+          uploadIds: selectedUploads,
+          deploymentId
         })
       })
 

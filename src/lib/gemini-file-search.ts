@@ -10,7 +10,19 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// Legacy store name - kept for backward compatibility
 const STORE_NAME = 'conversion-helper-pages';
+
+// Type definitions
+interface DeploymentInfo {
+  id: string;
+  deployment_id: string;
+  deployment_key: string;
+  company_name: string;
+  file_search_store_name: string;
+  config: Record<string, any>;
+  status: string;
+}
 
 /**
  * Get or create the main File Search store for all pages
@@ -196,6 +208,102 @@ export async function queryPage(
 }
 
 /**
+ * Get deployment by deployment key (e.g., 'precision-nutrition-prod')
+ */
+export async function getDeploymentByKey(deploymentKey: string): Promise<DeploymentInfo | null> {
+  try {
+    const { data, error } = await supabase
+      .from('widget_deployments')
+      .select('*')
+      .eq('deployment_key', deploymentKey)
+      .eq('status', 'active')
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+
+    return data as DeploymentInfo | null;
+  } catch (error) {
+    console.error('Error getting deployment by key:', error);
+    return null;
+  }
+}
+
+/**
+ * Get deployment by UUID (deployment_id)
+ */
+export async function getDeploymentById(deploymentId: string): Promise<DeploymentInfo | null> {
+  try {
+    const { data, error } = await supabase
+      .from('widget_deployments')
+      .select('*')
+      .eq('deployment_id', deploymentId)
+      .eq('status', 'active')
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+
+    return data as DeploymentInfo | null;
+  } catch (error) {
+    console.error('Error getting deployment by ID:', error);
+    return null;
+  }
+}
+
+/**
+ * Query all content for a deployment (multi-tenant aware)
+ * This queries the entire File Search store associated with a deployment
+ * without filtering by page_url - perfect for testing and widget usage
+ */
+export async function queryDeploymentContent(
+  question: string,
+  deploymentId: string
+): Promise<{ answer: string; citations: any; deployment?: DeploymentInfo }> {
+  try {
+    // Get deployment info
+    const deployment = await getDeploymentById(deploymentId);
+
+    if (!deployment) {
+      throw new Error(`Deployment not found: ${deploymentId}`);
+    }
+
+    if (deployment.status !== 'active') {
+      throw new Error(`Deployment is ${deployment.status}, cannot query`);
+    }
+
+    // Query File Search with deployment's store
+    // Use deployment_id in metadata filter for multi-tenant isolation
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: question,
+      config: {
+        tools: [
+          {
+            fileSearch: {
+              fileSearchStoreNames: [deployment.file_search_store_name],
+              // Filter by deployment_id to ensure multi-tenant isolation
+              metadataFilter: `deployment_id="${deploymentId}"`
+            }
+          }
+        ]
+      }
+    });
+
+    return {
+      answer: response.text || 'No answer generated',
+      citations: response.candidates?.[0]?.groundingMetadata || null,
+      deployment
+    };
+  } catch (error) {
+    console.error('Error querying deployment content:', error);
+    throw error;
+  }
+}
+
+/**
  * Check if a page is already indexed
  */
 export async function getIndexedPage(pageUrl: string) {
@@ -236,6 +344,28 @@ export async function listIndexedPages() {
     return data || [];
   } catch (error) {
     console.error('Error listing indexed pages:', error);
+    return [];
+  }
+}
+
+/**
+ * List all active deployments for the current user
+ */
+export async function listDeployments(): Promise<DeploymentInfo[]> {
+  try {
+    const { data, error } = await supabase
+      .from('widget_deployments')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data || []) as DeploymentInfo[];
+  } catch (error) {
+    console.error('Error listing deployments:', error);
     return [];
   }
 }

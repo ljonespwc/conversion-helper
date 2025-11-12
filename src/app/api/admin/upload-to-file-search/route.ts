@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { jobIds = [], uploadIds = [] } = await request.json()
+    const { jobIds = [], uploadIds = [], deploymentId } = await request.json()
 
     if ((!jobIds || !Array.isArray(jobIds)) && (!uploadIds || !Array.isArray(uploadIds))) {
       return NextResponse.json(
@@ -39,6 +39,23 @@ export async function POST(request: NextRequest) {
         { error: 'No items selected for upload' },
         { status: 400 }
       )
+    }
+
+    // Validate deployment_id if provided
+    if (deploymentId) {
+      const { data: deployment, error: deploymentError } = await supabase
+        .from('widget_deployments')
+        .select('deployment_id, file_search_store_name')
+        .eq('deployment_id', deploymentId)
+        .eq('user_id', user.id)
+        .single()
+
+      if (deploymentError || !deployment) {
+        return NextResponse.json(
+          { error: 'Invalid deployment ID' },
+          { status: 400 }
+        )
+      }
     }
 
     const results = []
@@ -113,28 +130,35 @@ export async function POST(request: NextRequest) {
 
         // Upload to File Search
         const title = new URL(job.url).pathname.split('/').pop() || 'page'
-        const documentId = await uploadToFileSearch(markdown, title, job.url)
+        const documentId = await uploadToFileSearch(markdown, title, job.url, deploymentId)
 
         // Create or update indexed_pages record
+        const indexedPageData: any = {
+          user_id: user.id,
+          page_url: job.url,
+          page_title: title,
+          document_id: documentId,
+          file_search_store_name: STORE_NAME,
+          synced_to_file_search: true,
+          source_type: 'scraped', // Mark as scraped content
+          markdown_preview: markdown.substring(0, 500),
+          scraped_at: new Date().toISOString(),
+          status: 'active',
+          metadata: {
+            file_size: job.file_size,
+            word_count: job.word_count,
+            scraping_job_id: job.id
+          }
+        }
+
+        // Add deployment_id if provided
+        if (deploymentId) {
+          indexedPageData.deployment_id = deploymentId
+        }
+
         const { error: indexError } = await supabase
           .from('indexed_pages')
-          .upsert({
-            user_id: user.id,
-            page_url: job.url,
-            page_title: title,
-            document_id: documentId,
-            file_search_store_name: STORE_NAME,
-            synced_to_file_search: true,
-            source_type: 'scraped', // Mark as scraped content
-            markdown_preview: markdown.substring(0, 500),
-            scraped_at: new Date().toISOString(),
-            status: 'active',
-            metadata: {
-              file_size: job.file_size,
-              word_count: job.word_count,
-              scraping_job_id: job.id
-            }
-          }, {
+          .upsert(indexedPageData, {
             onConflict: 'page_url'
           })
 
@@ -231,29 +255,36 @@ export async function POST(request: NextRequest) {
         const title = upload.filename.replace(/\.(txt|md)$/i, '')
 
         // Upload to File Search
-        const documentId = await uploadToFileSearch(content, title, '')
+        const documentId = await uploadToFileSearch(content, title, '', deploymentId)
 
         // Create indexed_pages record
+        const uploadIndexedPageData: any = {
+          user_id: user.id,
+          page_url: '', // No URL for uploaded files
+          page_title: title,
+          document_id: documentId,
+          file_search_store_name: STORE_NAME,
+          synced_to_file_search: true,
+          source_type: 'uploaded',
+          markdown_preview: content.substring(0, 500),
+          scraped_at: new Date().toISOString(),
+          status: 'active',
+          metadata: {
+            file_size: upload.file_size,
+            word_count: upload.word_count,
+            file_upload_id: upload.id,
+            original_filename: upload.filename
+          }
+        }
+
+        // Add deployment_id if provided
+        if (deploymentId) {
+          uploadIndexedPageData.deployment_id = deploymentId
+        }
+
         const { error: indexError } = await supabase
           .from('indexed_pages')
-          .insert({
-            user_id: user.id,
-            page_url: '', // No URL for uploaded files
-            page_title: title,
-            document_id: documentId,
-            file_search_store_name: STORE_NAME,
-            synced_to_file_search: true,
-            source_type: 'uploaded',
-            markdown_preview: content.substring(0, 500),
-            scraped_at: new Date().toISOString(),
-            status: 'active',
-            metadata: {
-              file_size: upload.file_size,
-              word_count: upload.word_count,
-              file_upload_id: upload.id,
-              original_filename: upload.filename
-            }
-          })
+          .insert(uploadIndexedPageData)
 
         if (indexError) {
           throw new Error(`Failed to update indexed_pages: ${indexError.message}`)
@@ -321,11 +352,24 @@ export async function POST(request: NextRequest) {
 async function uploadToFileSearch(
   markdown: string,
   title: string,
-  sourceUrl: string
+  sourceUrl: string,
+  deploymentId?: string
 ): Promise<string> {
   // Create a file from the markdown content
   const blob = new Blob([markdown], { type: 'text/markdown' })
   const file = new File([blob], `${sanitizeFilename(title)}.md`, { type: 'text/markdown' })
+
+  // Build custom metadata array
+  const customMetadata: Array<{ key: string; stringValue: string }> = [
+    { key: 'page_url', stringValue: sourceUrl },
+    { key: 'page_title', stringValue: title },
+    { key: 'indexed_at', stringValue: new Date().toISOString() }
+  ]
+
+  // Add deployment_id if provided (required for multi-tenant isolation)
+  if (deploymentId) {
+    customMetadata.push({ key: 'deployment_id', stringValue: deploymentId })
+  }
 
   // Upload to File Search with metadata
   let operation = await ai.fileSearchStores.uploadToFileSearchStore({
@@ -333,11 +377,7 @@ async function uploadToFileSearch(
     fileSearchStoreName: STORE_NAME,
     config: {
       displayName: title,
-      customMetadata: [
-        { key: 'page_url', stringValue: sourceUrl },
-        { key: 'page_title', stringValue: title },
-        { key: 'indexed_at', stringValue: new Date().toISOString() }
-      ]
+      customMetadata
     }
   })
 

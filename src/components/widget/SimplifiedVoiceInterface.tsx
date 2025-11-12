@@ -9,9 +9,10 @@ import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
 interface SimplifiedVoiceInterfaceProps {
   onClose: () => void
   testPageUrl?: string
+  deploymentId?: string
 }
 
-export default function SimplifiedVoiceInterface({ onClose, testPageUrl }: SimplifiedVoiceInterfaceProps) {
+export default function SimplifiedVoiceInterface({ onClose, testPageUrl, deploymentId }: SimplifiedVoiceInterfaceProps) {
   const [hasStarted, setHasStarted] = useState(false)
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
@@ -38,7 +39,8 @@ export default function SimplifiedVoiceInterface({ onClose, testPageUrl }: Simpl
   } = useLayercodeVoice({
     metadata: {
       source: 'conversion-helper-widget',
-      page_url: effectivePageUrl,
+      ...(effectivePageUrl && { page_url: effectivePageUrl }),
+      ...(deploymentId && { deployment_id: deploymentId }),
       timestamp: new Date().toISOString()
     },
     onDataMessage: (data) => {

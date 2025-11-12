@@ -7,6 +7,7 @@ import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileUploadSection from '@/components/admin/FileUploadSection'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
 import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal'
+import DeploymentSelector from '@/components/admin/DeploymentSelector'
 import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 
 interface ScrapingJob {
@@ -47,6 +48,16 @@ interface IndexedPage {
   metadata: any
 }
 
+interface Deployment {
+  id: string
+  deployment_id: string
+  deployment_key: string
+  company_name: string
+  company_domain: string | null
+  file_search_store_name: string
+  status: string
+}
+
 export default function ContentManagementPage() {
   const [jobs, setJobs] = useState<ScrapingJob[]>([])
   const [selectedJobs, setSelectedJobs] = useState<string[]>([])
@@ -61,6 +72,7 @@ export default function ContentManagementPage() {
   const [isDeleteIndexedModalOpen, setIsDeleteIndexedModalOpen] = useState(false)
   const [isDeletingIndexed, setIsDeletingIndexed] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
+  const [selectedDeployment, setSelectedDeployment] = useState<Deployment | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -210,6 +222,14 @@ export default function ContentManagementPage() {
           <p className="text-gray-400 mt-2">Scrape pages and manage File Search content</p>
         </div>
 
+        {/* Deployment Selector */}
+        <div className="mb-6">
+          <DeploymentSelector
+            selectedDeployment={selectedDeployment}
+            onDeploymentChange={setSelectedDeployment}
+          />
+        </div>
+
         {/* Scraped Pages */}
         <div className="mb-8">
           {loading ? (
@@ -248,6 +268,7 @@ export default function ContentManagementPage() {
             selectedJobs={selectedJobs}
             selectedUploads={selectedUploads}
             onUploadComplete={handleUploadComplete}
+            deploymentId={selectedDeployment?.deployment_id}
           />
         </div>
 

@@ -5,7 +5,12 @@ import { Mic, MicOff, Volume2, Loader2, AlertCircle, WifiOff, Wifi } from 'lucid
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLayercodeVoice } from '@/hooks/useLayercodeVoice'
 
-export default function LayercodeVoiceInterface() {
+interface LayercodeVoiceInterfaceProps {
+  deploymentId?: string
+  pageUrl?: string
+}
+
+export default function LayercodeVoiceInterface({ deploymentId, pageUrl }: LayercodeVoiceInterfaceProps) {
   const {
     messages,
     isRecording,
@@ -22,7 +27,9 @@ export default function LayercodeVoiceInterface() {
   } = useLayercodeVoice({
     metadata: {
       source: 'conversion-helper-widget',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      ...(deploymentId && { deployment_id: deploymentId }),
+      ...(pageUrl && { page_url: pageUrl })
     },
     onDataMessage: (data) => {
       console.log('Widget received data:', data)
