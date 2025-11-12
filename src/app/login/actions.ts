@@ -113,7 +113,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/admin/pages')  // New users need to set up widget pages first
 }
 
 export async function signInWithMagicLink(formData: FormData) {
