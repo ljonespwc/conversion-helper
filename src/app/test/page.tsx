@@ -60,17 +60,17 @@ export default function TestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center relative">
       {/* User Info & Sign Out */}
       {userEmail && (
-        <div className="fixed top-4 right-4 z-40 flex items-center gap-4 bg-white rounded-lg shadow-lg px-4 py-2 border border-gray-200">
+        <div className="fixed top-4 right-4 z-40 flex items-center gap-4 bg-gray-800 rounded-lg shadow-lg px-4 py-2 border border-gray-700">
           <div className="text-right">
-            <p className="text-xs text-gray-500">Signed in as</p>
-            <p className="text-sm font-medium text-gray-900">{userEmail}</p>
+            <p className="text-xs text-gray-400">Signed in as</p>
+            <p className="text-sm font-medium text-white">{userEmail}</p>
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -79,18 +79,18 @@ export default function TestPage() {
       )}
 
       {/* Deployment Selector - Top Left */}
-      <div className="fixed top-4 left-4 z-40 bg-white rounded-lg shadow-lg px-4 py-3 border border-gray-200 min-w-[300px]">
+      <div className="fixed top-4 left-4 z-40 bg-gray-800 rounded-lg shadow-lg px-4 py-3 border border-gray-700 min-w-[300px]">
         <div className="flex items-center gap-2 mb-2">
-          <Building2 className="w-4 h-4 text-indigo-600" />
-          <span className="text-xs font-medium text-gray-700">Testing Deployment</span>
+          <Building2 className="w-4 h-4 text-blue-400" />
+          <span className="text-xs font-medium text-gray-300">Testing Deployment</span>
         </div>
 
         {loading ? (
-          <p className="text-sm text-gray-500">Loading deployments...</p>
+          <p className="text-sm text-gray-400">Loading deployments...</p>
         ) : deployments.length === 0 ? (
           <div>
-            <p className="text-sm text-red-600 mb-2">No deployments found</p>
-            <a href="/admin/deployments" className="text-xs text-indigo-600 hover:text-indigo-700">
+            <p className="text-sm text-red-400 mb-2">No deployments found</p>
+            <a href="/admin/deployments" className="text-xs text-blue-400 hover:text-blue-300">
               Create a deployment →
             </a>
           </div>
@@ -98,21 +98,21 @@ export default function TestPage() {
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full px-3 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg flex items-center justify-between hover:border-indigo-300 transition-colors"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-between hover:border-gray-500 transition-colors"
             >
               {selectedDeployment ? (
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">{selectedDeployment.company_name}</p>
-                  <p className="text-xs text-gray-600">{selectedDeployment.deployment_key}</p>
+                  <p className="text-sm font-medium text-white">{selectedDeployment.company_name}</p>
+                  <p className="text-xs text-gray-400">{selectedDeployment.deployment_key}</p>
                 </div>
               ) : (
-                <span className="text-sm text-gray-600">Select deployment...</span>
+                <span className="text-sm text-gray-400">Select deployment...</span>
               )}
-              <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto">
                 {deployments.map((deployment) => (
                   <button
                     key={deployment.id}
@@ -120,12 +120,12 @@ export default function TestPage() {
                       setSelectedDeployment(deployment)
                       setIsDropdownOpen(false)
                     }}
-                    className={`w-full px-3 py-2 text-left hover:bg-indigo-50 transition-colors border-b border-gray-100 last:border-b-0 ${
-                      selectedDeployment?.id === deployment.id ? 'bg-indigo-50' : ''
+                    className={`w-full px-3 py-2 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0 ${
+                      selectedDeployment?.id === deployment.id ? 'bg-gray-700' : ''
                     }`}
                   >
-                    <p className="text-sm font-medium text-gray-900">{deployment.company_name}</p>
-                    <p className="text-xs text-gray-600">{deployment.deployment_key}</p>
+                    <p className="text-sm font-medium text-white">{deployment.company_name}</p>
+                    <p className="text-xs text-gray-400">{deployment.deployment_key}</p>
                   </button>
                 ))}
               </div>
@@ -134,11 +134,11 @@ export default function TestPage() {
         )}
 
         {selectedDeployment && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-600">
+          <div className="mt-3 pt-3 border-t border-gray-700">
+            <p className="text-xs text-gray-400">
               <span className="font-medium">Deployment ID:</span>
               <br />
-              <code className="text-xs bg-gray-100 px-1 py-0.5 rounded mt-1 inline-block">
+              <code className="text-xs bg-gray-700 px-1 py-0.5 rounded mt-1 inline-block text-gray-300">
                 {selectedDeployment.deployment_id}
               </code>
             </p>
@@ -150,7 +150,7 @@ export default function TestPage() {
       <div className="text-center">
         <p className="text-gray-400 text-sm mb-2">Testing widget with deployment</p>
         {selectedDeployment && (
-          <p className="text-indigo-600 text-xs font-medium">
+          <p className="text-blue-400 text-xs font-medium">
             {selectedDeployment.company_name}
           </p>
         )}

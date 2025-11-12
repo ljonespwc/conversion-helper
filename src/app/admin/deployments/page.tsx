@@ -135,14 +135,14 @@ export default function DeploymentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Widget Deployments</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-white mb-2">Widget Deployments</h1>
+          <p className="text-gray-400">
             Manage your widget deployments. Each deployment has its own File Search store and can be embedded on specific domains.
           </p>
         </div>
@@ -160,18 +160,18 @@ export default function DeploymentsPage() {
 
         {/* Create Form */}
         {showCreateForm && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-indigo-100">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Create New Deployment</h2>
+          <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6 border border-gray-700">
+            <h2 className="text-xl font-semibold text-white mb-4">Create New Deployment</h2>
 
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleCreateDeployment} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Deployment Key *
                 </label>
                 <input
@@ -179,16 +179,16 @@ export default function DeploymentsPage() {
                   value={formData.deployment_key}
                   onChange={(e) => setFormData({ ...formData, deployment_key: e.target.value })}
                   placeholder="precision-nutrition-prod"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Unique identifier (e.g., company-name-prod). Use lowercase with hyphens.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Company Name *
                 </label>
                 <input
@@ -196,13 +196,13 @@ export default function DeploymentsPage() {
                   value={formData.company_name}
                   onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                   placeholder="Precision Nutrition"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Company Domain
                 </label>
                 <input
@@ -210,12 +210,12 @@ export default function DeploymentsPage() {
                   value={formData.company_domain}
                   onChange={(e) => setFormData({ ...formData, company_domain: e.target.value })}
                   placeholder="precisionnutrition.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   File Search Store Name *
                 </label>
                 <input
@@ -223,16 +223,16 @@ export default function DeploymentsPage() {
                   value={formData.file_search_store_name}
                   onChange={(e) => setFormData({ ...formData, file_search_store_name: e.target.value })}
                   placeholder="fileSearchStores/your-store-id"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Google File Search store resource name (from Google AI Studio)
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Allowed Domains (comma-separated)
                 </label>
                 <input
@@ -240,9 +240,9 @@ export default function DeploymentsPage() {
                   value={formData.allowed_domains}
                   onChange={(e) => setFormData({ ...formData, allowed_domains: e.target.value })}
                   placeholder="precisionnutrition.com, www.precisionnutrition.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Optional: Restrict widget to specific domains
                 </p>
               </div>
@@ -251,7 +251,7 @@ export default function DeploymentsPage() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition-colors"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 transition-colors"
                 >
                   {creating ? 'Creating...' : 'Create Deployment'}
                 </button>
@@ -261,7 +261,7 @@ export default function DeploymentsPage() {
                     setShowCreateForm(false)
                     setError(null)
                   }}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
                 >
                   Cancel
                 </button>
@@ -272,30 +272,30 @@ export default function DeploymentsPage() {
 
         {/* Deployments List */}
         {loading ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600">Loading deployments...</p>
+          <div className="bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-700">
+            <p className="text-gray-400">Loading deployments...</p>
           </div>
         ) : deployments.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600">No deployments yet. Create your first deployment to get started!</p>
+          <div className="bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-700">
+            <p className="text-gray-400">No deployments yet. Create your first deployment to get started!</p>
           </div>
         ) : (
           <div className="grid gap-4">
             {deployments.map((deployment) => (
               <div
                 key={deployment.id}
-                className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:border-indigo-300 transition-colors"
+                className="bg-gray-800 rounded-lg shadow-md p-6 border border-gray-700 hover:border-blue-500 transition-colors"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                    <h3 className="text-xl font-semibold text-white mb-1">
                       {deployment.company_name}
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      Key: <code className="bg-gray-100 px-2 py-1 rounded">{deployment.deployment_key}</code>
+                    <p className="text-sm text-gray-400">
+                      Key: <code className="bg-gray-700 px-2 py-1 rounded text-gray-300">{deployment.deployment_key}</code>
                     </p>
                     {deployment.company_domain && (
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-400 mt-1">
                         Domain: {deployment.company_domain}
                       </p>
                     )}
@@ -303,10 +303,10 @@ export default function DeploymentsPage() {
                   <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       deployment.status === 'active'
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-900/30 text-green-400'
                         : deployment.status === 'inactive'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-gray-700 text-gray-300'
+                        : 'bg-red-900/30 text-red-400'
                     }`}>
                       {deployment.status === 'active' && <CheckCircle className="w-3 h-3 inline mr-1" />}
                       {deployment.status === 'suspended' && <XCircle className="w-3 h-3 inline mr-1" />}
@@ -314,7 +314,7 @@ export default function DeploymentsPage() {
                     </span>
                     <button
                       onClick={() => handleDeleteDeployment(deployment.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
                       title="Delete deployment"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -324,32 +324,32 @@ export default function DeploymentsPage() {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-600 font-medium">Deployment ID:</span>
-                    <code className="bg-gray-100 px-2 py-1 rounded text-xs flex-1">{deployment.deployment_id}</code>
+                    <span className="text-gray-400 font-medium">Deployment ID:</span>
+                    <code className="bg-gray-700 px-2 py-1 rounded text-xs flex-1 text-gray-300">{deployment.deployment_id}</code>
                     <button
                       onClick={() => copyToClipboard(deployment.deployment_id, deployment.id)}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      className="p-1 hover:bg-gray-700 rounded transition-colors"
                       title="Copy deployment ID"
                     >
                       {copiedId === deployment.id ? (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <CheckCircle className="w-4 h-4 text-green-400" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-600" />
+                        <Copy className="w-4 h-4 text-gray-400" />
                       )}
                     </button>
                   </div>
 
                   <div>
-                    <span className="text-gray-600 font-medium">File Search Store:</span>
-                    <code className="bg-gray-100 px-2 py-1 rounded text-xs ml-2">{deployment.file_search_store_name}</code>
+                    <span className="text-gray-400 font-medium">File Search Store:</span>
+                    <code className="bg-gray-700 px-2 py-1 rounded text-xs ml-2 text-gray-300">{deployment.file_search_store_name}</code>
                   </div>
 
                   {deployment.allowed_domains && deployment.allowed_domains.length > 0 && (
                     <div>
-                      <span className="text-gray-600 font-medium">Allowed Domains:</span>
+                      <span className="text-gray-400 font-medium">Allowed Domains:</span>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {deployment.allowed_domains.map((domain, idx) => (
-                          <span key={idx} className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs">
+                          <span key={idx} className="bg-blue-900/30 text-blue-400 px-2 py-1 rounded text-xs border border-blue-700/50">
                             {domain}
                           </span>
                         ))}

@@ -48,25 +48,25 @@ export default function DeploymentSelector({ onDeploymentChange, selectedDeploym
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-4 border border-indigo-100">
-        <p className="text-sm text-gray-600">Loading deployments...</p>
+      <div className="bg-gray-800 rounded-lg shadow-md p-4 border border-gray-700">
+        <p className="text-sm text-gray-400">Loading deployments...</p>
       </div>
     )
   }
 
   if (deployments.length === 0) {
     return (
-      <div className="bg-yellow-50 rounded-lg shadow-md p-4 border border-yellow-200">
+      <div className="bg-yellow-900/20 rounded-lg shadow-md p-4 border border-yellow-700/50">
         <div className="flex items-start gap-3">
-          <Building2 className="w-5 h-5 text-yellow-600 mt-0.5" />
+          <Building2 className="w-5 h-5 text-yellow-400 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-yellow-900 mb-1">No Active Deployments</p>
-            <p className="text-sm text-yellow-700 mb-2">
+            <p className="text-sm font-medium text-yellow-300 mb-1">No Active Deployments</p>
+            <p className="text-sm text-yellow-400/80 mb-2">
               You need to create a deployment before managing content.
             </p>
             <a
               href="/admin/deployments"
-              className="inline-flex items-center gap-1 text-sm text-yellow-800 hover:text-yellow-900 font-medium"
+              className="inline-flex items-center gap-1 text-sm text-yellow-300 hover:text-yellow-200 font-medium"
             >
               Go to Deployments
               <ExternalLink className="w-4 h-4" />
@@ -78,15 +78,15 @@ export default function DeploymentSelector({ onDeploymentChange, selectedDeploym
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 border border-indigo-100">
+    <div className="bg-gray-800 rounded-lg shadow-md p-4 border border-gray-700">
       <div className="flex items-center justify-between mb-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-indigo-600" />
+        <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+          <Building2 className="w-4 h-4 text-blue-400" />
           Current Deployment
         </label>
         <a
           href="/admin/deployments"
-          className="text-xs text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+          className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
         >
           Manage Deployments
           <ExternalLink className="w-3 h-3" />
@@ -96,23 +96,23 @@ export default function DeploymentSelector({ onDeploymentChange, selectedDeploym
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg flex items-center justify-between hover:border-indigo-300 transition-colors"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg flex items-center justify-between hover:border-gray-500 transition-colors"
         >
           {selectedDeployment ? (
             <div className="text-left">
-              <p className="font-medium text-gray-900">{selectedDeployment.company_name}</p>
-              <p className="text-xs text-gray-600">
+              <p className="font-medium text-white">{selectedDeployment.company_name}</p>
+              <p className="text-xs text-gray-400">
                 {selectedDeployment.deployment_key}
               </p>
             </div>
           ) : (
-            <span className="text-gray-600">Select a deployment...</span>
+            <span className="text-gray-400">Select a deployment...</span>
           )}
-          <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isOpen && (
-          <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+          <div className="absolute z-10 w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto">
             {deployments.map((deployment) => (
               <button
                 key={deployment.id}
@@ -120,12 +120,12 @@ export default function DeploymentSelector({ onDeploymentChange, selectedDeploym
                   onDeploymentChange(deployment)
                   setIsOpen(false)
                 }}
-                className={`w-full px-4 py-3 text-left hover:bg-indigo-50 transition-colors border-b border-gray-100 last:border-b-0 ${
-                  selectedDeployment?.id === deployment.id ? 'bg-indigo-50' : ''
+                className={`w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0 ${
+                  selectedDeployment?.id === deployment.id ? 'bg-gray-700' : ''
                 }`}
               >
-                <p className="font-medium text-gray-900">{deployment.company_name}</p>
-                <p className="text-xs text-gray-600 mt-1">{deployment.deployment_key}</p>
+                <p className="font-medium text-white">{deployment.company_name}</p>
+                <p className="text-xs text-gray-400 mt-1">{deployment.deployment_key}</p>
                 {deployment.company_domain && (
                   <p className="text-xs text-gray-500 mt-0.5">{deployment.company_domain}</p>
                 )}
@@ -136,10 +136,10 @@ export default function DeploymentSelector({ onDeploymentChange, selectedDeploym
       </div>
 
       {selectedDeployment && (
-        <div className="mt-3 text-xs text-gray-600">
+        <div className="mt-3 text-xs text-gray-400">
           <p>
             <span className="font-medium">Deployment ID:</span>{' '}
-            <code className="bg-gray-100 px-1 py-0.5 rounded">
+            <code className="bg-gray-700 px-1 py-0.5 rounded text-gray-300">
               {selectedDeployment.deployment_id}
             </code>
           </p>
