@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
-import ScrapeForm from '@/components/admin/ScrapeForm'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileUploadSection from '@/components/admin/FileUploadSection'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
@@ -163,12 +162,7 @@ export default function ContentManagementPage() {
           <p className="text-gray-400 mt-2">Scrape pages and manage File Search content</p>
         </div>
 
-        {/* Scrape Form */}
-        <div className="mb-8">
-          <ScrapeForm onScrapeStarted={handleScrapeStarted} />
-        </div>
-
-        {/* Scraped Pages List */}
+        {/* Scraped Pages */}
         <div className="mb-8">
           {loading ? (
             <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
@@ -179,6 +173,7 @@ export default function ContentManagementPage() {
               jobs={jobs}
               selectedJobs={selectedJobs}
               onSelectionChange={setSelectedJobs}
+              onScrapeStarted={handleScrapeStarted}
             />
           )}
         </div>
