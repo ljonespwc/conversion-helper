@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-11-12
+**Last Updated**: 2025-11-11
 **Current Phase**: Production Ready - Auth + File Search + Admin Tools
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -200,14 +200,16 @@ Update Supabase email templates:
 ### Database Schema
 
 **scraping_jobs**
-- Status flow: `pending → scraping → scraped → uploading → completed/failed`
-- Stores: url, file_path (Storage), file_size, word_count, user_id
+- Dual status tracking: `scraping_status` (pending → scraping → scraped/failed), `indexing_status` (not_indexed → uploading → indexed/failed)
+- Stores: url, file_path (Storage), file_size, word_count, user_id, error_message
 - RLS: Users only see own jobs
+- Retry logic: Failed items show checkbox for re-indexing
 
 **file_uploads**
 - Status flow: `ready → uploading → completed/failed`
-- Stores: filename, file_path (Storage), file_size, word_count, user_id
+- Stores: filename, file_path (Storage), file_size, word_count, user_id, error_message
 - RLS: Users only see own uploads
+- Retry logic: Failed items show checkbox for re-upload
 
 **indexed_pages**
 - Tracks documents in File Search
@@ -227,6 +229,12 @@ Update Supabase email templates:
 - Status badges (green=ready, blue=processing, red=failed)
 - Card-based UI (consistent design across sections)
 - Purple icon badges for both scraped + uploaded
+
+### Deletion (2025-11-11)
+- **Cascade deletion** across all systems: Storage → File Search (force: true) → indexed_pages → source table
+- **Bulk delete** with checkboxes in all 3 sections (scraped, uploaded, indexed)
+- **Confirmation modal** prevents accidental deletion
+- **DELETE endpoints**: `/api/admin/scraping-jobs`, `/api/admin/upload-files`, `/api/admin/indexed-pages`
 
 ---
 
@@ -285,6 +293,13 @@ NEXT_PUBLIC_APP_URL=https://conversion-helper.vercel.app
 - 2-4x faster scraping (500ms vs 1-3s)
 - FREE tier (no API key needed)
 - Better markdown quality (ReaderLM-v2)
+
+### Phase 5: Deletion & Status Refactor (2025-11-11)
+- Implemented cascade deletion with confirmation modals
+- Separated status tracking: `scraping_status` + `indexing_status` (allows failed upload retry)
+- Fixed service role key bug in upload-to-file-search
+- Added retry support for failed uploads/indexing
+- Clear error messages on successful retry
 
 ---
 
