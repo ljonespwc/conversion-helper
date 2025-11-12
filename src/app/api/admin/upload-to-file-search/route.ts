@@ -70,11 +70,11 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        if (!job.markdown_content) {
+        if (!job.file_path) {
           results.push({
             jobId,
             success: false,
-            error: 'No markdown content available'
+            error: 'No file path available'
           })
           continue
         }
@@ -85,9 +85,21 @@ export async function POST(request: NextRequest) {
           .update({ status: 'uploading' })
           .eq('id', jobId)
 
+        // Download markdown from Supabase Storage
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('uploaded-docs')
+          .download(job.file_path)
+
+        if (downloadError || !fileData) {
+          throw new Error(`Storage download failed: ${downloadError?.message || 'File not found'}`)
+        }
+
+        // Read file content as text
+        const markdown = await fileData.text()
+
         // Upload to File Search
         const title = new URL(job.url).pathname.split('/').pop() || 'page'
-        const documentId = await uploadToFileSearch(job.markdown_content, title, job.url)
+        const documentId = await uploadToFileSearch(markdown, title, job.url)
 
         // Create or update indexed_pages record
         const { error: indexError } = await supabase
@@ -100,7 +112,7 @@ export async function POST(request: NextRequest) {
             file_search_store_name: STORE_NAME,
             synced_to_file_search: true,
             source_type: 'scraped', // Mark as scraped content
-            markdown_preview: job.markdown_content.substring(0, 500),
+            markdown_preview: markdown.substring(0, 500),
             scraped_at: new Date().toISOString(),
             status: 'active',
             metadata: {

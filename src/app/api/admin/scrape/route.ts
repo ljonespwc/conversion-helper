@@ -1,10 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
+
+// Service role client for Storage operations (bypasses RLS)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const BUCKET_NAME = 'uploaded-docs'
+
+/**
+ * Generate a safe filename from URL
+ */
+function generateFilenameFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url)
+    const domain = urlObj.hostname.replace(/^www\./, '')
+    const path = urlObj.pathname
+      .replace(/^\/|\/$/g, '') // Remove leading/trailing slashes
+      .replace(/\//g, '-')      // Replace slashes with dashes
+      .replace(/[^a-zA-Z0-9-]/g, '') // Remove special chars
+      .substring(0, 100)        // Limit length
+
+    const timestamp = Date.now()
+    const filename = path
+      ? `${domain}-${path}-${timestamp}.md`
+      : `${domain}-${timestamp}.md`
+
+    return filename
+  } catch {
+    return `scraped-page-${Date.now()}.md`
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,12 +60,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get authenticated user
+    const supabaseServer = await createServerClient()
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     // Create scraping job record
     const { data: job, error: createError } = await supabase
       .from('scraping_jobs')
       .insert({
         url,
-        status: 'pending'
+        status: 'pending',
+        user_id: user.id
       })
       .select()
       .single()
@@ -46,7 +91,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Start scraping in background (don't await)
-    scrapeInBackground(job.id, url)
+    scrapeInBackground(job.id, url, user.id)
 
     return NextResponse.json({
       success: true,
@@ -67,7 +112,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function scrapeInBackground(jobId: string, url: string) {
+async function scrapeInBackground(jobId: string, url: string, userId: string) {
   try {
     // Update status to scraping
     await supabase
@@ -75,34 +120,40 @@ async function scrapeInBackground(jobId: string, url: string) {
       .update({ status: 'scraping' })
       .eq('id', jobId)
 
-    // Call Firecrawl API
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.FIRECRAWL_API_KEY}`
-      },
-      body: JSON.stringify({
-        url,
-        formats: ['markdown']
-      })
-    })
+    // Use Jina AI Reader for fast, high-quality markdown conversion
+    // Simple GET request - no API key needed for free tier (20 req/min)
+    const response = await fetch(`https://r.jina.ai/${url}`)
 
     if (!response.ok) {
-      throw new Error(`Firecrawl API error: ${response.statusText}`)
+      throw new Error(`Jina Reader API error: ${response.statusText}`)
     }
 
-    const data = await response.json()
-    const markdown = data.markdown || data.content || ''
+    const markdown = await response.text()
     const fileSize = Buffer.byteLength(markdown, 'utf8')
     const wordCount = markdown.split(/\s+/).filter((w: string) => w.length > 0).length
 
-    // Update job with results
+    // Generate filename from URL
+    const filename = generateFilenameFromUrl(url)
+    const storagePath = `${userId}/${Date.now()}-${filename}`
+
+    // Upload markdown to Supabase Storage
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from(BUCKET_NAME)
+      .upload(storagePath, markdown, {
+        contentType: 'text/markdown',
+        upsert: false
+      })
+
+    if (uploadError) {
+      throw new Error(`Storage upload failed: ${uploadError.message}`)
+    }
+
+    // Update job with results (file_path instead of markdown_content)
     await supabase
       .from('scraping_jobs')
       .update({
         status: 'scraped',
-        markdown_content: markdown,
+        file_path: storagePath,
         file_size: fileSize,
         word_count: wordCount,
         completed_at: new Date().toISOString()

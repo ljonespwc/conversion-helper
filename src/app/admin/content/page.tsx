@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
@@ -53,7 +53,6 @@ export default function ContentManagementPage() {
   const [loading, setLoading] = useState(true)
   const [uploadsLoading, setUploadsLoading] = useState(true)
   const [indexedPagesLoading, setIndexedPagesLoading] = useState(true)
-  const [polling, setPolling] = useState(false)
   const [isIndexedSectionExpanded, setIsIndexedSectionExpanded] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
 
@@ -72,24 +71,22 @@ export default function ContentManagementPage() {
     }
   }
 
+  // Memoize whether there are active jobs to avoid infinite loops
+  const hasActiveJobs = useMemo(() => {
+    return jobs.some(job => ['pending', 'scraping', 'uploading'].includes(job.status))
+  }, [jobs])
+
   // Poll for updates while jobs are in progress
   useEffect(() => {
-    const hasActiveJobs = jobs.some(job =>
-      ['pending', 'scraping', 'uploading'].includes(job.status)
-    )
+    if (!hasActiveJobs) return
 
-    if (hasActiveJobs && !polling) {
-      setPolling(true)
-      const interval = setInterval(() => {
-        fetchJobs()
-      }, 3000)
+    const interval = setInterval(() => {
+      fetchJobs()
+    }, 3000)
 
-      return () => {
-        clearInterval(interval)
-        setPolling(false)
-      }
-    }
-  }, [jobs, polling])
+    return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasActiveJobs])
 
   const fetchJobs = async () => {
     try {
