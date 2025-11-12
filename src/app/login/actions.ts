@@ -4,6 +4,11 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { GoogleGenAI } from '@google/genai'
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY!
+})
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -74,23 +79,37 @@ export async function signup(formData: FormData) {
 
   // Create File Search store for the organization
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/admin/store/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ organizationName }),
+    const store = await ai.fileSearchStores.create({
+      config: {
+        displayName: `${organizationName} - Knowledge Base`
+      }
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to create store')
+    if (!store?.name) {
+      throw new Error('Failed to create File Search store - no store name returned')
     }
 
-    console.log('✅ File Search store created successfully')
+    // Update user record with store name
+    const { error: storeUpdateError } = await supabaseAdmin
+      .from('users')
+      .update({ file_search_store_name: store.name })
+      .eq('id', authData.user.id)
+
+    if (storeUpdateError) {
+      console.error('Failed to save store name:', storeUpdateError)
+      // Try to clean up the store
+      try {
+        await ai.fileSearchStores.delete({ name: store.name })
+      } catch (cleanupError) {
+        console.error('Failed to cleanup store:', cleanupError)
+      }
+      throw storeUpdateError
+    }
+
+    console.log('✅ File Search store created:', store.name)
   } catch (storeError) {
     console.error('Failed to create File Search store:', storeError)
-    // Continue anyway - user can try again later or we can fix manually
+    // Continue anyway - user can create it later from admin
   }
 
   revalidatePath('/', 'layout')
