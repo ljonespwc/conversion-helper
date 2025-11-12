@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, DragEvent } from 'react'
-import { Upload, FileText, Check, X, Loader2 } from 'lucide-react'
+import { Upload, FileText, Check, X, Loader2, Trash2 } from 'lucide-react'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface FileUpload {
   id: string
@@ -28,6 +29,8 @@ export default function FileUploadSection({
 }: FileUploadSectionProps) {
   const [uploading, setUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (files: FileList | null) => {
@@ -86,7 +89,7 @@ export default function FileUploadSection({
   }
 
   const handleSelectAll = () => {
-    const readyUploadIds = uploads.filter(u => u.status === 'ready').map(u => u.id)
+    const readyUploadIds = uploads.filter(u => u.status === 'ready' || u.status === 'failed').map(u => u.id)
     if (selectedUploads.length === readyUploadIds.length && readyUploadIds.length > 0) {
       onSelectionChange([])
     } else {
@@ -94,7 +97,35 @@ export default function FileUploadSection({
     }
   }
 
-  const readyUploads = uploads.filter(u => u.status === 'ready')
+  const handleDelete = async () => {
+    setIsDeleting(true)
+
+    try {
+      const response = await fetch('/api/admin/upload-files', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uploadIds: selectedUploads })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete uploads')
+      }
+
+      // Clear selections and refresh list
+      onSelectionChange([])
+      onUploadComplete()
+      setIsDeleteModalOpen(false)
+    } catch (err) {
+      console.error('Delete failed:', err)
+      setIsDeleteModalOpen(false)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const readyUploads = uploads.filter(u => u.status === 'ready' || u.status === 'failed')
   const allSelected = selectedUploads.length === readyUploads.length && readyUploads.length > 0
 
   return (
@@ -152,6 +183,21 @@ export default function FileUploadSection({
             </div>
           </div>
         </div>
+
+        {/* Delete Selected Button */}
+        {selectedUploads.length > 0 && (
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={uploading || isDeleting}
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="w-5 h-5" />
+              Delete Selected ({selectedUploads.length})
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Uploaded Files List */}
@@ -173,7 +219,7 @@ export default function FileUploadSection({
 
           <div className="space-y-2">
             {uploads.map((upload) => {
-              const isReady = upload.status === 'ready'
+              const isReady = upload.status === 'ready' || upload.status === 'failed'
               const isSelected = selectedUploads.includes(upload.id)
 
               return (
@@ -247,6 +293,22 @@ export default function FileUploadSection({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        items={selectedUploads.map(id => {
+          const upload = uploads.find(u => u.id === id)
+          return {
+            id,
+            title: upload?.filename || 'Unknown'
+          }
+        })}
+        type="uploaded"
+        loading={isDeleting}
+      />
     </div>
   )
 }

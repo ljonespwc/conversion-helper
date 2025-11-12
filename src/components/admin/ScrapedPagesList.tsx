@@ -1,12 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, X, FileText, Globe, Plus } from 'lucide-react'
+import { Check, Loader2, X, FileText, Globe, Plus, Trash2 } from 'lucide-react'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface ScrapingJob {
   id: string
   url: string
   status: string
+  scraping_status: string
+  indexing_status: string
   file_size: number | null
   word_count: number | null
   error_message: string | null
@@ -30,6 +33,8 @@ export default function ScrapedPagesList({
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,15 +86,50 @@ export default function ScrapedPagesList({
   }
 
   const handleSelectAll = () => {
-    const scrapedJobIds = jobs.filter(j => j.status === 'scraped').map(j => j.id)
-    if (selectedJobs.length === scrapedJobIds.length && scrapedJobIds.length > 0) {
+    // Only select jobs that are scraped and ready to be indexed (not_indexed or failed)
+    const readyJobIds = jobs.filter(j =>
+      j.scraping_status === 'scraped' &&
+      ['not_indexed', 'failed'].includes(j.indexing_status)
+    ).map(j => j.id)
+    if (selectedJobs.length === readyJobIds.length && readyJobIds.length > 0) {
       onSelectionChange([])
     } else {
-      onSelectionChange(scrapedJobIds)
+      onSelectionChange(readyJobIds)
     }
   }
 
-  const readyJobs = jobs.filter(j => j.status === 'scraped')
+  const handleDelete = async () => {
+    setIsDeleting(true)
+
+    try {
+      const response = await fetch('/api/admin/scraping-jobs', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobIds: selectedJobs })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete jobs')
+      }
+
+      // Clear selections and refresh list
+      onSelectionChange([])
+      onScrapeStarted() // Reuses existing refresh callback
+      setIsDeleteModalOpen(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete jobs')
+      setIsDeleteModalOpen(false)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const readyJobs = jobs.filter(j =>
+    j.scraping_status === 'scraped' &&
+    ['not_indexed', 'failed'].includes(j.indexing_status)
+  )
   const allSelected = selectedJobs.length === readyJobs.length && readyJobs.length > 0
 
   return (
@@ -123,14 +163,28 @@ export default function ScrapedPagesList({
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Plus className="w-5 h-5" />
-            {loading ? 'Scraping...' : 'Scrape Page'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-5 h-5" />
+              {loading ? 'Scraping...' : 'Scrape Page'}
+            </button>
+
+            {selectedJobs.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                disabled={loading}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-5 h-5" />
+                Delete Selected ({selectedJobs.length})
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -152,7 +206,9 @@ export default function ScrapedPagesList({
 
           <div className="space-y-2">
             {jobs.map((job) => {
-              const isReady = job.status === 'scraped'
+              // Job is ready if scraping is complete and indexing is not yet done or failed
+              const isReady = job.scraping_status === 'scraped' &&
+                ['not_indexed', 'failed'].includes(job.indexing_status)
               const isSelected = selectedJobs.includes(job.id)
 
               // Extract domain from URL for display
@@ -209,39 +265,48 @@ export default function ScrapedPagesList({
 
                   {/* Status */}
                   <div className="flex-shrink-0">
-                    {job.status === 'pending' && (
+                    {/* Show scraping status if not complete */}
+                    {job.scraping_status === 'pending' && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-gray-700 text-gray-400">
                         Pending
                       </span>
                     )}
-                    {job.status === 'scraping' && (
+                    {job.scraping_status === 'scraping' && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-blue-900/30 text-blue-400">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         Scraping
                       </span>
                     )}
-                    {job.status === 'scraped' && (
+                    {job.scraping_status === 'failed' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-red-900/30 text-red-400">
+                        <X className="w-3 h-3" />
+                        Scrape Failed
+                      </span>
+                    )}
+
+                    {/* Show indexing status if scraping is complete */}
+                    {job.scraping_status === 'scraped' && job.indexing_status === 'not_indexed' && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-green-900/30 text-green-400">
                         <Check className="w-3 h-3" />
                         Ready
                       </span>
                     )}
-                    {job.status === 'uploading' && (
+                    {job.scraping_status === 'scraped' && job.indexing_status === 'uploading' && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-blue-900/30 text-blue-400">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         Uploading
                       </span>
                     )}
-                    {job.status === 'completed' && (
+                    {job.scraping_status === 'scraped' && job.indexing_status === 'indexed' && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-gray-700 text-gray-400">
                         <Check className="w-3 h-3" />
-                        Completed
+                        Indexed
                       </span>
                     )}
-                    {job.status === 'failed' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-red-900/30 text-red-400">
+                    {job.scraping_status === 'scraped' && job.indexing_status === 'failed' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-orange-900/30 text-orange-400">
                         <X className="w-3 h-3" />
-                        Failed
+                        Upload Failed
                       </span>
                     )}
                   </div>
@@ -261,6 +326,22 @@ export default function ScrapedPagesList({
           </p>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        items={selectedJobs.map(id => {
+          const job = jobs.find(j => j.id === id)
+          return {
+            id,
+            title: job ? new URL(job.url).hostname + new URL(job.url).pathname : 'Unknown'
+          }
+        })}
+        type="scraped"
+        loading={isDeleting}
+      />
     </div>
   )
 }

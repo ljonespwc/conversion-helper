@@ -3,9 +3,10 @@ import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
 
+// Service role client for Storage operations (bypasses RLS)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 const ai = new GoogleGenAI({
@@ -61,11 +62,21 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        if (job.status !== 'scraped') {
+        // Check if scraping is complete and either not indexed or failed
+        if (job.scraping_status !== 'scraped') {
           results.push({
             jobId,
             success: false,
-            error: `Job status is ${job.status}, must be 'scraped'`
+            error: `Scraping not complete (status: ${job.scraping_status})`
+          })
+          continue
+        }
+
+        if (!['not_indexed', 'failed'].includes(job.indexing_status)) {
+          results.push({
+            jobId,
+            success: false,
+            error: `Already indexed or in progress (status: ${job.indexing_status})`
           })
           continue
         }
@@ -79,10 +90,13 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Update job status to uploading
+        // Update indexing status to uploading
         await supabase
           .from('scraping_jobs')
-          .update({ status: 'uploading' })
+          .update({
+            status: 'uploading',
+            indexing_status: 'uploading'
+          })
           .eq('id', jobId)
 
         // Download markdown from Supabase Storage
@@ -128,11 +142,13 @@ export async function POST(request: NextRequest) {
           throw new Error(`Failed to update indexed_pages: ${indexError.message}`)
         }
 
-        // Update job status to completed
+        // Update indexing status to indexed and clear any previous error
         await supabase
           .from('scraping_jobs')
           .update({
             status: 'completed',
+            indexing_status: 'indexed',
+            error_message: null,
             completed_at: new Date().toISOString()
           })
           .eq('id', jobId)
@@ -147,11 +163,12 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error(`Error uploading job ${jobId}:`, error)
 
-        // Update job status to failed
+        // Update indexing status to failed (scraping succeeded, indexing failed)
         await supabase
           .from('scraping_jobs')
           .update({
             status: 'failed',
+            indexing_status: 'failed',
             error_message: error instanceof Error ? error.message : 'Upload failed'
           })
           .eq('id', jobId)
@@ -183,11 +200,11 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        if (upload.status !== 'ready') {
+        if (upload.status !== 'ready' && upload.status !== 'failed') {
           results.push({
             uploadId,
             success: false,
-            error: `Upload status is ${upload.status}, must be 'ready'`
+            error: `Upload status is ${upload.status}, must be 'ready' or 'failed'`
           })
           continue
         }
@@ -219,7 +236,7 @@ export async function POST(request: NextRequest) {
         // Create indexed_pages record
         const { error: indexError } = await supabase
           .from('indexed_pages')
-          .upsert({
+          .insert({
             user_id: user.id,
             page_url: '', // No URL for uploaded files
             page_title: title,
@@ -236,19 +253,18 @@ export async function POST(request: NextRequest) {
               file_upload_id: upload.id,
               original_filename: upload.filename
             }
-          }, {
-            onConflict: 'document_id'
           })
 
         if (indexError) {
           throw new Error(`Failed to update indexed_pages: ${indexError.message}`)
         }
 
-        // Update file_uploads status to completed
+        // Update file_uploads status to completed and clear any previous error
         await supabase
           .from('file_uploads')
           .update({
             status: 'completed',
+            error_message: null,
             completed_at: new Date().toISOString()
           })
           .eq('id', uploadId)

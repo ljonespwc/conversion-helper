@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Upload, Check, Loader2 } from 'lucide-react'
+import { Upload, Check, Loader2, X, AlertTriangle } from 'lucide-react'
 
 interface FileSearchUploadProps {
   selectedJobs: string[]
@@ -69,17 +69,51 @@ export default function FileSearchUpload({
       )}
 
       {success && stats && (
-        <div className="bg-green-900/30 border border-green-700 text-green-400 px-4 py-3 rounded-lg text-sm mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Check className="w-5 h-5" />
-            <span className="font-medium">Upload Complete!</span>
-          </div>
-          <ul className="text-sm space-y-1 ml-7">
-            <li>Total: {stats.total}</li>
-            <li>Successful: {stats.successful}</li>
-            {stats.failed > 0 && <li>Failed: {stats.failed}</li>}
-          </ul>
-        </div>
+        <>
+          {/* All items succeeded */}
+          {stats.failed === 0 && (
+            <div className="bg-green-900/30 border border-green-700 text-green-400 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Check className="w-5 h-5" />
+                <span className="font-medium">Upload Complete!</span>
+              </div>
+              <ul className="text-sm space-y-1 ml-7">
+                <li>Total: {stats.total}</li>
+                <li>Successful: {stats.successful}</li>
+              </ul>
+            </div>
+          )}
+
+          {/* All items failed */}
+          {stats.successful === 0 && stats.failed > 0 && (
+            <div className="bg-red-900/30 border border-red-700 text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <X className="w-5 h-5" />
+                <span className="font-medium">Upload Failed</span>
+              </div>
+              <ul className="text-sm space-y-1 ml-7">
+                <li>Total: {stats.total}</li>
+                <li>Successful: {stats.successful}</li>
+                <li>Failed: {stats.failed}</li>
+              </ul>
+            </div>
+          )}
+
+          {/* Partial success */}
+          {stats.successful > 0 && stats.failed > 0 && (
+            <div className="bg-orange-900/30 border border-orange-700 text-orange-400 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-5 h-5" />
+                <span className="font-medium">Upload Completed with Errors</span>
+              </div>
+              <ul className="text-sm space-y-1 ml-7">
+                <li>Total: {stats.total}</li>
+                <li>Successful: {stats.successful}</li>
+                <li>Failed: {stats.failed}</li>
+              </ul>
+            </div>
+          )}
+        </>
       )}
 
       <div className="flex items-center gap-4">

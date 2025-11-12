@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
+import { GoogleGenAI } from '@google/genai'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY!
+})
 
 const BUCKET_NAME = 'uploaded-docs'
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB in bytes
@@ -165,6 +170,134 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('File uploads API error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Get authenticated user
+    const serverSupabase = await createServerClient()
+    const { data: { user } } = await serverSupabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { uploadIds } = await request.json()
+
+    if (!uploadIds || !Array.isArray(uploadIds) || uploadIds.length === 0) {
+      return NextResponse.json(
+        { error: 'Upload IDs array is required' },
+        { status: 400 }
+      )
+    }
+
+    const results = []
+
+    for (const uploadId of uploadIds) {
+      try {
+        // Get the file upload record
+        const { data: upload, error: uploadError } = await supabase
+          .from('file_uploads')
+          .select('*')
+          .eq('id', uploadId)
+          .eq('user_id', user.id) // Ensure user owns this upload
+          .single()
+
+        if (uploadError || !upload) {
+          results.push({
+            uploadId,
+            success: false,
+            error: 'Upload not found or access denied'
+          })
+          continue
+        }
+
+        // Delete file from Storage if it exists
+        if (upload.file_path) {
+          const { error: storageError } = await supabase.storage
+            .from(BUCKET_NAME)
+            .remove([upload.file_path])
+
+          if (storageError) {
+            console.error(`Storage deletion error for upload ${uploadId}:`, storageError)
+            // Continue anyway - might already be deleted
+          }
+        }
+
+        // Check if this upload has been indexed to File Search
+        const { data: indexedPage, error: indexError } = await supabase
+          .from('indexed_pages')
+          .select('*')
+          .eq('user_id', user.id)
+          .contains('metadata', { file_upload_id: uploadId })
+          .maybeSingle()
+
+        if (!indexError && indexedPage) {
+          // Delete from Google File Search (with force: true to delete chunks)
+          try {
+            await ai.fileSearchStores.documents.delete({
+              name: indexedPage.document_id,
+              config: { force: true }
+            })
+          } catch (fileSearchError) {
+            console.error(`File Search deletion error for upload ${uploadId}:`, fileSearchError)
+            // Continue anyway - document might already be deleted
+          }
+
+          // Delete indexed_pages record
+          await supabase
+            .from('indexed_pages')
+            .delete()
+            .eq('id', indexedPage.id)
+        }
+
+        // Delete file_uploads record
+        const { error: deleteError } = await supabase
+          .from('file_uploads')
+          .delete()
+          .eq('id', uploadId)
+          .eq('user_id', user.id)
+
+        if (deleteError) {
+          throw new Error(`Database deletion failed: ${deleteError.message}`)
+        }
+
+        results.push({
+          uploadId,
+          success: true,
+          filename: upload.filename
+        })
+
+      } catch (error) {
+        console.error(`Error deleting upload ${uploadId}:`, error)
+        results.push({
+          uploadId,
+          success: false,
+          error: error instanceof Error ? error.message : 'Deletion failed'
+        })
+      }
+    }
+
+    const successCount = results.filter(r => r.success).length
+    const failureCount = results.filter(r => !r.success).length
+
+    return NextResponse.json({
+      success: successCount > 0,
+      results,
+      summary: {
+        total: results.length,
+        successful: successCount,
+        failed: failureCount
+      }
+    })
+
+  } catch (error) {
+    console.error('Delete API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

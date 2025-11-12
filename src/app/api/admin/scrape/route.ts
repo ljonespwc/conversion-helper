@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
       .insert({
         url,
         status: 'pending',
+        scraping_status: 'pending',
+        indexing_status: 'not_indexed',
         user_id: user.id
       })
       .select()
@@ -117,7 +119,10 @@ async function scrapeInBackground(jobId: string, url: string, userId: string) {
     // Update status to scraping
     await supabase
       .from('scraping_jobs')
-      .update({ status: 'scraping' })
+      .update({
+        status: 'scraping',
+        scraping_status: 'scraping'
+      })
       .eq('id', jobId)
 
     // Use Jina AI Reader for fast, high-quality markdown conversion
@@ -153,6 +158,7 @@ async function scrapeInBackground(jobId: string, url: string, userId: string) {
       .from('scraping_jobs')
       .update({
         status: 'scraped',
+        scraping_status: 'scraped',
         file_path: storagePath,
         file_size: fileSize,
         word_count: wordCount,
@@ -168,6 +174,7 @@ async function scrapeInBackground(jobId: string, url: string, userId: string) {
       .from('scraping_jobs')
       .update({
         status: 'failed',
+        scraping_status: 'failed',
         error_message: error instanceof Error ? error.message : 'Unknown error',
         completed_at: new Date().toISOString()
       })

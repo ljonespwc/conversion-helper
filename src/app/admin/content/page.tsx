@@ -6,12 +6,15 @@ import { Header } from '@/components/Header'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileUploadSection from '@/components/admin/FileUploadSection'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
-import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
 
 interface ScrapingJob {
   id: string
   url: string
   status: string
+  scraping_status: string
+  indexing_status: string
   file_size: number | null
   word_count: number | null
   error_message: string | null
@@ -50,10 +53,13 @@ export default function ContentManagementPage() {
   const [uploads, setUploads] = useState<FileUpload[]>([])
   const [selectedUploads, setSelectedUploads] = useState<string[]>([])
   const [indexedPages, setIndexedPages] = useState<IndexedPage[]>([])
+  const [selectedIndexedPages, setSelectedIndexedPages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [uploadsLoading, setUploadsLoading] = useState(true)
   const [indexedPagesLoading, setIndexedPagesLoading] = useState(true)
   const [isIndexedSectionExpanded, setIsIndexedSectionExpanded] = useState(false)
+  const [isDeleteIndexedModalOpen, setIsDeleteIndexedModalOpen] = useState(false)
+  const [isDeletingIndexed, setIsDeletingIndexed] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
 
   useEffect(() => {
@@ -132,9 +138,54 @@ export default function ContentManagementPage() {
     // Refresh all lists after upload
     setSelectedJobs([])
     setSelectedUploads([])
+    setSelectedIndexedPages([])
     fetchJobs()
     fetchUploads()
     fetchIndexedPages()
+  }
+
+  const handleToggleIndexedPage = (pageId: string) => {
+    if (selectedIndexedPages.includes(pageId)) {
+      setSelectedIndexedPages(selectedIndexedPages.filter(id => id !== pageId))
+    } else {
+      setSelectedIndexedPages([...selectedIndexedPages, pageId])
+    }
+  }
+
+  const handleSelectAllIndexedPages = () => {
+    if (selectedIndexedPages.length === indexedPages.length && indexedPages.length > 0) {
+      setSelectedIndexedPages([])
+    } else {
+      setSelectedIndexedPages(indexedPages.map(p => p.id))
+    }
+  }
+
+  const handleDeleteIndexedPages = async () => {
+    setIsDeletingIndexed(true)
+
+    try {
+      const response = await fetch('/api/admin/indexed-pages', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageIds: selectedIndexedPages })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete indexed pages')
+      }
+
+      // Clear selections and refresh lists
+      setSelectedIndexedPages([])
+      fetchIndexedPages()
+      setIsDeleteIndexedModalOpen(false)
+    } catch (err) {
+      console.error('Delete failed:', err)
+      setIsDeleteIndexedModalOpen(false)
+    } finally {
+      setIsDeletingIndexed(false)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -202,33 +253,58 @@ export default function ContentManagementPage() {
 
         {/* Currently Indexed Documents - Collapsible */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-          <button
-            onClick={() => setIsIndexedSectionExpanded(!isIndexedSectionExpanded)}
-            className="w-full p-6 border-b border-gray-700 bg-gray-900 hover:bg-gray-800/50 transition-colors text-left"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  Currently Indexed Documents
-                  {!indexedPagesLoading && (
-                    <span className="text-sm font-normal text-gray-400">
-                      ({indexedPages.length} in registry)
-                    </span>
-                  )}
-                </h2>
-                <p className="text-sm text-gray-400 mt-1">
-                  Documents in Supabase registry with sync status to Google File Search
-                </p>
-              </div>
-              <div className="flex-shrink-0 ml-4">
-                {isIndexedSectionExpanded ? (
-                  <ChevronUp className="w-6 h-6 text-gray-400" />
-                ) : (
-                  <ChevronDown className="w-6 h-6 text-gray-400" />
+          <div className="p-6 border-b border-gray-700 bg-gray-900">
+            <div className="flex items-center justify-between mb-2">
+              <button
+                onClick={() => setIsIndexedSectionExpanded(!isIndexedSectionExpanded)}
+                className="flex-1 hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      Currently Indexed Documents
+                      {!indexedPagesLoading && (
+                        <span className="text-sm font-normal text-gray-400">
+                          ({indexedPages.length} in registry)
+                        </span>
+                      )}
+                    </h2>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Documents in Supabase registry with sync status to Google File Search
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 ml-4">
+                    {isIndexedSectionExpanded ? (
+                      <ChevronUp className="w-6 h-6 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-6 h-6 text-gray-400" />
+                    )}
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Action Buttons - Show when expanded and has items */}
+            {isIndexedSectionExpanded && indexedPages.length > 0 && (
+              <div className="flex items-center gap-3 mt-4">
+                <button
+                  onClick={handleSelectAllIndexedPages}
+                  className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+                >
+                  {selectedIndexedPages.length === indexedPages.length ? 'Deselect All' : 'Select All'}
+                </button>
+                {selectedIndexedPages.length > 0 && (
+                  <button
+                    onClick={() => setIsDeleteIndexedModalOpen(true)}
+                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-4 py-2 font-medium transition-all shadow-lg flex items-center gap-2 text-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Selected ({selectedIndexedPages.length})
+                  </button>
                 )}
               </div>
-            </div>
-          </button>
+            )}
+          </div>
 
           {isIndexedSectionExpanded && (
             <>
@@ -240,17 +316,34 @@ export default function ContentManagementPage() {
                 <div className="divide-y divide-gray-700">
                   {indexedPages.map((page) => {
                     const isSynced = page.synced_to_file_search
+                    const isSelected = selectedIndexedPages.includes(page.id)
 
                     return (
-                      <div key={page.id} className="px-6 py-5 hover:bg-gray-700/50 transition-colors">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                              <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                              <span className="truncate">{page.page_title || 'Untitled'}</span>
-                            </h3>
+                      <div
+                        key={page.id}
+                        className={`px-6 py-5 transition-colors ${
+                          isSelected
+                            ? 'bg-blue-900/20 border-l-4 border-blue-700'
+                            : 'hover:bg-gray-700/50'
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Checkbox */}
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleToggleIndexedPage(page.id)}
+                            className="mt-1 w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                          />
 
-                            {page.source_type === 'uploaded' ? (
+                          <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                                <span className="truncate">{page.page_title || 'Untitled'}</span>
+                              </h3>
+
+                              {page.source_type === 'uploaded' ? (
                               <div className="mb-3">
                                 <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-purple-900/30 text-purple-400 border border-purple-700/50">
                                   <FileText className="w-3 h-3" />
@@ -284,14 +377,15 @@ export default function ContentManagementPage() {
                                 </span>
                               </div>
                             </div>
-                          </div>
+                            </div>
 
-                          <div className="flex-shrink-0">
-                            <div className="text-right">
-                              <p className="text-xs text-gray-500 mb-1">Document ID</p>
-                              <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
-                                {page.document_id.split('/').pop()}
-                              </p>
+                            <div className="flex-shrink-0">
+                              <div className="text-right">
+                                <p className="text-xs text-gray-500 mb-1">Document ID</p>
+                                <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
+                                  {page.document_id.split('/').pop()}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -311,6 +405,22 @@ export default function ContentManagementPage() {
             </>
           )}
         </div>
+
+        {/* Delete Indexed Pages Confirmation Modal */}
+        <DeleteConfirmationModal
+          isOpen={isDeleteIndexedModalOpen}
+          onClose={() => setIsDeleteIndexedModalOpen(false)}
+          onConfirm={handleDeleteIndexedPages}
+          items={selectedIndexedPages.map(id => {
+            const page = indexedPages.find(p => p.id === id)
+            return {
+              id,
+              title: page?.page_title || 'Unknown'
+            }
+          })}
+          type="indexed"
+          loading={isDeletingIndexed}
+        />
       </div>
     </div>
   )
