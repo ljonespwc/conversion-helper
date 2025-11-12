@@ -1,7 +1,35 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-11-11
+**Last Updated**: 2025-11-12
 **Current Phase**: Phase 4 - Auth Implemented & Testing Ready
+
+---
+
+## 📤 File Upload Feature (2025-11-12)
+
+### Implementation Summary
+Added ability to upload .txt and .md files directly from the admin interface, bypassing web scraping for local/existing content.
+
+### Architecture
+- **Database**: `file_uploads` table tracks uploaded files (filename, path, size, word count, status)
+- **Storage**: Supabase Storage bucket `uploaded-docs` (private, 10MB limit, text/markdown only)
+- **Workflow**: Upload → Store → Index → File Search (same as scraped content)
+
+### Components
+- `FileUploadSection.tsx` - Drag & drop + file picker UI
+- `POST /api/admin/upload-files` - Handles multipart upload to Supabase Storage
+- `GET /api/admin/upload-files` - Fetches uploaded file list
+- Updated `POST /api/admin/upload-to-file-search` - Processes both `jobIds` and `uploadIds`
+- Updated `FileSearchUpload.tsx` - Unified upload button for scraped + uploaded content
+
+### UI/UX
+- Files appear immediately after upload with "Ready" status
+- Checkboxes for batch selection alongside scraped pages
+- Single "Upload to File Search" button handles both types
+- Indexed uploaded files show purple "Uploaded File" badge (no URL) vs scraped pages showing clickable URLs
+
+### Environment Variable Required
+- `SUPABASE_SERVICE_ROLE_KEY` - Needed for server-side storage operations (bypasses RLS)
 
 ---
 

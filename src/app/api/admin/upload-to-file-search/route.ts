@@ -24,17 +24,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { jobIds } = await request.json()
+    const { jobIds = [], uploadIds = [] } = await request.json()
 
-    if (!jobIds || !Array.isArray(jobIds) || jobIds.length === 0) {
+    if ((!jobIds || !Array.isArray(jobIds)) && (!uploadIds || !Array.isArray(uploadIds))) {
       return NextResponse.json(
-        { error: 'Job IDs array is required' },
+        { error: 'Job IDs or Upload IDs array is required' },
+        { status: 400 }
+      )
+    }
+
+    if (jobIds.length === 0 && uploadIds.length === 0) {
+      return NextResponse.json(
+        { error: 'No items selected for upload' },
         { status: 400 }
       )
     }
 
     const results = []
 
+    // Process scraped jobs
     for (const jobId of jobIds) {
       try {
         // Get the scraping job
@@ -138,6 +146,122 @@ export async function POST(request: NextRequest) {
 
         results.push({
           jobId,
+          success: false,
+          error: error instanceof Error ? error.message : 'Upload failed'
+        })
+      }
+    }
+
+    // Process uploaded files
+    for (const uploadId of uploadIds) {
+      try {
+        // Get the file upload record
+        const { data: upload, error: uploadError } = await supabase
+          .from('file_uploads')
+          .select('*')
+          .eq('id', uploadId)
+          .single()
+
+        if (uploadError || !upload) {
+          results.push({
+            uploadId,
+            success: false,
+            error: 'Upload not found'
+          })
+          continue
+        }
+
+        if (upload.status !== 'ready') {
+          results.push({
+            uploadId,
+            success: false,
+            error: `Upload status is ${upload.status}, must be 'ready'`
+          })
+          continue
+        }
+
+        // Update status to uploading
+        await supabase
+          .from('file_uploads')
+          .update({ status: 'uploading' })
+          .eq('id', uploadId)
+
+        // Download file from Supabase Storage
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('uploaded-docs')
+          .download(upload.file_path)
+
+        if (downloadError || !fileData) {
+          throw new Error(`Storage download failed: ${downloadError?.message || 'File not found'}`)
+        }
+
+        // Read file content as text
+        const content = await fileData.text()
+
+        // Extract title from filename (remove extension)
+        const title = upload.filename.replace(/\.(txt|md)$/i, '')
+
+        // Upload to File Search
+        const documentId = await uploadToFileSearch(content, title, '')
+
+        // Create indexed_pages record
+        const { error: indexError } = await supabase
+          .from('indexed_pages')
+          .upsert({
+            user_id: user.id,
+            page_url: '', // No URL for uploaded files
+            page_title: title,
+            document_id: documentId,
+            file_search_store_name: STORE_NAME,
+            synced_to_file_search: true,
+            source_type: 'uploaded',
+            markdown_preview: content.substring(0, 500),
+            scraped_at: new Date().toISOString(),
+            status: 'active',
+            metadata: {
+              file_size: upload.file_size,
+              word_count: upload.word_count,
+              file_upload_id: upload.id,
+              original_filename: upload.filename
+            }
+          }, {
+            onConflict: 'document_id'
+          })
+
+        if (indexError) {
+          throw new Error(`Failed to update indexed_pages: ${indexError.message}`)
+        }
+
+        // Update file_uploads status to completed
+        await supabase
+          .from('file_uploads')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', uploadId)
+
+        results.push({
+          uploadId,
+          success: true,
+          documentId,
+          filename: upload.filename
+        })
+
+      } catch (error) {
+        console.error(`Error uploading file ${uploadId}:`, error)
+
+        // Update status to failed
+        await supabase
+          .from('file_uploads')
+          .update({
+            status: 'failed',
+            error_message: error instanceof Error ? error.message : 'Upload failed'
+          })
+          .eq('id', uploadId)
+
+        results.push({
+          uploadId,
           success: false,
           error: error instanceof Error ? error.message : 'Upload failed'
         })

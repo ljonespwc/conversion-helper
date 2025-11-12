@@ -5,11 +5,13 @@ import { Upload, Check, Loader2 } from 'lucide-react'
 
 interface FileSearchUploadProps {
   selectedJobs: string[]
+  selectedUploads: string[]
   onUploadComplete: () => void
 }
 
 export default function FileSearchUpload({
   selectedJobs,
+  selectedUploads,
   onUploadComplete
 }: FileSearchUploadProps) {
   const [uploading, setUploading] = useState(false)
@@ -17,8 +19,10 @@ export default function FileSearchUpload({
   const [success, setSuccess] = useState(false)
   const [stats, setStats] = useState<{ total: number; successful: number; failed: number } | null>(null)
 
+  const totalSelected = selectedJobs.length + selectedUploads.length
+
   const handleUpload = async () => {
-    if (selectedJobs.length === 0) return
+    if (totalSelected === 0) return
 
     setError('')
     setSuccess(false)
@@ -29,7 +33,10 @@ export default function FileSearchUpload({
       const response = await fetch('/api/admin/upload-to-file-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobIds: selectedJobs })
+        body: JSON.stringify({
+          jobIds: selectedJobs,
+          uploadIds: selectedUploads
+        })
       })
 
       const data = await response.json()
@@ -78,25 +85,25 @@ export default function FileSearchUpload({
       <div className="flex items-center gap-4">
         <button
           onClick={handleUpload}
-          disabled={uploading || selectedJobs.length === 0}
+          disabled={uploading || totalSelected === 0}
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Uploading {selectedJobs.length} page{selectedJobs.length !== 1 ? 's' : ''}...
+              Uploading {totalSelected} item{totalSelected !== 1 ? 's' : ''}...
             </>
           ) : (
             <>
               <Upload className="w-5 h-5" />
-              Upload {selectedJobs.length} Selected
+              Upload {totalSelected} Selected
             </>
           )}
         </button>
 
-        {selectedJobs.length === 0 && (
+        {totalSelected === 0 && (
           <p className="text-sm text-gray-400">
-            Select pages above to upload
+            Select scraped pages or uploaded docs above
           </p>
         )}
       </div>

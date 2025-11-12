@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import ScrapeForm from '@/components/admin/ScrapeForm'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
+import FileUploadSection from '@/components/admin/FileUploadSection'
 import FileSearchUpload from '@/components/admin/FileSearchUpload'
 import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -15,6 +16,17 @@ interface ScrapingJob {
   file_size: number | null
   word_count: number | null
   error_message: string | null
+  created_at: string
+  completed_at: string | null
+}
+
+interface FileUpload {
+  id: string
+  filename: string
+  file_path: string
+  file_size: number
+  word_count: number
+  status: string
   created_at: string
   completed_at: string | null
 }
@@ -36,8 +48,11 @@ interface IndexedPage {
 export default function ContentManagementPage() {
   const [jobs, setJobs] = useState<ScrapingJob[]>([])
   const [selectedJobs, setSelectedJobs] = useState<string[]>([])
+  const [uploads, setUploads] = useState<FileUpload[]>([])
+  const [selectedUploads, setSelectedUploads] = useState<string[]>([])
   const [indexedPages, setIndexedPages] = useState<IndexedPage[]>([])
   const [loading, setLoading] = useState(true)
+  const [uploadsLoading, setUploadsLoading] = useState(true)
   const [indexedPagesLoading, setIndexedPagesLoading] = useState(true)
   const [polling, setPolling] = useState(false)
   const [isIndexedSectionExpanded, setIsIndexedSectionExpanded] = useState(false)
@@ -46,6 +61,7 @@ export default function ContentManagementPage() {
   useEffect(() => {
     checkUser()
     fetchJobs()
+    fetchUploads()
     fetchIndexedPages()
   }, [])
 
@@ -88,6 +104,18 @@ export default function ContentManagementPage() {
     }
   }
 
+  const fetchUploads = async () => {
+    try {
+      const response = await fetch('/api/admin/upload-files')
+      const data = await response.json()
+      setUploads(data.uploads || [])
+    } catch (error) {
+      console.error('Failed to fetch uploads:', error)
+    } finally {
+      setUploadsLoading(false)
+    }
+  }
+
   const fetchIndexedPages = async () => {
     try {
       const response = await fetch('/api/admin/indexed-pages')
@@ -105,9 +133,11 @@ export default function ContentManagementPage() {
   }
 
   const handleUploadComplete = () => {
-    // Refresh jobs list and indexed pages after upload
+    // Refresh all lists after upload
     setSelectedJobs([])
+    setSelectedUploads([])
     fetchJobs()
+    fetchUploads()
     fetchIndexedPages()
   }
 
@@ -153,10 +183,27 @@ export default function ContentManagementPage() {
           )}
         </div>
 
+        {/* Uploaded Docs */}
+        <div className="mb-8">
+          {uploadsLoading ? (
+            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
+              <p className="text-gray-400">Loading uploaded files...</p>
+            </div>
+          ) : (
+            <FileUploadSection
+              uploads={uploads}
+              selectedUploads={selectedUploads}
+              onSelectionChange={setSelectedUploads}
+              onUploadComplete={handleUploadComplete}
+            />
+          )}
+        </div>
+
         {/* File Search Upload */}
         <div className="mb-8">
           <FileSearchUpload
             selectedJobs={selectedJobs}
+            selectedUploads={selectedUploads}
             onUploadComplete={handleUploadComplete}
           />
         </div>
