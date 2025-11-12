@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
             document_id: documentId,
             file_search_store_name: STORE_NAME,
             synced_to_file_search: true,
+            source_type: 'scraped', // Mark as scraped content
             markdown_preview: job.markdown_content.substring(0, 500),
             scraped_at: new Date().toISOString(),
             status: 'active',

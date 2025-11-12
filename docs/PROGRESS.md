@@ -247,7 +247,17 @@ Utility scripts in `/scripts/` for admin features and debugging:
     5. Collapsible Document List (expandable with chevron, shows page titles, URLs, creation dates)
 - **Result**: Content admin now shows actual Google File Search contents (not just local DB registry), eliminating sync issues between DB and Google's store
 
-**Sync Status Tracking** (2025-11-11 - Latest)
+**Source Type Tracking** (2025-11-11 - Latest)
+- **Goal**: Distinguish between scraped content vs uploaded files in the admin UI
+- **Implementation**:
+  - **Database Migration**: Added `source_type` column to `indexed_pages` table ('scraped' | 'uploaded')
+  - **UI Display**:
+    - Scraped content: Shows clickable URL
+    - Uploaded files: Shows purple "Uploaded File" badge (no URL)
+  - **API Updates**: Upload endpoint sets `source_type = 'scraped'` for web-scraped content
+- **Future**: When file upload feature is added, set `source_type = 'uploaded'` in the upload API
+
+**Sync Status Tracking** (2025-11-11)
 - **Goal**: Track which documents in Supabase registry are successfully synced to Google File Search
 - **Implementation**:
   - **Database Migration**: Added `synced_to_file_search` BOOLEAN column to `indexed_pages` table

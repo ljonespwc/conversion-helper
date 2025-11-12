@@ -42,14 +42,6 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/admin') ||
     request.nextUrl.pathname.startsWith('/test')
 
-  // Debug logging
-  console.log('🔒 Middleware check:', {
-    path: request.nextUrl.pathname,
-    isProtected: isProtectedRoute,
-    hasUser: !!user,
-    userEmail: user?.email
-  })
-
   if (isProtectedRoute && !user) {
     console.log('🚫 Redirecting to login - no auth for protected route')
     // Redirect to login if accessing protected route without auth
