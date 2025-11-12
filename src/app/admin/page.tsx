@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, Check, MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight } from 'lucide-react'
+import { Copy, Check, MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -34,12 +34,21 @@ interface Stats {
   recentSessions: ConversationSession[]
 }
 
+interface WidgetPage {
+  id: string
+  page_url: string
+  page_title: string
+}
+
 export default function AdminDashboard() {
   const [copied, setCopied] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
+  const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
+  const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const router = useRouter()
 
   const embedCode = `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`
@@ -52,8 +61,15 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     checkUser()
-    fetchStats()
+    fetchWidgetPages()
   }, [])
+
+  // Fetch stats when selected page changes
+  useEffect(() => {
+    if (widgetPages.length > 0) {
+      fetchStats()
+    }
+  }, [selectedPage, widgetPages.length])
 
   const checkUser = async () => {
     const supabase = createClient()
@@ -63,9 +79,29 @@ export default function AdminDashboard() {
     }
   }
 
+  const fetchWidgetPages = async () => {
+    try {
+      const response = await fetch('/api/admin/widget-pages')
+      const data = await response.json()
+      const pages = data.pages || []
+      setWidgetPages(pages)
+
+      // Auto-select first page, or "All Pages" if none
+      if (pages.length > 0) {
+        setSelectedPage(pages[0])
+      }
+    } catch (error) {
+      console.error('Error fetching widget pages:', error)
+    }
+  }
+
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/stats')
+      setLoading(true)
+      const url = selectedPage
+        ? `/api/stats?pageUrl=${encodeURIComponent(selectedPage.page_url)}`
+        : '/api/stats'
+      const response = await fetch(url)
       const data = await response.json()
       setStats(data)
     } catch (error) {
@@ -92,10 +128,68 @@ export default function AdminDashboard() {
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Page Header */}
+        {/* Page Header with Widget Page Selector */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Reports & Analytics</h1>
-          <p className="text-gray-400 mt-2">Embed code and usage analytics</p>
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Reports & Analytics</h1>
+              <p className="text-gray-400 mt-2">Embed code and usage analytics</p>
+            </div>
+
+            {/* Widget Page Selector */}
+            {widgetPages.length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-3 bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-lg px-4 py-3 min-w-[250px] transition-colors"
+                >
+                  <Globe className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                  <div className="flex-1 text-left">
+                    <p className="text-xs text-gray-400">Viewing Stats For:</p>
+                    <p className="text-sm font-medium text-white truncate">
+                      {selectedPage ? selectedPage.page_title : 'All Pages'}
+                    </p>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-full min-w-[300px] bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-[300px] overflow-y-auto">
+                    {/* All Pages Option */}
+                    <button
+                      onClick={() => {
+                        setSelectedPage(null)
+                        setIsDropdownOpen(false)
+                      }}
+                      className={`w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 ${
+                        !selectedPage ? 'bg-blue-900/30' : ''
+                      }`}
+                    >
+                      <p className="text-sm font-medium text-white">All Pages</p>
+                      <p className="text-xs text-gray-400 mt-1">View combined stats from all widget pages</p>
+                    </button>
+
+                    {/* Individual Pages */}
+                    {widgetPages.map((page) => (
+                      <button
+                        key={page.id}
+                        onClick={() => {
+                          setSelectedPage(page)
+                          setIsDropdownOpen(false)
+                        }}
+                        className={`w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0 ${
+                          selectedPage?.id === page.id ? 'bg-blue-900/30' : ''
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-white">{page.page_title}</p>
+                        <p className="text-xs text-gray-400 mt-1 truncate">{page.page_url}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Embed Code Section */}
