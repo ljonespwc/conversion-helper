@@ -384,17 +384,21 @@ async function uploadToFileSearch(
   // Extract document ID from operation response
   // The operation.response contains the actual document resource name
   const response = (operation as any).response
-  const documentId = response?.name || (operation as any).name
+  let documentId = response?.name || (operation as any).name
+
+  // Convert operation ID to document ID if needed
+  // Operation format: fileSearchStores/STORE/upload/operations/ID
+  // Document format:  fileSearchStores/STORE/documents/ID
+  if (documentId.includes('/upload/operations/')) {
+    documentId = documentId.replace('/upload/operations/', '/documents/')
+    console.log('⚠️ Converted operation ID to document ID:', documentId)
+  }
 
   console.log('📄 File Search upload completed:', {
     operationName: (operation as any).name,
     documentName: response?.name,
-    fullResponse: response
+    finalDocumentId: documentId
   })
-
-  if (!response?.name) {
-    console.error('⚠️ Warning: No document name in operation response, falling back to operation name')
-  }
 
   return documentId
 }
