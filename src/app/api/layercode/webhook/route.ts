@@ -2,8 +2,87 @@ import { streamResponse } from '@layercode/node-server-sdk'
 import { queryPageContent, getWidgetPage } from '@/lib/gemini-file-search'
 import { conversationMetadata } from '@/lib/conversation-metadata'
 import { getAIProvider, type AIMessage } from '@/lib/ai-provider'
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
+
+// Supabase client with service role for tracking
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+// Track conversation directly to database
+async function trackConversation(params: {
+  session_id: string
+  question: string
+  matched: boolean
+  category: string | null
+  page_url: string | null
+}) {
+  try {
+    // First, ensure the session exists
+    const { data: session, error: sessionError } = await supabase
+      .from('conversation_sessions')
+      .select('id, total_questions, matched_questions, page_url')
+      .eq('session_id', params.session_id)
+      .single()
+
+    if (sessionError || !session) {
+      // Create new session
+      const { error: createError } = await supabase
+        .from('conversation_sessions')
+        .insert({
+          session_id: params.session_id,
+          total_questions: 1,
+          matched_questions: params.matched ? 1 : 0,
+          page_url: params.page_url || null
+        })
+
+      if (createError) {
+        console.error('Failed to create session:', createError)
+        return
+      }
+    } else {
+      // Update existing session
+      const updateData: any = {
+        total_questions: (session.total_questions || 0) + 1,
+        matched_questions: (session.matched_questions || 0) + (params.matched ? 1 : 0),
+        ended_at: new Date().toISOString()
+      }
+
+      if (!session.page_url && params.page_url) {
+        updateData.page_url = params.page_url
+      }
+
+      const { error: updateError } = await supabase
+        .from('conversation_sessions')
+        .update(updateData)
+        .eq('session_id', params.session_id)
+
+      if (updateError) {
+        console.error('Failed to update session:', updateError)
+        return
+      }
+    }
+
+    // Insert the message
+    const { error: messageError } = await supabase
+      .from('conversation_messages')
+      .insert({
+        session_id: params.session_id,
+        question: params.question || '',
+        matched: params.matched || false,
+        category: params.category || null
+      })
+
+    if (messageError) {
+      console.error('Failed to insert message:', messageError)
+    }
+  } catch (error) {
+    console.error('Tracking error:', error)
+  }
+}
 
 // Message type with turn_id tracking
 type MessageWithTurnId = {
@@ -234,19 +313,14 @@ export async function POST(request: Request) {
               })
             }
 
-            // Track conversation
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'
-            fetch(`${appUrl}/api/track`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                session_id: session_id || conversation_id || 'unknown',
-                question: text,
-                matched,
-                category: pageUrl ? 'file_search' : null,
-                page_url: pageUrl
-              })
-            }).catch(() => {})
+            // Track conversation directly to database
+            trackConversation({
+              session_id: session_id || conversation_id || 'unknown',
+              question: text,
+              matched,
+              category: pageUrl ? 'file_search' : null,
+              page_url: pageUrl
+            })
 
             // Update conversation history
             conversationMessages[conversationKey][assistantPlaceholderIndex] = {
@@ -280,19 +354,14 @@ export async function POST(request: Request) {
               // Send the response via TTS
               stream.tts(finalResponse)
 
-              // Track conversation
-              const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'
-              fetch(`${appUrl}/api/track`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  session_id: session_id || conversation_id || 'unknown',
-                  question: text,
-                  matched: false,
-                  category: 'demo',
-                  page_url: `${appUrl}/widget`
-                })
-              }).catch(() => {})
+              // Track conversation directly to database
+              trackConversation({
+                session_id: session_id || conversation_id || 'unknown',
+                question: text,
+                matched: false,
+                category: 'demo',
+                page_url: null
+              })
 
               // Update conversation history
               conversationMessages[conversationKey][assistantPlaceholderIndex] = {
