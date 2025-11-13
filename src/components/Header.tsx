@@ -54,7 +54,7 @@ export function Header({ user, loading = false }: HeaderProps) {
                       href="/admin/pages"
                       className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
                     >
-                      Settings
+                      Page Settings
                     </Link>
                     <Link
                       href="/admin/content"
