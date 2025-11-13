@@ -89,6 +89,24 @@ export async function DELETE(request: NextRequest) {
           continue
         }
 
+        // Reset source record status to allow re-indexing
+        if (page.source_type === 'scraped' && page.metadata?.scraping_job_id) {
+          await supabaseAdmin
+            .from('scraping_jobs')
+            .update({
+              indexing_status: 'not_indexed',
+              status: 'scraped' // Keep scraping status as completed
+            })
+            .eq('id', page.metadata.scraping_job_id)
+        } else if (page.source_type === 'uploaded' && page.metadata?.file_upload_id) {
+          await supabaseAdmin
+            .from('file_uploads')
+            .update({
+              status: 'ready' // Reset to ready for re-indexing
+            })
+            .eq('id', page.metadata.file_upload_id)
+        }
+
         // Delete from Google File Search (with force: true to delete chunks)
         try {
           await ai.fileSearchStores.documents.delete({
