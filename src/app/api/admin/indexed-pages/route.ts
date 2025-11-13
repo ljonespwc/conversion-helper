@@ -5,9 +5,10 @@ import { GoogleGenAI } from '@google/genai'
 
 export const dynamic = 'force-dynamic'
 
-const supabase = createSupabaseClient(
+// Service role client for DB operations (bypasses RLS)
+const supabaseAdmin = createSupabaseClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 const ai = new GoogleGenAI({
@@ -16,17 +17,17 @@ const ai = new GoogleGenAI({
 
 export async function GET() {
   try {
-    const supabase = await createClient()
+    const serverSupabase = await createClient()
 
     // Get current user
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await serverSupabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get indexed pages for this user
-    const { data: pages, error } = await supabase
+    const { data: pages, error } = await supabaseAdmin
       .from('indexed_pages')
       .select('*')
       .eq('user_id', user.id)
@@ -72,7 +73,7 @@ export async function DELETE(request: NextRequest) {
     for (const pageId of pageIds) {
       try {
         // Get the indexed page
-        const { data: page, error: pageError } = await supabase
+        const { data: page, error: pageError } = await supabaseAdmin
           .from('indexed_pages')
           .select('*')
           .eq('id', pageId)
@@ -100,7 +101,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         // Delete indexed_pages record (hard delete, not soft delete)
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await supabaseAdmin
           .from('indexed_pages')
           .delete()
           .eq('id', pageId)

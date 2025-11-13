@@ -3,12 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { GoogleGenAI } from '@google/genai'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-// Service role client for Storage operations (bypasses RLS)
+// Service role client for Storage and DB operations (bypasses RLS)
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -20,9 +15,19 @@ const ai = new GoogleGenAI({
 
 export async function GET() {
   try {
-    const { data: jobs, error } = await supabase
+    // Get authenticated user
+    const serverSupabase = await createServerClient()
+    const { data: { user } } = await serverSupabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Fetch jobs for this user only
+    const { data: jobs, error } = await supabaseAdmin
       .from('scraping_jobs')
       .select('id, url, status, scraping_status, indexing_status, file_size, word_count, error_message, created_at, completed_at')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -68,7 +73,7 @@ export async function DELETE(request: NextRequest) {
     for (const jobId of jobIds) {
       try {
         // Get the scraping job
-        const { data: job, error: jobError } = await supabase
+        const { data: job, error: jobError } = await supabaseAdmin
           .from('scraping_jobs')
           .select('*')
           .eq('id', jobId)
@@ -97,7 +102,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         // Check if this job has been indexed to File Search
-        const { data: indexedPage, error: indexError } = await supabase
+        const { data: indexedPage, error: indexError } = await supabaseAdmin
           .from('indexed_pages')
           .select('*')
           .eq('user_id', user.id)
@@ -117,14 +122,14 @@ export async function DELETE(request: NextRequest) {
           }
 
           // Delete indexed_pages record
-          await supabase
+          await supabaseAdmin
             .from('indexed_pages')
             .delete()
             .eq('id', indexedPage.id)
         }
 
         // Delete scraping_jobs record
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await supabaseAdmin
           .from('scraping_jobs')
           .delete()
           .eq('id', jobId)
