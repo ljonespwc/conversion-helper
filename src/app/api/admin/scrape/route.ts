@@ -87,17 +87,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Start scraping in background (don't await)
-    scrapeInBackground(job.id, url, user.id)
+    // Scrape synchronously (must complete before serverless function terminates)
+    await scrapeInBackground(job.id, url, user.id)
+
+    // Fetch updated job to return final status
+    const { data: updatedJob } = await supabaseAdmin
+      .from('scraping_jobs')
+      .select('*')
+      .eq('id', job.id)
+      .single()
 
     return NextResponse.json({
       success: true,
-      job: {
-        id: job.id,
-        url: job.url,
-        status: job.status,
-        created_at: job.created_at
-      }
+      job: updatedJob || job
     })
 
   } catch (error) {
