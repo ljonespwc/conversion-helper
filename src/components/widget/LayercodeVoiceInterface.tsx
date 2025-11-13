@@ -26,7 +26,7 @@ export default function LayercodeVoiceInterface({ deploymentId, pageUrl }: Layer
     startNewConversation
   } = useLayercodeVoice({
     metadata: {
-      source: 'conversion-helper-widget',
+      source: 'easyask-assistant',
       timestamp: new Date().toISOString(),
       ...(deploymentId && { deployment_id: deploymentId }),
       ...(pageUrl && { page_url: pageUrl })
@@ -101,7 +101,7 @@ export default function LayercodeVoiceInterface({ deploymentId, pageUrl }: Layer
           className={`relative p-8 rounded-full transition-all ${
             isRecording
               ? 'bg-red-500 hover:bg-red-600'
-              : 'bg-huberman-secondary hover:bg-huberman-accent'
+              : 'bg-easyask-secondary hover:bg-easyask-accent'
           } ${(!isConnected || isProcessing) ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isProcessing ? (
@@ -164,10 +164,10 @@ export default function LayercodeVoiceInterface({ deploymentId, pageUrl }: Layer
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-4 bg-huberman-light dark:bg-gray-800 rounded-lg"
+            className="p-4 bg-easyask-light dark:bg-gray-800 rounded-lg"
           >
             <div className="flex items-start space-x-2">
-              <Volume2 className="w-5 h-5 text-huberman-secondary mt-0.5" />
+              <Volume2 className="w-5 h-5 text-easyask-secondary mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Answer:
@@ -184,7 +184,7 @@ export default function LayercodeVoiceInterface({ deploymentId, pageUrl }: Layer
                 <span className="text-xs text-gray-500">Speaking</span>
                 <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-huberman-secondary"
+                    className="h-full bg-easyask-secondary"
                     animate={{ width: `${agentAudioLevel * 100}%` }}
                     transition={{ duration: 0.1 }}
                   />
@@ -212,7 +212,7 @@ export default function LayercodeVoiceInterface({ deploymentId, pageUrl }: Layer
                 delay: i * 0.05,
               }}
               className={`w-1 h-8 ${
-                isRecording ? 'bg-red-500' : 'bg-huberman-secondary'
+                isRecording ? 'bg-red-500' : 'bg-easyask-secondary'
               } rounded-full`}
             />
           ))}

@@ -107,7 +107,7 @@ export default function FileSearchUpload({
     <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6">
       <h2 className="text-xl font-bold text-white mb-4">Upload to File Search</h2>
       <p className="text-gray-300 mb-6">
-        Upload selected pages to Google File Search for AI-powered Q&A
+        Upload selected pages to Google File Search to activate your assistant
       </p>
 
       {/* Page Selection */}

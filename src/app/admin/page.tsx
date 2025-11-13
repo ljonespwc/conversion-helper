@@ -118,7 +118,7 @@ export default function AdminDashboard() {
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Page Header with Widget Page Selector */}
+        {/* Page Header with Assistant Page Selector */}
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
               <p className="text-gray-400 mt-2">Embed code and usage analytics</p>
             </div>
 
-            {/* Widget Page Selector */}
+            {/* Assistant Page Selector */}
             {widgetPages.length > 0 && (
               <div className="relative">
                 <button
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
                       }`}
                     >
                       <p className="text-sm font-medium text-white">All Pages</p>
-                      <p className="text-xs text-gray-400 mt-1">View combined stats from all widget pages</p>
+                      <p className="text-xs text-gray-400 mt-1">View combined stats from all assistant pages</p>
                     </button>
 
                     {/* Individual Pages */}
@@ -333,7 +333,7 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="px-6 py-8 text-center text-gray-400">
-              No conversations yet. The widget will start tracking when users interact with it.
+              No conversations yet. The assistant will start tracking when users interact with it.
             </div>
           )}
         </div>

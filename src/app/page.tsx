@@ -14,12 +14,12 @@ export default async function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Welcome to Conversion Helper
+            Welcome to EasyAsk
           </h1>
           <p className="text-xl text-gray-300">
             {user
-              ? 'Manage your AI voice assistant and view analytics'
-              : 'AI-powered voice assistant for your website'
+              ? 'Manage your AI assistant and view analytics'
+              : 'AI-powered assistant for your website'
             }
           </p>
         </div>
@@ -37,10 +37,10 @@ export default async function Home() {
                 </div>
                 <div className="text-center">
                   <span className="font-semibold text-xl text-white block mb-2">
-                    Widget Test
+                    Assistant Test
                   </span>
                   <span className="text-sm text-gray-400">
-                    Test with your deployments
+                    Test your assistant
                   </span>
                 </div>
               </div>
@@ -97,7 +97,7 @@ export default async function Home() {
                 </div>
                 <div className="text-center">
                   <span className="font-semibold text-2xl text-white block mb-2">
-                    Demo Widget
+                    Demo Assistant
                   </span>
                   <span className="text-base text-gray-400">
                     Try the demo (generic AI)

@@ -145,9 +145,9 @@ export default function PagesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Widget Pages</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Assistant Pages</h1>
           <p className="text-gray-400">
-            Manage the pages where your widget is deployed. Each page gets its own widget instance with filtered content.
+            Manage the pages where your assistant is deployed. Each page gets its own assistant instance with filtered content.
           </p>
         </div>
 
@@ -155,17 +155,17 @@ export default function PagesPage() {
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
           <h2 className="text-xl font-bold text-white mb-2">Quick Install</h2>
           <p className="text-gray-300 mb-4">
-            Add this single line of code to <span className="font-semibold">all pages</span> where you want the widget.
-            The widget automatically detects which page it's on and shows the right content.
+            Add this single line of code to <span className="font-semibold">all pages</span> where you want the assistant.
+            The assistant automatically detects which page it's on and shows the right content.
           </p>
 
           <div className="relative">
             <pre className="bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto border border-gray-700">
-              <code>{`<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`}</code>
+              <code>{`<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js"></script>`}</code>
             </pre>
             <button
               onClick={() => copyToClipboard(
-                `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`,
+                `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js"></script>`,
                 'universal-embed'
               )}
               className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-2 shadow-lg"
@@ -186,7 +186,7 @@ export default function PagesPage() {
 
           <p className="text-sm text-gray-400 mt-4">
             Place this code before the closing <code className="text-gray-300 bg-gray-700 px-1.5 py-0.5 rounded">&lt;/body&gt;</code> tag.
-            The widget will appear as a chat button in the bottom-right corner.
+            The assistant will appear as a chat button in the bottom-right corner.
           </p>
         </div>
 
@@ -220,14 +220,14 @@ export default function PagesPage() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            Add Widget Page
+            Add Assistant Page
           </button>
         </div>
 
         {/* Add Page Form */}
         {showAddForm && (
           <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6 border border-gray-700">
-            <h2 className="text-xl font-semibold text-white mb-4">Add New Widget Page</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Add New Assistant Page</h2>
 
             {error && (
               <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm">
@@ -249,7 +249,7 @@ export default function PagesPage() {
                   required
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  Full URL of the page where you want to add the widget
+                  Full URL of the page where you want to add the assistant
                 </p>
               </div>
 
@@ -300,7 +300,7 @@ export default function PagesPage() {
           </div>
         ) : pages.length === 0 ? (
           <div className="bg-gray-800 rounded-lg shadow-md p-8 text-center border border-gray-700">
-            <p className="text-gray-400">No widget pages yet. Add your first page to get started!</p>
+            <p className="text-gray-400">No assistant pages yet. Add your first page to get started!</p>
           </div>
         ) : (
           <div className="grid gap-4">

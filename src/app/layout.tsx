@@ -6,8 +6,8 @@ import { ConsoleFilter } from '@/components/ConsoleFilter'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Conversion Helper',
-  description: 'AI-powered voice assistant for customer support and conversion optimization',
+  title: 'EasyAsk',
+  description: 'AI-powered assistant for your website',
 }
 
 export default function RootLayout({

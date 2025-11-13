@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        huberman: {
+        easyask: {
           primary: '#1e293b',
           secondary: '#00AFEF',
           accent: '#f59e0b',

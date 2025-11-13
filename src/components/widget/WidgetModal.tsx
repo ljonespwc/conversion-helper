@@ -12,7 +12,7 @@ const SimplifiedVoiceInterface = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-huberman-secondary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-easyask-secondary"></div>
       </div>
     )
   }
@@ -49,7 +49,7 @@ export default function WidgetModal({ onClose, pageUrl }: WidgetModalProps) {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-huberman-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
+        className="relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           {/* WiFi indicator on the left */}

@@ -29,7 +29,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     startNewConversation
   } = useLayercodeVoice({
     metadata: {
-      source: 'conversion-helper-widget',
+      source: 'easyask-assistant',
       ...(effectivePageUrl && { page_url: effectivePageUrl }),
       timestamp: new Date().toISOString()
     },
@@ -93,8 +93,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const getButtonColor = () => {
     if (!isConnected) return 'bg-gray-400'
     if (isSpeaking) return 'bg-green-500'
-    if (isListening) return 'bg-huberman-secondary'
-    return 'bg-huberman-secondary hover:bg-huberman-accent'
+    if (isListening) return 'bg-easyask-secondary'
+    return 'bg-easyask-secondary hover:bg-easyask-accent'
   }
 
   // Get status text - only three states, no bouncing
@@ -162,7 +162,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                   ease: "easeOut"
                 }}
                 className={`absolute inset-0 rounded-full ${
-                  isSpeaking ? 'bg-green-400' : 'bg-huberman-secondary'
+                  isSpeaking ? 'bg-green-400' : 'bg-easyask-secondary'
                 }`}
               />
             )}
@@ -207,10 +207,10 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full border-2 border-gray-300 bg-white rounded-md px-4 py-3 hover:border-huberman-secondary hover:shadow-lg transition-all duration-200"
+                        className="block w-full border-2 border-gray-300 bg-white rounded-md px-4 py-3 hover:border-easyask-secondary hover:shadow-lg transition-all duration-200"
                       >
                         <div className="flex items-start gap-3">
-                          <ExternalLink className="w-5 h-5 text-huberman-secondary flex-shrink-0 mt-0.5" />
+                          <ExternalLink className="w-5 h-5 text-easyask-secondary flex-shrink-0 mt-0.5" />
                           <div className="flex-1 min-w-0">
                             <div className="text-base font-medium text-gray-900 truncate">
                               {link.text}

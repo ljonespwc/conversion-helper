@@ -235,7 +235,7 @@ export async function POST(request: Request) {
             }
 
             // Track conversation
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'
             fetch(`${appUrl}/api/track`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -281,7 +281,7 @@ export async function POST(request: Request) {
               stream.tts(finalResponse)
 
               // Track conversation
-              const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'
+              const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'
               fetch(`${appUrl}/api/track`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

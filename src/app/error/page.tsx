@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function ErrorPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-huberman-dark to-huberman-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-easyask-dark to-easyask-primary flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md text-center">
         <div className="mb-6">
           <svg
@@ -30,7 +30,7 @@ export default function ErrorPage() {
 
         <Link
           href="/login"
-          className="inline-block w-full bg-huberman-secondary text-white font-semibold py-3 px-6 rounded-lg hover:bg-[#0099D4] transition-colors"
+          className="inline-block w-full bg-easyask-secondary text-white font-semibold py-3 px-6 rounded-lg hover:bg-[#0099D4] transition-colors"
         >
           Try Again
         </Link>

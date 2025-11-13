@@ -89,7 +89,7 @@ export default function LoginPage({
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
                   placeholder="https://example.com"
                 />
-                <p className="text-xs text-gray-500 mt-2">Where your widget will be deployed</p>
+                <p className="text-xs text-gray-500 mt-2">Where your assistant will be deployed</p>
               </div>
             </>
           )}

@@ -14,7 +14,7 @@
 - **AI**: Gemini File Search (semantic RAG), Gemini 2.5 Flash (voice responses)
 - **Voice**: Layercode (WebSocket STT/TTS)
 - **Scraping**: Jina AI Reader (r.jina.ai) - FREE, fast markdown conversion
-- **Deployment**: Vercel (https://conversion-helper.vercel.app)
+- **Deployment**: Vercel (https://easyask.io)
 
 ### Data Flow
 1. **Scraping**: URL → Jina AI Reader → Markdown → Supabase Storage
@@ -240,7 +240,7 @@ Update Supabase email templates:
 
 ## 🎯 Production Deployment
 
-**Live**: https://conversion-helper.vercel.app
+**Live**: https://easyask.io
 
 ### Vercel Environment Variables
 ```
@@ -251,7 +251,7 @@ GEMINI_API_KEY
 LAYERCODE_API_KEY
 NEXT_PUBLIC_LAYERCODE_PIPELINE_ID
 LAYERCODE_WEBHOOK_SECRET
-NEXT_PUBLIC_APP_URL=https://conversion-helper.vercel.app
+NEXT_PUBLIC_APP_URL=https://easyask.io
 ```
 
 ### Build Status

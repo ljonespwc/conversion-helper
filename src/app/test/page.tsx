@@ -75,18 +75,18 @@ export default function TestPage() {
         </div>
       )}
 
-      {/* Widget Page Selector - Top Left */}
+      {/* Assistant Page Selector - Top Left */}
       <div className="fixed top-4 left-4 z-40 bg-gray-800 rounded-lg shadow-lg px-4 py-3 border border-gray-700 min-w-[300px]">
         <div className="flex items-center gap-2 mb-2">
           <Globe className="w-4 h-4 text-blue-400" />
-          <span className="text-xs font-medium text-gray-300">Testing Widget Page</span>
+          <span className="text-xs font-medium text-gray-300">Testing Assistant Page</span>
         </div>
 
         {loading ? (
           <p className="text-sm text-gray-400">Loading pages...</p>
         ) : widgetPages.length === 0 ? (
           <div>
-            <p className="text-sm text-red-400 mb-2">No widget pages found</p>
+            <p className="text-sm text-red-400 mb-2">No assistant pages found</p>
             <a href="/admin/pages" className="text-xs text-blue-400 hover:text-blue-300">
               Add a page →
             </a>
@@ -145,7 +145,7 @@ export default function TestPage() {
 
       {/* Test Instructions */}
       <div className="text-center">
-        <p className="text-gray-400 text-sm mb-2">Testing widget on page</p>
+        <p className="text-gray-400 text-sm mb-2">Testing assistant on page</p>
         {selectedPage && (
           <p className="text-blue-400 text-xs font-medium">
             {selectedPage.page_title}

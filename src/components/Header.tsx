@@ -23,10 +23,10 @@ export function Header({ user, loading = false }: HeaderProps) {
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <Link href="/" className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Conversion Helper
+                EasyAsk
               </h1>
               <p className="text-white/90 text-sm sm:text-base mt-0.5">
-                AI-powered voice assistant for your website
+                AI-powered assistant for your website
               </p>
             </Link>
           </div>

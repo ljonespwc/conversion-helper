@@ -4,7 +4,7 @@
 
   // Create iframe
   const iframe = document.createElement('iframe');
-  iframe.src = 'https://conversion-helper.vercel.app/widget';
+  iframe.src = 'https://easyask.io/widget';
   iframe.style.cssText = `
     position: fixed;
     bottom: 20px;
@@ -18,7 +18,7 @@
     display: none;
     background: white;
   `;
-  iframe.setAttribute('id', 'huberman-voice-widget');
+  iframe.setAttribute('id', 'easyask-assistant');
 
   // Create toggle button
   const button = document.createElement('button');
@@ -44,8 +44,8 @@
     box-shadow: 0 4px 12px rgba(0, 175, 239, 0.3);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   `;
-  button.setAttribute('id', 'huberman-voice-button');
-  button.setAttribute('aria-label', 'Open Huberman Lab Voice Assistant');
+  button.setAttribute('id', 'easyask-assistant-button');
+  button.setAttribute('aria-label', 'Open EasyAsk Assistant');
 
   // Add hover effect
   button.onmouseenter = () => {
@@ -73,7 +73,7 @@
   // Handle messages from iframe
   window.addEventListener('message', (e) => {
     // Only accept messages from our domain
-    if (e.origin !== 'https://conversion-helper.vercel.app') return;
+    if (e.origin !== 'https://easyask.io') return;
 
     if (e.data.type === 'close') {
       isOpen = false;
@@ -83,7 +83,7 @@
 
     if (e.data.type === 'track') {
       // Forward tracking events with session ID and page URL
-      fetch('https://conversion-helper.vercel.app/api/track', {
+      fetch('https://easyask.io/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -109,5 +109,5 @@
   }
 
   // Store session ID for tracking
-  window.HubermanVoiceSession = sessionId;
+  window.EasyAskSession = sessionId;
 })();
