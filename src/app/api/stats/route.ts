@@ -72,16 +72,15 @@ export async function GET(request: NextRequest) {
 
     const userSessionIds = userSessions?.map(s => s.session_id) || []
 
-    let messagesQuery = supabase.from('conversation_messages').select('matched')
-    if (userSessionIds.length > 0) {
-      messagesQuery = messagesQuery.in('session_id', userSessionIds)
-    }
-
-    const { data: messages } = await messagesQuery
+    // Always filter by session IDs - if empty array, returns no results (correct behavior)
+    const { data: messages } = await supabase
+      .from('conversation_messages')
+      .select('matched')
+      .in('session_id', userSessionIds.length > 0 ? userSessionIds : [''])
 
     const matchedCount = messages?.filter(m => m.matched).length || 0
-    const totalMessages = messages?.length || 1
-    const matchRate = Math.round((matchedCount / totalMessages) * 100)
+    const totalMessages = messages?.length || 0
+    const matchRate = totalMessages > 0 ? Math.round((matchedCount / totalMessages) * 100) : 0
 
     // Get active sessions (last 5 minutes, filtered by user's pages)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
