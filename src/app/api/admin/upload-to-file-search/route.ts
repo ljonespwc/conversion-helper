@@ -358,12 +358,18 @@ async function uploadToFileSearch(
   const file = new File([blob], `${sanitizeFilename(title)}.md`, { type: 'text/markdown' })
 
   // Build custom metadata array
+  // Store source info
   const customMetadata: Array<{ key: string; stringValue: string }> = [
-    { key: 'page_url', stringValue: sourceUrl },
+    { key: 'source_url', stringValue: sourceUrl },
     { key: 'page_title', stringValue: title },
-    { key: 'indexed_at', stringValue: new Date().toISOString() },
-    { key: 'page_urls', stringValue: JSON.stringify(pageUrls) } // Array of pages where this content should be available
+    { key: 'indexed_at', stringValue: new Date().toISOString() }
   ]
+
+  // Add each page URL as a separate metadata entry for filtering
+  // This allows us to filter with: (page_url = "https://example.com/page1")
+  for (const pageUrl of pageUrls) {
+    customMetadata.push({ key: 'page_url', stringValue: pageUrl })
+  }
 
   // Upload to File Search with metadata
   let operation = await ai.fileSearchStores.uploadToFileSearchStore({

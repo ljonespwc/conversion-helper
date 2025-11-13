@@ -42,11 +42,9 @@ export async function queryPageContent(
       throw new Error(`User store not found for page: ${pageUrl}`);
     }
 
-    // Query File Search across all documents in the store
-    // Note: We previously tried filtering by page_urls metadata, but it's stored as
-    // JSON array which can't be easily queried. For now, query all docs in the store
-    // and let the LLM use the most relevant context.
-    // TODO: Refactor to store each page URL as separate metadata entry for filtering
+    // Query File Search with page_url metadata filter
+    // Each page URL is stored as a separate metadata entry: { key: 'page_url', stringValue: 'url' }
+    // Filter syntax: (key = "value") with parentheses and equals
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: question,
@@ -54,8 +52,8 @@ export async function queryPageContent(
         tools: [
           {
             fileSearch: {
-              fileSearchStoreNames: [user.file_search_store_name]
-              // metadataFilter removed - can't query JSON array strings effectively
+              fileSearchStoreNames: [user.file_search_store_name],
+              metadataFilter: `(page_url = "${pageUrl}")`
             }
           }
         ]
