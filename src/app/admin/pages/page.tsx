@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
-import { Plus, Trash2, Copy, CheckCircle, Code } from 'lucide-react'
+import { Plus, Trash2, Copy, CheckCircle } from 'lucide-react'
 
 interface WidgetPage {
   id: string
@@ -34,7 +34,6 @@ export default function PagesPage() {
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [showEmbedCode, setShowEmbedCode] = useState<string | null>(null)
 
   useEffect(() => {
     fetchUserInfo()
@@ -129,16 +128,6 @@ export default function PagesPage() {
     }
   }
 
-  const generateEmbedCode = (pageUrl: string) => {
-    return `<!-- Conversion Helper Widget -->
-<script>
-  window.ConversionHelperConfig = {
-    pageUrl: "${pageUrl}"
-  };
-</script>
-<script src="${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/widget.js" async></script>`
-  }
-
   const copyToClipboard = async (text: string, id: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -159,6 +148,45 @@ export default function PagesPage() {
           <h1 className="text-3xl font-bold text-white mb-2">Widget Pages</h1>
           <p className="text-gray-400">
             Manage the pages where your widget is deployed. Each page gets its own widget instance with filtered content.
+          </p>
+        </div>
+
+        {/* Quick Install - Universal Embed Code */}
+        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
+          <h2 className="text-xl font-bold text-white mb-2">Quick Install</h2>
+          <p className="text-gray-300 mb-4">
+            Add this single line of code to <span className="font-semibold">all pages</span> where you want the widget.
+            The widget automatically detects which page it's on and shows the right content.
+          </p>
+
+          <div className="relative">
+            <pre className="bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto border border-gray-700">
+              <code>{`<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`}</code>
+            </pre>
+            <button
+              onClick={() => copyToClipboard(
+                `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`,
+                'universal-embed'
+              )}
+              className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-2 shadow-lg"
+            >
+              {copiedId === 'universal-embed' ? (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="text-sm text-gray-400 mt-4">
+            Place this code before the closing <code className="text-gray-300 bg-gray-700 px-1.5 py-0.5 rounded">&lt;/body&gt;</code> tag.
+            The widget will appear as a chat button in the bottom-right corner.
           </p>
         </div>
 
@@ -290,54 +318,14 @@ export default function PagesPage() {
                       {page.page_url}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setShowEmbedCode(showEmbedCode === page.id ? null : page.id)}
-                      className="p-2 text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors"
-                      title="Show embed code"
-                    >
-                      <Code className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeletePage(page.id)}
-                      className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
-                      title="Delete page"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDeletePage(page.id)}
+                    className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
+                    title="Delete page"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
-
-                {/* Embed Code */}
-                {showEmbedCode === page.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-300">Embed Code</span>
-                      <button
-                        onClick={() => copyToClipboard(generateEmbedCode(page.page_url), page.id + '-embed')}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
-                      >
-                        {copiedId === page.id + '-embed' ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-400" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            Copy Code
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <pre className="bg-gray-900 p-4 rounded-lg overflow-x-auto text-xs text-gray-300 border border-gray-700">
-                      <code>{generateEmbedCode(page.page_url)}</code>
-                    </pre>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Add this code to your page's HTML, preferably before the closing &lt;/body&gt; tag.
-                    </p>
-                  </div>
-                )}
 
                 <div className="text-xs text-gray-500 mt-3">
                   Added: {new Date(page.created_at).toLocaleDateString()}

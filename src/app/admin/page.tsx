@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, Check, MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -41,7 +41,6 @@ interface WidgetPage {
 }
 
 export default function AdminDashboard() {
-  const [copied, setCopied] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
@@ -50,14 +49,6 @@ export default function AdminDashboard() {
   const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const router = useRouter()
-
-  const embedCode = `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://conversion-helper.vercel.app'}/widget.js"></script>`
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(embedCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   useEffect(() => {
     checkUser()
@@ -189,38 +180,6 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Embed Code Section */}
-        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-4">Quick Install</h2>
-          <p className="text-gray-300 mb-4">Add this single line of code to any page where you want the voice assistant:</p>
-
-          <div className="relative">
-            <pre className="bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto border border-gray-700">
-              <code>{embedCode}</code>
-            </pre>
-            <button
-              onClick={copyToClipboard}
-              className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-2 shadow-lg"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  Copy
-                </>
-              )}
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-400 mt-4">
-            The widget will appear as a chat button in the bottom-right corner of the page.
-          </p>
         </div>
 
         {/* Stats Grid */}
