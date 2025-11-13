@@ -84,12 +84,28 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      // Check for UNIQUE constraint violation (code 23505)
+      if (error.code === '23505' && error.message.includes('widget_pages_page_url_unique')) {
+        return NextResponse.json(
+          { error: 'This page URL is already registered by another organization' },
+          { status: 409 }
+        )
+      }
       throw error
     }
 
     return NextResponse.json({ page: newPage }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating widget page:', error)
+
+    // Check for UNIQUE constraint violation in catch block too
+    if (error?.code === '23505' && error?.message?.includes('widget_pages_page_url_unique')) {
+      return NextResponse.json(
+        { error: 'This page URL is already registered by another organization' },
+        { status: 409 }
+      )
+    }
+
     return NextResponse.json(
       { error: 'Failed to create widget page' },
       { status: 500 }
