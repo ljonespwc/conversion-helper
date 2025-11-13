@@ -76,10 +76,8 @@ export default function AdminDashboard() {
       const pages = data.pages || []
       setWidgetPages(pages)
 
-      // Auto-select first page, or "All Pages" if none
-      if (pages.length > 0) {
-        setSelectedPage(pages[0])
-      }
+      // Default to "All Pages" (selectedPage = null)
+      // User can select specific page if needed
     } catch (error) {
       console.error('Error fetching widget pages:', error)
     }

@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { LogOut, Globe, ChevronDown } from 'lucide-react'
+import { Globe, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { signOut } from '../login/actions'
 import VoiceWidget from '@/components/widget/VoiceWidget'
+import { Header } from '@/components/Header'
 
 interface WidgetPage {
   id: string
@@ -14,7 +14,7 @@ interface WidgetPage {
 }
 
 export default function TestPage() {
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
   const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
   const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -27,9 +27,9 @@ export default function TestPage() {
 
   const checkUser = async () => {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      setUserEmail(user.email || null)
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (authUser) {
+      setUser({ id: authUser.id, email: authUser.email })
     }
   }
 
@@ -52,31 +52,14 @@ export default function TestPage() {
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut()
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center relative">
-      {/* User Info & Sign Out */}
-      {userEmail && (
-        <div className="fixed top-4 right-4 z-40 flex items-center gap-4 bg-gray-800 rounded-lg shadow-lg px-4 py-2 border border-gray-700">
-          <div className="text-right">
-            <p className="text-xs text-gray-400">Signed in as</p>
-            <p className="text-sm font-medium text-white">{userEmail}</p>
-          </div>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
-        </div>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+      {/* Header */}
+      <Header user={user} loading={loading} />
 
-      {/* Assistant Page Selector - Top Left */}
-      <div className="fixed top-4 left-4 z-40 bg-gray-800 rounded-lg shadow-lg px-4 py-3 border border-gray-700 min-w-[300px]">
+      <div className="flex items-center justify-center relative min-h-[calc(100vh-100px)]">
+        {/* Assistant Page Selector - Top Left */}
+      <div className="fixed top-24 left-4 z-40 bg-gray-800 rounded-lg shadow-lg px-4 py-3 border border-gray-700 min-w-[300px]">
         <div className="flex items-center gap-2 mb-2">
           <Globe className="w-4 h-4 text-blue-400" />
           <span className="text-xs font-medium text-gray-300">Testing Assistant Page</span>
@@ -153,11 +136,12 @@ export default function TestPage() {
         )}
       </div>
 
-      {/* Widget */}
-      <VoiceWidget
-        embedded={true}
-        pageUrl={selectedPage?.page_url}
-      />
+        {/* Widget */}
+        <VoiceWidget
+          embedded={true}
+          pageUrl={selectedPage?.page_url}
+        />
+      </div>
     </div>
   )
 }
