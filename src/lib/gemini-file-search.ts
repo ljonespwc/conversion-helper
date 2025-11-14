@@ -11,6 +11,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Performance timing utility
+function logTiming(label: string, startTime: number) {
+  const duration = Date.now() - startTime
+  console.log(`⏱️ [TIMING] ${label}: ${duration}ms`)
+}
+
 /**
  * Query File Search for content available on a specific page
  * Uses the new page-based architecture with page_urls metadata
@@ -21,22 +27,26 @@ export async function queryPageContent(
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
     // Get the widget page to find the user's store
+    const widgetLookupStart = Date.now()
     const { data: widgetPage, error: widgetPageError } = await supabase
       .from('widget_pages')
       .select('user_id')
       .eq('page_url', pageUrl)
       .single();
+    logTiming('Widget page lookup', widgetLookupStart)
 
     if (widgetPageError || !widgetPage) {
       throw new Error(`Page not configured: ${pageUrl}`);
     }
 
     // Get user's File Search store
+    const userLookupStart = Date.now()
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('file_search_store_name, organization_name')
       .eq('id', widgetPage.user_id)
       .single();
+    logTiming('User store lookup', userLookupStart)
 
     if (userError || !user?.file_search_store_name) {
       throw new Error(`User store not found for page: ${pageUrl}`);
@@ -52,6 +62,7 @@ export async function queryPageContent(
 
     const metadataFilter = `(${pageUrlConditions})`;
 
+    const geminiStart = Date.now()
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: question,
@@ -66,6 +77,7 @@ export async function queryPageContent(
         ]
       }
     });
+    logTiming('Gemini File Search query', geminiStart)
 
     return {
       answer: response.text || 'No answer generated',

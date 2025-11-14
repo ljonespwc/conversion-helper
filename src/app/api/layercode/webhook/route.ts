@@ -12,6 +12,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Performance timing utility
+function logTiming(label: string, startTime: number) {
+  const duration = Date.now() - startTime
+  console.log(`⏱️ [TIMING] ${label}: ${duration}ms`)
+}
+
 // Track conversation directly to database
 async function trackConversation(params: {
   session_id: string
@@ -262,6 +268,8 @@ export async function POST(request: Request) {
         }
 
         if (type === 'message' && text) {
+          const turnStartTime = Date.now()
+
           // Initialize conversation if not exists (in case session.start was missed)
           if (!conversationMessages[conversationKey]) {
             let fallbackPrompt = ''
@@ -322,13 +330,16 @@ export async function POST(request: Request) {
           let matched = false
 
           console.log('🔀 Routing decision - pageUrl:', pageUrl, 'usePage:', usePageSearch)
+          logTiming('Message processing (init to search start)', turnStartTime)
 
           if (usePageSearch) {
             console.log('🔍 Using Page File Search for page:', pageUrl)
+            const fileSearchStart = Date.now()
 
             try {
               // Query content available for this page using page_urls metadata
               const { answer, citations, organization } = await queryPageContent(text, pageUrl)
+              logTiming('File Search total', fileSearchStart)
               finalResponse = answer
               matched = true
 
@@ -374,6 +385,7 @@ export async function POST(request: Request) {
           } else {
             // FALLBACK: Use AI provider for generic demo responses (no page URL)
             console.log('🤖 Using AI provider for generic demo response')
+            const llmStart = Date.now()
 
             try {
               // Use conversation history for context-aware responses
@@ -388,6 +400,7 @@ export async function POST(request: Request) {
                 temperature: 0.7,
                 maxTokens: 300
               })
+              logTiming('LLM generation', llmStart)
 
               matched = false // Generic demo responses are not "matched" content
 
@@ -435,6 +448,9 @@ export async function POST(request: Request) {
             delete conversationMessages[oldestKey]
             console.log(`Cleaned up old conversation: ${oldestKey}`)
           }
+
+          // Log total turn time
+          logTiming('Total turn', turnStartTime)
         }
 
         stream.end()
