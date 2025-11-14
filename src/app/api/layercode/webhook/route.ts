@@ -75,7 +75,7 @@ async function trackConversation(params: {
         session_id: params.session_id,
         role: params.role,
         message: params.message || '',
-        timestamp: params.timestamp || null,
+        timestamp: params.timestamp ?? null,
         matched: params.matched || false,
         category: params.category || null
       })
@@ -127,6 +127,7 @@ type WebhookRequest = {
     role: 'user' | 'assistant'
     text?: string
     content?: string
+    timestamp?: number
   }>
 }
 
@@ -223,7 +224,7 @@ export async function POST(request: Request) {
               session_id: session_id || conversation_id || 'unknown',
               role: message.role,
               message: message.text || '',
-              timestamp: message.timestamp || null,
+              timestamp: message.timestamp,
               matched,
               category: pageUrl ? 'file_search' : 'demo',
               page_url: pageUrl || null
