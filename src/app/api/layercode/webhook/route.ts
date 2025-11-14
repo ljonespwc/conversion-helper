@@ -130,6 +130,7 @@ type WebhookRequest = {
     text?: string
     content?: string
     timestamp?: number
+    turn_id?: string
   }>
 }
 
@@ -207,38 +208,54 @@ export async function POST(request: Request) {
         if (type === 'session.end') {
           // Process complete transcript from session.end event
           const transcript = requestBody.transcript || []
-          const storedMessages = conversationMessages[conversationKey] || []
 
           console.log(`📝 Session ended with ${transcript.length} total messages (user + assistant)`)
           console.log('📋 Full transcript:', JSON.stringify(transcript, null, 2))
 
+          // Fetch metadata from database (persists across serverless invocations)
+          const sessionIdForLookup = session_id || conversation_id || 'unknown'
+          const { data: metadata, error: metadataError } = await supabase
+            .from('conversation_turn_metadata')
+            .select('turn_id, matched, category')
+            .eq('session_id', sessionIdForLookup)
+
+          if (metadataError) {
+            console.error('Failed to fetch turn metadata:', metadataError)
+          }
+
+          // Create lookup map by turn_id
+          const metadataMap = new Map(
+            metadata?.map(m => [m.turn_id, { matched: m.matched, category: m.category }]) || []
+          )
+
+          console.log(`🔍 Found ${metadataMap.size} metadata entries for session`)
+
           // Save complete transcript to database (both user and assistant messages)
           for (const message of transcript) {
-            // Find corresponding message in our in-memory store to get actual match status
-            const storedMsg = storedMessages.find(
-              m => m.role === message.role && m.content === (message.text || message.content)
-            )
+            // Look up metadata by turn_id (Layercode includes turn_id in transcript)
+            const meta = message.turn_id ? metadataMap.get(message.turn_id) : null
 
             // Use actual match status for ASSISTANT messages
             // User messages don't have match status (they're questions, not answers)
             const matched = message.role === 'assistant'
-              ? (storedMsg?.matched ?? false)
+              ? (meta?.matched ?? false)
               : false
 
             const category = message.role === 'assistant'
-              ? (storedMsg?.category ?? null)
+              ? (meta?.category ?? null)
               : null
 
             console.log('💾 Saving message:', {
               role: message.role,
-              text: message.text,
+              text: message.text?.substring(0, 50),
               timestamp: message.timestamp,
               matched: matched,
-              category: category
+              category: category,
+              turn_id: message.turn_id
             })
 
             await trackConversation({
-              session_id: session_id || conversation_id || 'unknown',
+              session_id: sessionIdForLookup,
               role: message.role,
               message: message.text || '',
               timestamp: message.timestamp,
@@ -246,6 +263,18 @@ export async function POST(request: Request) {
               category,
               page_url: pageUrl || null
             })
+          }
+
+          // Clean up metadata for this session
+          const { error: deleteError } = await supabase
+            .from('conversation_turn_metadata')
+            .delete()
+            .eq('session_id', sessionIdForLookup)
+
+          if (deleteError) {
+            console.error('Failed to cleanup turn metadata:', deleteError)
+          } else {
+            console.log(`🧹 Cleaned up ${metadataMap.size} metadata entries`)
           }
 
           // Clean up conversation history after session ends
@@ -390,6 +419,22 @@ export async function POST(request: Request) {
               category: matched ? 'file_search' : 'error'
             }
 
+            // Store metadata for session.end (survives serverless invocations)
+            const { error: metadataError } = await supabase
+              .from('conversation_turn_metadata')
+              .insert({
+                session_id: session_id || conversation_id || 'unknown',
+                turn_id,
+                matched,
+                category: matched ? 'file_search' : 'error'
+              })
+
+            if (metadataError) {
+              console.error('Failed to store turn metadata:', metadataError)
+            } else {
+              console.log(`✅ Stored metadata for turn ${turn_id}: matched=${matched}`)
+            }
+
           } else {
             // FALLBACK: Use AI provider for generic demo responses (no page URL)
             console.log('🤖 Using AI provider for generic demo response')
@@ -423,6 +468,22 @@ export async function POST(request: Request) {
                 turn_id,
                 matched: false,
                 category: 'demo'
+              }
+
+              // Store metadata for session.end (survives serverless invocations)
+              const { error: metadataError } = await supabase
+                .from('conversation_turn_metadata')
+                .insert({
+                  session_id: session_id || conversation_id || 'unknown',
+                  turn_id,
+                  matched: false,
+                  category: 'demo'
+                })
+
+              if (metadataError) {
+                console.error('Failed to store turn metadata:', metadataError)
+              } else {
+                console.log(`✅ Stored metadata for turn ${turn_id}: matched=false (demo)`)
               }
 
               // Send metadata
