@@ -31,7 +31,7 @@ interface ConversationSession {
 interface Stats {
   total: number
   today: number
-  matchRate: number
+  avgDuration: number
   activeNow: number
   recentSessions: ConversationSession[]
 }
@@ -197,9 +197,9 @@ export default function AdminDashboard() {
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
-            title="Assistant Response Rate"
-            value={loading ? '...' : `${stats?.matchRate || 0}%`}
-            subtitle="Used knowledge base"
+            title="Avg Session Duration"
+            value={loading ? '...' : stats?.avgDuration ? `${Math.floor((stats.avgDuration || 0) / 60)}m ${(stats.avgDuration || 0) % 60}s` : '0s'}
+            subtitle="Time per conversation"
             icon={<Activity className="w-5 h-5" />}
           />
           <StatsCard
@@ -247,14 +247,6 @@ export default function AdminDashboard() {
                 const assistantMessageCount = assistantMessages.length
                 const userMessageCount = userMessages.length
 
-                // Recalculate match stats excluding the first assistant message (welcome)
-                const assistantResponses = assistantMessages.slice(1) // Skip first (welcome message)
-                const matchedResponseCount = assistantResponses.filter(m => m.matched).length
-                const totalResponseCount = assistantResponses.length
-                const matchPercentage = totalResponseCount > 0
-                  ? Math.round((matchedResponseCount / totalResponseCount) * 100)
-                  : 0
-
                 return (
                   <div key={session.id}>
                     {/* Session Header */}
@@ -299,19 +291,6 @@ export default function AdminDashboard() {
                             )}
                           </div>
                         </div>
-                      </div>
-                      <div>
-                        <span
-                          className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                            matchedResponseCount > 0
-                              ? 'bg-green-900/30 text-green-400'
-                              : 'bg-gray-900/30 text-gray-400'
-                          }`}
-                        >
-                          {totalResponseCount > 0
-                            ? `${matchPercentage}% Response Rate`
-                            : 'No Responses'}
-                        </span>
                       </div>
                     </div>
 

@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         total: 0,
         today: 0,
-        matchRate: 0,
+        avgDuration: 0,
         activeNow: 0,
         recentSessions: []
       })
@@ -64,43 +64,21 @@ export async function GET(request: NextRequest) {
       .gte('created_at', today.toISOString())
       .in('page_url', filterPages)
 
-    // Get match rate from messages (filtered by user's page sessions)
-    const { data: userSessions } = await supabase
+    // Calculate average session duration
+    const { data: completedSessions } = await supabase
       .from('conversation_sessions')
-      .select('session_id')
+      .select('started_at, ended_at')
       .in('page_url', filterPages)
+      .not('ended_at', 'is', null)
 
-    const userSessionIds = userSessions?.map(s => s.session_id) || []
-
-    // Always filter by session IDs - if empty array, returns no results (correct behavior)
-    const { data: messages } = await supabase
-      .from('conversation_messages')
-      .select('matched, role, session_id, created_at')
-      .in('session_id', userSessionIds.length > 0 ? userSessionIds : [''])
-      .order('created_at', { ascending: true })
-
-    // Only count assistant responses, excluding the first assistant message per session (welcome message)
-    const messagesGroupedBySession = (messages || []).reduce((acc, msg) => {
-      if (!acc[msg.session_id]) {
-        acc[msg.session_id] = []
-      }
-      acc[msg.session_id].push(msg)
-      return acc
-    }, {} as Record<string, any[]>)
-
-    let assistantResponses = 0
-    let matchedResponses = 0
-
-    Object.values(messagesGroupedBySession).forEach(sessionMessages => {
-      const assistantMessages = sessionMessages.filter(m => m.role === 'assistant')
-      // Skip the first assistant message (welcome message)
-      const responseMessages = assistantMessages.slice(1)
-
-      assistantResponses += responseMessages.length
-      matchedResponses += responseMessages.filter(m => m.matched).length
-    })
-
-    const matchRate = assistantResponses > 0 ? Math.round((matchedResponses / assistantResponses) * 100) : 0
+    let avgDuration = 0
+    if (completedSessions && completedSessions.length > 0) {
+      const totalDuration = completedSessions.reduce((sum, session) => {
+        const duration = new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()
+        return sum + duration
+      }, 0)
+      avgDuration = Math.round(totalDuration / completedSessions.length / 1000) // Convert to seconds
+    }
 
     // Get active sessions (last 5 minutes, filtered by user's pages)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
@@ -150,7 +128,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       total: total || 0,
       today: todayCount || 0,
-      matchRate,
+      avgDuration,
       activeNow: activeNow || 0,
       recentSessions: formattedSessions
     }, {
@@ -165,7 +143,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       total: 0,
       today: 0,
-      matchRate: 0,
+      avgDuration: 0,
       activeNow: 0,
       recentSessions: []
     })
