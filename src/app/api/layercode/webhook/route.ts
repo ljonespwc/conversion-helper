@@ -36,7 +36,7 @@ async function trackConversation(params: {
         .from('conversation_sessions')
         .insert({
           session_id: params.session_id,
-          total_questions: 1,
+          total_questions: params.role === 'user' ? 1 : 0,
           matched_responses: params.matched ? 1 : 0,
           page_url: params.page_url || null
         })
@@ -48,7 +48,7 @@ async function trackConversation(params: {
     } else {
       // Update existing session
       const updateData: any = {
-        total_questions: (session.total_questions || 0) + 1,
+        total_questions: (session.total_questions || 0) + (params.role === 'user' ? 1 : 0),
         matched_responses: (session.matched_responses || 0) + (params.matched ? 1 : 0),
         ended_at: new Date().toISOString()
       }

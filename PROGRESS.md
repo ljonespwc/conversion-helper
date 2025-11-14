@@ -332,26 +332,39 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ## 🚀 What's Next (2025-11-14)
 
-### Priority 1: Conversation Tracking & Message Quality
+### Priority 1: Conversation Tracking & Message Quality ✅ COMPLETED (2025-11-14)
 
-**Issue:** Partial responses are being saved to the `conversation_messages` table instead of complete messages.
+**Issue:** Messages saved with incorrect match status, partial data, and unclear user/assistant distinction.
 
-**Problems:**
-- Messages appear to be incomplete/truncated
-- `session.end` event handling has issues that need Layercode research
-- Table does not differentiate between assistant responses and user questions
-- Missing role field or improper role tracking
+**Fixes Implemented:**
+1. ✅ **Database schema updates**
+   - Added `role` ('user' | 'assistant'), `timestamp` (Unix ms), renamed `question` → `message`
+   - Created `conversation_turn_metadata` table for cross-instance state in serverless
+   - Renamed `matched_questions` → `matched_responses` for clarity
 
-**Action Items:**
-1. Research Layercode `session.end` event behavior and transcript structure
-2. Add proper role differentiation (`user` vs `assistant`) to message storage
-3. Ensure complete message content is captured (not partial/interim transcripts)
-4. Test session lifecycle: start → multiple messages → end
-5. Verify transcript data structure matches expectations
+2. ✅ **Match tracking architecture**
+   - Store metadata during message events (survives serverless invocations)
+   - Match by timestamp at session.end (Layercode transcript lacks turn_id)
+   - Only assistant messages show match badges in UI
+   - "Matched" = answered from indexed content, not generic AI
 
-**Files to investigate:**
-- `src/app/api/layercode/webhook/route.ts:201-228` (session.end handler)
-- `conversation_messages` table schema
+3. ✅ **Session.end handler**
+   - Batch saves complete transcript (user + assistant messages)
+   - Fetches metadata from DB, matches by closest timestamp (10s tolerance)
+   - Cleans up metadata after saving
+   - Enhanced logging: `metaFound: true/false` shows successful matches
+
+4. ✅ **UI improvements**
+   - Updated to "Content Match Rate" (more accurate than "FAQ Match Rate")
+   - Match badges only on assistant messages (questions don't get badges)
+   - Session stats show `matched_responses` count
+
+**Architecture:** Serverless-safe using Supabase as lightweight session store between message events and session.end.
+
+**Files modified:**
+- `src/app/api/layercode/webhook/route.ts` (metadata storage + matching)
+- `src/app/admin/page.tsx` (UI updates)
+- Migrations: `20251114_add_role_and_timestamp_to_conversation_messages.sql`, `20251114_rename_matched_questions_to_matched_responses.sql`, `20251114_create_conversation_turn_metadata.sql`, `20251114_add_timestamp_to_conversation_turn_metadata.sql`
 
 ---
 
