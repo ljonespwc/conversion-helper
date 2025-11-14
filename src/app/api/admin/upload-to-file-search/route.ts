@@ -259,9 +259,11 @@ export async function POST(request: NextRequest) {
         const documentId = await uploadToFileSearch(content, title, '', pageUrls, userStoreName)
 
         // Create indexed_pages record
+        // For uploaded files, use document_id as page_url since we don't have a source URL
+        // This ensures uniqueness while still tracking the document
         const uploadIndexedPageData: any = {
           user_id: user.id,
-          page_url: '', // No URL for uploaded files
+          page_url: documentId, // Use document_id for uniqueness
           page_title: title,
           document_id: documentId,
           file_search_store_name: userStoreName,
@@ -365,10 +367,12 @@ async function uploadToFileSearch(
     { key: 'indexed_at', stringValue: new Date().toISOString() }
   ]
 
-  // Add each page URL as a separate metadata entry for filtering
-  // This allows us to filter with: (page_url = "https://example.com/page1")
-  for (const pageUrl of pageUrls) {
-    customMetadata.push({ key: 'page_url', stringValue: pageUrl })
+  // Add each page URL with indexed keys to avoid duplicate key errors
+  // Google File Search doesn't allow duplicate keys, so we use: page_url_0, page_url_1, etc.
+  // Max 10 pages per document (reasonable limit)
+  const maxPages = Math.min(pageUrls.length, 10)
+  for (let i = 0; i < maxPages; i++) {
+    customMetadata.push({ key: `page_url_${i}`, stringValue: pageUrls[i] })
   }
 
   // Upload to File Search with metadata

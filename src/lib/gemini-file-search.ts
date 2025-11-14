@@ -43,8 +43,16 @@ export async function queryPageContent(
     }
 
     // Query File Search with page_url metadata filter
-    // Each page URL is stored as a separate metadata entry: { key: 'page_url', stringValue: 'url' }
-    // Filter syntax: (key = "value") with parentheses and equals
+    // Page URLs are stored with indexed keys (page_url_0, page_url_1, ..., page_url_9)
+    // to avoid duplicate key errors. Build OR filter to check all slots.
+    // Filter syntax: (key = "value" OR key = "value" ...)
+    const pageUrlConditions = Array.from({ length: 10 }, (_, i) =>
+      `page_url_${i} = "${pageUrl}"`
+    ).join(' OR ');
+
+    const metadataFilter = `(${pageUrlConditions})`;
+    console.log('🔍 Gemini metadataFilter:', metadataFilter);
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: question,
@@ -53,16 +61,24 @@ export async function queryPageContent(
           {
             fileSearch: {
               fileSearchStoreNames: [user.file_search_store_name],
-              metadataFilter: `(page_url = "${pageUrl}")`
+              metadataFilter
             }
           }
         ]
       }
     });
 
+    const citations = response.candidates?.[0]?.groundingMetadata || null;
+    const groundingChunks = citations?.groundingChunks || [];
+
+    console.log('📚 Retrieved grounding chunks:', groundingChunks.length);
+    if (groundingChunks.length > 0) {
+      console.log('📄 First chunk preview:', groundingChunks[0]?.retrievedContext?.text?.substring(0, 150));
+    }
+
     return {
       answer: response.text || 'No answer generated',
-      citations: response.candidates?.[0]?.groundingMetadata || null,
+      citations,
       organization: user.organization_name
     };
   } catch (error) {
