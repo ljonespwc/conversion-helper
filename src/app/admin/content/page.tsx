@@ -38,14 +38,18 @@ interface IndexedPage {
   page_url: string
   page_title: string | null
   document_id: string
-  file_search_store_name: string
-  status: string
-  synced_to_file_search: boolean
-  source_type: 'scraped' | 'uploaded'
+  file_search_store_name?: string
+  status?: string
+  synced_to_file_search?: boolean
+  source_type?: 'scraped' | 'uploaded'
   page_urls: string[] | null
-  created_at: string
-  updated_at: string
-  metadata: any
+  created_at?: string
+  updated_at?: string
+  scraped_at?: string
+  metadata?: any
+  sync_status: 'synced' | 'orphaned' | 'missing_from_google' | 'id_mismatch'
+  in_google: boolean
+  in_database: boolean
 }
 
 export default function ContentManagementPage() {
@@ -316,8 +320,16 @@ export default function ContentManagementPage() {
               ) : indexedPages.length > 0 ? (
                 <div className="divide-y divide-gray-700">
                   {indexedPages.map((page) => {
-                    const isSynced = page.synced_to_file_search
                     const isSelected = selectedIndexedPages.includes(page.id)
+
+                    // Determine sync status styling
+                    const syncStatusConfig = {
+                      synced: { bg: 'bg-green-900/30', text: 'text-green-400', border: 'border-green-700/50', label: '✓ Synced' },
+                      orphaned: { bg: 'bg-orange-900/30', text: 'text-orange-400', border: 'border-orange-700/50', label: '⚠ Orphaned' },
+                      missing_from_google: { bg: 'bg-red-900/30', text: 'text-red-400', border: 'border-red-700/50', label: '✗ Missing' },
+                      id_mismatch: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', border: 'border-yellow-700/50', label: '⚠ ID Mismatch' }
+                    }
+                    const statusStyle = syncStatusConfig[page.sync_status]
 
                     return (
                       <div
@@ -365,17 +377,15 @@ export default function ContentManagementPage() {
 
                             <div className="space-y-2">
                               <div className="flex items-center gap-4 text-xs text-gray-500">
+                                {(page.scraped_at || page.created_at) && (
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>Added {formatDate(page.scraped_at || page.created_at!)}</span>
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-1">
-                                  <Calendar className="w-3 h-3" />
-                                  <span>Added {formatDate(page.created_at)}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                    isSynced
-                                      ? 'bg-green-900/30 text-green-400'
-                                      : 'bg-yellow-900/30 text-yellow-400'
-                                  }`}>
-                                    {isSynced ? 'synced' : 'pending'}
+                                  <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-md border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
+                                    {statusStyle.label}
                                   </span>
                                 </div>
                               </div>

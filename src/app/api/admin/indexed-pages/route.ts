@@ -26,19 +26,157 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get indexed pages for this user
-    const { data: pages, error } = await supabaseAdmin
-      .from('indexed_pages')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
+    // Get user's File Search store name
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('file_search_store_name')
+      .eq('id', user.id)
+      .single()
 
-    if (error) {
-      throw error
+    if (userError || !userData?.file_search_store_name) {
+      return NextResponse.json({ error: 'User store not found' }, { status: 400 })
     }
 
-    return NextResponse.json({ pages: pages || [] })
+    const storeName = userData.file_search_store_name
+
+    // Fetch documents from Google File Search (source of truth) - parallel with DB query
+    const [googleDocsResult, dbPagesResult] = await Promise.all([
+      // Fetch from Google File Search
+      (async () => {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20&key=${process.env.GEMINI_API_KEY}`
+          )
+          if (!response.ok) {
+            throw new Error(`Google API error: ${response.statusText}`)
+          }
+          const data = await response.json()
+          return data.documents || []
+        } catch (error) {
+          console.error('Error fetching from Google File Search:', error)
+          return []
+        }
+      })(),
+      // Fetch from database
+      supabaseAdmin
+        .from('indexed_pages')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+    ])
+
+    const googleDocs = googleDocsResult
+    const dbPages = dbPagesResult.data || []
+
+    // Create lookup maps for efficient O(1) comparison
+    const googleDocsBySourceUrl = new Map()
+    const dbPagesBySourceUrl = new Map()
+    const dbPagesByDocId = new Map()
+
+    // Build Google docs map (keyed by source_url from metadata)
+    googleDocs.forEach((doc: any) => {
+      const sourceUrl = doc.customMetadata?.find((m: any) => m.key === 'source_url')?.stringValue
+      if (sourceUrl) {
+        googleDocsBySourceUrl.set(sourceUrl, doc)
+      }
+    })
+
+    // Build DB maps
+    dbPages.forEach((page: any) => {
+      dbPagesBySourceUrl.set(page.page_url, page)
+      if (page.document_id) {
+        dbPagesByDocId.set(page.document_id, page)
+      }
+    })
+
+    // Build combined result with sync status
+    const combinedPages: Array<{
+      id: string
+      document_id: string
+      page_url: string | undefined
+      page_title: string
+      page_urls: string[]
+      scraped_at: string | undefined
+      sync_status: 'synced' | 'orphaned' | 'missing_from_google' | 'id_mismatch'
+      in_google: boolean
+      in_database: boolean
+    }> = []
+
+    // Process documents from Google (source of truth)
+    googleDocs.forEach((doc: any) => {
+      const docId = doc.name
+      const sourceUrl = doc.customMetadata?.find((m: any) => m.key === 'source_url')?.stringValue
+      const pageTitle = doc.customMetadata?.find((m: any) => m.key === 'page_title')?.stringValue || doc.displayName || 'Untitled'
+      const indexedAt = doc.customMetadata?.find((m: any) => m.key === 'indexed_at')?.stringValue
+
+      // Extract page URLs from metadata (page_url_0, page_url_1, etc.)
+      const pageUrls = doc.customMetadata
+        ?.filter((m: any) => m.key.startsWith('page_url_'))
+        .map((m: any) => m.stringValue)
+        .filter(Boolean) || []
+
+      const dbPage = sourceUrl ? dbPagesBySourceUrl.get(sourceUrl) : null
+
+      let syncStatus: 'synced' | 'orphaned' | 'id_mismatch'
+      let dbId: string | null = null
+
+      if (!dbPage) {
+        syncStatus = 'orphaned'
+      } else if (dbPage.document_id !== docId) {
+        syncStatus = 'id_mismatch'
+        dbId = dbPage.id
+      } else {
+        syncStatus = 'synced'
+        dbId = dbPage.id
+      }
+
+      combinedPages.push({
+        id: dbId || `orphan-${docId.split('/').pop()}`, // Use DB id if available, else temp id
+        document_id: docId,
+        page_url: sourceUrl,
+        page_title: pageTitle,
+        page_urls: pageUrls,
+        scraped_at: indexedAt,
+        sync_status: syncStatus,
+        in_google: true,
+        in_database: !!dbPage
+      })
+    })
+
+    // Process DB pages that are missing from Google
+    dbPages.forEach((dbPage: any) => {
+      if (!googleDocsBySourceUrl.has(dbPage.page_url)) {
+        combinedPages.push({
+          id: dbPage.id,
+          document_id: dbPage.document_id,
+          page_url: dbPage.page_url,
+          page_title: dbPage.page_title,
+          page_urls: dbPage.page_urls || [],
+          scraped_at: dbPage.scraped_at,
+          sync_status: 'missing_from_google',
+          in_google: false,
+          in_database: true
+        })
+      }
+    })
+
+    // Sort by indexed date (most recent first)
+    combinedPages.sort((a, b) => {
+      const dateA = a.scraped_at ? new Date(a.scraped_at).getTime() : 0
+      const dateB = b.scraped_at ? new Date(b.scraped_at).getTime() : 0
+      return dateB - dateA
+    })
+
+    return NextResponse.json({
+      pages: combinedPages,
+      summary: {
+        total: combinedPages.length,
+        synced: combinedPages.filter(p => p.sync_status === 'synced').length,
+        orphaned: combinedPages.filter(p => p.sync_status === 'orphaned').length,
+        missing_from_google: combinedPages.filter(p => p.sync_status === 'missing_from_google').length,
+        id_mismatch: combinedPages.filter(p => p.sync_status === 'id_mismatch').length
+      }
+    })
   } catch (error) {
     console.error('Error fetching indexed pages:', error)
     return NextResponse.json(
