@@ -197,9 +197,9 @@ export default function AdminDashboard() {
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
-            title="Content Match Rate"
+            title="Assistant Response Rate"
             value={loading ? '...' : `${stats?.matchRate || 0}%`}
-            subtitle="Questions answered"
+            subtitle="Used knowledge base"
             icon={<Activity className="w-5 h-5" />}
           />
           <StatsCard
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
                             })}
                           </div>
                           <div className="text-xs text-gray-400 mt-0.5">
-                            {session.total_questions} question{session.total_questions !== 1 ? 's' : ''}
+                            {session.total_questions} user message{session.total_questions !== 1 ? 's' : ''}
                             {duration > 0 && ` • ${duration}s duration`}
                             {totalResponseCount > 0 && (
                               <>
