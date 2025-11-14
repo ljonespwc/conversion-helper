@@ -1,8 +1,27 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-11-11
+**Last Updated**: 2025-11-14
 **Current Phase**: Production Ready - Auth + File Search + Admin Tools
 **Supabase Project**: `fwimhxkkszdaogugslar`
+
+---
+
+## ⚠️ CRITICAL: Streaming Architecture
+
+**DO NOT modify streaming architecture without explicit permission. NO EXCEPTIONS.**
+
+This includes:
+- **LLM streaming** (Gemini responses, model configurations)
+- **Layercode streaming** (WebSocket STT/TTS, voice processing)
+- **File Search queries** (metadata filters, query structure)
+- **Any changes to data flow** in the voice query pipeline
+
+**Required before changes:**
+1. Document proposed changes in detail
+2. Explain effects on latency, reliability, and user experience
+3. Get explicit approval before implementation
+
+**Reason:** These systems are highly sensitive to latency and reliability. Changes can introduce subtle issues that only appear in production under load.
 
 ---
 
@@ -254,12 +273,6 @@ LAYERCODE_WEBHOOK_SECRET
 NEXT_PUBLIC_APP_URL=https://easyask.io
 ```
 
-### Build Status
-✅ All 19 routes compile successfully
-✅ No TypeScript errors
-✅ Middleware working
-✅ Auth flows tested (Playwright)
-
 ---
 
 ## 📋 Development History (Condensed)
@@ -317,19 +330,91 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ---
 
-## 🐛 Known Issues & Solutions
+## 🚀 What's Next (2025-11-14)
 
-### React Infinite Loop (FIXED)
-**Problem**: `useEffect` with `[jobs, polling]` caused infinite renders
-**Solution**: Used `useMemo` for hasActiveJobs boolean, removed polling state
+### Priority 1: Conversation Tracking & Message Quality
 
-### Firecrawl Unauthorized (FIXED)
-**Problem**: Missing `FIRECRAWL_API_KEY`, 401 errors
-**Solution**: Switched to Jina AI Reader (no key required)
+**Issue:** Partial responses are being saved to the `conversation_messages` table instead of complete messages.
 
-### Storage Access (ONGOING)
-**Note**: `uploaded-docs` bucket is private (not publicly accessible)
-**Access**: Use service role key for server-side downloads
+**Problems:**
+- Messages appear to be incomplete/truncated
+- `session.end` event handling has issues that need Layercode research
+- Table does not differentiate between assistant responses and user questions
+- Missing role field or improper role tracking
+
+**Action Items:**
+1. Research Layercode `session.end` event behavior and transcript structure
+2. Add proper role differentiation (`user` vs `assistant`) to message storage
+3. Ensure complete message content is captured (not partial/interim transcripts)
+4. Test session lifecycle: start → multiple messages → end
+5. Verify transcript data structure matches expectations
+
+**Files to investigate:**
+- `src/app/api/layercode/webhook/route.ts:201-228` (session.end handler)
+- `conversation_messages` table schema
+
+---
+
+### Priority 2: Performance Optimization & Bottleneck Analysis
+
+**Issue:** Substantial lag between visitor question and assistant response.
+
+**Goal:** Minimize response latency by identifying and optimizing bottlenecks.
+
+**Action Items:**
+1. **Build Performance Tracking System**
+   - Capture timestamps at every step in the pipeline:
+     - Voice input captured (Layercode STT start)
+     - Speech-to-text conversion complete
+     - File Search query start
+     - File Search query complete
+     - LLM response generation start
+     - LLM response complete
+     - Text-to-speech conversion start
+     - TTS streaming start
+
+2. **Create Performance Report/Dashboard**
+   - Display average latency per step
+   - Identify slowest operations
+   - Track over time to measure improvements
+
+3. **Optimize Based on Data**
+   - Focus on highest-latency steps first
+   - Consider parallel operations where possible
+   - Evaluate caching strategies for File Search
+
+**Files to modify:**
+- `src/app/api/layercode/webhook/route.ts` (add timing instrumentation)
+- New: `/api/admin/performance` endpoint for metrics
+- New: Admin dashboard component for performance visualization
+
+---
+
+### Priority 3: Widget UI/UX Improvements
+
+**Issue:** User experience during voice interactions needs enhancement.
+
+**Improvements Needed:**
+1. **Text Response Display**
+   - Show streaming text response alongside voice
+   - Allows users to read while listening
+   - Better for noisy environments or accessibility
+
+2. **Loading & Wait State Visuals**
+   - Animated indicators during STT processing
+   - Visual feedback during File Search lookup
+   - Progress indicators during TTS generation
+   - Minimize perceived wait time with engaging animations
+
+3. **Conversation History Display**
+   - Show previous Q&A pairs in the widget
+   - Allow users to scroll back through conversation
+   - Clear visual distinction between user and assistant messages
+
+**Files to modify:**
+- Widget component (TBD: need to identify main widget file)
+- CSS/Tailwind for animations and visual feedback
+- State management for conversation history display
 
 ---
 
