@@ -249,6 +249,18 @@ export async function POST(request: Request) {
           return
         }
 
+        if (type === 'user.transcript.delta') {
+          // Stabilized transcript segments are for real-time display only
+          stream.end()
+          return
+        }
+
+        if (type === 'user.transcript') {
+          // Final user transcript (we get complete transcript at session.end)
+          stream.end()
+          return
+        }
+
         if (type === 'message' && text) {
           // Initialize conversation if not exists (in case session.start was missed)
           if (!conversationMessages[conversationKey]) {

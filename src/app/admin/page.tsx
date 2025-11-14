@@ -9,7 +9,8 @@ import StatsCard from '@/components/admin/StatsCard'
 
 interface ConversationMessage {
   id: string
-  question: string
+  role: 'user' | 'assistant'
+  message: string
   matched: boolean
   category: string | null
   created_at: string
@@ -297,8 +298,17 @@ export default function AdminDashboard() {
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
+                                      message.role === 'user'
+                                        ? 'bg-blue-900/30 text-blue-400'
+                                        : 'bg-purple-900/30 text-purple-400'
+                                    }`}>
+                                      {message.role === 'user' ? '👤 User' : '🤖 Assistant'}
+                                    </span>
+                                  </div>
                                   <p className="text-sm text-gray-200">
-                                    {message.question}
+                                    {message.message}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-1">
                                     {new Date(message.created_at).toLocaleTimeString('en-US', {
