@@ -26,7 +26,7 @@ async function trackConversation(params: {
     // First, ensure the session exists
     const { data: session, error: sessionError } = await supabase
       .from('conversation_sessions')
-      .select('id, total_questions, matched_questions, page_url')
+      .select('id, total_questions, matched_responses, page_url')
       .eq('session_id', params.session_id)
       .single()
 
@@ -37,7 +37,7 @@ async function trackConversation(params: {
         .insert({
           session_id: params.session_id,
           total_questions: 1,
-          matched_questions: params.matched ? 1 : 0,
+          matched_responses: params.matched ? 1 : 0,
           page_url: params.page_url || null
         })
 
@@ -49,7 +49,7 @@ async function trackConversation(params: {
       // Update existing session
       const updateData: any = {
         total_questions: (session.total_questions || 0) + 1,
-        matched_questions: (session.matched_questions || 0) + (params.matched ? 1 : 0),
+        matched_responses: (session.matched_responses || 0) + (params.matched ? 1 : 0),
         ended_at: new Date().toISOString()
       }
 
@@ -93,6 +93,8 @@ type MessageWithTurnId = {
   role: 'system' | 'user' | 'assistant'
   content: string
   turn_id?: string
+  matched?: boolean        // Track if response came from indexed content
+  category?: string         // 'file_search' | 'demo' | 'error'
 }
 
 // Store conversation messages in memory (consider Redis for production)
@@ -205,19 +207,34 @@ export async function POST(request: Request) {
         if (type === 'session.end') {
           // Process complete transcript from session.end event
           const transcript = requestBody.transcript || []
+          const storedMessages = conversationMessages[conversationKey] || []
 
           console.log(`📝 Session ended with ${transcript.length} total messages (user + assistant)`)
           console.log('📋 Full transcript:', JSON.stringify(transcript, null, 2))
 
           // Save complete transcript to database (both user and assistant messages)
           for (const message of transcript) {
-            // Determine if this was a matched query (check if pageUrl was used)
-            const matched = !!pageUrl
+            // Find corresponding message in our in-memory store to get actual match status
+            const storedMsg = storedMessages.find(
+              m => m.role === message.role && m.content === (message.text || message.content)
+            )
+
+            // Use actual match status for ASSISTANT messages
+            // User messages don't have match status (they're questions, not answers)
+            const matched = message.role === 'assistant'
+              ? (storedMsg?.matched ?? false)
+              : false
+
+            const category = message.role === 'assistant'
+              ? (storedMsg?.category ?? null)
+              : null
 
             console.log('💾 Saving message:', {
               role: message.role,
               text: message.text,
-              timestamp: message.timestamp
+              timestamp: message.timestamp,
+              matched: matched,
+              category: category
             })
 
             await trackConversation({
@@ -226,7 +243,7 @@ export async function POST(request: Request) {
               message: message.text || '',
               timestamp: message.timestamp,
               matched,
-              category: pageUrl ? 'file_search' : 'demo',
+              category,
               page_url: pageUrl || null
             })
           }
@@ -368,7 +385,9 @@ export async function POST(request: Request) {
             conversationMessages[conversationKey][assistantPlaceholderIndex] = {
               role: 'assistant',
               content: finalResponse,
-              turn_id
+              turn_id,
+              matched,
+              category: matched ? 'file_search' : 'error'
             }
 
           } else {
@@ -401,7 +420,9 @@ export async function POST(request: Request) {
               conversationMessages[conversationKey][assistantPlaceholderIndex] = {
                 role: 'assistant',
                 content: finalResponse,
-                turn_id
+                turn_id,
+                matched: false,
+                category: 'demo'
               }
 
               // Send metadata

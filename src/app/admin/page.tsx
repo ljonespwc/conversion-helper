@@ -23,7 +23,7 @@ interface ConversationSession {
   started_at: string
   ended_at: string | null
   total_questions: number
-  matched_questions: number
+  matched_responses: number
   page_url: string | null
   messages: ConversationMessage[]
 }
@@ -273,7 +273,7 @@ export default function AdminDashboard() {
                             {session.total_questions} question{session.total_questions !== 1 ? 's' : ''}
                             {duration > 0 && ` • ${duration}s duration`}
                             {' • '}
-                            {session.matched_questions}/{session.total_questions} matched
+                            {session.matched_responses}/{session.total_questions} matched
                             {session.page_url && (
                               <>
                                 <br />
@@ -289,13 +289,13 @@ export default function AdminDashboard() {
                       <div>
                         <span
                           className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                            session.matched_questions > 0
+                            session.matched_responses > 0
                               ? 'bg-green-900/30 text-green-400'
                               : 'bg-gray-900/30 text-gray-400'
                           }`}
                         >
                           {session.total_questions > 0
-                            ? `${Math.round((session.matched_questions / session.total_questions) * 100)}% Match`
+                            ? `${Math.round((session.matched_responses / session.total_questions) * 100)}% Match`
                             : 'No Match'}
                         </span>
                       </div>
@@ -342,15 +342,17 @@ export default function AdminDashboard() {
                                     {message.category && ` • ${message.category}`}
                                   </p>
                                 </div>
-                                <span
-                                  className={`ml-4 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    message.matched
-                                      ? 'bg-green-900/30 text-green-400'
-                                      : 'bg-gray-900/30 text-gray-400'
-                                  }`}
-                                >
-                                  {message.matched ? 'Matched' : 'No Match'}
-                                </span>
+                                {message.role === 'assistant' && (
+                                  <span
+                                    className={`ml-4 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                      message.matched
+                                        ? 'bg-green-900/30 text-green-400'
+                                        : 'bg-gray-900/30 text-gray-400'
+                                    }`}
+                                  >
+                                    {message.matched ? 'Matched' : 'No Match'}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           ))}
