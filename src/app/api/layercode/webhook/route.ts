@@ -119,6 +119,11 @@ type WebhookRequest = {
   type: 'message' | 'session.start' | 'session.update' | 'session.end' | 'user.transcript.interim_delta' | string
   content?: string
   delta_counter?: number
+  transcript?: Array<{
+    role: 'user' | 'assistant'
+    text?: string
+    content?: string
+  }>
 }
 
 export async function POST(request: Request) {
