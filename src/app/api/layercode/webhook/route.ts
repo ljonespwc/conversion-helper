@@ -193,6 +193,29 @@ export async function POST(request: Request) {
         }
 
         if (type === 'session.end') {
+          // Process complete transcript from session.end event
+          const transcript = requestBody.transcript || []
+          const userMessages = transcript.filter((entry: any) => entry.role === 'user')
+
+          console.log(`📝 Session ended with ${userMessages.length} user messages`)
+          console.log('📋 Transcript structure:', JSON.stringify(userMessages, null, 2))
+
+          // Save complete transcript to database
+          for (const message of userMessages) {
+            // Determine if this was a matched query (check if pageUrl was used)
+            const matched = !!pageUrl
+
+            console.log('💾 Saving message:', { text: message.text, content: message.content, message })
+
+            await trackConversation({
+              session_id: session_id || conversation_id || 'unknown',
+              question: message.text || message.content || '',
+              matched,
+              category: pageUrl ? 'file_search' : 'demo',
+              page_url: pageUrl || null
+            })
+          }
+
           // Clean up conversation history after session ends
           delete conversationMessages[conversationKey]
           stream.end()
@@ -313,15 +336,7 @@ export async function POST(request: Request) {
               })
             }
 
-            // Track conversation directly to database
-            trackConversation({
-              session_id: session_id || conversation_id || 'unknown',
-              question: text,
-              matched,
-              category: pageUrl ? 'file_search' : null,
-              page_url: pageUrl
-            })
-
+            // Note: Conversation tracking moved to session.end event for complete transcripts
             // Update conversation history
             conversationMessages[conversationKey][assistantPlaceholderIndex] = {
               role: 'assistant',
@@ -354,15 +369,7 @@ export async function POST(request: Request) {
               // Send the response via TTS
               stream.tts(finalResponse)
 
-              // Track conversation directly to database
-              trackConversation({
-                session_id: session_id || conversation_id || 'unknown',
-                question: text,
-                matched: false,
-                category: 'demo',
-                page_url: null
-              })
-
+              // Note: Conversation tracking moved to session.end event for complete transcripts
               // Update conversation history
               conversationMessages[conversationKey][assistantPlaceholderIndex] = {
                 role: 'assistant',
