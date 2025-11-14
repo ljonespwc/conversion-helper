@@ -216,24 +216,42 @@ export async function POST(request: Request) {
           const sessionIdForLookup = session_id || conversation_id || 'unknown'
           const { data: metadata, error: metadataError } = await supabase
             .from('conversation_turn_metadata')
-            .select('turn_id, matched, category')
+            .select('timestamp, matched, category')
             .eq('session_id', sessionIdForLookup)
+            .order('timestamp', { ascending: true })
 
           if (metadataError) {
             console.error('Failed to fetch turn metadata:', metadataError)
           }
 
-          // Create lookup map by turn_id
-          const metadataMap = new Map(
-            metadata?.map(m => [m.turn_id, { matched: m.matched, category: m.category }]) || []
-          )
+          console.log(`🔍 Found ${metadata?.length || 0} metadata entries for session`)
 
-          console.log(`🔍 Found ${metadataMap.size} metadata entries for session`)
+          // Helper function to find closest matching metadata by timestamp
+          const findMetadataByTimestamp = (msgTimestamp: number | undefined, role: string) => {
+            if (!msgTimestamp || role !== 'assistant' || !metadata || metadata.length === 0) {
+              return null
+            }
+
+            // Find metadata entry with closest timestamp (within 10 second tolerance)
+            let closest = null
+            let minDiff = 10000 // 10 seconds in milliseconds
+
+            for (const meta of metadata) {
+              if (!meta.timestamp) continue
+              const diff = Math.abs(meta.timestamp - msgTimestamp)
+              if (diff < minDiff) {
+                minDiff = diff
+                closest = meta
+              }
+            }
+
+            return closest
+          }
 
           // Save complete transcript to database (both user and assistant messages)
           for (const message of transcript) {
-            // Look up metadata by turn_id (Layercode includes turn_id in transcript)
-            const meta = message.turn_id ? metadataMap.get(message.turn_id) : null
+            // Match metadata by timestamp for assistant messages
+            const meta = findMetadataByTimestamp(message.timestamp, message.role)
 
             // Use actual match status for ASSISTANT messages
             // User messages don't have match status (they're questions, not answers)
@@ -251,7 +269,7 @@ export async function POST(request: Request) {
               timestamp: message.timestamp,
               matched: matched,
               category: category,
-              turn_id: message.turn_id
+              metaFound: !!meta
             })
 
             await trackConversation({
@@ -274,7 +292,7 @@ export async function POST(request: Request) {
           if (deleteError) {
             console.error('Failed to cleanup turn metadata:', deleteError)
           } else {
-            console.log(`🧹 Cleaned up ${metadataMap.size} metadata entries`)
+            console.log(`🧹 Cleaned up ${metadata?.length || 0} metadata entries`)
           }
 
           // Clean up conversation history after session ends
@@ -425,6 +443,7 @@ export async function POST(request: Request) {
               .insert({
                 session_id: session_id || conversation_id || 'unknown',
                 turn_id,
+                timestamp: Date.now(), // Approximate timestamp for matching
                 matched,
                 category: matched ? 'file_search' : 'error'
               })
@@ -432,7 +451,7 @@ export async function POST(request: Request) {
             if (metadataError) {
               console.error('Failed to store turn metadata:', metadataError)
             } else {
-              console.log(`✅ Stored metadata for turn ${turn_id}: matched=${matched}`)
+              console.log(`✅ Stored metadata for turn ${turn_id}: matched=${matched}, timestamp=${Date.now()}`)
             }
 
           } else {
@@ -476,6 +495,7 @@ export async function POST(request: Request) {
                 .insert({
                   session_id: session_id || conversation_id || 'unknown',
                   turn_id,
+                  timestamp: Date.now(), // Approximate timestamp for matching
                   matched: false,
                   category: 'demo'
                 })
@@ -483,7 +503,7 @@ export async function POST(request: Request) {
               if (metadataError) {
                 console.error('Failed to store turn metadata:', metadataError)
               } else {
-                console.log(`✅ Stored metadata for turn ${turn_id}: matched=false (demo)`)
+                console.log(`✅ Stored metadata for turn ${turn_id}: matched=false (demo), timestamp=${Date.now()}`)
               }
 
               // Send metadata
