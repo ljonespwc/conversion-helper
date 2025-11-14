@@ -75,12 +75,32 @@ export async function GET(request: NextRequest) {
     // Always filter by session IDs - if empty array, returns no results (correct behavior)
     const { data: messages } = await supabase
       .from('conversation_messages')
-      .select('matched')
+      .select('matched, role, session_id, created_at')
       .in('session_id', userSessionIds.length > 0 ? userSessionIds : [''])
+      .order('created_at', { ascending: true })
 
-    const matchedCount = messages?.filter(m => m.matched).length || 0
-    const totalMessages = messages?.length || 0
-    const matchRate = totalMessages > 0 ? Math.round((matchedCount / totalMessages) * 100) : 0
+    // Only count assistant responses, excluding the first assistant message per session (welcome message)
+    const messagesGroupedBySession = (messages || []).reduce((acc, msg) => {
+      if (!acc[msg.session_id]) {
+        acc[msg.session_id] = []
+      }
+      acc[msg.session_id].push(msg)
+      return acc
+    }, {} as Record<string, any[]>)
+
+    let assistantResponses = 0
+    let matchedResponses = 0
+
+    Object.values(messagesGroupedBySession).forEach(sessionMessages => {
+      const assistantMessages = sessionMessages.filter(m => m.role === 'assistant')
+      // Skip the first assistant message (welcome message)
+      const responseMessages = assistantMessages.slice(1)
+
+      assistantResponses += responseMessages.length
+      matchedResponses += responseMessages.filter(m => m.matched).length
+    })
+
+    const matchRate = assistantResponses > 0 ? Math.round((matchedResponses / assistantResponses) * 100) : 0
 
     // Get active sessions (last 5 minutes, filtered by user's pages)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)

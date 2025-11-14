@@ -305,57 +305,64 @@ export default function AdminDashboard() {
                     {isExpanded && session.messages && session.messages.length > 0 && (
                       <div className="bg-gray-900/50 px-6 py-3 border-t border-gray-700">
                         <div className="space-y-3">
-                          {session.messages.map((message, idx) => (
-                            <div
-                              key={message.id}
-                              className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700"
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
-                                      message.role === 'user'
-                                        ? 'bg-blue-900/30 text-blue-400'
-                                        : 'bg-purple-900/30 text-purple-400'
-                                    }`}>
-                                      {message.role === 'user' ? '👤 User' : '🤖 Assistant'}
-                                    </span>
+                          {session.messages.map((message, idx) => {
+                            // Check if this is the first assistant message (welcome message)
+                            const assistantMessages = session.messages.filter(m => m.role === 'assistant')
+                            const isFirstAssistantMessage = message.role === 'assistant' && assistantMessages[0]?.id === message.id
+
+                            return (
+                              <div
+                                key={message.id}
+                                className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700"
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
+                                        message.role === 'user'
+                                          ? 'bg-blue-900/30 text-blue-400'
+                                          : 'bg-purple-900/30 text-purple-400'
+                                      }`}>
+                                        {message.role === 'user' ? '👤 User' : '🤖 Assistant'}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-gray-200">
+                                      {message.message}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      {message.timestamp
+                                        ? new Date(message.timestamp).toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: '2-digit',
+                                            second: '2-digit',
+                                            hour12: true
+                                          })
+                                        : new Date(message.created_at).toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: '2-digit',
+                                            second: '2-digit',
+                                            hour12: true
+                                          })
+                                      }
+                                      {message.category && ` • ${message.category}`}
+                                    </p>
                                   </div>
-                                  <p className="text-sm text-gray-200">
-                                    {message.message}
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {message.timestamp
-                                      ? new Date(message.timestamp).toLocaleTimeString('en-US', {
-                                          hour: 'numeric',
-                                          minute: '2-digit',
-                                          second: '2-digit',
-                                          hour12: true
-                                        })
-                                      : new Date(message.created_at).toLocaleTimeString('en-US', {
-                                          hour: 'numeric',
-                                          minute: '2-digit',
-                                          second: '2-digit',
-                                          hour12: true
-                                        })
-                                    }
-                                    {message.category && ` • ${message.category}`}
-                                  </p>
+                                  {/* Only show match badge on assistant messages that are NOT the first one (welcome message) */}
+                                  {message.role === 'assistant' && !isFirstAssistantMessage && (
+                                    <span
+                                      className={`ml-4 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                        message.matched
+                                          ? 'bg-green-900/30 text-green-400'
+                                          : 'bg-gray-900/30 text-gray-400'
+                                      }`}
+                                    >
+                                      {message.matched ? 'Matched' : 'No Match'}
+                                    </span>
+                                  )}
                                 </div>
-                                {message.role === 'assistant' && (
-                                  <span
-                                    className={`ml-4 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                      message.matched
-                                        ? 'bg-green-900/30 text-green-400'
-                                        : 'bg-gray-900/30 text-gray-400'
-                                    }`}
-                                  >
-                                    {message.matched ? 'Matched' : 'No Match'}
-                                  </span>
-                                )}
                               </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     )}
