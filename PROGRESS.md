@@ -332,39 +332,35 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ## 🚀 What's Next (2025-11-14)
 
-### Priority 1: Conversation Tracking & Message Quality ✅ COMPLETED (2025-11-14)
+### Priority 1: Conversation Tracking Simplification ✅ COMPLETED (2025-11-14)
 
-**Issue:** Messages saved with incorrect match status, partial data, and unclear user/assistant distinction.
+**Evolution:** Started with complex metadata tracking system, simplified to raw transcript storage.
 
-**Fixes Implemented:**
-1. ✅ **Database schema updates**
-   - Added `role` ('user' | 'assistant'), `timestamp` (Unix ms), renamed `question` → `message`
-   - Created `conversation_turn_metadata` table for cross-instance state in serverless
-   - Renamed `matched_questions` → `matched_responses` for clarity
+**Final Implementation:**
+1. ✅ **Database schema**
+   - `conversation_messages`: Stores complete transcripts with `role`, `message`, `timestamp`
+   - `conversation_sessions`: Tracks sessions with `total_questions`, `started_at`, `ended_at`
+   - **Removed**: `conversation_turn_metadata` table (no longer needed)
+   - **Unused but kept**: `matched` and `category` columns (set to null, avoiding breaking changes)
 
-2. ✅ **Match tracking architecture**
-   - Store metadata during message events (survives serverless invocations)
-   - Match by timestamp at session.end (Layercode transcript lacks turn_id)
-   - Only assistant messages show match badges in UI
-   - "Matched" = answered from indexed content, not generic AI
+2. ✅ **Simplified webhook tracking**
+   - Session.end saves raw Layercode transcript (user + assistant messages)
+   - No complex metadata matching or state management
+   - ~100 lines of code removed from webhook handler
 
-3. ✅ **Session.end handler**
-   - Batch saves complete transcript (user + assistant messages)
-   - Fetches metadata from DB, matches by closest timestamp (10s tolerance)
-   - Cleans up metadata after saving
-   - Enhanced logging: `metaFound: true/false` shows successful matches
+3. ✅ **Analytics updates**
+   - **Removed**: "Content Match Rate" metric (not meaningful after testing)
+   - **Added**: "Avg Session Duration" - shows engagement depth (format: "2m 15s")
+   - Removed match percentage badges from conversation summaries
+   - Session stats show message counts: "9 Assistant messages • 8 User messages • 125s duration"
 
-4. ✅ **UI improvements**
-   - Updated to "Content Match Rate" (more accurate than "FAQ Match Rate")
-   - Match badges only on assistant messages (questions don't get badges)
-   - Session stats show `matched_responses` count
-
-**Architecture:** Serverless-safe using Supabase as lightweight session store between message events and session.end.
+**Rationale:** "Matched" tracking proved difficult to measure accurately. Session duration is simpler and more valuable for understanding engagement.
 
 **Files modified:**
-- `src/app/api/layercode/webhook/route.ts` (metadata storage + matching)
-- `src/app/admin/page.tsx` (UI updates)
-- Migrations: `20251114_add_role_and_timestamp_to_conversation_messages.sql`, `20251114_rename_matched_questions_to_matched_responses.sql`, `20251114_create_conversation_turn_metadata.sql`, `20251114_add_timestamp_to_conversation_turn_metadata.sql`
+- `src/app/api/layercode/webhook/route.ts` (removed metadata storage/matching logic)
+- `src/app/api/stats/route.ts` (avg duration calculation)
+- `src/app/admin/page.tsx` (updated card and removed badges)
+- Migration: `20251114_drop_conversation_turn_metadata.sql`
 
 ---
 

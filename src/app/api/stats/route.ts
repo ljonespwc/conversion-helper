@@ -64,20 +64,55 @@ export async function GET(request: NextRequest) {
       .gte('created_at', today.toISOString())
       .in('page_url', filterPages)
 
-    // Calculate average session duration
+    // Calculate average session duration using message timestamps (more accurate)
     const { data: completedSessions } = await supabase
       .from('conversation_sessions')
-      .select('started_at, ended_at')
+      .select('session_id, started_at, ended_at')
       .in('page_url', filterPages)
       .not('ended_at', 'is', null)
 
     let avgDuration = 0
     if (completedSessions && completedSessions.length > 0) {
-      const totalDuration = completedSessions.reduce((sum, session) => {
-        const duration = new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()
-        return sum + duration
-      }, 0)
-      avgDuration = Math.round(totalDuration / completedSessions.length / 1000) // Convert to seconds
+      // Get messages for all completed sessions to calculate accurate durations
+      const sessionIds = completedSessions.map(s => s.session_id)
+      const { data: sessionMessages } = await supabase
+        .from('conversation_messages')
+        .select('session_id, timestamp')
+        .in('session_id', sessionIds)
+        .not('timestamp', 'is', null)
+
+      // Group messages by session and calculate duration from timestamps
+      const messagesBySession = (sessionMessages || []).reduce((acc, msg) => {
+        if (!acc[msg.session_id]) {
+          acc[msg.session_id] = []
+        }
+        acc[msg.session_id].push(msg.timestamp)
+        return acc
+      }, {} as Record<string, number[]>)
+
+      // Calculate total duration across all sessions
+      let totalDuration = 0
+      let sessionsWithDuration = 0
+
+      for (const session of completedSessions) {
+        const timestamps = messagesBySession[session.session_id]
+        if (timestamps && timestamps.length >= 2) {
+          // Sort timestamps and calculate duration from first to last message
+          const sortedTimestamps = timestamps.sort((a, b) => a - b)
+          const duration = sortedTimestamps[sortedTimestamps.length - 1] - sortedTimestamps[0]
+          totalDuration += duration
+          sessionsWithDuration++
+        } else if (session.ended_at) {
+          // Fallback to session times if no message timestamps
+          const duration = new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()
+          totalDuration += duration
+          sessionsWithDuration++
+        }
+      }
+
+      if (sessionsWithDuration > 0) {
+        avgDuration = Math.round(totalDuration / sessionsWithDuration / 1000) // Convert to seconds
+      }
     }
 
     // Get active sessions (last 5 minutes, filtered by user's pages)
