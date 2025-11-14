@@ -241,6 +241,15 @@ export default function AdminDashboard() {
                   duration = Math.round((new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 1000)
                 }
 
+                // Recalculate match stats excluding the first assistant message (welcome)
+                const assistantMessages = session.messages?.filter(m => m.role === 'assistant') || []
+                const assistantResponses = assistantMessages.slice(1) // Skip first (welcome message)
+                const matchedResponseCount = assistantResponses.filter(m => m.matched).length
+                const totalResponseCount = assistantResponses.length
+                const matchPercentage = totalResponseCount > 0
+                  ? Math.round((matchedResponseCount / totalResponseCount) * 100)
+                  : 0
+
                 return (
                   <div key={session.id}>
                     {/* Session Header */}
@@ -272,8 +281,12 @@ export default function AdminDashboard() {
                           <div className="text-xs text-gray-400 mt-0.5">
                             {session.total_questions} question{session.total_questions !== 1 ? 's' : ''}
                             {duration > 0 && ` • ${duration}s duration`}
-                            {' • '}
-                            {session.matched_responses}/{session.total_questions} matched
+                            {totalResponseCount > 0 && (
+                              <>
+                                {' • '}
+                                {matchedResponseCount}/{totalResponseCount} matched
+                              </>
+                            )}
                             {session.page_url && (
                               <>
                                 <br />
@@ -289,13 +302,13 @@ export default function AdminDashboard() {
                       <div>
                         <span
                           className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                            session.matched_responses > 0
+                            matchedResponseCount > 0
                               ? 'bg-green-900/30 text-green-400'
                               : 'bg-gray-900/30 text-gray-400'
                           }`}
                         >
-                          {session.total_questions > 0
-                            ? `${Math.round((session.matched_responses / session.total_questions) * 100)}% Match`
+                          {totalResponseCount > 0
+                            ? `${matchPercentage}% Match`
                             : 'No Match'}
                         </span>
                       </div>
