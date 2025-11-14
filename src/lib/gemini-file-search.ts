@@ -51,7 +51,6 @@ export async function queryPageContent(
     ).join(' OR ');
 
     const metadataFilter = `(${pageUrlConditions})`;
-    console.log('🔍 Gemini metadataFilter:', metadataFilter);
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -68,17 +67,9 @@ export async function queryPageContent(
       }
     });
 
-    const citations = response.candidates?.[0]?.groundingMetadata || null;
-    const groundingChunks = citations?.groundingChunks || [];
-
-    console.log('📚 Retrieved grounding chunks:', groundingChunks.length);
-    if (groundingChunks.length > 0) {
-      console.log('📄 First chunk preview:', groundingChunks[0]?.retrievedContext?.text?.substring(0, 150));
-    }
-
     return {
       answer: response.text || 'No answer generated',
-      citations,
+      citations: response.candidates?.[0]?.groundingMetadata || null,
       organization: user.organization_name
     };
   } catch (error) {
