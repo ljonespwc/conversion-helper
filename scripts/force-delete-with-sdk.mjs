@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
+import { createClient } from '@supabase/supabase-js'
 import * as dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
@@ -11,7 +12,10 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 })
 
-const STORE_NAME = 'fileSearchStores/conversionhelperpages-kk1562zy76aq'
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 
 // 4 old duplicates + 21 untitled
 const OLD_DUPLICATES = [
@@ -30,6 +34,23 @@ const allToDelete = [...OLD_DUPLICATES, ...docsToDelete]
 async function forceDeleteAllDocs() {
   console.log('\n🗑️  FORCE DELETING WITH SDK (force: true)\n')
   console.log('='.repeat(80))
+
+  // Get store name from database
+  const { data: user, error: userError } = await supabase
+    .from('users')
+    .select('file_search_store_name, organization_name')
+    .limit(1)
+    .single()
+
+  if (userError || !user?.file_search_store_name) {
+    console.error('❌ Could not find file search store name in database')
+    console.error('Error:', userError)
+    return
+  }
+
+  const STORE_NAME = user.file_search_store_name
+  console.log(`📦 Store: ${STORE_NAME}`)
+  console.log(`🏢 Organization: ${user.organization_name}`)
   console.log(`\nDeleting ${allToDelete.length} documents...\n`)
 
   let successCount = 0

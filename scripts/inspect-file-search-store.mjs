@@ -13,10 +13,9 @@ const ai = new GoogleGenAI({
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY  // Use service role for admin scripts
 )
 
-const STORE_NAME = 'fileSearchStores/conversionhelperpages-kk1562zy76aq'
 const PAGE_URL = 'https://www.precisionnutrition.com/nutrition-certification-level-1-register-now'
 
 async function inspectFileSearchStore() {
@@ -24,8 +23,25 @@ async function inspectFileSearchStore() {
   console.log('='.repeat(80))
 
   try {
+    // Get store name from database
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('file_search_store_name, organization_name')
+      .limit(1)
+      .single()
+
+    if (userError || !user?.file_search_store_name) {
+      console.error('❌ Could not find file search store name in database')
+      console.error('Error:', userError)
+      return
+    }
+
+    const STORE_NAME = user.file_search_store_name
+    console.log(`📦 Store: ${STORE_NAME}`)
+    console.log(`🏢 Organization: ${user.organization_name}`)
+
     // Get database info
-    console.log('\n📦 Your File Search Store (from Supabase):')
+    console.log('\n📊 Indexed Pages (from Supabase):')
     console.log('-'.repeat(80))
 
     const { data: page, error } = await supabase
