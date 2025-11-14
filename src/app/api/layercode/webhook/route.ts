@@ -15,7 +15,9 @@ const supabase = createClient(
 // Track conversation directly to database
 async function trackConversation(params: {
   session_id: string
-  question: string
+  role: 'user' | 'assistant'
+  message: string
+  timestamp?: number
   matched: boolean
   category: string | null
   page_url: string | null
@@ -71,7 +73,9 @@ async function trackConversation(params: {
       .from('conversation_messages')
       .insert({
         session_id: params.session_id,
-        question: params.question || '',
+        role: params.role,
+        message: params.message || '',
+        timestamp: params.timestamp || null,
         matched: params.matched || false,
         category: params.category || null
       })
@@ -200,21 +204,26 @@ export async function POST(request: Request) {
         if (type === 'session.end') {
           // Process complete transcript from session.end event
           const transcript = requestBody.transcript || []
-          const userMessages = transcript.filter((entry: any) => entry.role === 'user')
 
-          console.log(`📝 Session ended with ${userMessages.length} user messages`)
-          console.log('📋 Transcript structure:', JSON.stringify(userMessages, null, 2))
+          console.log(`📝 Session ended with ${transcript.length} total messages (user + assistant)`)
+          console.log('📋 Full transcript:', JSON.stringify(transcript, null, 2))
 
-          // Save complete transcript to database
-          for (const message of userMessages) {
+          // Save complete transcript to database (both user and assistant messages)
+          for (const message of transcript) {
             // Determine if this was a matched query (check if pageUrl was used)
             const matched = !!pageUrl
 
-            console.log('💾 Saving message:', { text: message.text, content: message.content, message })
+            console.log('💾 Saving message:', {
+              role: message.role,
+              text: message.text,
+              timestamp: message.timestamp
+            })
 
             await trackConversation({
               session_id: session_id || conversation_id || 'unknown',
-              question: message.text || message.content || '',
+              role: message.role,
+              message: message.text || '',
+              timestamp: message.timestamp || null,
               matched,
               category: pageUrl ? 'file_search' : 'demo',
               page_url: pageUrl || null
