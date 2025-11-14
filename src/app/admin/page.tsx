@@ -11,6 +11,7 @@ interface ConversationMessage {
   id: string
   role: 'user' | 'assistant'
   message: string
+  timestamp: number | null
   matched: boolean
   category: string | null
   created_at: string
@@ -223,9 +224,22 @@ export default function AdminDashboard() {
             <div className="divide-y divide-gray-700">
               {stats.recentSessions.map((session) => {
                 const isExpanded = expandedSessions.has(session.id)
-                const duration = session.ended_at
-                  ? Math.round((new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 1000)
-                  : 0
+
+                // Calculate duration from message timestamps (more accurate than session start/end)
+                let duration = 0
+                if (session.messages && session.messages.length >= 2) {
+                  const timestamps = session.messages
+                    .map(m => m.timestamp)
+                    .filter((t): t is number => t !== null)
+                    .sort((a, b) => a - b)
+
+                  if (timestamps.length >= 2) {
+                    duration = Math.round((timestamps[timestamps.length - 1] - timestamps[0]) / 1000)
+                  }
+                } else if (session.ended_at) {
+                  // Fallback to session times if no message timestamps
+                  duration = Math.round((new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 1000)
+                }
 
                 return (
                   <div key={session.id}>
@@ -311,12 +325,20 @@ export default function AdminDashboard() {
                                     {message.message}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-1">
-                                    {new Date(message.created_at).toLocaleTimeString('en-US', {
-                                      hour: 'numeric',
-                                      minute: '2-digit',
-                                      second: '2-digit',
-                                      hour12: true
-                                    })}
+                                    {message.timestamp
+                                      ? new Date(message.timestamp).toLocaleTimeString('en-US', {
+                                          hour: 'numeric',
+                                          minute: '2-digit',
+                                          second: '2-digit',
+                                          hour12: true
+                                        })
+                                      : new Date(message.created_at).toLocaleTimeString('en-US', {
+                                          hour: 'numeric',
+                                          minute: '2-digit',
+                                          second: '2-digit',
+                                          hour12: true
+                                        })
+                                    }
                                     {message.category && ` • ${message.category}`}
                                   </p>
                                 </div>
