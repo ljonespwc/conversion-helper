@@ -241,8 +241,13 @@ export default function AdminDashboard() {
                   duration = Math.round((new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 1000)
                 }
 
-                // Recalculate match stats excluding the first assistant message (welcome)
+                // Count message types
                 const assistantMessages = session.messages?.filter(m => m.role === 'assistant') || []
+                const userMessages = session.messages?.filter(m => m.role === 'user') || []
+                const assistantMessageCount = assistantMessages.length
+                const userMessageCount = userMessages.length
+
+                // Recalculate match stats excluding the first assistant message (welcome)
                 const assistantResponses = assistantMessages.slice(1) // Skip first (welcome message)
                 const matchedResponseCount = assistantResponses.filter(m => m.matched).length
                 const totalResponseCount = assistantResponses.length
@@ -279,14 +284,10 @@ export default function AdminDashboard() {
                             })}
                           </div>
                           <div className="text-xs text-gray-400 mt-0.5">
-                            {session.total_questions} user message{session.total_questions !== 1 ? 's' : ''}
+                            {assistantMessageCount} Assistant message{assistantMessageCount !== 1 ? 's' : ''}
+                            {' • '}
+                            {userMessageCount} User message{userMessageCount !== 1 ? 's' : ''}
                             {duration > 0 && ` • ${duration}s duration`}
-                            {totalResponseCount > 0 && (
-                              <>
-                                {' • '}
-                                {matchedResponseCount}/{totalResponseCount} matched
-                              </>
-                            )}
                             {session.page_url && (
                               <>
                                 <br />
@@ -308,8 +309,8 @@ export default function AdminDashboard() {
                           }`}
                         >
                           {totalResponseCount > 0
-                            ? `${matchPercentage}% Match`
-                            : 'No Match'}
+                            ? `${matchPercentage}% Response Rate`
+                            : 'No Responses'}
                         </span>
                       </div>
                     </div>
@@ -318,12 +319,7 @@ export default function AdminDashboard() {
                     {isExpanded && session.messages && session.messages.length > 0 && (
                       <div className="bg-gray-900/50 px-6 py-3 border-t border-gray-700">
                         <div className="space-y-3">
-                          {session.messages.map((message, idx) => {
-                            // Check if this is the first assistant message (welcome message)
-                            const assistantMessages = session.messages.filter(m => m.role === 'assistant')
-                            const isFirstAssistantMessage = message.role === 'assistant' && assistantMessages[0]?.id === message.id
-
-                            return (
+                          {session.messages.map((message, idx) => (
                               <div
                                 key={message.id}
                                 className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700"
@@ -360,22 +356,9 @@ export default function AdminDashboard() {
                                       {message.category && ` • ${message.category}`}
                                     </p>
                                   </div>
-                                  {/* Only show match badge on assistant messages that are NOT the first one (welcome message) */}
-                                  {message.role === 'assistant' && !isFirstAssistantMessage && (
-                                    <span
-                                      className={`ml-4 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                        message.matched
-                                          ? 'bg-green-900/30 text-green-400'
-                                          : 'bg-gray-900/30 text-gray-400'
-                                      }`}
-                                    >
-                                      {message.matched ? 'Matched' : 'No Match'}
-                                    </span>
-                                  )}
                                 </div>
                               </div>
-                            )
-                          })}
+                            ))}
                         </div>
                       </div>
                     )}
