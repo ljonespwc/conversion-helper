@@ -197,7 +197,7 @@ export default function AdminDashboard() {
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
-            title="FAQ Match Rate"
+            title="Content Match Rate"
             value={loading ? '...' : `${stats?.matchRate || 0}%`}
             subtitle="Questions answered"
             icon={<Activity className="w-5 h-5" />}
