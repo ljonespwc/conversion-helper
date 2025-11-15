@@ -126,6 +126,19 @@ export async function queryPageContent(
     });
     logTiming('Gemini File Search query', geminiStart)
 
+    // DEBUG: Log the full response to diagnose "No answer generated" issues
+    console.log('🔍 [DEBUG] Gemini response.text:', response.text || '(empty)')
+    console.log('🔍 [DEBUG] Gemini response structure:', JSON.stringify({
+      hasText: !!response.text,
+      hasCandidates: !!response.candidates,
+      candidatesLength: response.candidates?.length,
+      firstCandidate: response.candidates?.[0] ? {
+        hasContent: !!response.candidates[0].content,
+        finishReason: response.candidates[0].finishReason,
+        safetyRatings: response.candidates[0].safetyRatings
+      } : null
+    }, null, 2))
+
     return {
       answer: response.text || 'No answer generated',
       citations: response.candidates?.[0]?.groundingMetadata || null,
