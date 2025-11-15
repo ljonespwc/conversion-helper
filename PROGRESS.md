@@ -1,19 +1,21 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-11-14
+**Last Updated**: 2025-11-15
 **Current Phase**: Production Ready - Auth + File Search + Admin Tools
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
 ---
 
-## ⚠️ CRITICAL: Streaming Architecture
+## ⚠️ CRITICAL: Streaming Architecture & AI Prompting
 
-**DO NOT modify streaming architecture without explicit permission. NO EXCEPTIONS.**
+**DO NOT modify streaming architecture or AI prompting without explicit permission. NO EXCEPTIONS.**
 
 This includes:
 - **LLM streaming** (Gemini responses, model configurations)
 - **Layercode streaming** (WebSocket STT/TTS, voice processing)
 - **File Search queries** (metadata filters, query structure)
+- **System prompts** (instructions passed to Gemini)
+- **Conversation history** (context passing to Gemini)
 - **Any changes to data flow** in the voice query pipeline
 
 **Required before changes:**
@@ -21,7 +23,7 @@ This includes:
 2. Explain effects on latency, reliability, and user experience
 3. Get explicit approval before implementation
 
-**Reason:** These systems are highly sensitive to latency and reliability. Changes can introduce subtle issues that only appear in production under load.
+**Reason:** These systems are highly sensitive to latency and reliability. Changes can introduce subtle issues that only appear in production under load. System prompts and context passing directly affect response quality and user experience.
 
 ---
 
@@ -361,6 +363,50 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 - `src/app/api/stats/route.ts` (avg duration calculation)
 - `src/app/admin/page.tsx` (updated card and removed badges)
 - Migration: `20251114_drop_conversation_turn_metadata.sql`
+
+---
+
+### Priority 1.5: Fix Gemini File Search Context & Prompting ✅ COMPLETED (2025-11-15)
+
+**Issue:** Gemini was frequently asking for clarification on answerable questions ("What's the price?", "Tell me more about that") and ignoring conversation context.
+
+**Root Cause Analysis:**
+1. System instructions created in webhook but **never passed to Gemini API**
+2. Conversation history stored locally but **only current question sent to Gemini**
+3. Gemini API call using plain string instead of structured contents array
+4. Missing `systemInstruction` field in API config
+
+**Solution Implemented:**
+
+1. ✅ **Pass full conversation history to Gemini**
+   - Created `buildContentsArray()` helper to convert conversation history
+   - Properly map roles: user→user, assistant→model, system→systemInstruction
+   - Pass entire conversation context in structured `contents` array
+
+2. ✅ **Send system instructions to Gemini API**
+   - Extract system prompt from conversation history
+   - Pass via `systemInstruction` config parameter
+   - Ensures Gemini actually receives and follows the instructions
+
+3. ✅ **Strengthen system prompt**
+   - Changed from "helpful assistant" to "sales assistant"
+   - Added CRITICAL RULES section with explicit forbiddens:
+     - ❌ NEVER ask users to clarify or specify
+     - ❌ NEVER say "I need more information" or "Could you please specify"
+     - ✅ Always attempt to answer directly
+     - ✅ Use conversation context for pronouns like "that", "it"
+
+**Results (Verified in Production):**
+- ✅ "What's the price?" → Direct answer with pricing options (no clarification request)
+- ✅ "Tell me more about that" → Uses context, knows "that" = previous topic, expands appropriately
+- ✅ Multi-turn conversations flow naturally with context retention
+- ✅ AI acts confident and assertive instead of overly cautious
+
+**Files modified:**
+- `src/lib/gemini-file-search.ts` (added buildContentsArray, updated queryPageContent signature)
+- `src/app/api/layercode/webhook/route.ts` (extract and pass system prompt + conversation history)
+
+**⚠️ IMPORTANT:** These changes are now part of the CRITICAL system. Do NOT modify File Search system prompts or conversation history passing without explicit user permission.
 
 ---
 
