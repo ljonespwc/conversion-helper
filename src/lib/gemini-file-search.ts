@@ -42,12 +42,45 @@ function getCachedData(pageUrl: string): CacheEntry | null {
 }
 
 /**
+ * Convert conversation history to Gemini API format
+ * Maps roles: 'user' -> 'user', 'assistant' -> 'model', 'system' -> skip
+ */
+function buildContentsArray(
+  conversationHistory: Array<{ role: string; content: string }> | undefined,
+  currentQuestion: string
+) {
+  const contents: Array<{ role: string; parts: Array<{ text: string }> }> = []
+
+  // Add conversation history (skip system messages as they go in systemInstruction)
+  if (conversationHistory) {
+    for (const msg of conversationHistory) {
+      if (msg.role === 'system') continue // System prompt goes to systemInstruction
+
+      contents.push({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+      })
+    }
+  }
+
+  // Add current question
+  contents.push({
+    role: 'user',
+    parts: [{ text: currentQuestion }]
+  })
+
+  return contents
+}
+
+/**
  * Query File Search for content available on a specific page
  * Uses the new page-based architecture with page_urls metadata
  */
 export async function queryPageContent(
   question: string,
-  pageUrl: string
+  pageUrl: string,
+  conversationHistory?: Array<{ role: string; content: string }>,
+  systemPrompt?: string
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
     // OPTIMIZATION: Check cache first to avoid redundant DB queries
@@ -106,14 +139,21 @@ export async function queryPageContent(
 
     const metadataFilter = `(${pageUrlConditions})`;
 
+    // Build properly structured contents array with conversation history
+    const contents = buildContentsArray(conversationHistory, question)
+
+    // Extract system prompt from conversation history or use provided one
+    const systemInstruction = systemPrompt || conversationHistory?.find(m => m.role === 'system')?.content
+
     const geminiStart = Date.now()
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: question,
+      contents,
       config: {
         // OPTIMIZATION: Add generation config to improve speed and consistency
         temperature: 0.3, // Lower temperature = faster, more deterministic responses
         maxOutputTokens: 300, // Limit response length to reduce generation time (~225 words, ~1.5min voice)
+        ...(systemInstruction && { systemInstruction }), // Add system instructions if available
         tools: [
           {
             fileSearch: {

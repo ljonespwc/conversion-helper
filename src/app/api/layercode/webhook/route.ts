@@ -193,6 +193,7 @@ export async function POST(request: Request) {
             welcomeMsg = "Hello! This is a demo of the voice assistant technology. The production version would be customized with your specific content. How can I help you understand how this system works?"
           }
 
+          // Store system prompt in conversation history
           conversationMessages[conversationKey] = [
             { role: 'system', content: systemPrompt }
           ]
@@ -337,8 +338,17 @@ export async function POST(request: Request) {
             const fileSearchStart = Date.now()
 
             try {
+              // Get system prompt from conversation history
+              const systemPrompt = conversationMessages[conversationKey]?.find(m => m.role === 'system')?.content
+
               // Query content available for this page using page_urls metadata
-              const { answer, citations, organization } = await queryPageContent(text, pageUrl)
+              // Pass full conversation history and system prompt for context
+              const { answer, citations, organization } = await queryPageContent(
+                text,
+                pageUrl,
+                conversationMessages[conversationKey],
+                systemPrompt
+              )
               logTiming('File Search total', fileSearchStart)
               finalResponse = answer
               matched = true
