@@ -19,6 +19,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [currentResponse, setCurrentResponse] = useState<string | null>(null)
   const [responseType, setResponseType] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState(false)
+  const [sentences, setSentences] = useState<string[]>([])
+  const [revealedSentences, setRevealedSentences] = useState<number>(0)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -79,6 +81,35 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       console.error('Failed to copy:', err)
     }
   }
+
+  // Split response into sentences when received
+  useEffect(() => {
+    if (currentResponse) {
+      // Split on sentence boundaries (., !, ?)
+      const sentenceArray = currentResponse
+        .split(/(?<=[.!?])\s+/)
+        .filter(s => s.trim().length > 0)
+      setSentences(sentenceArray)
+      setRevealedSentences(0) // Reset to reveal from start
+    } else {
+      setSentences([])
+      setRevealedSentences(0)
+    }
+  }, [currentResponse])
+
+  // Progressive sentence reveal based on voice amplitude
+  useEffect(() => {
+    if (sentences.length === 0 || revealedSentences >= sentences.length) return
+
+    const interval = setInterval(() => {
+      // Reveal next sentence when agent is actively speaking
+      if (agentAudioLevel > 0.05 && revealedSentences < sentences.length) {
+        setRevealedSentences(prev => prev + 1)
+      }
+    }, 700) // Check every 700ms (~1 sentence per interval)
+
+    return () => clearInterval(interval)
+  }, [sentences, revealedSentences, agentAudioLevel])
 
   // Removed amplitude logging - was too noisy
 
@@ -218,10 +249,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                     <div className="flex-shrink-0 mt-0.5">
                       <Volume2 className="w-4 h-4 text-blue-400" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
-                        {currentResponse}
-                      </p>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      {sentences.slice(0, revealedSentences).map((sentence, index) => (
+                        <motion.p
+                          key={index}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, ease: 'easeOut' }}
+                          className="text-white text-sm leading-relaxed"
+                        >
+                          {sentence}
+                        </motion.p>
+                      ))}
                     </div>
                   </div>
 
