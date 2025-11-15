@@ -176,10 +176,10 @@ export async function POST(request: Request) {
               const widgetPage = await getWidgetPage(pageUrl)
 
               if (widgetPage) {
-                systemPrompt = `You are a helpful assistant for ${widgetPage.page_title || 'this page'}. Answer questions based ONLY on the indexed content available for this page. Be conversational and helpful. If asked about something not in the knowledge base, politely let them know you can only answer questions about the available content.`
+                systemPrompt = `You are a helpful assistant for ${widgetPage.page_title || 'this page'}. All questions are about this page's content and offerings. When users ask ambiguous questions (like "what's the price?" or "any discounts?"), assume they're asking about this page's products/services and search the indexed content to find the answer. Answer based ONLY on what you find in the indexed content. Only say you don't have that information if your search truly returns nothing relevant. Be conversational and helpful.`
                 welcomeMsg = `Hello! I can answer questions about ${widgetPage.page_title || 'this page'}. What would you like to know?`
               } else {
-                systemPrompt = "You are a helpful assistant for this page. Answer questions based ONLY on the available content."
+                systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them."
                 welcomeMsg = "Hello! How can I help you today?"
               }
             } catch (error) {
@@ -276,7 +276,7 @@ export async function POST(request: Request) {
 
             if (pageUrl) {
               const widgetPage = await getWidgetPage(pageUrl)
-              fallbackPrompt = `You are a helpful assistant for ${widgetPage?.page_title || 'this page'}. Answer questions based ONLY on the indexed content available for this page.`
+              fallbackPrompt = `You are a helpful assistant for ${widgetPage?.page_title || 'this page'}. All questions are about this page's content and offerings. When users ask ambiguous questions, assume they're asking about this page's products/services and search the indexed content. Answer based ONLY on what you find in the indexed content.`
             } else {
               fallbackPrompt = "You are a friendly demo assistant. This is a demonstration of the voice assistant technology. Remind users that this is just a demo and the production version would be customized with their specific content."
             }
