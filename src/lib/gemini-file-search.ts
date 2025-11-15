@@ -17,6 +17,30 @@ function logTiming(label: string, startTime: number) {
   console.log(`⏱️ [TIMING] ${label}: ${duration}ms`)
 }
 
+// OPTIMIZATION: In-memory cache for widget page and user store data
+// Avoids redundant DB queries for the same page during multi-turn conversations
+// Cache structure: { pageUrl: { widgetPage, user, timestamp } }
+interface CacheEntry {
+  widgetPage: { user_id: string; page_title?: string }
+  user: { file_search_store_name: string; organization_name?: string }
+  timestamp: number
+}
+
+const queryCache = new Map<string, CacheEntry>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function getCachedData(pageUrl: string): CacheEntry | null {
+  const cached = queryCache.get(pageUrl)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached
+  }
+  // Clean up expired cache
+  if (cached) {
+    queryCache.delete(pageUrl)
+  }
+  return null
+}
+
 /**
  * Query File Search for content available on a specific page
  * Uses the new page-based architecture with page_urls metadata
@@ -26,30 +50,50 @@ export async function queryPageContent(
   pageUrl: string
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
-    // Get the widget page to find the user's store
-    const widgetLookupStart = Date.now()
-    const { data: widgetPage, error: widgetPageError } = await supabase
-      .from('widget_pages')
-      .select('user_id')
-      .eq('page_url', pageUrl)
-      .single();
-    logTiming('Widget page lookup', widgetLookupStart)
+    // OPTIMIZATION: Check cache first to avoid redundant DB queries
+    const cached = getCachedData(pageUrl)
+    let widgetPage: { user_id: string; page_title?: string }
+    let user: { file_search_store_name: string; organization_name?: string }
 
-    if (widgetPageError || !widgetPage) {
-      throw new Error(`Page not configured: ${pageUrl}`);
-    }
+    if (cached) {
+      console.log('⚡ [CACHE HIT] Using cached widget/user data')
+      widgetPage = cached.widgetPage
+      user = cached.user
+    } else {
+      // Get the widget page to find the user's store
+      const widgetLookupStart = Date.now()
+      const { data: widgetPageData, error: widgetPageError } = await supabase
+        .from('widget_pages')
+        .select('user_id, page_title') // OPTIMIZATION: Only select needed columns
+        .eq('page_url', pageUrl)
+        .single();
+      logTiming('Widget page lookup', widgetLookupStart)
 
-    // Get user's File Search store
-    const userLookupStart = Date.now()
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('file_search_store_name, organization_name')
-      .eq('id', widgetPage.user_id)
-      .single();
-    logTiming('User store lookup', userLookupStart)
+      if (widgetPageError || !widgetPageData) {
+        throw new Error(`Page not configured: ${pageUrl}`);
+      }
+      widgetPage = widgetPageData
 
-    if (userError || !user?.file_search_store_name) {
-      throw new Error(`User store not found for page: ${pageUrl}`);
+      // Get user's File Search store
+      const userLookupStart = Date.now()
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('file_search_store_name, organization_name') // OPTIMIZATION: Only select needed columns
+        .eq('id', widgetPage.user_id)
+        .single();
+      logTiming('User store lookup', userLookupStart)
+
+      if (userError || !userData?.file_search_store_name) {
+        throw new Error(`User store not found for page: ${pageUrl}`);
+      }
+      user = userData
+
+      // OPTIMIZATION: Store in cache for subsequent queries
+      queryCache.set(pageUrl, {
+        widgetPage,
+        user,
+        timestamp: Date.now()
+      })
     }
 
     // Query File Search with page_url metadata filter
@@ -67,6 +111,9 @@ export async function queryPageContent(
       model: 'gemini-2.5-flash',
       contents: question,
       config: {
+        // OPTIMIZATION: Add generation config to improve speed and consistency
+        temperature: 0.3, // Lower temperature = faster, more deterministic responses
+        maxOutputTokens: 500, // Limit response length to reduce generation time
         tools: [
           {
             fileSearch: {
@@ -111,9 +158,16 @@ export async function queryPage(
  */
 export async function getWidgetPage(pageUrl: string) {
   try {
+    // OPTIMIZATION: Check cache first
+    const cached = getCachedData(pageUrl)
+    if (cached) {
+      console.log('⚡ [CACHE HIT] Using cached widget page')
+      return cached.widgetPage
+    }
+
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('*')
+      .select('user_id, page_title, page_url') // OPTIMIZATION: Only select needed columns
       .eq('page_url', pageUrl)
       .single();
 
