@@ -104,17 +104,17 @@ export default function FileSearchUpload({
   }
 
   return (
-    <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6">
-      <h2 className="text-xl font-bold text-white mb-4">Upload to File Search</h2>
-      <p className="text-gray-300 mb-6">
+    <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 p-4 sm:p-6">
+      <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Upload to File Search</h2>
+      <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
         Upload selected pages to Google File Search to activate your assistant
       </p>
 
       {/* Page Selection */}
       {!loadingPages && widgetPages.length > 0 && totalSelected > 0 && (
-        <div className="mb-6 p-4 bg-gray-900 rounded-lg border border-gray-700">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-300">Select pages where this content should be available:</h3>
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-900 rounded-lg border border-gray-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-300">Select pages where this content should be available:</h3>
             <button
               onClick={handleSelectAllPages}
               className="text-xs text-blue-400 hover:text-blue-300 font-medium"

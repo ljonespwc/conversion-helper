@@ -129,19 +129,19 @@ export default function FileUploadSection({
   const allSelected = selectedUploads.length === readyUploads.length && readyUploads.length > 0
 
   return (
-    <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-      <div className="p-6 border-b border-gray-700 bg-gray-900">
-        <h2 className="text-xl font-bold text-white mb-2">Uploaded Docs</h2>
-        <p className="text-sm text-gray-400">Upload .txt or .md files from your computer</p>
+    <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Uploaded Docs</h2>
+        <p className="text-xs sm:text-sm text-gray-400">Upload .txt or .md files from your computer</p>
       </div>
 
       {/* Upload Zone */}
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-4 sm:p-6 border-b border-gray-700">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+          className={`relative border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-colors ${
             isDragging
               ? 'border-blue-400 bg-blue-900/20'
               : 'border-gray-600 hover:border-gray-500'

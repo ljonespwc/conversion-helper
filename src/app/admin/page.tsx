@@ -120,31 +120,31 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Header with Assistant Page Selector */}
         <div className="mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">Reports & Analytics</h1>
-              <p className="text-gray-400 mt-2">Embed code and usage analytics</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Reports & Analytics</h1>
+              <p className="text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">Embed code and usage analytics</p>
             </div>
 
             {/* Assistant Page Selector */}
             {widgetPages.length > 0 && (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-3 bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-lg px-4 py-3 min-w-[250px] transition-colors"
+                  className="flex items-center gap-3 bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-lg px-4 py-3 w-full sm:min-w-[250px] transition-colors"
                 >
                   <Globe className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <div className="flex-1 text-left">
+                  <div className="flex-1 text-left min-w-0">
                     <p className="text-xs text-gray-400">Viewing Stats For:</p>
                     <p className="text-sm font-medium text-white truncate">
                       {selectedPage ? selectedPage.page_title : 'All Pages'}
                     </p>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-full min-w-[300px] bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-[300px] overflow-y-auto">
+                  <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:min-w-[300px] bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-[300px] overflow-y-auto">
                     {/* All Pages Option */}
                     <button
                       onClick={() => {

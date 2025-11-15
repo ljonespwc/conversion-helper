@@ -208,11 +208,11 @@ export default function ContentManagementPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       <Header user={user} />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Content Management</h1>
-          <p className="text-gray-400 mt-2">Scrape pages, upload files, and manage File Search content</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Content Management</h1>
+          <p className="text-gray-400 mt-2 text-sm sm:text-base">Scrape pages, upload files, and manage File Search content</p>
         </div>
 
         {/* Scraped Pages */}

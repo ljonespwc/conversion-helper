@@ -133,14 +133,14 @@ export default function ScrapedPagesList({
   const allSelected = selectedJobs.length === readyJobs.length && readyJobs.length > 0
 
   return (
-    <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-      <div className="p-6 border-b border-gray-700 bg-gray-900">
-        <h2 className="text-xl font-bold text-white mb-2">Scraped Pages</h2>
-        <p className="text-sm text-gray-400">Enter a URL to scrape and convert to markdown</p>
+    <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Scraped Pages</h2>
+        <p className="text-xs sm:text-sm text-gray-400">Enter a URL to scrape and convert to markdown</p>
       </div>
 
       {/* Scrape Form */}
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-4 sm:p-6 border-b border-gray-700">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="url" className="block text-sm font-medium text-gray-300 mb-2">
@@ -152,24 +152,24 @@ export default function ScrapedPagesList({
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com/page"
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-sm sm:text-base"
               disabled={loading}
             />
           </div>
 
           {error && (
-            <div className="bg-red-900/30 border border-red-700 text-red-400 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-900/30 border border-red-700 text-red-400 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm">
               {error}
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               {loading ? 'Scraping...' : 'Scrape Page'}
             </button>
 
@@ -178,10 +178,10 @@ export default function ScrapedPagesList({
                 type="button"
                 onClick={() => setIsDeleteModalOpen(true)}
                 disabled={loading}
-                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
-                <Trash2 className="w-5 h-5" />
-                Delete Selected ({selectedJobs.length})
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Delete Selected ({selectedJobs.length})</span>
               </button>
             )}
           </div>

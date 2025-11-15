@@ -142,25 +142,25 @@ export default function PagesPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       <Header user={userInfo ? { id: userInfo.id, email: userInfo.email } : null} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Assistant Pages</h1>
-          <p className="text-gray-400">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Assistant Pages</h1>
+          <p className="text-gray-400 text-sm sm:text-base">
             Manage the pages where your assistant is deployed. Each page gets its own assistant instance with filtered content.
           </p>
         </div>
 
         {/* Quick Install - Universal Embed Code */}
-        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-2">Quick Install</h2>
-          <p className="text-gray-300 mb-4">
+        <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Quick Install</h2>
+          <p className="text-gray-300 mb-4 text-sm sm:text-base">
             Add this single line of code to <span className="font-semibold">all pages</span> where you want the assistant.
             The assistant automatically detects which page it's on and shows the right content.
           </p>
 
           <div className="relative">
-            <pre className="bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto border border-gray-700">
+            <pre className="bg-gray-950 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto border border-gray-700 text-xs sm:text-sm">
               <code>{`<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js"></script>`}</code>
             </pre>
             <button
@@ -168,23 +168,23 @@ export default function PagesPage() {
                 `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js"></script>`,
                 'universal-embed'
               )}
-              className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all flex items-center gap-2 shadow-lg"
+              className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 shadow-lg"
             >
               {copiedId === 'universal-embed' ? (
                 <>
-                  <CheckCircle className="w-4 h-4" />
-                  Copied!
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4" />
-                  Copy
+                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Copy</span>
                 </>
               )}
             </button>
           </div>
 
-          <p className="text-sm text-gray-400 mt-4">
+          <p className="text-xs sm:text-sm text-gray-400 mt-3 sm:mt-4">
             Place this code before the closing <code className="text-gray-300 bg-gray-700 px-1.5 py-0.5 rounded">&lt;/body&gt;</code> tag.
             The assistant will appear as a chat button in the bottom-right corner.
           </p>

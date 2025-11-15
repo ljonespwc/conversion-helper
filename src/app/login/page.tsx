@@ -11,12 +11,12 @@ export default function LoginPage({
   const [isSignup, setIsSignup] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center p-4">
-      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-2 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 text-center">
           Welcome
         </h1>
-        <p className="text-gray-400 text-center mb-8">
+        <p className="text-gray-400 text-center mb-6 sm:mb-8 text-sm sm:text-base">
           {isSignup ? 'Create your account to get started' : 'Sign in to manage your content'}
         </p>
 
@@ -42,7 +42,7 @@ export default function LoginPage({
               name="email"
               type="email"
               required
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
               placeholder="you@example.com"
             />
           </div>
@@ -56,7 +56,7 @@ export default function LoginPage({
               name="password"
               type="password"
               required
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
               placeholder="••••••••"
             />
           </div>
@@ -72,7 +72,7 @@ export default function LoginPage({
                   name="organizationName"
                   type="text"
                   required
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
                   placeholder="My Company"
                 />
               </div>
@@ -86,7 +86,7 @@ export default function LoginPage({
                   name="websiteUrl"
                   type="url"
                   required
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
                   placeholder="https://example.com"
                 />
                 <p className="text-xs text-gray-500 mt-2">Where your assistant will be deployed</p>
@@ -96,7 +96,7 @@ export default function LoginPage({
 
           <button
             formAction={isSignup ? signup : login}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg transition-all shadow-lg text-sm sm:text-base"
           >
             {isSignup ? 'Create Account' : 'Sign In'}
           </button>
