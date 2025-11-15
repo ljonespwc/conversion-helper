@@ -132,3 +132,61 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 - **"AI that sells while you sleep."**
 
 ---
+
+## Monitoring Production Logs
+
+When the user asks you to review Vercel logs or monitor production traffic, follow this process:
+
+### Start Background Log Monitoring
+
+```bash
+# Create logs directory if it doesn't exist
+mkdir -p /Users/lancejones/projects/conversion-help/logs
+
+# Start vercel logs in background, writing to timestamped file
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+vercel logs https://easyask.io > /Users/lancejones/projects/conversion-help/logs/runtime-${TIMESTAMP}.log 2>&1
+```
+
+**Run this command with `run_in_background: true`** - it will continuously append new logs to the file.
+
+### Review Logs
+
+```bash
+# View the most recent log file
+cat /Users/lancejones/projects/conversion-help/logs/runtime-*.log | tail -100
+
+# Search for specific patterns
+grep "system:" /Users/lancejones/projects/conversion-help/logs/runtime-*.log
+grep "ERROR\|WARN" /Users/lancejones/projects/conversion-help/logs/runtime-*.log
+
+# Watch logs in real-time
+tail -f /Users/lancejones/projects/conversion-help/logs/runtime-*.log
+```
+
+### Stop Log Monitoring
+
+```bash
+# Find and kill the vercel logs process
+pkill -f "vercel logs"
+
+# Or use the background shell ID if known
+# KillShell tool with the shell_id
+```
+
+### Important Notes
+
+- **Vercel CLI logs are LIVE-TAIL only** - they only show logs from the moment you start the command forward
+- **No historical logs via CLI** - use Vercel Dashboard for past logs
+- **Background process runs until killed** - remember to stop it when done monitoring
+- **Log files are timestamped** - each monitoring session creates a new file
+- **Add `logs/` to `.gitignore`** - these files can get large and shouldn't be committed
+
+### When to Use This
+
+- Before user starts testing a new feature (so you capture all logs)
+- When debugging production issues
+- When analyzing conversation flow or system prompt behavior
+- When user asks "check the logs" or "what do the logs show"
+
+---
