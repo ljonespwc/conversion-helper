@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mic, Volume2, Loader2, ExternalLink } from 'lucide-react'
+import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
 import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
@@ -16,6 +16,9 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
   const [showURLs, setShowURLs] = useState(false)
+  const [currentResponse, setCurrentResponse] = useState<string | null>(null)
+  const [responseType, setResponseType] = useState<string | null>(null)
+  const [isCopied, setIsCopied] = useState(false)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -34,19 +37,19 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       timestamp: new Date().toISOString()
     },
     onDataMessage: (data) => {
-      // The data comes wrapped in {type: 'response.data', content: {...}}
-      if (data?.type === 'response.data' && data.content?.urls) {
-        const urlData = data.content.urls
-        if (urlData?.hasLinks) {
-          setCurrentURLs(urlData)
-          setShowURLs(true)
-        }
-      } else if (data?.urls) {
-        // Try direct access in case structure is different
-        if (data.urls.hasLinks) {
-          setCurrentURLs(data.urls)
-          setShowURLs(true)
-        }
+      // Extract content from either wrapped or direct structure
+      const content = data?.content || data
+
+      // Capture AI response text
+      if (content?.response) {
+        setCurrentResponse(content.response)
+        setResponseType(content.type || null)
+      }
+
+      // Capture URLs (existing logic)
+      if (content?.urls?.hasLinks) {
+        setCurrentURLs(content.urls)
+        setShowURLs(true)
       }
     }
   })
@@ -65,6 +68,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     onClose()
   }
 
+  // Handle copy response
+  const handleCopyResponse = async () => {
+    if (!currentResponse) return
+    try {
+      await navigator.clipboard.writeText(currentResponse)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
   // Removed amplitude logging - was too noisy
 
   // Determine current state
@@ -80,12 +95,16 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     }
   }, [isSpeaking, isListening, hasHadFirstInteraction])
 
-  // Hide URLs when user starts speaking (asking next question)
+  // Clear response text and URLs when user starts speaking (asking next question)
   useEffect(() => {
-    if (isSpeaking && showURLs) {
-      setShowURLs(false)
+    if (isSpeaking) {
+      if (showURLs) setShowURLs(false)
+      if (currentResponse) {
+        setCurrentResponse(null)
+        setResponseType(null)
+      }
     }
-  }, [isSpeaking, showURLs])
+  }, [isSpeaking, showURLs, currentResponse])
 
   // Removed debug logging
 
@@ -181,6 +200,54 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
           >
             {getStatusText()}
           </motion.p>
+        </div>
+
+        {/* AI Response Text Display */}
+        <div className="w-full max-w-md px-4">
+          <AnimatePresence>
+            {currentResponse && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="relative"
+              >
+                <div className="bg-slate-900/95 backdrop-blur-md border border-gray-700/50 rounded-lg p-4 shadow-lg max-h-[200px] overflow-y-auto">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <Volume2 className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+                        {currentResponse}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Copy Button */}
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={handleCopyResponse}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* URL Display Area - Card Style */}
