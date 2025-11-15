@@ -42,4 +42,7 @@ next-env.d.ts
 *.swo
 
 # OS
-Thumbs.dblogs/
+Thumbs.db
+
+# Logs
+logs/
