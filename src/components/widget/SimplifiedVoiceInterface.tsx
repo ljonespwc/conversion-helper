@@ -101,9 +101,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   useEffect(() => {
     if (sentences.length === 0 || revealedSentences >= sentences.length) return
 
+    // Debug logging
+    console.log('[SENTENCE REVEAL]', {
+      totalSentences: sentences.length,
+      revealed: revealedSentences,
+      agentAudioLevel,
+      isListening
+    })
+
     const interval = setInterval(() => {
       // Reveal next sentence when agent is actively speaking
       if (agentAudioLevel > 0.05 && revealedSentences < sentences.length) {
+        console.log('[REVEAL] Showing sentence', revealedSentences + 1)
         setRevealedSentences(prev => prev + 1)
       }
     }, 700) // Check every 700ms (~1 sentence per interval)
