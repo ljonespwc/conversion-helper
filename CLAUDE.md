@@ -131,3 +131,117 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 - **"Your website's voice. Your sales team's best closer."**
 - **"AI that sells while you sleep."**
 
+---
+
+## Experiment Workflow (For Claude to Execute)
+
+When the user says "let's run an experiment" or "let's try this," follow this process:
+
+### 1. Create Experiment Branch
+```bash
+# Create and switch to experiment branch
+git checkout -b experiment/descriptive-name
+
+# Example names:
+# experiment/two-step-generation
+# experiment/flash-lite-cleanup
+# experiment/simplified-prompt
+```
+
+### 2. Make Changes
+- Implement the experiment code
+- Commit with clear message:
+```bash
+git add .
+git commit -m "experiment: brief description of what we're testing"
+```
+
+### 3. Deploy to Vercel Preview
+```bash
+# Push branch (Vercel auto-deploys preview)
+git push -u origin experiment/descriptive-name
+
+# Get preview URL
+vercel ls
+# Look for deployment with branch name, URL format:
+# https://conversion-help-git-experiment-descriptive-name-username.vercel.app
+```
+
+**Tell the user:**
+- The preview URL
+- What to test
+- That it uses production Supabase database
+
+### 4. After Testing - Success Path
+If experiment works and user wants to keep it:
+
+```bash
+# Switch to main
+git checkout main
+
+# Merge experiment
+git merge experiment/descriptive-name
+
+# Push to production
+git push origin main
+
+# Cleanup: delete experiment branch
+git branch -d experiment/descriptive-name
+git push origin --delete experiment/descriptive-name
+```
+
+### 5. After Testing - Abandon Path
+If experiment fails or user doesn't want it:
+
+```bash
+# Switch back to main (discards experiment)
+git checkout main
+
+# Force delete experiment branch
+git branch -D experiment/descriptive-name
+git push origin --delete experiment/descriptive-name
+```
+
+**No revert needed** - main branch stays clean!
+
+### 6. Database Cleanup (If Needed)
+Preview deployments use **production Supabase** (`fwimhxkkszdaogugslar`).
+
+If experiment created test data:
+```bash
+# Use MCP to clear test conversations
+mcp__supabase-conversionhelper__execute_sql:
+DELETE FROM conversation_messages WHERE session_id LIKE 'test-%'
+```
+
+### Important Notes:
+- **Always create a branch** for experiments (never commit directly to main)
+- **Preview URLs** are production-quality, just different domain
+- **Database is shared** with production (be careful with data changes)
+- **Vercel auto-deploys** every push to any branch
+- **Main branch = production** - only merge when experiment is proven
+
+### Quick Reference Commands:
+```bash
+# Current branch
+git branch
+
+# All branches (local + remote)
+git branch -a
+
+# Switch branches
+git checkout branch-name
+
+# Delete local branch
+git branch -d branch-name
+
+# Delete remote branch
+git push origin --delete branch-name
+
+# View Vercel deployments
+vercel ls
+
+# View Vercel logs for specific deployment
+vercel logs [deployment-url]
+```
+
