@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
@@ -20,8 +20,10 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [currentResponse, setCurrentResponse] = useState<string | null>(null)
   const [responseType, setResponseType] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState(false)
-  const [words, setWords] = useState<string[]>([])
-  const [revealedWords, setRevealedWords] = useState<number>(0)
+  const [revealedChars, setRevealedChars] = useState<number>(0)
+
+  // Ref for auto-scroll
+  const responseScrollRef = useRef<HTMLDivElement>(null)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -83,29 +85,30 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     }
   }
 
-  // Split response into words when received
+  // Reset revealed chars when new response arrives
   useEffect(() => {
     if (currentResponse) {
-      // Split on whitespace while preserving markdown structure
-      const wordArray = currentResponse.split(/(\s+)/).filter(w => w.trim().length > 0)
-      setWords(wordArray)
-      setRevealedWords(0) // Reset to start
-    } else {
-      setWords([])
-      setRevealedWords(0)
+      setRevealedChars(0) // Reset to start
     }
   }, [currentResponse])
 
-  // Progressive word reveal - faster than reading pace but natural
+  // Progressive character reveal - smooth letter-by-letter
   useEffect(() => {
-    if (words.length === 0 || revealedWords >= words.length) return
+    if (!currentResponse || revealedChars >= currentResponse.length) return
 
     const timer = setTimeout(() => {
-      setRevealedWords(prev => prev + 1)
-    }, 150) // ~400 words/minute - faster than reading but comfortable
+      setRevealedChars(prev => prev + 1)
+    }, 30) // 30ms per character - fast but smooth
 
     return () => clearTimeout(timer)
-  }, [words.length, revealedWords])
+  }, [currentResponse, revealedChars])
+
+  // Auto-scroll as text reveals
+  useEffect(() => {
+    if (responseScrollRef.current) {
+      responseScrollRef.current.scrollTop = responseScrollRef.current.scrollHeight
+    }
+  }, [revealedChars])
 
   // Determine current state
   // Lower threshold for user speaking detection (was 0.1, now 0.01)
@@ -238,7 +241,10 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                 transition={{ duration: 0.4, ease: 'easeOut' }}
                 className="relative"
               >
-                <div className="bg-slate-900/95 backdrop-blur-md border border-gray-700/50 rounded-lg p-4 shadow-lg max-h-[200px] overflow-y-auto">
+                <div
+                  ref={responseScrollRef}
+                  className="bg-slate-900/95 backdrop-blur-md border border-gray-700/50 rounded-lg p-4 shadow-lg max-h-[200px] overflow-y-auto scroll-smooth"
+                >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-0.5">
                       <Volume2 className="w-4 h-4 text-blue-400" />
@@ -256,8 +262,12 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                           code: ({ children }) => <code className="bg-gray-800 px-1.5 py-0.5 rounded text-blue-300 text-xs">{children}</code>,
                         }}
                       >
-                        {words.slice(0, revealedWords).join(' ')}
+                        {currentResponse ? currentResponse.slice(0, revealedChars) : ''}
                       </ReactMarkdown>
+                      {/* Blinking cursor at the end while revealing */}
+                      {currentResponse && revealedChars < currentResponse.length && (
+                        <span className="inline-block w-0.5 h-4 bg-blue-400 animate-pulse ml-0.5" />
+                      )}
                     </div>
                   </div>
 
