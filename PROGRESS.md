@@ -1,7 +1,7 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-11-15
-**Current Phase**: Production Ready - Optimized Performance + Analytics
+**Last Updated**: 2025-11-16
+**Current Phase**: Production Ready - Enhanced UI/UX + Security Hardening
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
 ---
@@ -479,12 +479,74 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
    - "Listening to you..." / "Speaking..." status text provides clear state indication
    - Further animation not needed - system is fast enough
 
-**Remaining:**
+4. ✅ **Conversation History Display** (2025-11-16)
+   - Collapsible conversation view with message count badge
+   - Scrollable Q&A history (max 250px height)
+   - Clear user/assistant distinction with icons and styling
+   - Copy entire conversation with formatted timestamps
+   - File: `src/components/widget/SimplifiedVoiceInterface.tsx`
 
-4. ⏳ **Conversation History Display**
-   - Show previous Q&A pairs in the widget
-   - Allow users to scroll back through conversation
-   - Clear visual distinction between user and assistant messages
+---
+
+### Priority 4: Widget Button Redesign ✅ COMPLETED (2025-11-16)
+
+**Issue:** Original button looked generic (plain blue circle), didn't communicate voice-first capability or value proposition.
+
+**Solution Implemented:**
+
+1. ✅ **Friendly AI Orb Design**
+   - Animated sound wave rings (3 pulsing layers)
+   - Blue-to-purple gradient with breathing pulse effect
+   - Sparkles icon indicates AI assistance
+   - Hover/tap expands to pill shape with value proposition text
+   - File: `src/components/widget/WidgetButton.tsx`
+
+2. ✅ **Mobile Interaction Pattern**
+   - Two-tap flow: First tap expands pill, second tap opens modal
+   - Touch device detection prevents accidental opening
+   - Auto-collapse after 4 seconds on mobile
+   - Proper timeout management with useRef
+
+3. ✅ **Value Proposition Messaging**
+   - Static text: "Got questions? Save time and ask!"
+   - Subtitle: "🎤 Voice-enabled • Instant answers"
+   - Max-width: 340px to prevent text cutoff
+
+**Results:**
+- Higher perceived value (animated orb vs static circle)
+- Clear voice capability indicator (sound waves + microphone subtitle)
+- Mobile-friendly progressive disclosure (see value before committing to open)
+
+---
+
+### Priority 5: Security Validation ✅ COMPLETED (2025-11-16)
+
+**Issue:** File uploads and page scraping lacked validation for MIME type spoofing, SSRF attacks, and resource exhaustion.
+
+**Solution Implemented:**
+
+1. ✅ **File Upload Security** (`src/app/api/admin/upload-files/route.ts`)
+   - MIME type validation via `file-type` package (magic number detection)
+   - UTF-8 text validation (null byte detection)
+   - Batch size limit: 50MB total per request
+   - Per-file limit: 10MB individual files
+   - Prevents binary files renamed as .txt/.md
+
+2. ✅ **Page Scraping Security** (`src/app/api/admin/scrape/route.ts`)
+   - SSRF protection: Blocks private IPs (localhost, 127.x, 192.168.x, 10.x, 172.16-31.x, AWS metadata)
+   - Protocol restriction: HTTP/HTTPS only (rejects file://, ftp://, etc.)
+   - Request timeout: 30 seconds with AbortController
+   - Content size limit: 5MB max for scraped markdown
+
+3. ✅ **UI Updates**
+   - FileUploadSection: "Text/Markdown only • 10MB per file • 50MB total per batch"
+   - ScrapeForm: "(5MB max, 30s timeout)"
+
+**Results:**
+- Prevents file extension spoofing attacks
+- Blocks SSRF attempts to internal services
+- Resource exhaustion protection (size + timeout limits)
+- Clear user-facing validation messages
 
 ---
 
