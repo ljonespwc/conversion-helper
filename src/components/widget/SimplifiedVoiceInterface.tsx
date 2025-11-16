@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
@@ -19,13 +19,6 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [currentResponse, setCurrentResponse] = useState<string | null>(null)
   const [responseType, setResponseType] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState(false)
-  const [sentences, setSentences] = useState<string[]>([])
-  const [revealedSentences, setRevealedSentences] = useState<number>(0)
-
-  // Track pending reveal timeout to prevent scheduling multiple
-  const pendingRevealRef = useRef<NodeJS.Timeout | null>(null)
-  // Track when we last revealed to enforce minimum delay between reveals
-  const lastRevealTimeRef = useRef<number>(0)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -86,67 +79,6 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       console.error('Failed to copy:', err)
     }
   }
-
-  // Split response into sentences when received
-  useEffect(() => {
-    if (currentResponse) {
-      // Split on sentence boundaries (., !, ?)
-      const sentenceArray = currentResponse
-        .split(/(?<=[.!?])\s+/)
-        .filter(s => s.trim().length > 0)
-      setSentences(sentenceArray)
-      setRevealedSentences(0) // Reset to reveal from start
-    } else {
-      setSentences([])
-      setRevealedSentences(0)
-    }
-  }, [currentResponse])
-
-  // Progressive sentence reveal based on voice amplitude
-  // Reveal next sentence when amplitude crosses threshold
-  useEffect(() => {
-    if (sentences.length === 0 || revealedSentences >= sentences.length) {
-      // Clear any pending timeout if we're done
-      if (pendingRevealRef.current) {
-        clearTimeout(pendingRevealRef.current)
-        pendingRevealRef.current = null
-      }
-      return
-    }
-
-    // Only schedule a new timeout if:
-    // 1. Agent is speaking (amplitude > 0.05)
-    // 2. We don't already have a pending timeout
-    // 3. Enough time has passed since last reveal (prevent rapid-fire reveals)
-    const now = Date.now()
-    const timeSinceLastReveal = now - lastRevealTimeRef.current
-    const minDelayBetweenReveals = 800 // ms - must wait this long between reveals
-
-    if (
-      agentAudioLevel > 0.05 &&
-      !pendingRevealRef.current &&
-      timeSinceLastReveal >= minDelayBetweenReveals
-    ) {
-      console.log('[SCHEDULE REVEAL] Scheduling reveal for sentence', revealedSentences + 1)
-      lastRevealTimeRef.current = now // Mark when we scheduled
-      pendingRevealRef.current = setTimeout(() => {
-        console.log('[REVEAL] Showing sentence', revealedSentences + 1)
-        setRevealedSentences(prev => prev + 1)
-        pendingRevealRef.current = null // Clear ref after reveal
-      }, 700)
-    }
-  }, [sentences.length, revealedSentences, agentAudioLevel])
-
-  // Clear pending timeout and reset timing when sentences change (new response)
-  useEffect(() => {
-    if (pendingRevealRef.current) {
-      clearTimeout(pendingRevealRef.current)
-      pendingRevealRef.current = null
-    }
-    lastRevealTimeRef.current = 0 // Reset timing for new response
-  }, [sentences])
-
-  // Removed amplitude logging - was too noisy
 
   // Determine current state
   // Lower threshold for user speaking detection (was 0.1, now 0.01)
@@ -284,18 +216,10 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                     <div className="flex-shrink-0 mt-0.5">
                       <Volume2 className="w-4 h-4 text-blue-400" />
                     </div>
-                    <div className="flex-1 min-w-0 space-y-2">
-                      {sentences.slice(0, revealedSentences).map((sentence, index) => (
-                        <motion.p
-                          key={index}
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, ease: 'easeOut' }}
-                          className="text-white text-sm leading-relaxed"
-                        >
-                          {sentence}
-                        </motion.p>
-                      ))}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+                        {currentResponse}
+                      </p>
                     </div>
                   </div>
 
