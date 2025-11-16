@@ -132,7 +132,7 @@ export default function FileUploadSection({
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
       <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
         <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Uploaded Docs</h2>
-        <p className="text-xs sm:text-sm text-gray-400">Upload .txt or .md files from your computer</p>
+        <p className="text-xs sm:text-sm text-gray-400">Upload text or markdown files (content validated for security)</p>
       </div>
 
       {/* Upload Zone */}
@@ -178,7 +178,7 @@ export default function FileUploadSection({
                 or drag and drop files here
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                .txt or .md files up to 10MB
+                Text/Markdown only • 10MB per file • 50MB total per batch
               </p>
             </div>
           </div>

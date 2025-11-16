@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
+import { fileTypeFromBuffer } from 'file-type'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,7 +14,8 @@ const ai = new GoogleGenAI({
 })
 
 const BUCKET_NAME = 'uploaded-docs'
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB in bytes
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB per file
+const MAX_BATCH_SIZE = 50 * 1024 * 1024 // 50MB total per request
 const ALLOWED_TYPES = ['text/plain', 'text/markdown']
 const ALLOWED_EXTENSIONS = ['.txt', '.md']
 
@@ -37,17 +39,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // SECURITY: Validate total batch size
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    if (totalSize > MAX_BATCH_SIZE) {
+      return NextResponse.json(
+        {
+          error: `Batch too large. Total size is ${(totalSize / 1024 / 1024).toFixed(2)}MB, maximum is ${MAX_BATCH_SIZE / 1024 / 1024}MB`
+        },
+        { status: 400 }
+      )
+    }
+
     const results = []
 
     for (const file of files) {
       try {
-        // Validate file type
+        // Validate file extension
         const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
         if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
           results.push({
             filename: file.name,
             success: false,
-            error: `Invalid file type. Only ${ALLOWED_EXTENSIONS.join(', ')} files are allowed`
+            error: `Invalid file extension. Only ${ALLOWED_EXTENSIONS.join(', ')} files are allowed`
           })
           continue
         }
@@ -62,8 +75,44 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Read file content
-        const content = await file.text()
+        // SECURITY: Validate actual file content (MIME type from magic numbers)
+        // Read file as buffer for MIME detection
+        const buffer = Buffer.from(await file.arrayBuffer())
+        const detectedType = await fileTypeFromBuffer(buffer)
+
+        // If file-type detects a MIME type, it's a binary file (not text/markdown)
+        // Text files typically don't have magic numbers, so detectedType will be undefined
+        if (detectedType) {
+          results.push({
+            filename: file.name,
+            success: false,
+            error: `Invalid file type detected: ${detectedType.mime}. Only plain text and markdown files are allowed.`
+          })
+          continue
+        }
+
+        // Additional validation: ensure content is valid UTF-8 text without binary data
+        let content: string
+        try {
+          content = buffer.toString('utf-8')
+
+          // Check for null bytes (indicator of binary content)
+          if (content.includes('\0')) {
+            results.push({
+              filename: file.name,
+              success: false,
+              error: 'File contains binary data. Only plain text and markdown files are allowed.'
+            })
+            continue
+          }
+        } catch (error) {
+          results.push({
+            filename: file.name,
+            success: false,
+            error: 'File is not valid UTF-8 text. Only plain text and markdown files are allowed.'
+          })
+          continue
+        }
 
         // Calculate word count
         const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length

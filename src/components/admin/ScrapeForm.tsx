@@ -56,7 +56,7 @@ export default function ScrapeForm({ onScrapeStarted }: ScrapeFormProps) {
   return (
     <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-6">
       <h2 className="text-xl font-bold text-white mb-4">Scrape New Page</h2>
-      <p className="text-gray-300 mb-4">Enter a URL to scrape and convert to markdown</p>
+      <p className="text-gray-300 mb-4">Enter a URL to scrape and convert to markdown (5MB max, 30s timeout)</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

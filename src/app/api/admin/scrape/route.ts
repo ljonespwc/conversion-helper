@@ -45,12 +45,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate URL format
+    // Validate URL format and security
+    let parsedUrl: URL
     try {
-      new URL(url)
+      parsedUrl = new URL(url)
     } catch {
       return NextResponse.json(
         { error: 'Invalid URL format' },
+        { status: 400 }
+      )
+    }
+
+    // SECURITY: Only allow HTTP and HTTPS protocols
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      return NextResponse.json(
+        { error: 'Only HTTP and HTTPS URLs are allowed' },
+        { status: 400 }
+      )
+    }
+
+    // SECURITY: Block private/internal IP addresses (SSRF protection)
+    const hostname = parsedUrl.hostname.toLowerCase()
+    const PRIVATE_IP_PATTERNS = [
+      'localhost',
+      /^127\./,                    // Loopback
+      /^192\.168\./,               // Private Class C
+      /^10\./,                     // Private Class A
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // Private Class B
+      '169.254.169.254'            // AWS/Cloud metadata endpoint
+    ]
+
+    const isPrivate = PRIVATE_IP_PATTERNS.some(pattern =>
+      typeof pattern === 'string'
+        ? hostname === pattern || hostname.startsWith(pattern + ':')
+        : pattern.test(hostname)
+    )
+
+    if (isPrivate) {
+      return NextResponse.json(
+        { error: 'Private/internal URLs are not allowed' },
         { status: 400 }
       )
     }
@@ -123,45 +156,69 @@ async function scrapeInBackground(jobId: string, url: string, userId: string) {
       .eq('id', jobId)
 
     // Use Jina AI Reader for fast, high-quality markdown conversion
-    // Simple GET request - no API key needed for free tier (20 req/min)
-    const response = await fetch(`https://r.jina.ai/${url}`)
+    // SECURITY: Add timeout and abort controller
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
-    if (!response.ok) {
-      throw new Error(`Jina Reader API error: ${response.statusText}`)
-    }
-
-    const markdown = await response.text()
-    const fileSize = Buffer.byteLength(markdown, 'utf8')
-    const wordCount = markdown.split(/\s+/).filter((w: string) => w.length > 0).length
-
-    // Generate filename from URL
-    const filename = generateFilenameFromUrl(url)
-    const storagePath = `${userId}/${Date.now()}-${filename}`
-
-    // Upload markdown to Supabase Storage
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from(BUCKET_NAME)
-      .upload(storagePath, markdown, {
-        contentType: 'text/markdown',
-        upsert: false
+    try {
+      const response = await fetch(`https://r.jina.ai/${url}`, {
+        signal: controller.signal
       })
 
-    if (uploadError) {
-      throw new Error(`Storage upload failed: ${uploadError.message}`)
-    }
+      clearTimeout(timeoutId)
 
-    // Update job with results (file_path instead of markdown_content)
-    await supabaseAdmin
-      .from('scraping_jobs')
-      .update({
-        status: 'scraped',
-        scraping_status: 'scraped',
-        file_path: storagePath,
-        file_size: fileSize,
-        word_count: wordCount,
-        completed_at: new Date().toISOString()
-      })
-      .eq('id', jobId)
+      if (!response.ok) {
+        throw new Error(`Jina Reader API error: ${response.statusText}`)
+      }
+
+      const markdown = await response.text()
+
+      // SECURITY: Check content size limit (5MB)
+      const MAX_CONTENT_SIZE = 5 * 1024 * 1024 // 5MB
+      if (markdown.length > MAX_CONTENT_SIZE) {
+        throw new Error(`Content exceeds 5MB limit (${(markdown.length / 1024 / 1024).toFixed(2)}MB)`)
+      }
+
+      const fileSize = Buffer.byteLength(markdown, 'utf8')
+      const wordCount = markdown.split(/\s+/).filter((w: string) => w.length > 0).length
+
+      // Generate filename from URL
+      const filename = generateFilenameFromUrl(url)
+      const storagePath = `${userId}/${Date.now()}-${filename}`
+
+      // Upload markdown to Supabase Storage
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .upload(storagePath, markdown, {
+          contentType: 'text/markdown',
+          upsert: false
+        })
+
+      if (uploadError) {
+        throw new Error(`Storage upload failed: ${uploadError.message}`)
+      }
+
+      // Update job with results (file_path instead of markdown_content)
+      await supabaseAdmin
+        .from('scraping_jobs')
+        .update({
+          status: 'scraped',
+          scraping_status: 'scraped',
+          file_path: storagePath,
+          file_size: fileSize,
+          word_count: wordCount,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', jobId)
+
+    } catch (error) {
+      clearTimeout(timeoutId)
+      // Handle timeout or fetch errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout: URL took longer than 30 seconds to scrape')
+      }
+      throw error
+    }
 
   } catch (error) {
     console.error('Scraping error:', error)
