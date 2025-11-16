@@ -183,20 +183,21 @@ CRITICAL RULES:
 2. When users say "that", "it", or "tell me more", they're referring to the PREVIOUS topic in our conversation - use context
 3. NEVER ask users to clarify or specify - always search the content and attempt to answer
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
+5. NEVER mention sources, citations, or references - just provide the information naturally
 
 If you truly cannot find relevant information in the indexed content, say "I don't have that information on this page."
 
-Answer based ONLY on indexed content. Be concise and encouraging.
+Answer based ONLY on indexed content. Be concise, natural, and encouraging.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
                 welcomeMsg = `Hello! I can answer questions about ${widgetPage.page_title || 'this page'}. What would you like to know?`
               } else {
-                systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them. Be concise and encouraging in your responses. CRITICAL FOR TTS: When the source material contains abbreviations or acronyms, rewrite them conversationally or refer to them generically rather than listing abbreviations."
+                systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them. Be concise, natural, and encouraging in your responses. Never mention sources or citations. CRITICAL FOR TTS: When the source material contains abbreviations or acronyms, rewrite them conversationally or refer to them generically rather than listing abbreviations."
                 welcomeMsg = "Hello! How can I help you today?"
               }
             } catch (error) {
               console.error('Error loading widget page for session.start:', error)
-              systemPrompt = "You are a helpful assistant. Answer questions based on the available content."
+              systemPrompt = "You are a helpful assistant. Answer questions based on the available content. Never mention sources or citations."
               welcomeMsg = "Hello! How can I help you today?"
             }
           } else {
@@ -382,12 +383,11 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
               // Send the response via TTS
               stream.tts(finalResponse)
 
-              // Send citations data
+              // Send response data (no citations needed in UI)
               stream.data({
                 type: 'page_search_match',
                 question: text,
                 response: finalResponse,
-                citations,
                 page_url: pageUrl,
                 organization: organization,
                 urls: { hasLinks: false, links: [] }

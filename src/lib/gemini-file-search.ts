@@ -152,7 +152,7 @@ export async function queryPageContent(
       config: {
         // OPTIMIZATION: Add generation config to improve speed and consistency
         temperature: 0.3, // Lower temperature = faster, more deterministic responses
-        maxOutputTokens: 300, // Limit response length to reduce generation time (~225 words, ~1.5min voice)
+        maxOutputTokens: 1500, // Allow fuller responses (~1125 words, ~4-5min voice)
         ...(systemInstruction && { systemInstruction }), // Add system instructions if available
         tools: [
           {
