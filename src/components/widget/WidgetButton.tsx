@@ -22,18 +22,26 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
     return "Got questions? Save time and ask!"
   }
 
-  const handleClick = () => {
-    onClick()
+  const handleClick = (e: React.MouseEvent) => {
+    // On mobile (touch devices), only open modal if already expanded
+    // On desktop, always open immediately
+    const isTouchDevice = 'ontouchstart' in window
+
+    if (isTouchDevice && !isTapped) {
+      // First tap on mobile: just expand, don't open modal
+      e.preventDefault()
+      setIsTapped(true)
+      // Auto-close tap expansion after 4 seconds
+      setTimeout(() => setIsTapped(false), 4000)
+    } else {
+      // Desktop or second tap on mobile: open modal
+      onClick()
+    }
   }
 
-  const handleTap = () => {
-    if (!isTapped) {
-      setIsTapped(true)
-      // Auto-close tap expansion after 3 seconds
-      setTimeout(() => setIsTapped(false), 3000)
-    } else {
-      setIsTapped(false)
-    }
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Prevent default to avoid triggering onClick immediately
+    e.preventDefault()
   }
 
   return (
@@ -44,7 +52,7 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={handleTap}
+      onTouchStart={handleTouchStart}
       className="group fixed bottom-6 right-6 z-40 shadow-xl"
       aria-label="Open voice assistant"
       style={{
