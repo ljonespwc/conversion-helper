@@ -1,29 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { X, Wifi, WifiOff } from 'lucide-react'
-
-// Dynamically import to prevent SSR issues with Layercode SDK
-const SimplifiedVoiceInterface = dynamic(
-  () => import('./SimplifiedVoiceInterface'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-easyask-secondary"></div>
-      </div>
-    )
-  }
-)
+import SimplifiedVoiceInterface from './SimplifiedVoiceInterface'
 
 interface WidgetModalProps {
   onClose: () => void
   pageUrl?: string
+  isVisible?: boolean
 }
 
-export default function WidgetModal({ onClose, pageUrl }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, isVisible = true }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -33,6 +21,15 @@ export default function WidgetModal({ onClose, pageUrl }: WidgetModalProps) {
       delete (window as any).updateConnectionStatus
     }
   }, [])
+
+  // If not visible (pre-connecting), render interface hidden to start connection
+  if (!isVisible) {
+    return (
+      <div className="hidden">
+        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} />
+      </div>
+    )
+  }
 
   return (
     <motion.div

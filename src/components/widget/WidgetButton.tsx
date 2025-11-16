@@ -5,9 +5,10 @@ import { Mic } from 'lucide-react'
 
 interface WidgetButtonProps {
   onClick: () => void
+  onMouseEnter?: () => void
 }
 
-export default function WidgetButton({ onClick }: WidgetButtonProps) {
+export default function WidgetButton({ onClick, onMouseEnter }: WidgetButtonProps) {
   return (
     <motion.button
       initial={{ scale: 0 }}
@@ -15,6 +16,7 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
       className="fixed bottom-6 right-6 z-40 bg-easyask-secondary hover:bg-easyask-accent transition-colors rounded-full p-4 shadow-lg"
       aria-label="Open voice assistant"
     >
