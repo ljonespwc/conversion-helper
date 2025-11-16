@@ -22,6 +22,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [isCopied, setIsCopied] = useState(false)
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
+  const [aiIsSpeaking, setAiIsSpeaking] = useState(false)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -47,6 +48,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       if (content?.response) {
         setCurrentResponse(content.response)
         setResponseType(content.type || null)
+        setAiIsSpeaking(true) // AI started speaking
       }
 
       // Capture URLs (existing logic)
@@ -107,9 +109,9 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   }, [currentResponse])
 
   // Determine current state
-  // Lower threshold for user speaking detection (was 0.1, now 0.01)
+  // Use amplitude only for user detection, use state flag for AI (no flickering)
   const isSpeaking = userAudioLevel > 0.01
-  const isListening = agentAudioLevel > 0.05  // Keep agent threshold slightly higher
+  const isListening = aiIsSpeaking // AI speaking state set when response arrives
   const isActive = hasStarted && isConnected
 
   // Track first interaction
@@ -121,14 +123,16 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
   // Clear response text and URLs when user starts speaking (asking next question)
   useEffect(() => {
-    if (isSpeaking) {
+    const userIsSpeaking = userAudioLevel > 0.01
+    if (userIsSpeaking) {
+      setAiIsSpeaking(false) // User turn started, AI stopped
       if (showURLs) setShowURLs(false)
       if (currentResponse) {
         setCurrentResponse(null)
         setResponseType(null)
       }
     }
-  }, [isSpeaking, showURLs, currentResponse])
+  }, [userAudioLevel, showURLs, currentResponse])
 
   // Removed debug logging
 
