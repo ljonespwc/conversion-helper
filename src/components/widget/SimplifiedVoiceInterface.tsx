@@ -20,6 +20,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [currentResponse, setCurrentResponse] = useState<string | null>(null)
   const [responseType, setResponseType] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState(false)
+  const [isScrollable, setIsScrollable] = useState(false)
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -80,6 +82,29 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       console.error('Failed to copy:', err)
     }
   }
+
+  // Check if content is scrollable and track scroll position
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget
+    const isAtBottom = Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 5
+    setIsScrolledToBottom(isAtBottom)
+  }
+
+  // Check if content is scrollable when response changes
+  useEffect(() => {
+    const checkScrollable = () => {
+      const element = document.getElementById('response-content')
+      if (element) {
+        setIsScrollable(element.scrollHeight > element.clientHeight)
+        setIsScrolledToBottom(element.scrollHeight <= element.clientHeight)
+      }
+    }
+
+    if (currentResponse) {
+      // Small delay to ensure content is rendered
+      setTimeout(checkScrollable, 100)
+    }
+  }, [currentResponse])
 
   // Determine current state
   // Lower threshold for user speaking detection (was 0.1, now 0.01)
@@ -212,48 +237,60 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                 transition={{ duration: 0.4, ease: 'easeOut' }}
                 className="relative"
               >
-                <div className="bg-slate-900/95 backdrop-blur-md border border-gray-700/50 rounded-lg p-4 shadow-lg max-h-[200px] overflow-y-auto">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      <Volume2 className="w-4 h-4 text-blue-400" />
+                <div className="relative rounded-lg shadow-lg overflow-hidden">
+                  {/* Frosted glass with blue/purple tint */}
+                  <div
+                    id="response-content"
+                    onScroll={handleScroll}
+                    className="relative bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl p-4 max-h-[200px] overflow-y-auto"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Volume2 className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-white text-sm leading-relaxed">
+                        <ReactMarkdown
+                          components={{
+                            // Custom styling for markdown elements
+                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                            strong: ({ children }) => <strong className="font-semibold text-blue-300">{children}</strong>,
+                            em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                            ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                            li: ({ children }) => <li className="text-white">{children}</li>,
+                            code: ({ children }) => <code className="bg-gray-800 px-1.5 py-0.5 rounded text-blue-300 text-xs">{children}</code>,
+                          }}
+                        >
+                          {currentResponse}
+                        </ReactMarkdown>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0 text-white text-sm leading-relaxed">
-                      <ReactMarkdown
-                        components={{
-                          // Custom styling for markdown elements
-                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                          strong: ({ children }) => <strong className="font-semibold text-blue-300">{children}</strong>,
-                          em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
-                          ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-                          ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                          li: ({ children }) => <li className="text-white">{children}</li>,
-                          code: ({ children }) => <code className="bg-gray-800 px-1.5 py-0.5 rounded text-blue-300 text-xs">{children}</code>,
-                        }}
+
+                    {/* Copy Button */}
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        onClick={handleCopyResponse}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
                       >
-                        {currentResponse}
-                      </ReactMarkdown>
+                        {isCopied ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
 
-                  {/* Copy Button */}
-                  <div className="mt-3 flex justify-end">
-                    <button
-                      onClick={handleCopyResponse}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
-                    >
-                      {isCopied ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          <span>Copy</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  {/* Scroll indicator - fade gradient at bottom when more content below */}
+                  {isScrollable && !isScrolledToBottom && (
+                    <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none" />
+                  )}
                 </div>
               </motion.div>
             )}
