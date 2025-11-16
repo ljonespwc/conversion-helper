@@ -44,38 +44,68 @@ export async function POST(request: NextRequest) {
       .from('conversation_sessions')
       .select('id, user_email')
       .eq('session_id', session_id)
-      .single()
+      .maybeSingle() // Returns null if not found instead of error
 
-    if (fetchError || !existingSession) {
-      return NextResponse.json(
-        { error: 'Session not found' },
-        { status: 404 }
-      )
-    }
+    if (existingSession) {
+      // Session exists - check if email already submitted
+      if (existingSession.user_email) {
+        return NextResponse.json(
+          {
+            message: 'Email already submitted for this session',
+            email: existingSession.user_email
+          },
+          { status: 200 }
+        )
+      }
 
-    // Check if email already submitted for this session
-    if (existingSession.user_email) {
-      return NextResponse.json(
-        {
-          message: 'Email already submitted for this session',
-          email: existingSession.user_email
-        },
-        { status: 200 }
-      )
-    }
+      // Update existing session with email
+      const { error: updateError } = await supabase
+        .from('conversation_sessions')
+        .update({
+          user_email: email.trim().toLowerCase(),
+          escalation_timestamp: new Date().toISOString(),
+          escalation_processed: false
+        })
+        .eq('session_id', session_id)
 
-    // Update session with email and timestamp
-    const { error: updateError } = await supabase
-      .from('conversation_sessions')
-      .update({
-        user_email: email.trim().toLowerCase(),
-        escalation_timestamp: new Date().toISOString(),
-        escalation_processed: false
-      })
-      .eq('session_id', session_id)
+      if (updateError) {
+        throw updateError
+      }
+    } else {
+      // Session doesn't exist yet (conversation still in progress)
+      // Create it now with email capture
+      const { error: insertError } = await supabase
+        .from('conversation_sessions')
+        .insert({
+          session_id,
+          user_email: email.trim().toLowerCase(),
+          escalation_timestamp: new Date().toISOString(),
+          escalation_processed: false,
+          started_at: new Date().toISOString(),
+          total_questions: 0,
+          matched_responses: 0
+        })
 
-    if (updateError) {
-      throw updateError
+      if (insertError) {
+        // Handle unique constraint violation (race condition - session was just created)
+        if (insertError.code === '23505') {
+          // Retry update
+          const { error: retryError } = await supabase
+            .from('conversation_sessions')
+            .update({
+              user_email: email.trim().toLowerCase(),
+              escalation_timestamp: new Date().toISOString(),
+              escalation_processed: false
+            })
+            .eq('session_id', session_id)
+
+          if (retryError) {
+            throw retryError
+          }
+        } else {
+          throw insertError
+        }
+      }
     }
 
     console.log(`✉️ Email escalation captured: ${email} for session ${session_id}`)
