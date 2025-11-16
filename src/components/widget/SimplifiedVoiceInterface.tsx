@@ -32,6 +32,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [showSparkleBurst, setShowSparkleBurst] = useState(false)
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([])
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
+  const [isConversationCopied, setIsConversationCopied] = useState(false)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -124,6 +125,37 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       setTimeout(() => setIsCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
+    }
+  }
+
+  // Handle copy entire conversation
+  const handleCopyConversation = async () => {
+    if (conversationHistory.length === 0) return
+
+    try {
+      // Format conversation as readable text
+      const conversationText = conversationHistory
+        .map((msg) => {
+          const time = new Date(msg.timestamp).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          })
+          const role = msg.role === 'user' ? 'You' : 'Assistant'
+          return `[${time}] ${role}: ${msg.text}`
+        })
+        .join('\n\n')
+
+      // Add header with timestamp
+      const header = `Conversation Transcript - ${new Date().toLocaleString()}\n${'='.repeat(60)}\n\n`
+      const fullText = header + conversationText
+
+      await navigator.clipboard.writeText(fullText)
+      setIsConversationCopied(true)
+      setTimeout(() => setIsConversationCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy conversation:', err)
     }
   }
 
@@ -392,68 +424,91 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-gray-700/50 p-4 max-h-[300px] overflow-y-auto space-y-3">
-                      {conversationHistory.map((message, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.05 }}
-                          className={`flex gap-3 ${
-                            message.role === 'user' ? 'flex-row' : 'flex-row'
-                          }`}
-                        >
-                          {/* Icon */}
-                          <div className="flex-shrink-0 mt-0.5">
-                            {message.role === 'user' ? (
-                              <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                <span className="text-xs">👤</span>
-                              </div>
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
-                                <Sparkles className="w-3 h-3 text-purple-400" />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Message */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-xs font-medium ${
-                                message.role === 'user' ? 'text-blue-400' : 'text-purple-400'
-                              }`}>
-                                {message.role === 'user' ? 'You' : 'Assistant'}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {new Date(message.timestamp).toLocaleTimeString('en-US', {
-                                  hour: 'numeric',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
-                              </span>
-                            </div>
-                            <div className="text-sm text-gray-200 leading-relaxed">
-                              {message.role === 'assistant' ? (
-                                <ReactMarkdown
-                                  components={{
-                                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                                    strong: ({ children }) => <strong className="font-semibold text-purple-300">{children}</strong>,
-                                    em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
-                                    ul: ({ children }) => <ul className="list-disc list-inside mb-1 space-y-0.5">{children}</ul>,
-                                    ol: ({ children }) => <ol className="list-decimal list-inside mb-1 space-y-0.5">{children}</ol>,
-                                    li: ({ children }) => <li className="text-gray-200 text-xs">{children}</li>,
-                                    code: ({ children }) => <code className="bg-gray-800 px-1 py-0.5 rounded text-purple-300 text-xs">{children}</code>,
-                                  }}
-                                >
-                                  {message.text}
-                                </ReactMarkdown>
+                    <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-gray-700/50 p-4 space-y-3">
+                      {/* Scrollable messages area */}
+                      <div className="max-h-[250px] overflow-y-auto space-y-3 pr-2">
+                        {conversationHistory.map((message, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className={`flex gap-3 ${
+                              message.role === 'user' ? 'flex-row' : 'flex-row'
+                            }`}
+                          >
+                            {/* Icon */}
+                            <div className="flex-shrink-0 mt-0.5">
+                              {message.role === 'user' ? (
+                                <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                  <span className="text-xs">👤</span>
+                                </div>
                               ) : (
-                                message.text
+                                <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                  <Sparkles className="w-3 h-3 text-purple-400" />
+                                </div>
                               )}
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
+
+                            {/* Message */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`text-xs font-medium ${
+                                  message.role === 'user' ? 'text-blue-400' : 'text-purple-400'
+                                }`}>
+                                  {message.role === 'user' ? 'You' : 'Assistant'}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(message.timestamp).toLocaleTimeString('en-US', {
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true
+                                  })}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-200 leading-relaxed">
+                                {message.role === 'assistant' ? (
+                                  <ReactMarkdown
+                                    components={{
+                                      p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                                      strong: ({ children }) => <strong className="font-semibold text-purple-300">{children}</strong>,
+                                      em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                                      ul: ({ children }) => <ul className="list-disc list-inside mb-1 space-y-0.5">{children}</ul>,
+                                      ol: ({ children }) => <ol className="list-decimal list-inside mb-1 space-y-0.5">{children}</ol>,
+                                      li: ({ children }) => <li className="text-gray-200 text-xs">{children}</li>,
+                                      code: ({ children }) => <code className="bg-gray-800 px-1 py-0.5 rounded text-purple-300 text-xs">{children}</code>,
+                                    }}
+                                  >
+                                    {message.text}
+                                  </ReactMarkdown>
+                                ) : (
+                                  message.text
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Copy Conversation Button */}
+                      <div className="pt-2 border-t border-gray-700/50 flex justify-end">
+                        <button
+                          onClick={handleCopyConversation}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
+                        >
+                          {isConversationCopied ? (
+                            <>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy conversation</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 )}
