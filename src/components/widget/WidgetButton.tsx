@@ -19,7 +19,7 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
 
   // Static text for button
   const getButtonText = () => {
-    return "Got questions? Save time and just ask!"
+    return "Got questions? Save time and ask!"
   }
 
   const handleClick = () => {
@@ -50,7 +50,7 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
       style={{
         width: isExpanded ? 'auto' : '60px',
         minWidth: isExpanded ? '200px' : '60px',
-        maxWidth: isExpanded ? '280px' : '60px',
+        maxWidth: isExpanded ? '340px' : '60px',
         height: '60px',
         borderRadius: isExpanded ? '30px' : '50%',
         transition: 'all 0.3s ease-out'
