@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 
@@ -13,9 +13,19 @@ interface WidgetButtonProps {
 export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isTapped, setIsTapped] = useState(false)
+  const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Determine if we should show expanded state
   const isExpanded = isHovered || isTapped
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (collapseTimeoutRef.current) {
+        clearTimeout(collapseTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Static text for button
   const getButtonText = () => {
@@ -30,11 +40,27 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
     if (isTouchDevice && !isTapped) {
       // First tap on mobile: just expand, don't open modal
       e.preventDefault()
+
+      // Clear any existing timeout
+      if (collapseTimeoutRef.current) {
+        clearTimeout(collapseTimeoutRef.current)
+      }
+
       setIsTapped(true)
+
       // Auto-close tap expansion after 4 seconds
-      setTimeout(() => setIsTapped(false), 4000)
+      collapseTimeoutRef.current = setTimeout(() => {
+        setIsTapped(false)
+        collapseTimeoutRef.current = null
+      }, 4000)
     } else {
       // Desktop or second tap on mobile: open modal
+      // Clear timeout and reset state
+      if (collapseTimeoutRef.current) {
+        clearTimeout(collapseTimeoutRef.current)
+        collapseTimeoutRef.current = null
+      }
+      setIsTapped(false)
       onClick()
     }
   }
