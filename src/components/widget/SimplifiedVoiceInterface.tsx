@@ -98,6 +98,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   }, [currentResponse])
 
   // Progressive sentence reveal based on voice amplitude
+  // Reveal next sentence when amplitude crosses threshold
   useEffect(() => {
     if (sentences.length === 0 || revealedSentences >= sentences.length) return
 
@@ -109,16 +110,20 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       isListening
     })
 
-    const interval = setInterval(() => {
-      // Reveal next sentence when agent is actively speaking
-      if (agentAudioLevel > 0.05 && revealedSentences < sentences.length) {
+    // Use timeout to throttle reveals (prevent revealing too fast)
+    let timeout: NodeJS.Timeout
+
+    if (agentAudioLevel > 0.05 && revealedSentences < sentences.length) {
+      timeout = setTimeout(() => {
         console.log('[REVEAL] Showing sentence', revealedSentences + 1)
         setRevealedSentences(prev => prev + 1)
-      }
-    }, 700) // Check every 700ms (~1 sentence per interval)
+      }, 700) // Wait 700ms before revealing next
+    }
 
-    return () => clearInterval(interval)
-  }, [sentences, revealedSentences, agentAudioLevel])
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
+  }, [sentences.length, revealedSentences, agentAudioLevel])
 
   // Removed amplitude logging - was too noisy
 
