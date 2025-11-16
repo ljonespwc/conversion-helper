@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
+import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
@@ -23,6 +23,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
   const [aiIsSpeaking, setAiIsSpeaking] = useState(false)
+  const [showSparkleBurst, setShowSparkleBurst] = useState(false)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -49,6 +50,10 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         // Clear previous response and URLs when new response arrives
         setCurrentResponse(null)
         setShowURLs(false)
+
+        // Trigger sparkle burst animation
+        setShowSparkleBurst(true)
+        setTimeout(() => setShowSparkleBurst(false), 800)
 
         // Small delay to allow exit animation before showing new response
         setTimeout(() => {
@@ -182,30 +187,60 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
       {/* Main Interface */}
       <div className="flex flex-col items-center space-y-4">
-        {/* Voice Button */}
-        <motion.button
-          onClick={() => {
-            if (!hasStarted && isConnected) {
-              setHasStarted(true)
-            }
-          }}
-          disabled={!isConnected || (hasStarted && isActive)}
-          className={`relative p-8 rounded-full transition-all ${getButtonColor()} ${
-            !isConnected ? 'opacity-50 cursor-not-allowed' : ''
-          } ${
-            isSpeaking || isListening ? 'animate-pulse' : ''
-          }`}
-          whileTap={!hasStarted ? { scale: 0.95 } : {}}
-        >
-          {/* Icon */}
-          {isConnecting ? (
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
-          ) : isListening ? (
-            <Volume2 className="w-8 h-8 text-white" />
-          ) : (
-            <Mic className="w-8 h-8 text-white" />
-          )}
-        </motion.button>
+        {/* Voice Button with Sparkle Burst */}
+        <div className="relative">
+          <motion.button
+            onClick={() => {
+              if (!hasStarted && isConnected) {
+                setHasStarted(true)
+              }
+            }}
+            disabled={!isConnected || (hasStarted && isActive)}
+            className={`relative p-8 rounded-full transition-all ${getButtonColor()} ${
+              !isConnected ? 'opacity-50 cursor-not-allowed' : ''
+            } ${
+              isSpeaking || isListening ? 'animate-pulse' : ''
+            }`}
+            whileTap={!hasStarted ? { scale: 0.95 } : {}}
+          >
+            {/* Icon */}
+            {isConnecting ? (
+              <Loader2 className="w-8 h-8 text-white animate-spin" />
+            ) : isListening ? (
+              <Volume2 className="w-8 h-8 text-white" />
+            ) : (
+              <Mic className="w-8 h-8 text-white" />
+            )}
+          </motion.button>
+
+          {/* Sparkle Burst Animation */}
+          <AnimatePresence>
+            {showSparkleBurst && (
+              <>
+                {[...Array(8)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                    animate={{
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0.8],
+                      x: Math.cos((i / 8) * Math.PI * 2) * 60,
+                      y: Math.sin((i / 8) * Math.PI * 2) * 60,
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.8,
+                      ease: "easeOut"
+                    }}
+                  >
+                    <Sparkles className="w-5 h-5 text-yellow-400" />
+                  </motion.div>
+                ))}
+              </>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Status Text - Fixed height container */}
         <div className="h-5 flex items-center justify-center">
@@ -240,7 +275,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
-                        <Volume2 className="w-4 h-4 text-blue-400" />
+                        <Sparkles className="w-4 h-4 text-blue-400" />
                       </div>
                       <div className="flex-1 min-w-0 text-white text-sm leading-relaxed">
                         <ReactMarkdown
