@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
@@ -23,6 +23,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [isScrollable, setIsScrollable] = useState(false)
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
   const [aiIsSpeaking, setAiIsSpeaking] = useState(false)
+  const clearTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -128,18 +129,40 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     }
   }, [agentAudioLevel])
 
-  // Clear response text and URLs when user starts speaking (asking next question)
+  // Clear response text when user starts speaking (debounced to ignore brief noises)
   useEffect(() => {
     const userIsSpeaking = userAudioLevel > 0.01
+
     if (userIsSpeaking) {
-      setAiIsSpeaking(false) // User turn started, AI stopped
-      if (showURLs) setShowURLs(false)
-      if (currentResponse) {
-        setCurrentResponse(null)
-        setResponseType(null)
+      // Start a timer - only clear if speech continues for 500ms
+      // This prevents clearing on brief noises (coughs, keyboard clicks)
+      if (!clearTimerRef.current) {
+        clearTimerRef.current = setTimeout(() => {
+          // User is actually speaking (not just brief noise)
+          setAiIsSpeaking(false)
+          setShowURLs(false)
+          setCurrentResponse(null)
+          setResponseType(null)
+          clearTimerRef.current = null
+        }, 500)
+      }
+    } else {
+      // Audio stopped - cancel the clear timer (was just brief noise)
+      if (clearTimerRef.current) {
+        clearTimeout(clearTimerRef.current)
+        clearTimerRef.current = null
       }
     }
-  }, [userAudioLevel, showURLs, currentResponse])
+  }, [userAudioLevel])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (clearTimerRef.current) {
+        clearTimeout(clearTimerRef.current)
+      }
+    }
+  }, [])
 
   // Removed debug logging
 
