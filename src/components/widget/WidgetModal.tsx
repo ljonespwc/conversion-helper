@@ -1,9 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { X, Wifi, WifiOff } from 'lucide-react'
-import SimplifiedVoiceInterface from './SimplifiedVoiceInterface'
+
+// Dynamically import to prevent SSR issues with Layercode SDK
+const SimplifiedVoiceInterface = dynamic(
+  () => import('./SimplifiedVoiceInterface'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-easyask-secondary"></div>
+      </div>
+    )
+  }
+)
 
 interface WidgetModalProps {
   onClose: () => void
