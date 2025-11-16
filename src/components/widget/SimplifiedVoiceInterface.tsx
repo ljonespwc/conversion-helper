@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
 import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
 
@@ -19,6 +20,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [currentResponse, setCurrentResponse] = useState<string | null>(null)
   const [responseType, setResponseType] = useState<string | null>(null)
   const [isCopied, setIsCopied] = useState(false)
+  const [words, setWords] = useState<string[]>([])
+  const [revealedWords, setRevealedWords] = useState<number>(0)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -79,6 +82,30 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       console.error('Failed to copy:', err)
     }
   }
+
+  // Split response into words when received
+  useEffect(() => {
+    if (currentResponse) {
+      // Split on whitespace while preserving markdown structure
+      const wordArray = currentResponse.split(/(\s+)/).filter(w => w.trim().length > 0)
+      setWords(wordArray)
+      setRevealedWords(0) // Reset to start
+    } else {
+      setWords([])
+      setRevealedWords(0)
+    }
+  }, [currentResponse])
+
+  // Progressive word reveal - faster than reading pace but natural
+  useEffect(() => {
+    if (words.length === 0 || revealedWords >= words.length) return
+
+    const timer = setTimeout(() => {
+      setRevealedWords(prev => prev + 1)
+    }, 150) // ~400 words/minute - faster than reading but comfortable
+
+    return () => clearTimeout(timer)
+  }, [words.length, revealedWords])
 
   // Determine current state
   // Lower threshold for user speaking detection (was 0.1, now 0.01)
@@ -216,10 +243,21 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                     <div className="flex-shrink-0 mt-0.5">
                       <Volume2 className="w-4 h-4 text-blue-400" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
-                        {currentResponse}
-                      </p>
+                    <div className="flex-1 min-w-0 text-white text-sm leading-relaxed">
+                      <ReactMarkdown
+                        components={{
+                          // Custom styling for markdown elements
+                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                          strong: ({ children }) => <strong className="font-semibold text-blue-300">{children}</strong>,
+                          em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                          ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                          li: ({ children }) => <li className="text-white">{children}</li>,
+                          code: ({ children }) => <code className="bg-gray-800 px-1.5 py-0.5 rounded text-blue-300 text-xs">{children}</code>,
+                        }}
+                      >
+                        {words.slice(0, revealedWords).join(' ')}
+                      </ReactMarkdown>
                     </div>
                   </div>
 
