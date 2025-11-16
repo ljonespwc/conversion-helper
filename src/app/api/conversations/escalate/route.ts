@@ -14,7 +14,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: NextRequest) {
   try {
-    const { session_id, email } = await request.json()
+    const { session_id, email, page_url } = await request.json()
 
     // Validate required fields
     if (!session_id) {
@@ -83,7 +83,8 @@ export async function POST(request: NextRequest) {
           escalation_processed: false,
           started_at: new Date().toISOString(),
           total_questions: 0,
-          matched_responses: 0
+          matched_responses: 0,
+          page_url: page_url || null
         })
 
       if (insertError) {

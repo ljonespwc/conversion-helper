@@ -190,7 +190,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: conversationId,
-          email: email.trim()
+          email: email.trim(),
+          page_url: effectivePageUrl || null
         })
       })
 
