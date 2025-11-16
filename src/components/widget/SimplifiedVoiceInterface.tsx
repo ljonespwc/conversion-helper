@@ -178,6 +178,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
           disabled={!isConnected || (hasStarted && isActive)}
           className={`relative p-8 rounded-full transition-all ${getButtonColor()} ${
             !isConnected ? 'opacity-50 cursor-not-allowed' : ''
+          } ${
+            isSpeaking || isListening ? 'animate-pulse' : ''
           }`}
           whileTap={!hasStarted ? { scale: 0.95 } : {}}
         >
@@ -189,28 +191,6 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
           ) : (
             <Mic className="w-8 h-8 text-white" />
           )}
-
-          {/* Pulse effect when active */}
-          <AnimatePresence>
-            {(isSpeaking || isListening) && (
-              <motion.span
-                initial={{ scale: 1, opacity: 0 }}
-                animate={{
-                  scale: [1, 1.5, 2],
-                  opacity: [0.5, 0.3, 0]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeOut"
-                }}
-                className={`absolute inset-0 rounded-full ${
-                  isSpeaking ? 'bg-green-400' : 'bg-easyask-secondary'
-                }`}
-              />
-            )}
-          </AnimatePresence>
-
         </motion.button>
 
         {/* Status Text - Fixed height container */}
