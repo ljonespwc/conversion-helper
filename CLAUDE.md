@@ -7,6 +7,25 @@ Building a voice-enabled AI assistant widget that helps visitors find answers to
 **Project ID**: `fwimhxkkszdaogugslar` (conversionhelper project)
 Always use this project_id when interacting with Supabase MCP tools.
 
+## Development Workflow
+
+### Division of Responsibilities
+
+**Lance (User) handles:**
+- Starting the Next.js dev server (`npm run dev`)
+- Deploying code to Vercel (git push, Vercel CLI)
+- Manual testing and QA
+
+**Claude (AI Assistant) handles:**
+- Running local builds (`npm run build`, `npx tsc`)
+- Code generation and modifications
+- Database queries and migrations
+- Reading logs and debugging
+
+**Important:** Claude should NOT start dev servers or deploy to production. Claude should focus on builds, tests, and code quality checks.
+
+---
+
 ## EasyAsk: Value Proposition & Messaging Framework
 
 ### Core Value Proposition
