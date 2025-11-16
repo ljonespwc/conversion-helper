@@ -24,6 +24,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
   // Track pending reveal timeout to prevent scheduling multiple
   const pendingRevealRef = useRef<NodeJS.Timeout | null>(null)
+  // Track when we last revealed to enforce minimum delay between reveals
+  const lastRevealTimeRef = useRef<number>(0)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -115,8 +117,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     // Only schedule a new timeout if:
     // 1. Agent is speaking (amplitude > 0.05)
     // 2. We don't already have a pending timeout
-    if (agentAudioLevel > 0.05 && !pendingRevealRef.current) {
+    // 3. Enough time has passed since last reveal (prevent rapid-fire reveals)
+    const now = Date.now()
+    const timeSinceLastReveal = now - lastRevealTimeRef.current
+    const minDelayBetweenReveals = 800 // ms - must wait this long between reveals
+
+    if (
+      agentAudioLevel > 0.05 &&
+      !pendingRevealRef.current &&
+      timeSinceLastReveal >= minDelayBetweenReveals
+    ) {
       console.log('[SCHEDULE REVEAL] Scheduling reveal for sentence', revealedSentences + 1)
+      lastRevealTimeRef.current = now // Mark when we scheduled
       pendingRevealRef.current = setTimeout(() => {
         console.log('[REVEAL] Showing sentence', revealedSentences + 1)
         setRevealedSentences(prev => prev + 1)
@@ -125,12 +137,13 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     }
   }, [sentences.length, revealedSentences, agentAudioLevel])
 
-  // Clear pending timeout when sentences change (new response)
+  // Clear pending timeout and reset timing when sentences change (new response)
   useEffect(() => {
     if (pendingRevealRef.current) {
       clearTimeout(pendingRevealRef.current)
       pendingRevealRef.current = null
     }
+    lastRevealTimeRef.current = 0 // Reset timing for new response
   }, [sentences])
 
   // Removed amplitude logging - was too noisy
