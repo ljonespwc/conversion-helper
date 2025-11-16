@@ -265,9 +265,16 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
               if (session?.user_email && !session.escalation_processed) {
                 console.log(`🔍 Triggering analysis for escalated session: ${sessionIdForLookup}`)
 
+                // Determine the base URL for the analysis endpoint
+                // On Vercel: use VERCEL_URL (auto-set) or NEXT_PUBLIC_APP_URL
+                // Locally: use localhost:3000
+                const baseUrl = process.env.VERCEL_URL
+                  ? `https://${process.env.VERCEL_URL}`
+                  : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+
                 // Fire-and-forget request to analysis endpoint
                 try {
-                  await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/conversations/analyze-escalation`, {
+                  await fetch(`${baseUrl}/api/conversations/analyze-escalation`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
