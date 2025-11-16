@@ -230,7 +230,8 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
           console.log(`📝 Session ended with ${transcript.length} total messages (user + assistant)`)
           console.log('📋 Full transcript:', JSON.stringify(transcript, null, 2))
 
-          const sessionIdForLookup = session_id || conversation_id || 'unknown'
+          // Use conversation_id to match frontend (session_id may be different)
+          const sessionIdForLookup = conversation_id || session_id || 'unknown'
 
           // Save complete transcript to database (both user and assistant messages)
           for (const message of transcript) {
@@ -250,6 +251,38 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
               page_url: pageUrl || null
             })
           }
+
+          // Trigger escalation analysis if email was submitted (fire-and-forget)
+          // This runs asynchronously without blocking the webhook response
+          void (async () => {
+            try {
+              const { data: session } = await supabase
+                .from('conversation_sessions')
+                .select('user_email, escalation_processed')
+                .eq('session_id', sessionIdForLookup)
+                .single()
+
+              if (session?.user_email && !session.escalation_processed) {
+                console.log(`🔍 Triggering analysis for escalated session: ${sessionIdForLookup}`)
+
+                // Fire-and-forget request to analysis endpoint
+                try {
+                  await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/conversations/analyze-escalation`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-analysis-secret': process.env.ANALYSIS_ENDPOINT_SECRET || 'internal-only'
+                    },
+                    body: JSON.stringify({ session_id: sessionIdForLookup })
+                  })
+                } catch (error) {
+                  console.error('Failed to trigger analysis:', error)
+                }
+              }
+            } catch (error) {
+              console.error('Failed to check escalation status:', error)
+            }
+          })()
 
           // Clean up conversation history after session ends
           delete conversationMessages[conversationKey]
