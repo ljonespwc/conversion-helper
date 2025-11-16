@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
@@ -34,6 +34,13 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
   const [isConversationCopied, setIsConversationCopied] = useState(false)
 
+  // Email escalation state
+  const [isEscalationExpanded, setIsEscalationExpanded] = useState(false)
+  const [email, setEmail] = useState('')
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
+  const [escalationSuccess, setEscalationSuccess] = useState(false)
+  const [escalationError, setEscalationError] = useState('')
+
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
@@ -43,6 +50,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     connectionStatus,
     userAudioLevel,
     agentAudioLevel,
+    conversationId,
     startNewConversation
   } = useLayercodeVoice({
     metadata: {
@@ -156,6 +164,55 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       setTimeout(() => setIsConversationCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy conversation:', err)
+    }
+  }
+
+  // Handle email escalation submission
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!conversationId) {
+      setEscalationError('Conversation not started yet')
+      return
+    }
+
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setEscalationError('Please enter a valid email address')
+      return
+    }
+
+    setIsSubmittingEmail(true)
+    setEscalationError('')
+
+    try {
+      const response = await fetch('/api/conversations/escalate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: conversationId,
+          email: email.trim()
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit email')
+      }
+
+      setEscalationSuccess(true)
+      setEmail('') // Clear email input
+      console.log('✅ Email escalation submitted successfully')
+
+      // Auto-collapse after 3 seconds
+      setTimeout(() => {
+        setIsEscalationExpanded(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Email submission error:', error)
+      setEscalationError(error instanceof Error ? error.message : 'Failed to submit email. Please try again.')
+    } finally {
+      setIsSubmittingEmail(false)
     }
   }
 
@@ -509,6 +566,100 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                           )}
                         </button>
                       </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Email Escalation - Appears after first AI response */}
+        {conversationHistory.length > 0 && (
+          <div className="w-full max-w-md px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-2"
+            >
+              {/* Toggle Button */}
+              <button
+                onClick={() => setIsEscalationExpanded(!isEscalationExpanded)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800/50 to-purple-800/50 hover:from-blue-700/50 hover:to-purple-700/50 border border-blue-700/50 rounded-lg transition-colors text-sm text-gray-200 hover:text-white"
+              >
+                <Mail className="w-4 h-4" />
+                <span>
+                  {escalationSuccess ? '✓ We\'ll follow up soon!' : 'Need more help? Get a human response'}
+                </span>
+                {isEscalationExpanded ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </button>
+
+              {/* Escalation Form */}
+              <AnimatePresence>
+                {isEscalationExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-blue-700/50 p-4 space-y-3">
+                      {escalationSuccess ? (
+                        <div className="text-center py-2">
+                          <div className="text-green-400 text-sm font-medium mb-1">
+                            ✓ Email submitted successfully!
+                          </div>
+                          <div className="text-gray-400 text-xs">
+                            We'll review the conversation and follow up soon.
+                          </div>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleEmailSubmit} className="space-y-3">
+                          <div>
+                            <label htmlFor="escalation-email" className="block text-xs text-gray-400 mb-2">
+                              We'll analyze the conversation and send you a detailed response:
+                            </label>
+                            <input
+                              id="escalation-email"
+                              type="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="your@email.com"
+                              disabled={isSubmittingEmail}
+                              className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-md text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                            />
+                          </div>
+
+                          {escalationError && (
+                            <div className="text-red-400 text-xs">
+                              {escalationError}
+                            </div>
+                          )}
+
+                          <button
+                            type="submit"
+                            disabled={isSubmittingEmail || !email.trim()}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+                          >
+                            {isSubmittingEmail ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Submitting...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Mail className="w-4 h-4" />
+                                <span>Submit email</span>
+                              </>
+                            )}
+                          </button>
+                        </form>
+                      )}
                     </div>
                   </motion.div>
                 )}
