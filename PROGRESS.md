@@ -455,27 +455,35 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 **Issue:** User experience during voice interactions needs enhancement.
 
-**Improvements Needed:**
-1. **Text Response Display**
-   - Show streaming text response alongside voice
-   - Allows users to read while listening
-   - Better for noisy environments or accessibility
+**Completed Improvements:**
 
-2. **Loading & Wait State Visuals**
-   - Animated indicators during STT processing
-   - Visual feedback during File Search lookup
-   - Progress indicators during TTS generation
-   - Minimize perceived wait time with engaging animations
+1. ✅ **Text Response Display** (2025-11-16)
+   - AI response text displays in frosted glass card with blue/purple gradient
+   - Markdown formatting (bold, italic, lists, code blocks) with custom styling
+   - Sparkle icon represents AI-generated content (not just speaking)
+   - Copy button for easy text sharing
+   - Scroll indicator for long responses
+   - Text persists through ambient noise (debounced clearing on user speech)
+   - File: `src/components/widget/SimplifiedVoiceInterface.tsx`
 
-3. **Conversation History Display**
+2. ✅ **Sparkle Burst Animation** (2025-11-16)
+   - 8 yellow sparkles radiate from orb when AI answer arrives
+   - 0.8s animation creates magical "eureka!" moment
+   - Triggers exactly when response data arrives
+   - File: `src/components/widget/SimplifiedVoiceInterface.tsx`
+
+3. ✅ **Loading & Wait State Visuals** (2025-11-16)
+   - Minimal wait states in practice due to optimized performance
+   - Existing pulse animations on orb provide sufficient visual feedback
+   - "Listening to you..." / "Speaking..." status text provides clear state indication
+   - Further animation not needed - system is fast enough
+
+**Remaining:**
+
+4. ⏳ **Conversation History Display**
    - Show previous Q&A pairs in the widget
    - Allow users to scroll back through conversation
    - Clear visual distinction between user and assistant messages
-
-**Files to modify:**
-- Widget component (TBD: need to identify main widget file)
-- CSS/Tailwind for animations and visual feedback
-- State management for conversation history display
 
 ---
 
