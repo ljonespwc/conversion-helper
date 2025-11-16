@@ -121,6 +121,13 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     }
   }, [isSpeaking, isListening, hasHadFirstInteraction])
 
+  // Detect AI speaking via amplitude (for welcome msg and TTS)
+  useEffect(() => {
+    if (agentAudioLevel > 0.05) {
+      setAiIsSpeaking(true)
+    }
+  }, [agentAudioLevel])
+
   // Clear response text and URLs when user starts speaking (asking next question)
   useEffect(() => {
     const userIsSpeaking = userAudioLevel > 0.01
