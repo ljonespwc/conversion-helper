@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles } from 'lucide-react'
+import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
 import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
+
+type ConversationMessage = {
+  role: 'user' | 'assistant'
+  text: string
+  timestamp: number
+}
 
 interface SimplifiedVoiceInterfaceProps {
   onClose: () => void
@@ -24,6 +30,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
   const [aiIsSpeaking, setAiIsSpeaking] = useState(false)
   const [showSparkleBurst, setShowSparkleBurst] = useState(false)
+  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([])
+  const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -54,6 +62,28 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         // Trigger sparkle burst animation
         setShowSparkleBurst(true)
         setTimeout(() => setShowSparkleBurst(false), 800)
+
+        // Add messages to conversation history
+        const timestamp = Date.now()
+        const newMessages: ConversationMessage[] = []
+
+        // Add user question if available
+        if (content?.question) {
+          newMessages.push({
+            role: 'user',
+            text: content.question,
+            timestamp
+          })
+        }
+
+        // Add AI response
+        newMessages.push({
+          role: 'assistant',
+          text: content.response,
+          timestamp: timestamp + 1 // Ensure AI response comes after
+        })
+
+        setConversationHistory(prev => [...prev, ...newMessages])
 
         // Small delay to allow exit animation before showing new response
         setTimeout(() => {
@@ -146,6 +176,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     if (userIsSpeaking) {
       // User is speaking - this ends the AI's turn
       setAiIsSpeaking(false)
+      // Auto-collapse history when new question is asked
+      setIsHistoryExpanded(false)
     }
   }, [userAudioLevel])
 
@@ -325,6 +357,110 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
             )}
           </AnimatePresence>
         </div>
+
+        {/* Conversation History - Collapsible */}
+        {conversationHistory.length > 0 && (
+          <div className="w-full max-w-md px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-2"
+            >
+              {/* Toggle Button */}
+              <button
+                onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 rounded-lg transition-colors text-sm text-gray-400 hover:text-white"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>
+                  {isHistoryExpanded ? 'Hide' : 'View'} conversation ({conversationHistory.length} message{conversationHistory.length !== 1 ? 's' : ''})
+                </span>
+                {isHistoryExpanded ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </button>
+
+              {/* History Content */}
+              <AnimatePresence>
+                {isHistoryExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-gray-700/50 p-4 max-h-[300px] overflow-y-auto space-y-3">
+                      {conversationHistory.map((message, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className={`flex gap-3 ${
+                            message.role === 'user' ? 'flex-row' : 'flex-row'
+                          }`}
+                        >
+                          {/* Icon */}
+                          <div className="flex-shrink-0 mt-0.5">
+                            {message.role === 'user' ? (
+                              <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                <span className="text-xs">👤</span>
+                              </div>
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                <Sparkles className="w-3 h-3 text-purple-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Message */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`text-xs font-medium ${
+                                message.role === 'user' ? 'text-blue-400' : 'text-purple-400'
+                              }`}>
+                                {message.role === 'user' ? 'You' : 'Assistant'}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(message.timestamp).toLocaleTimeString('en-US', {
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-200 leading-relaxed">
+                              {message.role === 'assistant' ? (
+                                <ReactMarkdown
+                                  components={{
+                                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                                    strong: ({ children }) => <strong className="font-semibold text-purple-300">{children}</strong>,
+                                    em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                                    ul: ({ children }) => <ul className="list-disc list-inside mb-1 space-y-0.5">{children}</ul>,
+                                    ol: ({ children }) => <ol className="list-decimal list-inside mb-1 space-y-0.5">{children}</ol>,
+                                    li: ({ children }) => <li className="text-gray-200 text-xs">{children}</li>,
+                                    code: ({ children }) => <code className="bg-gray-800 px-1 py-0.5 rounded text-purple-300 text-xs">{children}</code>,
+                                  }}
+                                >
+                                  {message.text}
+                                </ReactMarkdown>
+                              ) : (
+                                message.text
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+        )}
 
         {/* URL Display Area - Card Style */}
         <div className="w-full max-w-md px-4">
