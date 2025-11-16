@@ -6,9 +6,9 @@
 
 ---
 
-## ⚠️ CRITICAL: Streaming Architecture & AI Prompting
+## ⚠️ CRITICAL: Streaming Architecture, AI Prompting & Widget UI
 
-**DO NOT modify streaming architecture or AI prompting without explicit permission. NO EXCEPTIONS.**
+**DO NOT modify streaming architecture, AI prompting, or widget UI without explicit permission. NO EXCEPTIONS.**
 
 This includes:
 - **LLM streaming** (Gemini responses, model configurations)
@@ -17,13 +17,14 @@ This includes:
 - **System prompts** (instructions passed to Gemini)
 - **Conversation history** (context passing to Gemini)
 - **Any changes to data flow** in the voice query pipeline
+- **Widget UI/UX** (SimplifiedVoiceInterface, VoiceWidget, animations, layouts, user interactions)
 
 **Required before changes:**
 1. Document proposed changes in detail
 2. Explain effects on latency, reliability, and user experience
 3. Get explicit approval before implementation
 
-**Reason:** These systems are highly sensitive to latency and reliability. Changes can introduce subtle issues that only appear in production under load. System prompts and context passing directly affect response quality and user experience.
+**Reason:** These systems are highly sensitive to latency and reliability. Changes can introduce subtle issues that only appear in production under load. System prompts and context passing directly affect response quality and user experience. Widget UI changes affect the core user interaction flow and must be carefully considered for consistency and usability.
 
 ---
 
