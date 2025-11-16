@@ -35,59 +35,59 @@ export default function WidgetModal({ onClose, pageUrl, isVisible = true }: Widg
     }
   }, [])
 
-  // If not visible (pre-connecting), render interface hidden to start connection
-  if (!isVisible) {
-    return (
-      <div className="hidden">
-        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} />
-      </div>
-    )
-  }
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {/* WiFi indicator on the left */}
-          <div className="w-8 flex items-center">
-            {isConnected ? (
-              <Wifi className="w-4 h-4 text-green-500" />
-            ) : (
-              <WifiOff className="w-4 h-4 text-gray-400" />
-            )}
-          </div>
-
-          {/* Title in center */}
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Page Assistant
-          </h2>
-
-          {/* Close button on the right */}
-          <button
+    <>
+      {/* Always render SimplifiedVoiceInterface (single instance for pre-connect and visible states) */}
+      <div className={isVisible ? 'contents' : 'hidden'}>
+        {isVisible ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Close modal"
           >
-            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </button>
-        </div>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
-        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} />
-      </motion.div>
-    </motion.div>
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                {/* WiFi indicator on the left */}
+                <div className="w-8 flex items-center">
+                  {isConnected ? (
+                    <Wifi className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <WifiOff className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+
+                {/* Title in center */}
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Page Assistant
+                </h2>
+
+                {/* Close button on the right */}
+                <button
+                  onClick={onClose}
+                  className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </button>
+              </div>
+
+              <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} />
+            </motion.div>
+          </motion.div>
+        ) : (
+          <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} />
+        )}
+      </div>
+    </>
   )
 }
