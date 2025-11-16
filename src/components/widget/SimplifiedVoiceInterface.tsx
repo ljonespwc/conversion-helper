@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
@@ -21,6 +21,9 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [isCopied, setIsCopied] = useState(false)
   const [sentences, setSentences] = useState<string[]>([])
   const [revealedSentences, setRevealedSentences] = useState<number>(0)
+
+  // Track pending reveal timeout to prevent scheduling multiple
+  const pendingRevealRef = useRef<NodeJS.Timeout | null>(null)
 
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
@@ -100,30 +103,35 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   // Progressive sentence reveal based on voice amplitude
   // Reveal next sentence when amplitude crosses threshold
   useEffect(() => {
-    if (sentences.length === 0 || revealedSentences >= sentences.length) return
+    if (sentences.length === 0 || revealedSentences >= sentences.length) {
+      // Clear any pending timeout if we're done
+      if (pendingRevealRef.current) {
+        clearTimeout(pendingRevealRef.current)
+        pendingRevealRef.current = null
+      }
+      return
+    }
 
-    // Debug logging
-    console.log('[SENTENCE REVEAL]', {
-      totalSentences: sentences.length,
-      revealed: revealedSentences,
-      agentAudioLevel,
-      isListening
-    })
-
-    // Use timeout to throttle reveals (prevent revealing too fast)
-    let timeout: NodeJS.Timeout
-
-    if (agentAudioLevel > 0.05 && revealedSentences < sentences.length) {
-      timeout = setTimeout(() => {
+    // Only schedule a new timeout if:
+    // 1. Agent is speaking (amplitude > 0.05)
+    // 2. We don't already have a pending timeout
+    if (agentAudioLevel > 0.05 && !pendingRevealRef.current) {
+      console.log('[SCHEDULE REVEAL] Scheduling reveal for sentence', revealedSentences + 1)
+      pendingRevealRef.current = setTimeout(() => {
         console.log('[REVEAL] Showing sentence', revealedSentences + 1)
         setRevealedSentences(prev => prev + 1)
-      }, 700) // Wait 700ms before revealing next
-    }
-
-    return () => {
-      if (timeout) clearTimeout(timeout)
+        pendingRevealRef.current = null // Clear ref after reveal
+      }, 700)
     }
   }, [sentences.length, revealedSentences, agentAudioLevel])
+
+  // Clear pending timeout when sentences change (new response)
+  useEffect(() => {
+    if (pendingRevealRef.current) {
+      clearTimeout(pendingRevealRef.current)
+      pendingRevealRef.current = null
+    }
+  }, [sentences])
 
   // Removed amplitude logging - was too noisy
 
