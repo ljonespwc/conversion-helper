@@ -124,12 +124,11 @@ export async function GET(request: NextRequest) {
       .gte('ended_at', fiveMinutesAgo.toISOString())
       .in('page_url', filterPages)
 
-    // Get recent sessions (last 10 sessions, filtered by user's pages)
+    // Get recent sessions (all sessions, filtered by user's pages)
     const { data: recentSessions, error: sessionsError } = await supabase
       .from('conversation_sessions')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(10)
       .in('page_url', filterPages)
 
     // Log any errors for debugging
