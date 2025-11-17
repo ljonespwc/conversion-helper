@@ -53,9 +53,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [escalationSuccess, setEscalationSuccess] = useState(false)
   const [escalationError, setEscalationError] = useState('')
 
-  // Feedback state for current response
-  const [currentResponseTimestamp, setCurrentResponseTimestamp] = useState<number | null>(null)
-  const [currentFeedback, setCurrentFeedback] = useState<'positive' | 'negative' | null>(null)
+  // Feedback state for conversation
+  const [conversationFeedback, setConversationFeedback] = useState<'positive' | 'negative' | null>(null)
   const [showFeedbackCheck, setShowFeedbackCheck] = useState(false)
 
   // Use provided pageUrl or capture from window if not provided
@@ -115,12 +114,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         // Small delay to allow exit animation before showing new response
         setTimeout(() => {
           setCurrentResponse(content.response)
-          setCurrentResponseTimestamp(responseTimestamp)
           setResponseType(content.type || null)
           setAiIsSpeaking(true) // AI started speaking
-          // Reset feedback state for new response
-          setCurrentFeedback(null)
-          setShowFeedbackCheck(false)
         }, 100)
       }
 
@@ -189,46 +184,27 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     }
   }
 
-  // Handle feedback submission
+  // Handle feedback submission (session-level)
   const handleFeedback = async (feedback: 'positive' | 'negative') => {
-    console.log('🔍 Feedback button clicked:', {
-      feedback,
-      conversationId,
-      currentResponseTimestamp,
-      currentFeedback,
-      hasConversationId: !!conversationId,
-      hasTimestamp: !!currentResponseTimestamp,
-      alreadyGaveFeedback: !!currentFeedback
-    })
-
     if (!conversationId) {
       console.warn('❌ No conversationId - cannot submit feedback')
       return
     }
 
-    if (!currentResponseTimestamp) {
-      console.warn('❌ No currentResponseTimestamp - cannot submit feedback')
-      return
-    }
-
-    if (currentFeedback) {
+    if (conversationFeedback) {
       console.warn('❌ Already gave feedback - cannot submit again')
       return
     }
 
     try {
-      console.log('📤 Sending feedback to API...')
       const response = await fetch('/api/conversations/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: conversationId,
-          message_timestamp: currentResponseTimestamp,
           feedback
         })
       })
-
-      console.log('📥 API response:', response.status, response.ok)
 
       if (response.ok) {
         // Show checkmark animation
@@ -236,8 +212,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         setTimeout(() => setShowFeedbackCheck(false), 1000)
 
         // Set feedback state (disables buttons)
-        setCurrentFeedback(feedback)
-        console.log(`✅ Feedback submitted: ${feedback}`)
+        setConversationFeedback(feedback)
+        console.log(`✅ Conversation feedback submitted: ${feedback}`)
       } else {
         const errorData = await response.json()
         console.error('❌ API error:', errorData)
@@ -497,70 +473,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                       </div>
                     </div>
 
-                    {/* Action Buttons - Copy and Feedback */}
-                    <div className="mt-3 flex items-center justify-between gap-2">
-                      {/* Feedback Buttons */}
-                      <div className="flex items-center gap-2">
-                        <AnimatePresence mode="wait">
-                          {showFeedbackCheck ? (
-                            <motion.div
-                              key="checkmark"
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              exit={{ scale: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="flex items-center gap-1 text-green-400 text-xs"
-                            >
-                              <Check className="w-4 h-4" />
-                              <span>Thanks!</span>
-                            </motion.div>
-                          ) : (
-                            <motion.div
-                              key="buttons"
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              exit={{ scale: 0, opacity: 0 }}
-                              className="flex items-center gap-2"
-                            >
-                              <span className="text-xs italic text-gray-400">Was this helpful?</span>
-                              <button
-                                onClick={() => handleFeedback('positive')}
-                                disabled={currentFeedback !== null}
-                                className={`
-                                  w-8 h-8 rounded-full border-2
-                                  flex items-center justify-center
-                                  text-base transition-all
-                                  ${currentFeedback === null
-                                    ? 'border-gray-600 hover:border-green-400 hover:bg-green-400/10 hover:scale-110 cursor-pointer'
-                                    : 'border-gray-700 opacity-30 cursor-not-allowed'
-                                  }
-                                `}
-                                title="Helpful response"
-                              >
-                                👍
-                              </button>
-                              <button
-                                onClick={() => handleFeedback('negative')}
-                                disabled={currentFeedback !== null}
-                                className={`
-                                  w-8 h-8 rounded-full border-2
-                                  flex items-center justify-center
-                                  text-base transition-all
-                                  ${currentFeedback === null
-                                    ? 'border-gray-600 hover:border-red-400 hover:bg-red-400/10 hover:scale-110 cursor-pointer'
-                                    : 'border-gray-700 opacity-30 cursor-not-allowed'
-                                  }
-                                `}
-                                title="Not helpful"
-                              >
-                                👎
-                              </button>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-
-                      {/* Copy Button */}
+                    {/* Copy Button */}
+                    <div className="mt-3 flex items-center justify-end">
                       <button
                         onClick={handleCopyResponse}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
@@ -808,6 +722,71 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                 )}
               </AnimatePresence>
             </motion.div>
+          </div>
+        )}
+
+        {/* Conversation Feedback - Appears after first AI response */}
+        {conversationHistory.length > 0 && (
+          <div className="w-full max-w-md px-4 mt-3">
+            <div className="flex items-center justify-center gap-2">
+              <AnimatePresence mode="wait">
+                {showFeedbackCheck ? (
+                  <motion.div
+                    key="checkmark"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center gap-1 text-green-400 text-xs"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Thanks!</span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="buttons"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-xs italic text-gray-400">Was this helpful?</span>
+                    <button
+                      onClick={() => handleFeedback('positive')}
+                      disabled={conversationFeedback !== null}
+                      className={`
+                        w-8 h-8 rounded-full border-2
+                        flex items-center justify-center
+                        text-base transition-all
+                        ${conversationFeedback === null
+                          ? 'border-gray-600 hover:border-green-400 hover:bg-green-400/10 hover:scale-110 cursor-pointer'
+                          : 'border-gray-700 opacity-30 cursor-not-allowed'
+                        }
+                      `}
+                      title="Helpful conversation"
+                    >
+                      👍
+                    </button>
+                    <button
+                      onClick={() => handleFeedback('negative')}
+                      disabled={conversationFeedback !== null}
+                      className={`
+                        w-8 h-8 rounded-full border-2
+                        flex items-center justify-center
+                        text-base transition-all
+                        ${conversationFeedback === null
+                          ? 'border-gray-600 hover:border-red-400 hover:bg-red-400/10 hover:scale-110 cursor-pointer'
+                          : 'border-gray-700 opacity-30 cursor-not-allowed'
+                        }
+                      `}
+                      title="Not helpful"
+                    >
+                      👎
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         )}
 

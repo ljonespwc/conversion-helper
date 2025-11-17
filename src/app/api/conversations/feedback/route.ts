@@ -11,19 +11,12 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { session_id, message_timestamp, feedback } = await request.json()
+    const { session_id, feedback } = await request.json()
 
     // Validate required fields
     if (!session_id) {
       return NextResponse.json(
         { error: 'session_id is required' },
-        { status: 400 }
-      )
-    }
-
-    if (!message_timestamp) {
-      return NextResponse.json(
-        { error: 'message_timestamp is required' },
         { status: 400 }
       )
     }
@@ -35,48 +28,71 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Find and update the message
-    const { data: message, error: fetchError } = await supabase
-      .from('conversation_messages')
-      .select('id, role, user_feedback')
+    // Check if session exists
+    const { data: session, error: fetchError } = await supabase
+      .from('conversation_sessions')
+      .select('id, user_feedback')
       .eq('session_id', session_id)
-      .eq('timestamp', message_timestamp)
-      .eq('role', 'assistant') // Only allow feedback on assistant messages
       .maybeSingle()
 
     if (fetchError) {
       throw fetchError
     }
 
-    if (!message) {
-      return NextResponse.json(
-        { error: 'Message not found' },
-        { status: 404 }
-      )
+    if (session) {
+      // Session exists - check if feedback already submitted
+      if (session.user_feedback) {
+        return NextResponse.json(
+          {
+            message: 'Feedback already submitted for this conversation',
+            current_feedback: session.user_feedback
+          },
+          { status: 200 }
+        )
+      }
+
+      // Update existing session with feedback
+      const { error: updateError } = await supabase
+        .from('conversation_sessions')
+        .update({ user_feedback: feedback })
+        .eq('session_id', session_id)
+
+      if (updateError) {
+        throw updateError
+      }
+    } else {
+      // Session doesn't exist yet (conversation still in progress)
+      // Create it now with just session_id and feedback
+      // The webhook will fill in the rest at session.end
+      const { error: insertError } = await supabase
+        .from('conversation_sessions')
+        .insert({
+          session_id,
+          user_feedback: feedback,
+          started_at: new Date().toISOString(),
+          total_questions: 0,
+          matched_responses: 0
+        })
+
+      if (insertError) {
+        // Handle unique constraint violation (race condition - session was just created)
+        if (insertError.code === '23505') {
+          // Retry update
+          const { error: retryError } = await supabase
+            .from('conversation_sessions')
+            .update({ user_feedback: feedback })
+            .eq('session_id', session_id)
+
+          if (retryError) {
+            throw retryError
+          }
+        } else {
+          throw insertError
+        }
+      }
     }
 
-    // Check if feedback already exists
-    if (message.user_feedback) {
-      return NextResponse.json(
-        {
-          message: 'Feedback already submitted for this message',
-          current_feedback: message.user_feedback
-        },
-        { status: 200 }
-      )
-    }
-
-    // Update message with feedback
-    const { error: updateError } = await supabase
-      .from('conversation_messages')
-      .update({ user_feedback: feedback })
-      .eq('id', message.id)
-
-    if (updateError) {
-      throw updateError
-    }
-
-    console.log(`👍👎 Feedback captured: ${feedback} for session ${session_id}, timestamp ${message_timestamp}`)
+    console.log(`👍👎 Feedback captured: ${feedback} for session ${session_id}`)
 
     return NextResponse.json(
       {

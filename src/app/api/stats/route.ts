@@ -146,9 +146,21 @@ export async function GET(request: NextRequest) {
       .in('session_id', sessionIds)
       .order('created_at', { ascending: true })
 
-    // Count feedback across all sessions (filtered by user's pages)
-    const positiveFeedback = allMessages?.filter(m => m.user_feedback === 'positive').length || 0
-    const negativeFeedback = allMessages?.filter(m => m.user_feedback === 'negative').length || 0
+    // Count feedback from sessions (not messages - session-level feedback)
+    const { count: positiveFeedbackCount } = await supabase
+      .from('conversation_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_feedback', 'positive')
+      .in('page_url', filterPages)
+
+    const { count: negativeFeedbackCount } = await supabase
+      .from('conversation_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_feedback', 'negative')
+      .in('page_url', filterPages)
+
+    const positiveFeedback = positiveFeedbackCount || 0
+    const negativeFeedback = negativeFeedbackCount || 0
 
     // Group messages by session_id
     const messagesBySession = (allMessages || []).reduce((acc, msg) => {

@@ -15,7 +15,6 @@ interface ConversationMessage {
   matched: boolean
   category: string | null
   created_at: string
-  user_feedback: 'positive' | 'negative' | null
 }
 
 interface ConversationSession {
@@ -26,6 +25,7 @@ interface ConversationSession {
   total_questions: number
   matched_responses: number
   page_url: string | null
+  user_feedback: 'positive' | 'negative' | null
   messages: ConversationMessage[]
 }
 
@@ -263,10 +263,8 @@ export default function AdminDashboard() {
                 const assistantMessageCount = assistantMessages.length
                 const userMessageCount = userMessages.length
 
-                // Count feedback
-                const positiveFeedback = assistantMessages.filter(m => m.user_feedback === 'positive').length
-                const negativeFeedback = assistantMessages.filter(m => m.user_feedback === 'negative').length
-                const hasFeedback = positiveFeedback > 0 || negativeFeedback > 0
+                // Session-level feedback
+                const hasFeedback = !!session.user_feedback
 
                 return (
                   <div key={session.id}>
@@ -304,10 +302,8 @@ export default function AdminDashboard() {
                             {hasFeedback && (
                               <>
                                 {' • '}
-                                <span className="text-gray-300">
-                                  {positiveFeedback > 0 && `👍 ${positiveFeedback}`}
-                                  {positiveFeedback > 0 && negativeFeedback > 0 && ' '}
-                                  {negativeFeedback > 0 && `👎 ${negativeFeedback}`}
+                                <span className="text-gray-300" title={session.user_feedback === 'positive' ? 'Positive feedback' : 'Negative feedback'}>
+                                  {session.user_feedback === 'positive' ? '👍' : '👎'}
                                 </span>
                               </>
                             )}
@@ -344,12 +340,6 @@ export default function AdminDashboard() {
                                       }`}>
                                         {message.role === 'user' ? '👤 User' : '🤖 Assistant'}
                                       </span>
-                                      {/* Show feedback for assistant messages */}
-                                      {message.role === 'assistant' && message.user_feedback && (
-                                        <span className="text-base" title={message.user_feedback === 'positive' ? 'Positive feedback' : 'Negative feedback'}>
-                                          {message.user_feedback === 'positive' ? '👍' : '👎'}
-                                        </span>
-                                      )}
                                     </div>
                                     <p className="text-sm text-gray-200">
                                       {message.message}
