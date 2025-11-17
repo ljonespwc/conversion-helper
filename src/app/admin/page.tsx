@@ -244,8 +244,48 @@ export default function AdminDashboard() {
               Loading conversations...
             </div>
           ) : stats?.recentSessions?.length ? (
-            <div className="divide-y divide-gray-700">
-              {stats.recentSessions.map((session) => {
+            <div>
+              {(() => {
+                // Group sessions by page_url
+                const sessionsByPage = new Map<string | null, ConversationSession[]>()
+
+                stats.recentSessions.forEach(session => {
+                  const pageUrl = session.page_url || null
+                  if (!sessionsByPage.has(pageUrl)) {
+                    sessionsByPage.set(pageUrl, [])
+                  }
+                  sessionsByPage.get(pageUrl)!.push(session)
+                })
+
+                // Convert to array and sort: known pages first (alphabetically), then unknown
+                const sortedGroups = Array.from(sessionsByPage.entries()).sort(([urlA], [urlB]) => {
+                  if (urlA === null) return 1 // Unknown pages last
+                  if (urlB === null) return -1
+                  return urlA.localeCompare(urlB)
+                })
+
+                return sortedGroups.map(([pageUrl, sessions]) => {
+                  // Find page title from widgetPages
+                  const page = pageUrl ? widgetPages.find(p => p.page_url === pageUrl) : null
+                  const pageTitle = page?.page_title || (pageUrl ? 'Unknown Page' : 'Demo/Test Sessions')
+
+                  return (
+                    <div key={pageUrl || 'unknown'} className="border-b border-gray-700 last:border-b-0">
+                      {/* Page Group Header */}
+                      <div className="bg-gray-900/80 px-6 py-3 border-b border-gray-700/50">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-blue-400" />
+                          <h3 className="text-sm font-semibold text-white">{pageTitle}</h3>
+                          <span className="text-xs text-gray-500">({sessions.length})</span>
+                        </div>
+                        {pageUrl && (
+                          <p className="text-xs text-gray-500 mt-0.5 truncate">{pageUrl}</p>
+                        )}
+                      </div>
+
+                      {/* Sessions in this group */}
+                      <div className="divide-y divide-gray-700">
+                        {sessions.map((session) => {
                 const isExpanded = expandedSessions.has(session.id)
 
                 // Calculate duration from message timestamps (more accurate than session start/end)
@@ -314,15 +354,6 @@ export default function AdminDashboard() {
                                 </span>
                               </>
                             )}
-                            {session.page_url && (
-                              <>
-                                <br />
-                                <span className="text-gray-500">
-                                  {session.page_url.replace(/^https?:\/\//, '').substring(0, 50)}
-                                  {session.page_url.length > 50 && '...'}
-                                </span>
-                              </>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -378,6 +409,11 @@ export default function AdminDashboard() {
                   </div>
                 )
               })}
+                      </div>
+                    </div>
+                  )
+                })
+              })()}
             </div>
           ) : (
             <div className="px-6 py-8 text-center text-gray-400">
