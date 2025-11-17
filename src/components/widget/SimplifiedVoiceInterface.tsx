@@ -31,8 +31,6 @@ interface SimplifiedVoiceInterfaceProps {
 }
 
 export default function SimplifiedVoiceInterface({ onClose, pageUrl }: SimplifiedVoiceInterfaceProps) {
-  console.log('🔵 SimplifiedVoiceInterface RENDER')
-
   const [hasStarted, setHasStarted] = useState(false)
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
@@ -136,13 +134,6 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   })
 
   // Auto-start conversation when connected
-  useEffect(() => {
-    console.log('🟢 SimplifiedVoiceInterface MOUNTED')
-    return () => {
-      console.log('🔴 SimplifiedVoiceInterface UNMOUNTED')
-    }
-  }, [])
-
   useEffect(() => {
     if (isConnected && !hasStarted) {
       setHasStarted(true)

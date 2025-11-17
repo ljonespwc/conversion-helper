@@ -13,8 +13,6 @@ interface VoiceWidgetProps {
 }
 
 export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl }: VoiceWidgetProps) {
-  console.log('🔵 VoiceWidget RENDER', { isOpen, embedded, internalOpen: '(initializing)' })
-
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
   const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
@@ -23,13 +21,6 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
 
   // Fetch page title and organization name if pageUrl is provided
-  useEffect(() => {
-    console.log('🟢 VoiceWidget MOUNTED')
-    return () => {
-      console.log('🔴 VoiceWidget UNMOUNTED')
-    }
-  }, [])
-
   useEffect(() => {
     if (pageUrl && embedded) {
       // Try to fetch page info from widget pages API

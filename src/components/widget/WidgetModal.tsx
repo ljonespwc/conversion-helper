@@ -12,16 +12,12 @@ interface WidgetModalProps {
 }
 
 export default function WidgetModal({ onClose, pageUrl, organizationName }: WidgetModalProps) {
-  console.log('🔵 WidgetModal RENDER')
-
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
   useEffect(() => {
-    console.log('🟢 WidgetModal MOUNTED')
-    ;(window as any).updateConnectionStatus = setIsConnected
+    (window as any).updateConnectionStatus = setIsConnected
     return () => {
-      console.log('🔴 WidgetModal UNMOUNTED')
       delete (window as any).updateConnectionStatus
     }
   }, [])
