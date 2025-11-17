@@ -50,7 +50,7 @@ export function Header({ user, loading = false }: HeaderProps) {
                 href="/admin"
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium whitespace-nowrap"
               >
-                Analytics
+                Reports
               </Link>
               <Link
                 href="/admin/escalations"
@@ -62,13 +62,13 @@ export function Header({ user, loading = false }: HeaderProps) {
                 href="/admin/pages"
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium whitespace-nowrap"
               >
-                Page Settings
+                Pages
               </Link>
               <Link
                 href="/admin/content"
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium whitespace-nowrap"
               >
-                AI Content
+                Knowledgebase
               </Link>
 
               {/* User Email Display */}
@@ -138,7 +138,7 @@ export function Header({ user, loading = false }: HeaderProps) {
               onClick={closeMobileMenu}
               className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
             >
-              Analytics
+              Reports
             </Link>
             <Link
               href="/admin/escalations"
@@ -152,14 +152,14 @@ export function Header({ user, loading = false }: HeaderProps) {
               onClick={closeMobileMenu}
               className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
             >
-              Page Settings
+              Pages
             </Link>
             <Link
               href="/admin/content"
               onClick={closeMobileMenu}
               className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
             >
-              AI Content
+              Knowledgebase
             </Link>
 
             {/* User Email */}
