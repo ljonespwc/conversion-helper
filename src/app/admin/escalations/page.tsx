@@ -6,6 +6,8 @@ import {
   Filter, ArrowUpDown, AlertCircle, CheckCircle2, Clock
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
+import { Header } from '@/components/Header'
 
 interface EscalationMessage {
   id: string
@@ -44,6 +46,7 @@ export default function EscalationsPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
+  const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<'all' | 'unresolved' | 'resolved'>('all')
@@ -55,8 +58,20 @@ export default function EscalationsPage() {
   const [copiedConversation, setCopiedConversation] = useState<string | null>(null)
 
   useEffect(() => {
+    checkUser()
+  }, [])
+
+  useEffect(() => {
     fetchEscalations()
   }, [statusFilter, sortOrder, pageUrlFilter])
+
+  const checkUser = async () => {
+    const supabase = createClient()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (authUser) {
+      setUser({ id: authUser.id, email: authUser.email })
+    }
+  }
 
   async function fetchEscalations() {
     try {
@@ -138,20 +153,18 @@ export default function EscalationsPage() {
   const uniquePages = Array.from(new Set(escalations.map(e => e.page_url).filter(Boolean)))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+      <Header user={user} />
 
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-white flex items-center gap-3">
-              <Mail className="w-10 h-10 text-blue-400" />
-              Email Escalations
-            </h1>
-            <p className="mt-2 text-gray-400">
-              Manage customer escalations and unanswered questions
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white">
+            Email Escalations
+          </h1>
+          <p className="mt-2 text-gray-400">
+            Manage customer escalations and unanswered questions
+          </p>
         </div>
 
         {/* Stats Cards */}
