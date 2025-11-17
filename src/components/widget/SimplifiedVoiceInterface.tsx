@@ -53,6 +53,11 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const [escalationSuccess, setEscalationSuccess] = useState(false)
   const [escalationError, setEscalationError] = useState('')
 
+  // Feedback state for current response
+  const [currentResponseTimestamp, setCurrentResponseTimestamp] = useState<number | null>(null)
+  const [currentFeedback, setCurrentFeedback] = useState<'positive' | 'negative' | null>(null)
+  const [showFeedbackCheck, setShowFeedbackCheck] = useState(false)
+
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
@@ -98,10 +103,11 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         }
 
         // Add AI response
+        const responseTimestamp = timestamp + 1 // Ensure AI response comes after
         newMessages.push({
           role: 'assistant',
           text: content.response,
-          timestamp: timestamp + 1 // Ensure AI response comes after
+          timestamp: responseTimestamp
         })
 
         setConversationHistory(prev => [...prev, ...newMessages])
@@ -109,8 +115,12 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         // Small delay to allow exit animation before showing new response
         setTimeout(() => {
           setCurrentResponse(content.response)
+          setCurrentResponseTimestamp(responseTimestamp)
           setResponseType(content.type || null)
           setAiIsSpeaking(true) // AI started speaking
+          // Reset feedback state for new response
+          setCurrentFeedback(null)
+          setShowFeedbackCheck(false)
         }, 100)
       }
 
@@ -176,6 +186,35 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       setTimeout(() => setIsConversationCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy conversation:', err)
+    }
+  }
+
+  // Handle feedback submission
+  const handleFeedback = async (feedback: 'positive' | 'negative') => {
+    if (!conversationId || !currentResponseTimestamp || currentFeedback) return
+
+    try {
+      const response = await fetch('/api/conversations/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: conversationId,
+          message_timestamp: currentResponseTimestamp,
+          feedback
+        })
+      })
+
+      if (response.ok) {
+        // Show checkmark animation
+        setShowFeedbackCheck(true)
+        setTimeout(() => setShowFeedbackCheck(false), 1000)
+
+        // Set feedback state (disables buttons)
+        setCurrentFeedback(feedback)
+        console.log(`👍👎 Feedback submitted: ${feedback}`)
+      }
+    } catch (error) {
+      console.error('Failed to submit feedback:', error)
     }
   }
 
@@ -429,8 +468,61 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                       </div>
                     </div>
 
-                    {/* Copy Button */}
-                    <div className="mt-3 flex justify-end">
+                    {/* Action Buttons - Copy and Feedback */}
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                      {/* Feedback Buttons */}
+                      <div className="flex items-center gap-2">
+                        <AnimatePresence mode="wait">
+                          {showFeedbackCheck ? (
+                            <motion.div
+                              key="checkmark"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex items-center gap-1 text-green-400 text-xs"
+                            >
+                              <Check className="w-4 h-4" />
+                              <span>Thanks!</span>
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              key="buttons"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              className="flex items-center gap-1"
+                            >
+                              <button
+                                onClick={() => handleFeedback('positive')}
+                                disabled={currentFeedback !== null}
+                                className={`text-xl transition-all ${
+                                  currentFeedback === null
+                                    ? 'hover:scale-110 cursor-pointer'
+                                    : 'opacity-30 cursor-not-allowed'
+                                }`}
+                                title="Helpful response"
+                              >
+                                👍
+                              </button>
+                              <button
+                                onClick={() => handleFeedback('negative')}
+                                disabled={currentFeedback !== null}
+                                className={`text-xl transition-all ${
+                                  currentFeedback === null
+                                    ? 'hover:scale-110 cursor-pointer'
+                                    : 'opacity-30 cursor-not-allowed'
+                                }`}
+                                title="Not helpful"
+                              >
+                                👎
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Copy Button */}
                       <button
                         onClick={handleCopyResponse}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"

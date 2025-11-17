@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
         today: 0,
         avgDuration: 0,
         activeNow: 0,
+        positiveFeedback: 0,
+        negativeFeedback: 0,
         recentSessions: []
       })
     }
@@ -144,6 +146,10 @@ export async function GET(request: NextRequest) {
       .in('session_id', sessionIds)
       .order('created_at', { ascending: true })
 
+    // Count feedback across all sessions (filtered by user's pages)
+    const positiveFeedback = allMessages?.filter(m => m.user_feedback === 'positive').length || 0
+    const negativeFeedback = allMessages?.filter(m => m.user_feedback === 'negative').length || 0
+
     // Group messages by session_id
     const messagesBySession = (allMessages || []).reduce((acc, msg) => {
       if (!acc[msg.session_id]) {
@@ -164,6 +170,8 @@ export async function GET(request: NextRequest) {
       today: todayCount || 0,
       avgDuration,
       activeNow: activeNow || 0,
+      positiveFeedback,
+      negativeFeedback,
       recentSessions: formattedSessions
     }, {
       headers: {
@@ -179,6 +187,8 @@ export async function GET(request: NextRequest) {
       today: 0,
       avgDuration: 0,
       activeNow: 0,
+      positiveFeedback: 0,
+      negativeFeedback: 0,
       recentSessions: []
     })
   }

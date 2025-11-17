@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, ThumbsUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -15,6 +15,7 @@ interface ConversationMessage {
   matched: boolean
   category: string | null
   created_at: string
+  user_feedback: 'positive' | 'negative' | null
 }
 
 interface ConversationSession {
@@ -33,6 +34,8 @@ interface Stats {
   today: number
   avgDuration: number
   activeNow: number
+  positiveFeedback: number
+  negativeFeedback: number
   recentSessions: ConversationSession[]
 }
 
@@ -183,7 +186,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <StatsCard
             title="Total Conversations"
             value={loading ? '...' : stats?.total || 0}
@@ -207,6 +210,12 @@ export default function AdminDashboard() {
             value={loading ? '...' : stats?.activeNow || 0}
             subtitle="Last 5 minutes"
             icon={<Users className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="User Feedback"
+            value={loading ? '...' : `👍 ${stats?.positiveFeedback || 0} • 👎 ${stats?.negativeFeedback || 0}`}
+            subtitle="Total ratings"
+            icon={<ThumbsUp className="w-5 h-5" />}
           />
         </div>
 
@@ -247,6 +256,11 @@ export default function AdminDashboard() {
                 const assistantMessageCount = assistantMessages.length
                 const userMessageCount = userMessages.length
 
+                // Count feedback
+                const positiveFeedback = assistantMessages.filter(m => m.user_feedback === 'positive').length
+                const negativeFeedback = assistantMessages.filter(m => m.user_feedback === 'negative').length
+                const hasFeedback = positiveFeedback > 0 || negativeFeedback > 0
+
                 return (
                   <div key={session.id}>
                     {/* Session Header */}
@@ -280,6 +294,16 @@ export default function AdminDashboard() {
                             {' • '}
                             {userMessageCount} User message{userMessageCount !== 1 ? 's' : ''}
                             {duration > 0 && ` • ${duration}s duration`}
+                            {hasFeedback && (
+                              <>
+                                {' • '}
+                                <span className="text-gray-300">
+                                  {positiveFeedback > 0 && `👍 ${positiveFeedback}`}
+                                  {positiveFeedback > 0 && negativeFeedback > 0 && ' '}
+                                  {negativeFeedback > 0 && `👎 ${negativeFeedback}`}
+                                </span>
+                              </>
+                            )}
                             {session.page_url && (
                               <>
                                 <br />
@@ -313,6 +337,12 @@ export default function AdminDashboard() {
                                       }`}>
                                         {message.role === 'user' ? '👤 User' : '🤖 Assistant'}
                                       </span>
+                                      {/* Show feedback for assistant messages */}
+                                      {message.role === 'assistant' && message.user_feedback && (
+                                        <span className="text-base" title={message.user_feedback === 'positive' ? 'Positive feedback' : 'Negative feedback'}>
+                                          {message.user_feedback === 'positive' ? '👍' : '👎'}
+                                        </span>
+                                      )}
                                     </div>
                                     <p className="text-sm text-gray-200">
                                       {message.message}
