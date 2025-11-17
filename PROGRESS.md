@@ -550,6 +550,73 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ---
 
+### Priority 6: Email Escalation & AI Analysis ✅ COMPLETED (2025-11-16)
+
+**Issue:** Need to capture leads who don't get satisfactory answers and intelligently route them to human support.
+
+**Solution Implemented:**
+
+1. ✅ **Email Capture UI**
+   - Persistent email capture option appears after first AI response
+   - Collapsible form with friendly messaging: "Need more help? Get a human response"
+   - Success state: "✓ We'll follow up soon!"
+   - Works mid-conversation (doesn't require session end)
+   - File: `src/components/widget/SimplifiedVoiceInterface.tsx`
+
+2. ✅ **Database Schema**
+   - `conversation_sessions`: Added `user_email`, `escalation_timestamp`, `escalation_processed`, `resolved`, `resolved_at`
+   - `conversation_messages`: Added `needs_followup`, `followup_reason`
+   - Indexes for efficient filtering of unresolved escalations
+   - Migrations: `20251116_add_email_escalation.sql`, `20251117_add_escalation_resolved.sql`
+
+3. ✅ **Email Capture API** (`/api/conversations/escalate`)
+   - Creates session if doesn't exist (mid-conversation support)
+   - Updates existing session with email and timestamp
+   - Race condition handling for concurrent submissions
+   - Preserves page_url for proper tracking
+
+4. ✅ **AI-Powered Analysis** (`/lib/conversation-analysis.ts`)
+   - Uses Gemini 2.5-flash-lite for cost efficiency (~$0.000075 per analysis)
+   - Conservative flagging strategy - only marks clear failures
+   - JSON response mode for structured output
+   - Analyzes: incomplete responses, unhelpful answers, incorrect information
+   - Stores results in `needs_followup` and `followup_reason` fields
+
+5. ✅ **Automated Analysis Trigger**
+   - Fire-and-forget pattern in webhook (non-blocking)
+   - Triggers when conversation ends AND email was submitted
+   - 60-second timeout for long conversations
+   - Endpoint: `/api/conversations/analyze-escalation`
+   - Uses `NEXT_PUBLIC_APP_URL` for reliable production deployment
+
+6. ✅ **Admin Escalations Dashboard** (`/admin/escalations`)
+   - Stats cards: Total, Unresolved, Resolved, Flagged Messages
+   - Filters: Status (all/unresolved/resolved), Sort (newest/oldest/most flagged), Page URL
+   - Expandable conversation view with full transcript
+   - Flagged messages highlighted with red badges
+   - Actions: Copy email, Copy conversation, Mark as Handled/Reopen
+   - Consistent design with other admin pages (Header, navigation)
+
+**Results:**
+- ✅ Captures leads before they bounce (even when AI can't fully answer)
+- ✅ Intelligent routing: AI flags specific messages that need human followup
+- ✅ Support team dashboard for efficient escalation management
+- ✅ Manual status tracking (resolved/unresolved) for workflow control
+- ✅ Tested in production: Correctly flagged 4 out of 18 messages in test conversation
+
+**Files Created/Modified:**
+- `src/app/api/conversations/escalate/route.ts` - Email capture endpoint
+- `src/lib/conversation-analysis.ts` - Gemini-powered conversation analyzer
+- `src/app/api/conversations/analyze-escalation/route.ts` - Analysis processor
+- `src/app/api/layercode/webhook/route.ts` - Added fire-and-forget analysis trigger
+- `src/app/api/admin/escalations/route.ts` - Fetch escalations with filters
+- `src/app/api/admin/escalations/[session_id]/route.ts` - Update resolved status
+- `src/app/admin/escalations/page.tsx` - Admin dashboard UI
+- `src/components/Header.tsx` - Added Escalations navigation link
+- `src/components/widget/SimplifiedVoiceInterface.tsx` - Email capture UI
+
+---
+
 ## 📖 Reference
 
 ### Useful Scripts

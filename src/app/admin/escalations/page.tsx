@@ -57,6 +57,9 @@ export default function EscalationsPage() {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [copiedConversation, setCopiedConversation] = useState<string | null>(null)
 
+  // Loading state for status updates
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+
   useEffect(() => {
     checkUser()
   }, [])
@@ -95,6 +98,7 @@ export default function EscalationsPage() {
 
   async function toggleResolved(sessionId: string, currentStatus: boolean) {
     try {
+      setUpdatingStatus(sessionId)
       const response = await fetch(`/api/admin/escalations/${sessionId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -102,10 +106,12 @@ export default function EscalationsPage() {
       })
 
       if (response.ok) {
-        fetchEscalations() // Refresh list
+        await fetchEscalations() // Refresh list
       }
     } catch (error) {
       console.error('Failed to update status:', error)
+    } finally {
+      setUpdatingStatus(null)
     }
   }
 
@@ -159,7 +165,7 @@ export default function EscalationsPage() {
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
             Email Escalations
           </h1>
           <p className="mt-2 text-gray-400">
@@ -221,7 +227,7 @@ export default function EscalationsPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-xl">
+        <div className="mt-8 bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-xl">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-gray-400" />
@@ -272,7 +278,7 @@ export default function EscalationsPage() {
         </div>
 
         {/* Escalations List */}
-        <div className="bg-gray-800 border border-gray-700 rounded-3xl shadow-xl overflow-hidden">
+        <div className="mt-8 bg-gray-800 border border-gray-700 rounded-3xl shadow-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-700 bg-gray-900">
             <h2 className="text-xl font-bold text-white">
               {loading ? 'Loading...' : `${escalations.length} Escalation${escalations.length !== 1 ? 's' : ''}`}
@@ -407,13 +413,21 @@ export default function EscalationsPage() {
                                   e.stopPropagation()
                                   toggleResolved(escalation.session_id, escalation.resolved)
                                 }}
+                                disabled={updatingStatus === escalation.session_id}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                                  escalation.resolved
+                                  updatingStatus === escalation.session_id
+                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    : escalation.resolved
                                     ? 'bg-orange-900/30 hover:bg-orange-900/50 text-orange-400'
                                     : 'bg-green-900/30 hover:bg-green-900/50 text-green-400'
                                 }`}
                               >
-                                {escalation.resolved ? (
+                                {updatingStatus === escalation.session_id ? (
+                                  <>
+                                    <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                                    Updating...
+                                  </>
+                                ) : escalation.resolved ? (
                                   <>
                                     <Clock className="w-4 h-4" />
                                     Reopen
