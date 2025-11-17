@@ -318,12 +318,12 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
   // Detect when user starts speaking (for state management only)
   useEffect(() => {
-    const userIsSpeaking = userAudioLevel > 0.01
-    if (userIsSpeaking) {
-      // User is speaking - this ends the AI's turn
+    // Only update state when it actually needs to change
+    // Prevents constant re-renders while user speaks
+    if (userAudioLevel > 0.01 && aiIsSpeaking) {
       setAiIsSpeaking(false)
     }
-  }, [userAudioLevel])
+  }, [userAudioLevel, aiIsSpeaking])
 
   // Removed debug logging
 
