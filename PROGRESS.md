@@ -617,6 +617,49 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ---
 
+## 🔮 Upcoming Priorities
+
+### Performance: Smart Caching Strategy (When Needed)
+
+**Current State:** No caching across all admin pages - always fresh data
+**Works great for:** 1-10 users (current scale)
+
+**When to revisit:**
+- Supabase bill increases significantly ($50+/month for queries)
+- Admin pages take >1 second to load
+- 50+ organizations using the platform
+- Database CPU consistently above 50%
+
+**Recommended Implementation Timeline:**
+
+#### Phase 1: Now (1-10 users)
+- ✅ Keep current no-cache approach
+- Simple, works fine at small scale
+
+#### Phase 2: Growth (10-50 users)
+- Add 30-second cache on aggregate stats
+- Keep no-cache on user actions
+- Monitor Supabase metrics
+
+#### Phase 3: Scale (50-200 users)
+- Implement SWR with 10-15s refresh
+- Add database-level caching (materialized views)
+- Real-time subscriptions for critical updates
+
+#### Phase 4: Enterprise (200+ users)
+- Redis/Vercel KV for edge caching
+- Separate read replicas for analytics
+- Event-driven cache invalidation
+
+**Key Principles:**
+- Aggregate stats: 30-60 second cache acceptable
+- Recent data: 10-15 second cache
+- User actions: Always fresh (no cache)
+- Use SWR pattern for automatic background refresh
+- Per-user caching only (never share cache across users)
+
+---
+
 ## 📖 Reference
 
 ### Useful Scripts
