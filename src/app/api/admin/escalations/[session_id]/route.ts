@@ -51,7 +51,12 @@ export async function PATCH(
 
     console.log(`✅ Escalation ${session_id} marked as ${resolved ? 'resolved' : 'unresolved'}`)
 
-    return NextResponse.json({ success: true, session: data })
+    return NextResponse.json({ success: true, session: data }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    })
   } catch (error) {
     console.error('Error updating escalation status:', error)
     return NextResponse.json(

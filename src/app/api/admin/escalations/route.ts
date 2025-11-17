@@ -116,7 +116,13 @@ export async function GET(request: NextRequest) {
       total_flagged_messages: escalations.reduce((sum, e) => sum + e.flagged_count, 0)
     }
 
-    return NextResponse.json({ escalations, stats })
+    return NextResponse.json({ escalations, stats }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching escalations:', error)
     return NextResponse.json(

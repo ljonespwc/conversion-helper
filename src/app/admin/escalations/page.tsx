@@ -84,7 +84,9 @@ export default function EscalationsPage() {
       if (sortOrder) params.append('sort', sortOrder)
       if (pageUrlFilter) params.append('page_url', pageUrlFilter)
 
-      const response = await fetch(`/api/admin/escalations?${params}`)
+      const response = await fetch(`/api/admin/escalations?${params}`, {
+        cache: 'no-store'
+      })
       const data = await response.json()
 
       setEscalations(data.escalations || [])
