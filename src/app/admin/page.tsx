@@ -213,7 +213,14 @@ export default function AdminDashboard() {
           />
           <StatsCard
             title="User Feedback"
-            value={loading ? '...' : `👍 ${stats?.positiveFeedback || 0} • 👎 ${stats?.negativeFeedback || 0}`}
+            value={
+              loading ? '...' : (
+                <div className="flex flex-col items-center leading-tight">
+                  <div>👍 {stats?.positiveFeedback || 0}</div>
+                  <div>👎 {stats?.negativeFeedback || 0}</div>
+                </div>
+              )
+            }
             subtitle="Total ratings"
             icon={<ThumbsUp className="w-5 h-5" />}
           />
