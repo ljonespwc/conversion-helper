@@ -20,8 +20,9 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   } = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
-    // Don't pass conversationId - SDK creates new conversation automatically
-    // Passing it causes re-initialization when conversationId updates after first connection
+    // Pass conversationId for mobile compatibility (mobile audio routing requires it)
+    // This causes double instantiation on first connect but ensures mobile works
+    conversationId: conversationIdRef.current || undefined,
     metadata: options.metadata,
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)

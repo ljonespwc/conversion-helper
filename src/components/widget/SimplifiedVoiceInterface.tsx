@@ -61,10 +61,10 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
   // Memoize metadata to prevent unnecessary reconnections on every render
+  // NOTE: timestamp is generated fresh each time to avoid mobile audio issues
   const metadata = useMemo(() => ({
     source: 'easyask-assistant',
-    ...(effectivePageUrl && { page_url: effectivePageUrl }),
-    timestamp: new Date().toISOString()
+    ...(effectivePageUrl && { page_url: effectivePageUrl })
   }), [effectivePageUrl])
 
   // Memoize onDataMessage callback to prevent reconnections
