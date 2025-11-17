@@ -1,10 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { Globe, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import VoiceWidget from '@/components/widget/VoiceWidget'
 import { Header } from '@/components/Header'
+
+// Dynamically import VoiceWidget to prevent SSR issues with Layercode SDK
+const VoiceWidget = dynamic(() => import('@/components/widget/VoiceWidget'), {
+  ssr: false
+})
 
 interface WidgetPage {
   id: string
