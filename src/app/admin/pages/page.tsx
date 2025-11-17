@@ -13,6 +13,7 @@ interface WidgetPage {
   user_id: string
   page_url: string
   page_title: string
+  page_goal: string | null
   created_at: string
   updated_at: string
 }
@@ -32,7 +33,8 @@ export default function PagesPage() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [formData, setFormData] = useState({
     page_url: '',
-    page_title: ''
+    page_title: '',
+    page_goal: ''
   })
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -99,7 +101,7 @@ export default function PagesPage() {
       }
 
       // Reset form and refresh list
-      setFormData({ page_url: '', page_title: '' })
+      setFormData({ page_url: '', page_title: '', page_goal: '' })
       setShowAddForm(false)
       await fetchPages()
     } catch (error) {
@@ -273,6 +275,25 @@ export default function PagesPage() {
                 </p>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Page Goal (Optional)
+                </label>
+                <select
+                  value={formData.page_goal}
+                  onChange={(e) => setFormData({ ...formData, page_goal: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
+                >
+                  <option value="">No specific goal</option>
+                  <option value="sell">Sell a product or service</option>
+                  <option value="lead">Generate a lead</option>
+                  <option value="support">Educate and support a customer</option>
+                </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  How should the assistant guide conversations on this page?
+                </p>
+              </div>
+
               <div className="flex gap-3">
                 <button
                   type="submit"
@@ -314,9 +335,23 @@ export default function PagesPage() {
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-white mb-1">
-                      {page.page_title}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-xl font-semibold text-white">
+                        {page.page_title}
+                      </h3>
+                      {page.page_goal && (
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          page.page_goal === 'sell' ? 'bg-green-900/40 text-green-300 border border-green-700' :
+                          page.page_goal === 'lead' ? 'bg-blue-900/40 text-blue-300 border border-blue-700' :
+                          page.page_goal === 'support' ? 'bg-purple-900/40 text-purple-300 border border-purple-700' :
+                          'bg-gray-700 text-gray-300'
+                        }`}>
+                          {page.page_goal === 'sell' ? 'Sell' :
+                           page.page_goal === 'lead' ? 'Lead' :
+                           page.page_goal === 'support' ? 'Support' : page.page_goal}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-blue-400 break-all">
                       {page.page_url}
                     </p>

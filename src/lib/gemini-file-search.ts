@@ -56,7 +56,7 @@ export async function queryPageContent(
     // Get the widget page to find the user's store
     const { data: widgetPageData, error: widgetPageError } = await supabase
       .from('widget_pages')
-      .select('user_id, page_title')
+      .select('user_id, page_title, page_goal')
       .eq('page_url', pageUrl)
       .single();
 
@@ -127,7 +127,7 @@ export async function getWidgetPage(pageUrl: string) {
   try {
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('user_id, page_title, page_url')
+      .select('user_id, page_title, page_url, page_goal')
       .eq('page_url', pageUrl)
       .single();
 

@@ -12,6 +12,20 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Helper function to generate goal-specific instructions
+function getGoalInstruction(goal: string | null | undefined): string {
+  switch(goal) {
+    case 'sell':
+      return 'encouraging. After answering their questions, gently guide them toward purchasing (e.g., "Ready to get started?", "Would you like to see pricing options?")'
+    case 'lead':
+      return 'helpful. After building trust, encourage them to share their email for personalized assistance or to speak with the team'
+    case 'support':
+      return 'patient and thorough. Focus on solving their problem with no sales pressure'
+    default:
+      return 'encouraging' // Current behavior for pages without a goal
+  }
+}
+
 // Track conversation directly to database
 async function trackConversation(params: {
   session_id: string
@@ -176,7 +190,7 @@ CRITICAL RULES:
 
 If you truly cannot find relevant information in the indexed content, say "I don't have that information on this page."
 
-Answer based ONLY on indexed content. Be concise, natural, and encouraging.
+Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
                 welcomeMsg = `Hello! I can answer questions about ${widgetPage.page_title || 'this page'}. What would you like to know?`
@@ -322,7 +336,7 @@ CRITICAL RULES:
 
 If you truly cannot find relevant information in the indexed content, say "I don't have that information on this page."
 
-Answer based ONLY on indexed content. Be concise and encouraging.
+Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage?.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations, refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
             } else {

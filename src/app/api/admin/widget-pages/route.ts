@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { page_url, page_title } = await request.json()
+    const { page_url, page_title, page_goal } = await request.json()
 
     // Validate required fields
     if (!page_url || !page_title) {
@@ -53,6 +53,14 @@ export async function POST(request: NextRequest) {
     if (!page_url.match(/^https?:\/\//)) {
       return NextResponse.json(
         { error: 'page_url must start with http:// or https://' },
+        { status: 400 }
+      )
+    }
+
+    // Validate page_goal if provided
+    if (page_goal && !['sell', 'lead', 'support'].includes(page_goal)) {
+      return NextResponse.json(
+        { error: 'page_goal must be one of: sell, lead, support' },
         { status: 400 }
       )
     }
@@ -78,7 +86,8 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user.id,
         page_url,
-        page_title
+        page_title,
+        page_goal: page_goal || null
       })
       .select()
       .single()
