@@ -5,7 +5,19 @@ import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCirc
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
-import type { ExtractedLink, URLExtractionResult } from '@/lib/url-extractor'
+
+// URL extraction types (inline)
+type ExtractedLink = {
+  type: 'url' | 'text'
+  text: string
+  href?: string
+  description?: string
+}
+
+type URLExtractionResult = {
+  hasLinks: boolean
+  links: ExtractedLink[]
+}
 
 type ConversationMessage = {
   role: 'user' | 'assistant'

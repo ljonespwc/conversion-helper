@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { queryPage, getIndexedPage } from '../src/lib/gemini-file-search'
+import { queryPageContent, getIndexedPage } from '../src/lib/gemini-file-search'
 
 const TEST_PAGE_URL = 'https://www.precisionnutrition.com/nutrition-certification-level-1-register-now'
 
@@ -16,7 +16,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
 
   describe('Basic Facts - Should Answer Correctly', () => {
     it('should know how many chapters are in the program', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'How many chapters are in the certification program?',
         TEST_PAGE_URL
       )
@@ -29,7 +29,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know how many textbooks are included', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'How many textbooks are included in the program?',
         TEST_PAGE_URL
       )
@@ -41,7 +41,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should list the program authors', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'Who are the program authors?',
         TEST_PAGE_URL
       )
@@ -59,7 +59,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know the certification cost', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'How much does the certification cost?',
         TEST_PAGE_URL
       )
@@ -72,7 +72,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know how long it takes to complete', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'How long does it take to complete the certification?',
         TEST_PAGE_URL
       )
@@ -92,7 +92,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
 
   describe('Detailed Information - Should Find Specific Details', () => {
     it('should know about the money-back guarantee', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'Is there a money-back guarantee?',
         TEST_PAGE_URL
       )
@@ -104,7 +104,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know what CEUs are offered', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What continuing education units does this qualify for?',
         TEST_PAGE_URL
       )
@@ -123,7 +123,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know about the exam structure', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What are the exams like?',
         TEST_PAGE_URL
       )
@@ -136,7 +136,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know the passing grade', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What grade do I need to pass?',
         TEST_PAGE_URL
       )
@@ -150,7 +150,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
 
   describe('Program Structure - Should Explain Course Layout', () => {
     it('should know about the three units', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What are the main units or sections of the program?',
         TEST_PAGE_URL
       )
@@ -169,7 +169,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should know what materials are included', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What materials do I get with the certification?',
         TEST_PAGE_URL
       )
@@ -190,7 +190,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
 
   describe('Negative Cases - Should NOT Answer', () => {
     it('should decline to answer questions not on the page', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What is the weather like today?',
         TEST_PAGE_URL
       )
@@ -210,7 +210,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should decline questions about other certification programs', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'How does this compare to the ACE certification?',
         TEST_PAGE_URL
       )
@@ -230,7 +230,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
 
   describe('Complex Questions - Should Synthesize Information', () => {
     it('should answer about total time investment', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'If I study one chapter per week at 3-5 hours, how long will it take total?',
         TEST_PAGE_URL
       )
@@ -248,7 +248,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should answer about payment options', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'Can I pay monthly instead of all at once?',
         TEST_PAGE_URL
       )
@@ -261,7 +261,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should answer about target audience', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'Who is this certification for?',
         TEST_PAGE_URL
       )
@@ -283,7 +283,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
 
   describe('Author-Specific Questions', () => {
     it('should know John Berardi\'s credentials', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'What are John Berardi\'s credentials?',
         TEST_PAGE_URL
       )
@@ -301,7 +301,7 @@ describe('Gemini File Search - Precision Nutrition Page', () => {
     }, 30000)
 
     it('should provide information about program developers', async () => {
-      const { answer } = await queryPage(
+      const { answer } = await queryPageContent(
         'Who developed this certification program?',
         TEST_PAGE_URL
       )

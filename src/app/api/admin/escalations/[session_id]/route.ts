@@ -14,11 +14,7 @@ export async function PATCH(
   { params }: { params: { session_id: string } }
 ) {
   try {
-    // TODO: Add user authentication check
-    // const { data: { user }, error: authError } = await supabase.auth.getUser()
-    // if (authError || !user) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // Auth handled by middleware - /admin routes require authentication
 
     const { session_id } = params
     const { resolved } = await request.json()

@@ -12,12 +12,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Performance timing utility
-function logTiming(label: string, startTime: number) {
-  const duration = Date.now() - startTime
-  console.log(`⏱️ [TIMING] ${label}: ${duration}ms`)
-}
-
 // Track conversation directly to database
 async function trackConversation(params: {
   session_id: string
@@ -142,12 +136,7 @@ export async function POST(request: Request) {
   try {
     const requestBody = await request.json() as WebhookRequest
 
-    // Verify webhook secret if configured
-    const webhookSecret = process.env.LAYERCODE_WEBHOOK_SECRET
-    if (webhookSecret) {
-      const signature = request.headers.get('x-layercode-signature')
-      // TODO: Implement signature verification if needed
-    }
+    // Webhook signature verification not implemented - add if security requirements change
 
     // Handle different webhook event types
     const { type, text, turn_id, session_id, conversation_id, interruption_context, custom_metadata } = requestBody
@@ -317,8 +306,6 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
         }
 
         if (type === 'message' && text) {
-          const turnStartTime = Date.now()
-
           // Initialize conversation if not exists (in case session.start was missed)
           if (!conversationMessages[conversationKey]) {
             let fallbackPrompt = ''
@@ -391,11 +378,9 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
           let matched = false
 
           console.log('🔀 Routing decision - pageUrl:', pageUrl, 'usePage:', usePageSearch)
-          logTiming('Message processing (init to search start)', turnStartTime)
 
           if (usePageSearch) {
             console.log('🔍 Using Page File Search for page:', pageUrl)
-            const fileSearchStart = Date.now()
 
             try {
               // Get system prompt from conversation history
@@ -409,7 +394,6 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
                 conversationMessages[conversationKey],
                 systemPrompt
               )
-              logTiming('File Search total', fileSearchStart)
               finalResponse = answer
               matched = true
 
@@ -454,7 +438,6 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
           } else {
             // FALLBACK: Use AI provider for generic demo responses (no page URL)
             console.log('🤖 Using AI provider for generic demo response')
-            const llmStart = Date.now()
 
             try {
               // Use conversation history for context-aware responses
@@ -469,7 +452,6 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
                 temperature: 0.7,
                 maxTokens: 300
               })
-              logTiming('LLM generation', llmStart)
 
               matched = false // Generic demo responses are not "matched" content
 
@@ -517,9 +499,6 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
             delete conversationMessages[oldestKey]
             console.log(`Cleaned up old conversation: ${oldestKey}`)
           }
-
-          // Log total turn time
-          logTiming('Total turn', turnStartTime)
         }
 
         stream.end()

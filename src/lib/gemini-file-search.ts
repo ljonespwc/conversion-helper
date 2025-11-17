@@ -11,36 +11,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Performance timing utility
-function logTiming(label: string, startTime: number) {
-  const duration = Date.now() - startTime
-  console.log(`⏱️ [TIMING] ${label}: ${duration}ms`)
-}
-
-// OPTIMIZATION: In-memory cache for widget page and user store data
-// Avoids redundant DB queries for the same page during multi-turn conversations
-// Cache structure: { pageUrl: { widgetPage, user, timestamp } }
-interface CacheEntry {
-  widgetPage: { user_id: string; page_title?: string }
-  user: { file_search_store_name: string; organization_name?: string }
-  timestamp: number
-}
-
-const queryCache = new Map<string, CacheEntry>()
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
-
-function getCachedData(pageUrl: string): CacheEntry | null {
-  const cached = queryCache.get(pageUrl)
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached
-  }
-  // Clean up expired cache
-  if (cached) {
-    queryCache.delete(pageUrl)
-  }
-  return null
-}
-
 /**
  * Convert conversation history to Gemini API format
  * Maps roles: 'user' -> 'user', 'assistant' -> 'model', 'system' -> skip
@@ -83,50 +53,26 @@ export async function queryPageContent(
   systemPrompt?: string
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
-    // OPTIMIZATION: Check cache first to avoid redundant DB queries
-    const cached = getCachedData(pageUrl)
-    let widgetPage: { user_id: string; page_title?: string }
-    let user: { file_search_store_name: string; organization_name?: string }
+    // Get the widget page to find the user's store
+    const { data: widgetPageData, error: widgetPageError } = await supabase
+      .from('widget_pages')
+      .select('user_id, page_title')
+      .eq('page_url', pageUrl)
+      .single();
 
-    if (cached) {
-      console.log('⚡ [CACHE HIT] Using cached widget/user data')
-      widgetPage = cached.widgetPage
-      user = cached.user
-    } else {
-      // Get the widget page to find the user's store
-      const widgetLookupStart = Date.now()
-      const { data: widgetPageData, error: widgetPageError } = await supabase
-        .from('widget_pages')
-        .select('user_id, page_title') // OPTIMIZATION: Only select needed columns
-        .eq('page_url', pageUrl)
-        .single();
-      logTiming('Widget page lookup', widgetLookupStart)
+    if (widgetPageError || !widgetPageData) {
+      throw new Error(`Page not configured: ${pageUrl}`);
+    }
 
-      if (widgetPageError || !widgetPageData) {
-        throw new Error(`Page not configured: ${pageUrl}`);
-      }
-      widgetPage = widgetPageData
+    // Get user's File Search store
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('file_search_store_name, organization_name')
+      .eq('id', widgetPageData.user_id)
+      .single();
 
-      // Get user's File Search store
-      const userLookupStart = Date.now()
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('file_search_store_name, organization_name') // OPTIMIZATION: Only select needed columns
-        .eq('id', widgetPage.user_id)
-        .single();
-      logTiming('User store lookup', userLookupStart)
-
-      if (userError || !userData?.file_search_store_name) {
-        throw new Error(`User store not found for page: ${pageUrl}`);
-      }
-      user = userData
-
-      // OPTIMIZATION: Store in cache for subsequent queries
-      queryCache.set(pageUrl, {
-        widgetPage,
-        user,
-        timestamp: Date.now()
-      })
+    if (userError || !userData?.file_search_store_name) {
+      throw new Error(`User store not found for page: ${pageUrl}`);
     }
 
     // Query File Search with page_url metadata filter
@@ -145,44 +91,28 @@ export async function queryPageContent(
     // Extract system prompt from conversation history or use provided one
     const systemInstruction = systemPrompt || conversationHistory?.find(m => m.role === 'system')?.content
 
-    const geminiStart = Date.now()
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents,
       config: {
-        // OPTIMIZATION: Add generation config to improve speed and consistency
-        temperature: 0.3, // Lower temperature = faster, more deterministic responses
-        maxOutputTokens: 1500, // Allow fuller responses (~1125 words, ~4-5min voice)
-        ...(systemInstruction && { systemInstruction }), // Add system instructions if available
+        temperature: 0.3,
+        maxOutputTokens: 1500,
+        ...(systemInstruction && { systemInstruction }),
         tools: [
           {
             fileSearch: {
-              fileSearchStoreNames: [user.file_search_store_name],
+              fileSearchStoreNames: [userData.file_search_store_name],
               metadataFilter
             }
           }
         ]
       }
     });
-    logTiming('Gemini File Search query', geminiStart)
-
-    // DEBUG: Log the full response to diagnose "No answer generated" issues
-    console.log('🔍 [DEBUG] Gemini response.text:', response.text || '(empty)')
-    console.log('🔍 [DEBUG] Gemini response structure:', JSON.stringify({
-      hasText: !!response.text,
-      hasCandidates: !!response.candidates,
-      candidatesLength: response.candidates?.length,
-      firstCandidate: response.candidates?.[0] ? {
-        hasContent: !!response.candidates[0].content,
-        finishReason: response.candidates[0].finishReason,
-        safetyRatings: response.candidates[0].safetyRatings
-      } : null
-    }, null, 2))
 
     return {
       answer: response.text || 'No answer generated',
       citations: response.candidates?.[0]?.groundingMetadata || null,
-      organization: user.organization_name
+      organization: userData.organization_name
     };
   } catch (error) {
     console.error('Error querying page content:', error);
@@ -191,36 +121,13 @@ export async function queryPageContent(
 }
 
 /**
- * @deprecated Use queryPageContent() instead
- * Legacy function for backward compatibility
- */
-export async function queryPage(
-  question: string,
-  pageUrl: string
-): Promise<{ answer: string; citations: any }> {
-  const result = await queryPageContent(question, pageUrl);
-  return {
-    answer: result.answer,
-    citations: result.citations
-  };
-}
-
-
-/**
  * Get widget page configuration
  */
 export async function getWidgetPage(pageUrl: string) {
   try {
-    // OPTIMIZATION: Check cache first
-    const cached = getCachedData(pageUrl)
-    if (cached) {
-      console.log('⚡ [CACHE HIT] Using cached widget page')
-      return cached.widgetPage
-    }
-
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('user_id, page_title, page_url') // OPTIMIZATION: Only select needed columns
+      .select('user_id, page_title, page_url')
       .eq('page_url', pageUrl)
       .single();
 

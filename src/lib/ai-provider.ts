@@ -1,5 +1,5 @@
 import { OpenAI } from 'openai'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant'
@@ -49,16 +49,14 @@ class OpenAIProvider implements AIProvider {
 }
 
 class GeminiProvider implements AIProvider {
-  private client: GoogleGenerativeAI
-  private model: any
+  private ai: GoogleGenAI
 
   constructor() {
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY is not set')
     }
-    this.client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    this.model = this.client.getGenerativeModel({
-      model: 'gemini-2.5-flash-lite'
+    this.ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY
     })
   }
 
@@ -66,55 +64,36 @@ class GeminiProvider implements AIProvider {
     messages: AIMessage[],
     options: { temperature?: number; maxTokens?: number } = {}
   ): Promise<string> {
-    // Convert OpenAI format to Gemini format
-    // Gemini doesn't have system messages, so we prepend them to the first user message
-    const geminiMessages: any[] = []
-    let systemContext = ''
+    // Extract system message for systemInstruction (new SDK supports it)
+    const systemMessage = messages.find(m => m.role === 'system')
+
+    // Build contents array (user/assistant messages only)
+    const contents: Array<{ role: string; parts: Array<{ text: string }> }> = []
 
     for (const msg of messages) {
-      if (msg.role === 'system') {
-        systemContext += msg.content + '\n\n'
-      } else if (msg.role === 'user') {
-        const content = systemContext ? systemContext + msg.content : msg.content
-        geminiMessages.push({
-          role: 'user',
-          parts: [{ text: content }]
-        })
-        systemContext = '' // Reset after using
-      } else if (msg.role === 'assistant') {
-        geminiMessages.push({
-          role: 'model',
-          parts: [{ text: msg.content }]
-        })
-      }
-    }
+      if (msg.role === 'system') continue // System goes to systemInstruction
 
-    // If we only have system context and no user messages, create one
-    if (systemContext && geminiMessages.length === 0) {
-      geminiMessages.push({
-        role: 'user',
-        parts: [{ text: systemContext }]
+      contents.push({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
       })
     }
 
-    const chat = this.model.startChat({
-      history: geminiMessages.slice(0, -1), // All but the last message
-      generationConfig: {
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents,
+      config: {
         temperature: options.temperature ?? 0.3,
         maxOutputTokens: options.maxTokens ?? 200,
+        ...(systemMessage && { systemInstruction: systemMessage.content })
       }
     })
 
-    // Send the last message
-    const lastMessage = geminiMessages[geminiMessages.length - 1]
-    const result = await chat.sendMessage(lastMessage.parts[0].text)
-    const response = await result.response
-
-    return response.text().trim()
+    return response.text || ''
   }
 
   getName(): string {
-    return 'Gemini (2.5-flash-lite)'
+    return 'Gemini (2.5-flash)'
   }
 }
 

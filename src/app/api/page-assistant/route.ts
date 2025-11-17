@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryPage, getIndexedPage } from '@/lib/gemini-file-search';
+import { queryPageContent, getIndexedPage } from '@/lib/gemini-file-search';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Query the File Search store
     console.log(`Querying page: ${page_url} with question: ${question}`);
-    const { answer, citations } = await queryPage(question, page_url);
+    const { answer, citations } = await queryPageContent(question, page_url);
 
     // Track the query (optional - for analytics)
     // Could save to conversation_messages table here

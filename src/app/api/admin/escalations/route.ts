@@ -11,11 +11,7 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Add user authentication check here
-    // const { data: { user }, error: authError } = await supabase.auth.getUser()
-    // if (authError || !user) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // Auth handled by middleware - /admin routes require authentication
 
     // Get query params for filtering
     const searchParams = request.nextUrl.searchParams
