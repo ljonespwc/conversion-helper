@@ -15,23 +15,27 @@ interface VoiceWidgetProps {
 export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl }: VoiceWidgetProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
+  const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
 
   const isModalOpen = embedded ? internalOpen : isOpen
   const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
 
-  // Fetch page title if pageUrl is provided
+  // Fetch page title and organization name if pageUrl is provided
   useEffect(() => {
     if (pageUrl && embedded) {
-      // Try to fetch page title from widget pages API
+      // Try to fetch page info from widget pages API
       fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}`)
         .then(res => res.json())
         .then(data => {
           if (data?.page?.page_title) {
             setPageTitle(data.page.page_title)
           }
+          if (data?.page?.organization_name) {
+            setOrganizationName(data.page.organization_name)
+          }
         })
         .catch(err => {
-          console.error('Failed to fetch page title:', err)
+          console.error('Failed to fetch page info:', err)
         })
     }
   }, [pageUrl, embedded])
@@ -51,6 +55,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           <WidgetModal
             onClose={handleClose}
             pageUrl={pageUrl}
+            organizationName={organizationName}
           />
         )}
       </AnimatePresence>

@@ -21,9 +21,10 @@ const SimplifiedVoiceInterface = dynamic(
 interface WidgetModalProps {
   onClose: () => void
   pageUrl?: string
+  organizationName?: string
 }
 
-export default function WidgetModal({ onClose, pageUrl }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -63,7 +64,7 @@ export default function WidgetModal({ onClose, pageUrl }: WidgetModalProps) {
 
           {/* Title in center */}
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Page Assistant
+            {organizationName ? `${organizationName} Assistant` : 'Page Assistant'}
           </h2>
 
           {/* Close button on the right */}

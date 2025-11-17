@@ -506,16 +506,16 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
         {/* Conversation History - Collapsible */}
         {conversationHistory.length > 0 && (
-          <div className="w-full max-w-md px-4">
+          <div className="w-full max-w-md px-4 mt-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-2"
+              className="space-y-2 relative z-10"
             >
               {/* Toggle Button */}
               <button
                 onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 rounded-lg transition-colors text-sm text-gray-400 hover:text-white"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 rounded-lg transition-colors text-sm text-gray-400 hover:text-white relative z-10"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>
@@ -633,16 +633,16 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
         {/* Email Escalation - Appears after first AI response */}
         {conversationHistory.length > 0 && (
-          <div className="w-full max-w-md px-4">
+          <div className="w-full max-w-md px-4 mt-3">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-2"
+              className="space-y-2 relative z-10"
             >
               {/* Toggle Button */}
               <button
                 onClick={() => setIsEscalationExpanded(!isEscalationExpanded)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800/50 to-purple-800/50 hover:from-blue-700/50 hover:to-purple-700/50 border border-blue-700/50 rounded-lg transition-colors text-sm text-gray-200 hover:text-white"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800/50 to-purple-800/50 hover:from-blue-700/50 hover:to-purple-700/50 border border-blue-700/50 rounded-lg transition-colors text-sm text-gray-200 hover:text-white relative z-10"
               >
                 <Mail className="w-4 h-4" />
                 <span>

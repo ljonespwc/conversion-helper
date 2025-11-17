@@ -20,9 +20,15 @@ export async function GET(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
+    // Fetch page with organization name from users table
     const { data: page, error } = await supabase
       .from('widget_pages')
-      .select('page_title, page_url')
+      .select(`
+        page_title,
+        page_url,
+        user_id,
+        users!inner(organization_name)
+      `)
       .eq('page_url', pageUrl)
       .single()
 
@@ -30,7 +36,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ page: null })
     }
 
-    return NextResponse.json({ page })
+    // Flatten the response structure
+    // @ts-ignore - Supabase returns single object for inner join, not array
+    const organizationName = page.users?.organization_name || 'EasyAsk'
+
+    const response = {
+      page_title: page.page_title,
+      page_url: page.page_url,
+      organization_name: organizationName
+    }
+
+    return NextResponse.json({ page: response })
   } catch (error) {
     console.error('Error fetching widget page:', error)
     return NextResponse.json({ page: null })
