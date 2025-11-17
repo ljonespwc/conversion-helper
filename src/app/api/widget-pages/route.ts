@@ -34,7 +34,13 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (error || !page) {
-      return NextResponse.json({ page: null })
+      return NextResponse.json({ page: null }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+          'CDN-Cache-Control': 'no-store',
+          'Vercel-CDN-Cache-Control': 'no-store'
+        }
+      })
     }
 
     // Flatten the response structure
@@ -48,9 +54,21 @@ export async function GET(request: NextRequest) {
       is_active: page.is_active
     }
 
-    return NextResponse.json({ page: response })
+    return NextResponse.json({ page: response }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store'
+      }
+    })
   } catch (error) {
     console.error('Error fetching widget page:', error)
-    return NextResponse.json({ page: null })
+    return NextResponse.json({ page: null }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store'
+      }
+    })
   }
 }
