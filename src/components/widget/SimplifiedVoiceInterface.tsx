@@ -311,10 +311,12 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
   // Detect AI speaking via amplitude (for welcome msg and TTS)
   useEffect(() => {
-    if (agentAudioLevel > 0.05) {
+    // Only update state when it actually needs to change
+    // Prevents constant re-renders while AI speaks
+    if (agentAudioLevel > 0.05 && !aiIsSpeaking) {
       setAiIsSpeaking(true)
     }
-  }, [agentAudioLevel])
+  }, [agentAudioLevel, aiIsSpeaking])
 
   // Detect when user starts speaking (for state management only)
   useEffect(() => {
