@@ -9,6 +9,9 @@ import FileSearchUpload from '@/components/admin/FileSearchUpload'
 import DeleteConfirmationModal from '@/components/admin/DeleteConfirmationModal'
 import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2, Globe } from 'lucide-react'
 
+// Force dynamic rendering - prevent page caching
+export const dynamic = 'force-dynamic'
+
 interface ScrapingJob {
   id: string
   url: string

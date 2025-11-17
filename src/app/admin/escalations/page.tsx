@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 
+// Force dynamic rendering - prevent page caching
+export const dynamic = 'force-dynamic'
+
 interface EscalationMessage {
   id: string
   role: 'user' | 'assistant'
@@ -62,6 +65,7 @@ export default function EscalationsPage() {
 
   useEffect(() => {
     checkUser()
+    fetchEscalations() // Fetch fresh data on mount
   }, [])
 
   useEffect(() => {
@@ -83,6 +87,8 @@ export default function EscalationsPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter)
       if (sortOrder) params.append('sort', sortOrder)
       if (pageUrlFilter) params.append('page_url', pageUrlFilter)
+      // Add timestamp to prevent any caching
+      params.append('_t', Date.now().toString())
 
       const response = await fetch(`/api/admin/escalations?${params}`, {
         cache: 'no-store'

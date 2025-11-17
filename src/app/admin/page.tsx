@@ -7,6 +7,9 @@ import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
 
+// Force dynamic rendering - prevent page caching
+export const dynamic = 'force-dynamic'
+
 interface ConversationMessage {
   id: string
   role: 'user' | 'assistant'
@@ -76,7 +79,9 @@ export default function AdminDashboard() {
 
   const fetchWidgetPages = async () => {
     try {
-      const response = await fetch('/api/admin/widget-pages')
+      const response = await fetch('/api/admin/widget-pages', {
+        cache: 'no-store'
+      })
       const data = await response.json()
       const pages = data.pages || []
       setWidgetPages(pages)
@@ -92,9 +97,11 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       const url = selectedPage
-        ? `/api/stats?pageUrl=${encodeURIComponent(selectedPage.page_url)}`
-        : '/api/stats'
-      const response = await fetch(url)
+        ? `/api/stats?pageUrl=${encodeURIComponent(selectedPage.page_url)}&_t=${Date.now()}`
+        : `/api/stats?_t=${Date.now()}`
+      const response = await fetch(url, {
+        cache: 'no-store'
+      })
       const data = await response.json()
       setStats(data)
     } catch (error) {

@@ -5,6 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import { Plus, Trash2, Copy, CheckCircle } from 'lucide-react'
 
+// Force dynamic rendering - prevent page caching
+export const dynamic = 'force-dynamic'
+
 interface WidgetPage {
   id: string
   user_id: string
