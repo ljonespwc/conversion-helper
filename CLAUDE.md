@@ -152,6 +152,48 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 
 ---
 
+### Core Value Drivers (from Lance)
+
+These are the fundamental reasons why businesses choose EasyAsk, as articulated by the founder:
+
+1. **People DON'T read**
+   - Especially helpful for long sales pages visited on mobile devices
+   - Voice conversation makes dense information digestible
+   - Visitors can absorb complex details without scrolling through walls of text
+
+2. **Real-time objection handling**
+   - Strike while the iron's hot
+   - Answering in real-time keeps lead/purchase momentum
+   - Questions answered immediately = fewer drop-offs
+
+3. **Capture lead before they bounce**
+   - Email escalation option ensures no lead is lost
+   - If AI can't answer → captures email + question → routes to sales/support
+   - Convert "maybe later" into actionable leads
+
+4. **Voice-first engagement**
+   - Much lower friction than typing
+   - Keeps visitors on-site longer
+   - More natural than chatbots
+   - Accessibility advantage for mobile users
+
+5. **Only our content, not hallucinations**
+   - Grounded 100% in our docs, sales decks, policies
+   - Upload files or scrape pages
+   - No generic AI responses - your information, your voice
+
+6. **Conversation analytics**
+   - See what prospects and leads actually care about
+   - Identify what we're missing on the pages
+   - Content gap analysis built-in
+
+7. **Focus our client care on high-value work**
+   - Cut down on "what's the price?"-type support questions
+   - Free up human team for complex issues and relationship building
+   - Scale support without scaling headcount
+
+---
+
 ## Monitoring Production Logs
 
 When the user asks you to review Vercel logs or monitor production traffic, follow this process:
