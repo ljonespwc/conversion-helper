@@ -322,8 +322,6 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     if (userIsSpeaking) {
       // User is speaking - this ends the AI's turn
       setAiIsSpeaking(false)
-      // Auto-collapse history when new question is asked
-      setIsHistoryExpanded(false)
     }
   }, [userAudioLevel])
 
