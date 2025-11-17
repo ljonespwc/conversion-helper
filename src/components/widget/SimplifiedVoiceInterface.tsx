@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
@@ -60,6 +60,66 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
+  // Memoize metadata to prevent unnecessary reconnections on every render
+  const metadata = useMemo(() => ({
+    source: 'easyask-assistant',
+    ...(effectivePageUrl && { page_url: effectivePageUrl }),
+    timestamp: new Date().toISOString()
+  }), [effectivePageUrl])
+
+  // Memoize onDataMessage callback to prevent reconnections
+  const handleDataMessage = useCallback((data: any) => {
+    // Extract content from either wrapped or direct structure
+    const content = data?.content || data
+
+    // Capture AI response text
+    if (content?.response) {
+      // Clear previous response and URLs when new response arrives
+      setCurrentResponse(null)
+      setShowURLs(false)
+
+      // Trigger sparkle burst animation
+      setShowSparkleBurst(true)
+      setTimeout(() => setShowSparkleBurst(false), 800)
+
+      // Add messages to conversation history
+      const timestamp = Date.now()
+      const newMessages: ConversationMessage[] = []
+
+      // Add user question if available
+      if (content?.question) {
+        newMessages.push({
+          role: 'user',
+          text: content.question,
+          timestamp
+        })
+      }
+
+      // Add AI response
+      const responseTimestamp = timestamp + 1 // Ensure AI response comes after
+      newMessages.push({
+        role: 'assistant',
+        text: content.response,
+        timestamp: responseTimestamp
+      })
+
+      setConversationHistory(prev => [...prev, ...newMessages])
+
+      // Small delay to allow exit animation before showing new response
+      setTimeout(() => {
+        setCurrentResponse(content.response)
+        setResponseType(content.type || null)
+        setAiIsSpeaking(true) // AI started speaking
+      }, 100)
+    }
+
+    // Capture URLs (existing logic)
+    if (content?.urls?.hasLinks) {
+      setCurrentURLs(content.urls)
+      setShowURLs(true)
+    }
+  }, []) // Empty deps: state setters are stable
+
   const {
     isConnected,
     isConnecting,
@@ -69,62 +129,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
     conversationId,
     startNewConversation
   } = useLayercodeVoice({
-    metadata: {
-      source: 'easyask-assistant',
-      ...(effectivePageUrl && { page_url: effectivePageUrl }),
-      timestamp: new Date().toISOString()
-    },
-    onDataMessage: (data) => {
-      // Extract content from either wrapped or direct structure
-      const content = data?.content || data
-
-      // Capture AI response text
-      if (content?.response) {
-        // Clear previous response and URLs when new response arrives
-        setCurrentResponse(null)
-        setShowURLs(false)
-
-        // Trigger sparkle burst animation
-        setShowSparkleBurst(true)
-        setTimeout(() => setShowSparkleBurst(false), 800)
-
-        // Add messages to conversation history
-        const timestamp = Date.now()
-        const newMessages: ConversationMessage[] = []
-
-        // Add user question if available
-        if (content?.question) {
-          newMessages.push({
-            role: 'user',
-            text: content.question,
-            timestamp
-          })
-        }
-
-        // Add AI response
-        const responseTimestamp = timestamp + 1 // Ensure AI response comes after
-        newMessages.push({
-          role: 'assistant',
-          text: content.response,
-          timestamp: responseTimestamp
-        })
-
-        setConversationHistory(prev => [...prev, ...newMessages])
-
-        // Small delay to allow exit animation before showing new response
-        setTimeout(() => {
-          setCurrentResponse(content.response)
-          setResponseType(content.type || null)
-          setAiIsSpeaking(true) // AI started speaking
-        }, 100)
-      }
-
-      // Capture URLs (existing logic)
-      if (content?.urls?.hasLinks) {
-        setCurrentURLs(content.urls)
-        setShowURLs(true)
-      }
-    }
+    metadata,
+    onDataMessage: handleDataMessage
   })
 
   // Auto-start conversation when connected
