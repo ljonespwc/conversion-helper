@@ -16,6 +16,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
   const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
+  const [isActive, setIsActive] = useState<boolean | null>(null)
 
   const isModalOpen = embedded ? internalOpen : isOpen
   const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
@@ -33,12 +34,20 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           if (data?.page?.organization_name) {
             setOrganizationName(data.page.organization_name)
           }
+          // Check if widget is active on this page
+          setIsActive(data?.page?.is_active ?? true)
         })
         .catch(err => {
           console.error('Failed to fetch page info:', err)
+          setIsActive(true) // Default to active on error
         })
     }
   }, [pageUrl, embedded])
+
+  // Don't render widget if page is inactive
+  if (isActive === false) {
+    return null
+  }
 
   return (
     <>

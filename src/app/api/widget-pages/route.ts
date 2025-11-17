@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
         page_title,
         page_url,
         user_id,
+        is_active,
         users!inner(organization_name)
       `)
       .eq('page_url', pageUrl)
@@ -43,7 +44,8 @@ export async function GET(request: NextRequest) {
     const response = {
       page_title: page.page_title,
       page_url: page.page_url,
-      organization_name: organizationName
+      organization_name: organizationName,
+      is_active: page.is_active
     }
 
     return NextResponse.json({ page: response })

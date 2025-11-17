@@ -14,6 +14,7 @@ interface WidgetPage {
   page_url: string
   page_title: string
   page_goal: string | null
+  is_active: boolean
   created_at: string
   updated_at: string
 }
@@ -109,6 +110,33 @@ export default function PagesPage() {
       setError(error instanceof Error ? error.message : 'Failed to add page')
     } finally {
       setAdding(false)
+    }
+  }
+
+  const handleToggleActive = async (id: string, currentStatus: boolean) => {
+    try {
+      // Optimistic update
+      setPages(prevPages =>
+        prevPages.map(p => p.id === id ? { ...p, is_active: !currentStatus } : p)
+      )
+
+      const response = await fetch(`/api/admin/widget-pages/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !currentStatus })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle page status')
+      }
+
+      // Refresh to ensure consistency
+      await fetchPages()
+    } catch (error) {
+      console.error('Error toggling page status:', error)
+      alert('Failed to toggle page status')
+      // Revert optimistic update
+      await fetchPages()
     }
   }
 
@@ -331,14 +359,23 @@ export default function PagesPage() {
             {pages.map((page) => (
               <div
                 key={page.id}
-                className="bg-gray-800 rounded-lg shadow-md p-6 border border-gray-700 hover:border-blue-500 transition-colors"
+                className={`bg-gray-800 rounded-lg shadow-md p-6 border transition-colors ${
+                  page.is_active
+                    ? 'border-gray-700 hover:border-blue-500'
+                    : 'border-gray-700 opacity-60'
+                }`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl font-semibold text-white">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h3 className={`text-xl font-semibold ${page.is_active ? 'text-white' : 'text-gray-400'}`}>
                         {page.page_title}
                       </h3>
+                      {!page.is_active && (
+                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-700 text-gray-400 border border-gray-600">
+                          Inactive
+                        </span>
+                      )}
                       {page.page_goal && (
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                           page.page_goal === 'sell' ? 'bg-green-900/40 text-green-300 border border-green-700' :
@@ -352,17 +389,33 @@ export default function PagesPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-blue-400 break-all">
+                    <p className={`text-sm break-all ${page.is_active ? 'text-blue-400' : 'text-gray-500'}`}>
                       {page.page_url}
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleDeletePage(page.id)}
-                    className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
-                    title="Delete page"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Toggle Switch */}
+                    <button
+                      onClick={() => handleToggleActive(page.id, page.is_active)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        page.is_active ? 'bg-blue-600' : 'bg-gray-600'
+                      }`}
+                      title={page.is_active ? 'Click to disable widget' : 'Click to enable widget'}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          page.is_active ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleDeletePage(page.id)}
+                      className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
+                      title="Delete page"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="text-xs text-gray-500 mt-3">
