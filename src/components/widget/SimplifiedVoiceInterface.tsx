@@ -191,9 +191,33 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
   // Handle feedback submission
   const handleFeedback = async (feedback: 'positive' | 'negative') => {
-    if (!conversationId || !currentResponseTimestamp || currentFeedback) return
+    console.log('🔍 Feedback button clicked:', {
+      feedback,
+      conversationId,
+      currentResponseTimestamp,
+      currentFeedback,
+      hasConversationId: !!conversationId,
+      hasTimestamp: !!currentResponseTimestamp,
+      alreadyGaveFeedback: !!currentFeedback
+    })
+
+    if (!conversationId) {
+      console.warn('❌ No conversationId - cannot submit feedback')
+      return
+    }
+
+    if (!currentResponseTimestamp) {
+      console.warn('❌ No currentResponseTimestamp - cannot submit feedback')
+      return
+    }
+
+    if (currentFeedback) {
+      console.warn('❌ Already gave feedback - cannot submit again')
+      return
+    }
 
     try {
+      console.log('📤 Sending feedback to API...')
       const response = await fetch('/api/conversations/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -204,6 +228,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         })
       })
 
+      console.log('📥 API response:', response.status, response.ok)
+
       if (response.ok) {
         // Show checkmark animation
         setShowFeedbackCheck(true)
@@ -211,10 +237,13 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
 
         // Set feedback state (disables buttons)
         setCurrentFeedback(feedback)
-        console.log(`👍👎 Feedback submitted: ${feedback}`)
+        console.log(`✅ Feedback submitted: ${feedback}`)
+      } else {
+        const errorData = await response.json()
+        console.error('❌ API error:', errorData)
       }
     } catch (error) {
-      console.error('Failed to submit feedback:', error)
+      console.error('❌ Failed to submit feedback:', error)
     }
   }
 
@@ -491,16 +520,21 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                               initial={{ scale: 0, opacity: 0 }}
                               animate={{ scale: 1, opacity: 1 }}
                               exit={{ scale: 0, opacity: 0 }}
-                              className="flex items-center gap-1"
+                              className="flex items-center gap-2"
                             >
+                              <span className="text-xs italic text-gray-400">Was this helpful?</span>
                               <button
                                 onClick={() => handleFeedback('positive')}
                                 disabled={currentFeedback !== null}
-                                className={`text-xl transition-all ${
-                                  currentFeedback === null
-                                    ? 'hover:scale-110 cursor-pointer'
-                                    : 'opacity-30 cursor-not-allowed'
-                                }`}
+                                className={`
+                                  w-8 h-8 rounded-full border-2
+                                  flex items-center justify-center
+                                  text-base transition-all
+                                  ${currentFeedback === null
+                                    ? 'border-gray-600 hover:border-green-400 hover:bg-green-400/10 hover:scale-110 cursor-pointer'
+                                    : 'border-gray-700 opacity-30 cursor-not-allowed'
+                                  }
+                                `}
                                 title="Helpful response"
                               >
                                 👍
@@ -508,11 +542,15 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                               <button
                                 onClick={() => handleFeedback('negative')}
                                 disabled={currentFeedback !== null}
-                                className={`text-xl transition-all ${
-                                  currentFeedback === null
-                                    ? 'hover:scale-110 cursor-pointer'
-                                    : 'opacity-30 cursor-not-allowed'
-                                }`}
+                                className={`
+                                  w-8 h-8 rounded-full border-2
+                                  flex items-center justify-center
+                                  text-base transition-all
+                                  ${currentFeedback === null
+                                    ? 'border-gray-600 hover:border-red-400 hover:bg-red-400/10 hover:scale-110 cursor-pointer'
+                                    : 'border-gray-700 opacity-30 cursor-not-allowed'
+                                  }
+                                `}
                                 title="Not helpful"
                               >
                                 👎
