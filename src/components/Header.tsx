@@ -53,6 +53,12 @@ export function Header({ user, loading = false }: HeaderProps) {
                 Analytics
               </Link>
               <Link
+                href="/admin/escalations"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium whitespace-nowrap"
+              >
+                Escalations
+              </Link>
+              <Link
                 href="/admin/pages"
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium whitespace-nowrap"
               >
@@ -133,6 +139,13 @@ export function Header({ user, loading = false }: HeaderProps) {
               className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
             >
               Analytics
+            </Link>
+            <Link
+              href="/admin/escalations"
+              onClick={closeMobileMenu}
+              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-white text-sm font-medium"
+            >
+              Escalations
             </Link>
             <Link
               href="/admin/pages"
