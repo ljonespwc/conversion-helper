@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimits, getClientIP } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,28 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 3 email escalations per IP per day
+    const clientIP = getClientIP(request)
+    const { success, limit, remaining, reset } = await rateLimits.escalation.limit(clientIP)
+
+    if (!success) {
+      const resetDate = new Date(reset)
+      console.warn(`Rate limit exceeded for escalation IP ${clientIP}. Limit: ${limit}, Remaining: ${remaining}, Reset: ${resetDate.toISOString()}`)
+
+      return NextResponse.json(
+        { error: 'Too many email submissions. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString()
+          }
+        }
+      )
+    }
+
     const { session_id, email, page_url } = await request.json()
 
     // Validate required fields

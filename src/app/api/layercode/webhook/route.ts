@@ -3,6 +3,8 @@ import { queryPageContent, getWidgetPage } from '@/lib/gemini-file-search'
 import { conversationMetadata } from '@/lib/conversation-metadata'
 import { getAIProvider, type AIMessage } from '@/lib/ai-provider'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimits, getClientIP } from '@/lib/ratelimit'
+import { verifyLayercodeWebhook } from '@/lib/webhook-verification'
 
 export const dynamic = 'force-dynamic'
 
@@ -148,9 +150,56 @@ type WebhookRequest = {
 
 export async function POST(request: Request) {
   try {
-    const requestBody = await request.json() as WebhookRequest
+    // Read raw body for signature verification (before JSON parsing)
+    const rawBody = await request.text()
 
-    // Webhook signature verification not implemented - add if security requirements change
+    // Verify webhook signature if secret is configured
+    const webhookSecret = process.env.LAYERCODE_WEBHOOK_SECRET
+    if (webhookSecret) {
+      const signature = request.headers.get('layercode-signature')
+      const verification = verifyLayercodeWebhook(signature, rawBody, webhookSecret)
+
+      if (!verification.valid) {
+        console.warn('Webhook signature verification failed:', verification.error)
+        return new Response(
+          JSON.stringify({ error: 'Webhook signature verification failed' }),
+          {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        )
+      }
+
+      console.log('✅ Webhook signature verified')
+    } else {
+      console.warn('⚠️ LAYERCODE_WEBHOOK_SECRET not configured - signature verification skipped')
+    }
+
+    // Parse JSON body
+    const requestBody = JSON.parse(rawBody) as WebhookRequest
+
+    // Rate limit: 100 webhook requests per IP per hour
+    const clientIP = getClientIP(request)
+    const { success, limit, remaining, reset } = await rateLimits.layercodeWebhook.limit(clientIP)
+
+    if (!success) {
+      const resetDate = new Date(reset)
+      console.warn(`Rate limit exceeded for webhook IP ${clientIP}. Limit: ${limit}, Remaining: ${remaining}, Reset: ${resetDate.toISOString()}`)
+
+      return new Response(
+        JSON.stringify({ error: 'Too many webhook requests. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString()
+          }
+        }
+      )
+    }
 
     // Handle different webhook event types
     const { type, text, turn_id, session_id, conversation_id, interruption_context, custom_metadata } = requestBody
@@ -372,8 +421,32 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
             turn_id
           })
 
+          // Check message limit (50 messages per session, excluding system prompt)
+          const messageCount = conversationMessages[conversationKey].filter(m => m.role !== 'system').length
+          if (messageCount >= 50) {
+            const limitMsg = "This conversation has reached the maximum length of 50 messages. Please start a new conversation if you have more questions. Thank you!"
+
+            stream.tts(limitMsg)
+            stream.data({
+              type: 'session_limit_reached',
+              message: limitMsg
+            })
+
+            console.log(`⚠️ Session ${conversationKey} reached 50 message limit`)
+
+            // Add final assistant message to history
+            conversationMessages[conversationKey].push({
+              role: 'assistant',
+              content: limitMsg,
+              turn_id
+            })
+
+            stream.end()
+            return
+          }
+
           // Debug: Log conversation history
-          console.log(`Conversation ${conversationKey} history:`,
+          console.log(`Conversation ${conversationKey} history (${messageCount} messages):`,
             conversationMessages[conversationKey].map(m => `${m.role}: ${m.content.substring(0, 50)}...`)
           )
 

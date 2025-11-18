@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimits, getClientIP } from '@/lib/ratelimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,28 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 10 feedback submissions per IP per hour
+    const clientIP = getClientIP(request)
+    const { success, limit, remaining, reset } = await rateLimits.feedback.limit(clientIP)
+
+    if (!success) {
+      const resetDate = new Date(reset)
+      console.warn(`Rate limit exceeded for feedback IP ${clientIP}. Limit: ${limit}, Remaining: ${remaining}, Reset: ${resetDate.toISOString()}`)
+
+      return NextResponse.json(
+        { error: 'Too many feedback submissions. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString()
+          }
+        }
+      )
+    }
+
     const { session_id, feedback } = await request.json()
 
     // Validate required fields

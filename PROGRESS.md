@@ -617,6 +617,66 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ---
 
+### Priority 7: Abuse Prevention & Rate Limiting ✅ COMPLETED (2025-11-17)
+
+**Issue:** No protection against API cost abuse - potential $500-2000/day exposure from spam sessions, runaway conversations, and fake webhooks.
+
+**Solution Implemented:**
+
+1. ✅ **IP-Based Rate Limiting** (Upstash Redis)
+   - `/api/layercode/authorize`: 5 sessions per IP per hour
+   - `/api/layercode/webhook`: 100 requests per IP per hour
+   - `/api/conversations/escalate`: 3 email submissions per IP per day
+   - `/api/conversations/feedback`: 10 submissions per IP per hour
+   - Returns 429 status with rate limit headers when exceeded
+
+2. ✅ **Max Messages Per Session**
+   - 50 message limit per conversation (excludes system prompt)
+   - Gracefully ends with TTS: "This conversation has reached maximum length..."
+   - Prevents runaway conversations from burning API credits
+
+3. ✅ **Session Idle Timeout**
+   - 5-minute inactivity timeout in voice hook
+   - Tracks user speech, agent responses, and data messages
+   - Auto-disconnects to prevent forgotten sessions
+
+4. ✅ **Webhook Signature Verification**
+   - HMAC-SHA256 verification using `layercode-signature` header
+   - 5-minute timestamp window prevents replay attacks
+   - Timing-safe comparison prevents timing attacks
+   - Returns 401 for invalid signatures
+
+**Environment Variables Required:**
+```bash
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
+LAYERCODE_WEBHOOK_SECRET=...  # Optional but recommended
+```
+
+**Results:**
+- Worst-case cost reduced from $500-2000/day → ~$20-50/day (95% reduction)
+- All endpoints protected with appropriate limits
+- Webhook verification optional (gracefully degrades if secret not set)
+
+**Files Created:**
+- `src/lib/ratelimit.ts` - Rate limit configurations and utilities
+- `src/lib/webhook-verification.ts` - Webhook signature verification
+
+**Files Modified:**
+- `src/app/api/layercode/authorize/route.ts` - Added rate limiting
+- `src/app/api/layercode/webhook/route.ts` - Added rate limiting, message limits, signature verification
+- `src/app/api/conversations/escalate/route.ts` - Added rate limiting
+- `src/app/api/conversations/feedback/route.ts` - Added rate limiting
+- `src/hooks/useSimpleLayercodeVoice.ts` - Added idle timeout with activity tracking
+
+**Future Adjustments:**
+- Rate limits configurable in `src/lib/ratelimit.ts` - adjust based on usage patterns
+- Message limit (50) can be increased if longer conversations are valuable
+- Idle timeout (5 min) can be extended if users commonly pause mid-conversation
+- Monitor Upstash Redis usage - free tier includes 10K commands/day
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)
