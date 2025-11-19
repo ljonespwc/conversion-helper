@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -18,14 +19,28 @@ export async function GET(request: Request) {
     }
 
     if (session) {
+      // Use service role to bypass RLS when checking if user exists
+      // (RLS might not be fully active yet during OAuth callback)
+      const supabaseAdmin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+
       // Check if user has organization record (determines if onboarding needed)
-      const { data: userData, error: userError } = await supabase
+      const { data: userData, error: userError } = await supabaseAdmin
         .from('users')
         .select('id, organization_id')
         .eq('id', session.user.id)
         .single()
 
-      if (userError || !userData) {
+      console.log('OAuth callback - checking user:', {
+        userId: session.user.id,
+        email: session.user.email,
+        userData,
+        userError
+      })
+
+      if (userError || !userData || !userData.organization_id) {
         // New OAuth user - needs onboarding
         console.log('New OAuth user detected - redirecting to onboarding')
         return NextResponse.redirect(`${origin}/onboarding`)
