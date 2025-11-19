@@ -24,10 +24,12 @@ export default function TestPage() {
   const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [organizationName, setOrganizationName] = useState<string>('')
 
   useEffect(() => {
     checkUser()
     fetchWidgetPages()
+    fetchOrganization()
   }, [])
 
   const checkUser = async () => {
@@ -35,6 +37,18 @@ export default function TestPage() {
     const { data: { user: authUser } } = await supabase.auth.getUser()
     if (authUser) {
       setUser({ id: authUser.id, email: authUser.email })
+    }
+  }
+
+  const fetchOrganization = async () => {
+    try {
+      const response = await fetch('/api/admin/user-info')
+      const data = await response.json()
+      if (data.organization?.name) {
+        setOrganizationName(data.organization.name)
+      }
+    } catch (error) {
+      console.error('Error fetching organization:', error)
     }
   }
 
@@ -138,11 +152,12 @@ export default function TestPage() {
 
         {/* Test Instructions */}
         <div className="text-center mb-6">
-          <p className="text-gray-400 text-sm mb-2">Testing assistant on page</p>
-          {selectedPage && (
-            <p className="text-blue-400 text-xs font-medium">
-              {selectedPage.page_title}
+          {selectedPage && organizationName ? (
+            <p className="text-gray-400 text-sm">
+              Simulating the <span className="text-blue-400 font-medium">{selectedPage.page_title}</span> for <span className="text-purple-400 font-medium">{organizationName}</span>'s website
             </p>
+          ) : (
+            <p className="text-gray-400 text-sm">Select a page to test the assistant</p>
           )}
         </div>
       </div>
