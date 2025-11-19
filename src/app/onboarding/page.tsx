@@ -29,35 +29,35 @@ export default async function OnboardingPage({
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 text-center">
+      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 text-center">
           Complete Your Setup
         </h1>
-        <p className="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-base">
+        <p className="text-gray-400 text-center mb-6 sm:mb-8 text-sm sm:text-base">
           Tell us about your organization to get started
         </p>
 
         {searchParams?.error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm text-center">{searchParams.error}</p>
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg">
+            <p className="text-red-400 text-sm text-center">{searchParams.error}</p>
           </div>
         )}
 
         <form className="space-y-4">
           {/* Display user's email (read-only) */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
               Signed in as
             </label>
-            <div className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg text-sm sm:text-base">
+            <div className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700/50 border border-gray-600 text-gray-300 rounded-lg text-sm sm:text-base">
               {user.email}
             </div>
           </div>
 
           {/* Organization Name */}
           <div>
-            <label htmlFor="organizationName" className="block text-sm font-medium text-gray-700 mb-2">
-              Organization Name <span className="text-red-500">*</span>
+            <label htmlFor="organizationName" className="block text-sm font-medium text-gray-300 mb-2">
+              Organization Name <span className="text-red-400">*</span>
             </label>
             <input
               id="organizationName"
@@ -66,7 +66,7 @@ export default async function OnboardingPage({
               required
               autoFocus
               minLength={2}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
               placeholder="My Company"
             />
             <p className="text-xs text-gray-500 mt-2">Your company or organization name</p>
@@ -74,8 +74,8 @@ export default async function OnboardingPage({
 
           {/* Website URL */}
           <div>
-            <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-700 mb-2">
-              Website URL <span className="text-red-500">*</span>
+            <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-2">
+              Website URL <span className="text-red-400">*</span>
             </label>
             <input
               id="websiteUrl"
@@ -83,7 +83,7 @@ export default async function OnboardingPage({
               type="url"
               required
               pattern="https?://.*"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
               placeholder="https://example.com"
             />
             <p className="text-xs text-gray-500 mt-2">Where your voice assistant will be deployed</p>
