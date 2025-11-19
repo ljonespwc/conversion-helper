@@ -105,7 +105,7 @@ export default function FileSearchUpload({
 
   return (
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 p-4 sm:p-6">
-      <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Upload to File Search</h2>
+      <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Upload to Google File Search</h2>
       <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
         Upload selected pages to Google File Search to activate your assistant
       </p>

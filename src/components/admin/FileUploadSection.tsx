@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, DragEvent } from 'react'
-import { Upload, FileText, Check, X, Loader2, Trash2 } from 'lucide-react'
+import { Upload, FileText, Check, X, Loader2, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface FileUpload {
@@ -31,6 +31,7 @@ export default function FileUploadSection({
   const [isDragging, setIsDragging] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (files: FileList | null) => {
@@ -131,12 +132,35 @@ export default function FileUploadSection({
   return (
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
       <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
-        <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Uploaded Docs</h2>
-        <p className="text-xs sm:text-sm text-gray-400">Upload text or markdown files (content validated for security)</p>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                Uploaded Docs
+                <span className="text-sm font-normal text-gray-400">
+                  ({uploads.length})
+                </span>
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">Upload text or markdown files (content validated for security)</p>
+            </div>
+            <div className="flex-shrink-0 ml-4">
+              {isExpanded ? (
+                <ChevronUp className="w-6 h-6 text-gray-400" />
+              ) : (
+                <ChevronDown className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+          </div>
+        </button>
       </div>
 
-      {/* Upload Zone */}
-      <div className="p-4 sm:p-6 border-b border-gray-700">
+      {isExpanded && (
+        <>
+          {/* Upload Zone */}
+          <div className="p-4 sm:p-6 border-b border-gray-700">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -292,6 +316,8 @@ export default function FileUploadSection({
             })}
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* Delete Confirmation Modal */}

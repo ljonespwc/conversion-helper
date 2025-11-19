@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, X, FileText, Globe, Plus, Trash2 } from 'lucide-react'
+import { Check, Loader2, X, FileText, Globe, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface ScrapingJob {
@@ -35,6 +35,7 @@ export default function ScrapedPagesList({
   const [error, setError] = useState('')
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,12 +136,35 @@ export default function ScrapedPagesList({
   return (
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
       <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
-        <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Scraped Pages</h2>
-        <p className="text-xs sm:text-sm text-gray-400">Enter a URL to scrape and convert to markdown</p>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                Scraped Pages
+                <span className="text-sm font-normal text-gray-400">
+                  ({jobs.length})
+                </span>
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">Enter a URL to scrape and convert to markdown</p>
+            </div>
+            <div className="flex-shrink-0 ml-4">
+              {isExpanded ? (
+                <ChevronUp className="w-6 h-6 text-gray-400" />
+              ) : (
+                <ChevronDown className="w-6 h-6 text-gray-400" />
+              )}
+            </div>
+          </div>
+        </button>
       </div>
 
-      {/* Scrape Form */}
-      <div className="p-4 sm:p-6 border-b border-gray-700">
+      {isExpanded && (
+        <>
+          {/* Scrape Form */}
+          <div className="p-4 sm:p-6 border-b border-gray-700">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="url" className="block text-sm font-medium text-gray-300 mb-2">
@@ -317,14 +341,16 @@ export default function ScrapedPagesList({
         </div>
       )}
 
-      {jobs.length === 0 && (
-        <div className="px-6 py-16 text-center">
-          <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-          <h3 className="text-lg font-semibold text-white mb-2">No pages scraped yet</h3>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">
-            Enter a URL above to scrape a page and convert it to markdown
-          </p>
-        </div>
+          {jobs.length === 0 && (
+            <div className="px-6 py-16 text-center">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+              <h3 className="text-lg font-semibold text-white mb-2">No pages scraped yet</h3>
+              <p className="text-gray-400 text-sm max-w-md mx-auto">
+                Enter a URL above to scrape a page and convert it to markdown
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Delete Confirmation Modal */}

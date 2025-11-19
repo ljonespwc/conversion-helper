@@ -218,48 +218,7 @@ export default function ContentManagementPage() {
           <p className="text-gray-400 mt-2 text-sm sm:text-base">Scrape pages, upload files, and manage File Search content</p>
         </div>
 
-        {/* Scraped Pages */}
-        <div className="mb-8">
-          {loading ? (
-            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
-              <p className="text-gray-400">Loading scraped pages...</p>
-            </div>
-          ) : (
-            <ScrapedPagesList
-              jobs={jobs}
-              selectedJobs={selectedJobs}
-              onSelectionChange={setSelectedJobs}
-              onScrapeStarted={handleScrapeStarted}
-            />
-          )}
-        </div>
-
-        {/* Uploaded Docs */}
-        <div className="mb-8">
-          {uploadsLoading ? (
-            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
-              <p className="text-gray-400">Loading uploaded files...</p>
-            </div>
-          ) : (
-            <FileUploadSection
-              uploads={uploads}
-              selectedUploads={selectedUploads}
-              onSelectionChange={setSelectedUploads}
-              onUploadComplete={handleUploadComplete}
-            />
-          )}
-        </div>
-
-        {/* File Search Upload */}
-        <div className="mb-8">
-          <FileSearchUpload
-            selectedJobs={selectedJobs}
-            selectedUploads={selectedUploads}
-            onUploadComplete={handleUploadComplete}
-          />
-        </div>
-
-        {/* Currently Indexed Documents - Collapsible */}
+        {/* 1. Currently Indexed Documents - Collapsible */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
           <div className="p-6 border-b border-gray-700 bg-gray-900">
             <div className="flex items-center justify-between mb-2">
@@ -439,6 +398,47 @@ export default function ContentManagementPage() {
                 </div>
               )}
             </>
+          )}
+        </div>
+
+        {/* 2. Upload to Google File Search */}
+        <div className="mb-8">
+          <FileSearchUpload
+            selectedJobs={selectedJobs}
+            selectedUploads={selectedUploads}
+            onUploadComplete={handleUploadComplete}
+          />
+        </div>
+
+        {/* 3. Scraped Pages */}
+        <div className="mb-8">
+          {loading ? (
+            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
+              <p className="text-gray-400">Loading scraped pages...</p>
+            </div>
+          ) : (
+            <ScrapedPagesList
+              jobs={jobs}
+              selectedJobs={selectedJobs}
+              onSelectionChange={setSelectedJobs}
+              onScrapeStarted={handleScrapeStarted}
+            />
+          )}
+        </div>
+
+        {/* 4. Uploaded Docs */}
+        <div className="mb-8">
+          {uploadsLoading ? (
+            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
+              <p className="text-gray-400">Loading uploaded files...</p>
+            </div>
+          ) : (
+            <FileUploadSection
+              uploads={uploads}
+              selectedUploads={selectedUploads}
+              onSelectionChange={setSelectedUploads}
+              onUploadComplete={handleUploadComplete}
+            />
           )}
         </div>
 
