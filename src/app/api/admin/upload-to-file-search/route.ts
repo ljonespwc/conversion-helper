@@ -23,21 +23,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's File Search store
+    // Get user's organization and File Search store
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('file_search_store_name')
+      .select('organization_id')
       .eq('id', user.id)
       .single()
 
-    if (userError || !userData?.file_search_store_name) {
+    if (userError || !userData?.organization_id) {
       return NextResponse.json(
-        { error: 'User does not have a File Search store. Please contact support.' },
+        { error: 'User organization not found' },
         { status: 400 }
       )
     }
 
-    const userStoreName = userData.file_search_store_name
+    // Get organization's File Search store
+    const { data: orgData, error: orgError } = await supabase
+      .from('organizations')
+      .select('file_search_store_name')
+      .eq('id', userData.organization_id)
+      .single()
+
+    if (orgError || !orgData?.file_search_store_name) {
+      return NextResponse.json(
+        { error: 'Organization does not have a File Search store. Please contact support.' },
+        { status: 400 }
+      )
+    }
+
+    const userStoreName = orgData.file_search_store_name
 
     const { jobIds = [], uploadIds = [], pageUrls = [] } = await request.json()
 
@@ -139,7 +153,8 @@ export async function POST(request: NextRequest) {
 
         // Create or update indexed_pages record
         const indexedPageData: any = {
-          user_id: user.id,
+          organization_id: userData.organization_id,
+          created_by_user_id: user.id,
           page_url: job.url,
           page_title: title,
           document_id: documentId,
@@ -262,7 +277,8 @@ export async function POST(request: NextRequest) {
         // For uploaded files, use document_id as page_url since we don't have a source URL
         // This ensures uniqueness while still tracking the document
         const uploadIndexedPageData: any = {
-          user_id: user.id,
+          organization_id: userData.organization_id,
+          created_by_user_id: user.id,
           page_url: documentId, // Use document_id for uniqueness
           page_title: title,
           document_id: documentId,

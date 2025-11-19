@@ -41,7 +41,9 @@ export default function TestPage() {
   const fetchWidgetPages = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/widget-pages')
+      const response = await fetch(`/api/admin/widget-pages?_t=${Date.now()}`, {
+        cache: 'no-store'
+      })
       const data = await response.json()
       const pages = data.pages || []
       setWidgetPages(pages)
@@ -148,6 +150,7 @@ export default function TestPage() {
       {/* Widget - Centered */}
       <div className="flex items-center justify-center">
         <VoiceWidget
+          key={selectedPage?.page_url || 'no-page'}
           embedded={true}
           pageUrl={selectedPage?.page_url}
         />

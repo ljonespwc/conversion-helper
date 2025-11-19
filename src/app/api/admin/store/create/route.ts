@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
 })
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 /**
  * Creates a new Google File Search store for the user's organization
@@ -30,16 +36,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already has a store
-    const { data: existingUser } = await serverSupabase
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .select('file_search_store_name')
+      .select('organization_id')
       .eq('id', user.id)
       .single()
 
-    if (existingUser?.file_search_store_name) {
+    if (userError || !userData?.organization_id) {
       return NextResponse.json(
-        { error: 'User already has a File Search store', storeName: existingUser.file_search_store_name },
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
+    // Check if organization already has a store
+    const { data: existingOrg } = await supabaseAdmin
+      .from('organizations')
+      .select('file_search_store_name')
+      .eq('id', userData.organization_id)
+      .single()
+
+    if (existingOrg?.file_search_store_name) {
+      return NextResponse.json(
+        { error: 'Organization already has a File Search store', storeName: existingOrg.file_search_store_name },
         { status: 400 }
       )
     }
@@ -59,11 +79,11 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ File Search store created:', store.name)
 
-    // Update user record with store name
-    const { error: updateError } = await serverSupabase
-      .from('users')
+    // Update organization record with store name
+    const { error: updateError } = await supabaseAdmin
+      .from('organizations')
       .update({ file_search_store_name: store.name })
-      .eq('id', user.id)
+      .eq('id', userData.organization_id)
 
     if (updateError) {
       console.error('Failed to save store name to database:', updateError)

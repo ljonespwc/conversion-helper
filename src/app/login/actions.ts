@@ -57,27 +57,29 @@ export async function signup(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(authError?.message || 'Failed to create account')}`)
   }
 
-  // Save organization details to users table using service role (bypasses RLS)
+  // Use service role for remaining operations (bypasses RLS)
   const supabaseAdmin = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  const { error: userError } = await supabaseAdmin
-    .from('users')
-    .upsert({
-      id: authData.user.id,
-      email: authData.user.email,
-      organization_name: organizationName,
+  // Step 1: Create organization
+  const { data: orgData, error: orgError } = await supabaseAdmin
+    .from('organizations')
+    .insert({
+      name: organizationName,
       website_url: websiteUrl,
     })
+    .select()
+    .single()
 
-  if (userError) {
-    console.error('Failed to save user details:', userError)
-    redirect('/login?error=Failed to save organization details')
+  if (orgError || !orgData) {
+    console.error('Failed to create organization:', orgError)
+    redirect('/login?error=Failed to create organization')
   }
 
-  // Create File Search store for the organization
+  // Step 2: Create File Search store for the organization
+  let fileSearchStoreName: string | null = null
   try {
     const store = await ai.fileSearchStores.create({
       config: {
@@ -89,11 +91,13 @@ export async function signup(formData: FormData) {
       throw new Error('Failed to create File Search store - no store name returned')
     }
 
-    // Update user record with store name
+    fileSearchStoreName = store.name
+
+    // Update organization record with store name
     const { error: storeUpdateError } = await supabaseAdmin
-      .from('users')
+      .from('organizations')
       .update({ file_search_store_name: store.name })
-      .eq('id', authData.user.id)
+      .eq('id', orgData.id)
 
     if (storeUpdateError) {
       console.error('Failed to save store name:', storeUpdateError)
@@ -110,6 +114,21 @@ export async function signup(formData: FormData) {
   } catch (storeError) {
     console.error('Failed to create File Search store:', storeError)
     // Continue anyway - user can create it later from admin
+  }
+
+  // Step 3: Create user record with organization_id and role
+  const { error: userError } = await supabaseAdmin
+    .from('users')
+    .insert({
+      id: authData.user.id,
+      email: authData.user.email,
+      organization_id: orgData.id,
+      role: 'owner', // First user is the owner
+    })
+
+  if (userError) {
+    console.error('Failed to save user details:', userError)
+    redirect('/login?error=Failed to save user details')
   }
 
   revalidatePath('/', 'layout')

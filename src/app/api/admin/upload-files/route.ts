@@ -29,6 +29,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
 
@@ -138,7 +152,8 @@ export async function POST(request: NextRequest) {
         const { data: uploadRecord, error: dbError } = await supabase
           .from('file_uploads')
           .insert({
-            user_id: user.id,
+            organization_id: userData.organization_id,
+            created_by_user_id: user.id,
             filename: file.name,
             file_path: storagePath,
             file_size: file.size,
@@ -202,11 +217,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch all file uploads for this user
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
+    // Fetch all file uploads for this organization
     const { data: uploads, error } = await supabase
       .from('file_uploads')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('organization_id', userData.organization_id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -236,6 +265,20 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     const { uploadIds } = await request.json()
 
     if (!uploadIds || !Array.isArray(uploadIds) || uploadIds.length === 0) {
@@ -254,7 +297,7 @@ export async function DELETE(request: NextRequest) {
           .from('file_uploads')
           .select('*')
           .eq('id', uploadId)
-          .eq('user_id', user.id) // Ensure user owns this upload
+          .eq('organization_id', userData.organization_id) // Ensure user's org owns this upload
           .single()
 
         if (uploadError || !upload) {
@@ -282,7 +325,7 @@ export async function DELETE(request: NextRequest) {
         const { data: indexedPage, error: indexError } = await supabase
           .from('indexed_pages')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('organization_id', userData.organization_id)
           .contains('metadata', { file_upload_id: uploadId })
           .maybeSingle()
 
@@ -310,7 +353,7 @@ export async function DELETE(request: NextRequest) {
           .from('file_uploads')
           .delete()
           .eq('id', uploadId)
-          .eq('user_id', user.id)
+          .eq('organization_id', userData.organization_id)
 
         if (deleteError) {
           throw new Error(`Database deletion failed: ${deleteError.message}`)

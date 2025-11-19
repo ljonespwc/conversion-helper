@@ -26,18 +26,29 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's File Search store name
+    // Get user's organization_id
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .select('file_search_store_name')
+      .select('organization_id')
       .eq('id', user.id)
       .single()
 
-    if (userError || !userData?.file_search_store_name) {
-      return NextResponse.json({ error: 'User store not found' }, { status: 400 })
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json({ error: 'User organization not found' }, { status: 400 })
     }
 
-    const storeName = userData.file_search_store_name
+    // Get organization's File Search store name
+    const { data: orgData, error: orgError } = await supabaseAdmin
+      .from('organizations')
+      .select('file_search_store_name')
+      .eq('id', userData.organization_id)
+      .single()
+
+    if (orgError || !orgData?.file_search_store_name) {
+      return NextResponse.json({ error: 'Organization store not found' }, { status: 400 })
+    }
+
+    const storeName = orgData.file_search_store_name
 
     // Fetch documents from Google File Search (source of truth) - parallel with DB query
     const [googleDocsResult, dbPagesResult] = await Promise.all([
@@ -61,7 +72,7 @@ export async function GET() {
       supabaseAdmin
         .from('indexed_pages')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('organization_id', userData.organization_id)
         .eq('status', 'active')
     ])
 
@@ -197,6 +208,20 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     const { pageIds } = await request.json()
 
     if (!pageIds || !Array.isArray(pageIds) || pageIds.length === 0) {
@@ -215,7 +240,7 @@ export async function DELETE(request: NextRequest) {
           .from('indexed_pages')
           .select('*')
           .eq('id', pageId)
-          .eq('user_id', user.id) // Ensure user owns this page
+          .eq('organization_id', userData.organization_id) // Ensure user's org owns this page
           .single()
 
         if (pageError || !page) {
@@ -261,7 +286,7 @@ export async function DELETE(request: NextRequest) {
           .from('indexed_pages')
           .delete()
           .eq('id', pageId)
-          .eq('user_id', user.id)
+          .eq('organization_id', userData.organization_id)
 
         if (deleteError) {
           throw new Error(`Database deletion failed: ${deleteError.message}`)

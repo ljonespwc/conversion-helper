@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenAI } from '@google/genai'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +9,10 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
 })
 
-const STORE_NAME = 'fileSearchStores/conversionhelperpages-kk1562zy76aq'
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET() {
   try {
@@ -21,11 +25,41 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // List all documents in the File Search store
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
+    // Get organization's File Search store
+    const { data: orgData, error: orgError } = await supabaseAdmin
+      .from('organizations')
+      .select('file_search_store_name')
+      .eq('id', userData.organization_id)
+      .single()
+
+    if (orgError || !orgData?.file_search_store_name) {
+      return NextResponse.json(
+        { error: 'Organization does not have a File Search store' },
+        { status: 400 }
+      )
+    }
+
+    const storeName = orgData.file_search_store_name
+
+    // List all documents in the organization's File Search store
     // The async iterator handles pagination automatically
     const documents = []
     const documentPager = await ai.fileSearchStores.documents.list({
-      parent: STORE_NAME
+      parent: storeName
     })
 
     // Collect all documents (async iterator handles pagination)
@@ -51,7 +85,7 @@ export async function GET() {
     return NextResponse.json({
       documents,
       total: documents.length,
-      storeName: STORE_NAME
+      storeName
     })
   } catch (error) {
     console.error('Error fetching File Search documents:', error)

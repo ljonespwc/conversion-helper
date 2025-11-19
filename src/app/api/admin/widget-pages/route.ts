@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,17 +16,38 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: pages, error } = await supabase
+    // Get user's organization_id (use service role to bypass RLS circular dependency)
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
+    // Filter by organization_id (use service role for all queries)
+    const { data: pages, error } = await supabaseAdmin
       .from('widget_pages')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('organization_id', userData.organization_id)
       .order('created_at', { ascending: false })
 
     if (error) {
       throw error
     }
 
-    return NextResponse.json({ pages: pages || [] })
+    return NextResponse.json({ pages: pages || [] }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store'
+      }
+    })
   } catch (error) {
     console.error('Error fetching widget pages:', error)
     return NextResponse.json(
@@ -37,6 +64,20 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get user's organization_id (use service role)
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
     }
 
     const { page_url, page_title, page_goal } = await request.json()
@@ -65,11 +106,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if page already exists for this user
-    const { data: existingPage } = await supabase
+    // Check if page already exists for this organization (use service role)
+    const { data: existingPage } = await supabaseAdmin
       .from('widget_pages')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('organization_id', userData.organization_id)
       .eq('page_url', page_url)
       .single()
 
@@ -80,11 +121,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create new widget page
-    const { data: newPage, error } = await supabase
+    // Create new widget page (use service role)
+    const { data: newPage, error } = await supabaseAdmin
       .from('widget_pages')
       .insert({
-        user_id: user.id,
+        organization_id: userData.organization_id,
+        created_by_user_id: user.id,
         page_url,
         page_title,
         page_goal: page_goal || null

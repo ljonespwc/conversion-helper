@@ -23,11 +23,25 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch jobs for this user only
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
+    // Fetch jobs for this organization only
     const { data: jobs, error } = await supabaseAdmin
       .from('scraping_jobs')
       .select('id, url, status, scraping_status, indexing_status, file_size, word_count, error_message, created_at, completed_at')
-      .eq('user_id', user.id)
+      .eq('organization_id', userData.organization_id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -59,6 +73,20 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     const { jobIds } = await request.json()
 
     if (!jobIds || !Array.isArray(jobIds) || jobIds.length === 0) {
@@ -77,7 +105,7 @@ export async function DELETE(request: NextRequest) {
           .from('scraping_jobs')
           .select('*')
           .eq('id', jobId)
-          .eq('user_id', user.id) // Ensure user owns this job
+          .eq('organization_id', userData.organization_id) // Ensure user's org owns this job
           .single()
 
         if (jobError || !job) {
@@ -105,7 +133,7 @@ export async function DELETE(request: NextRequest) {
         const { data: indexedPage, error: indexError } = await supabaseAdmin
           .from('indexed_pages')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('organization_id', userData.organization_id)
           .contains('metadata', { scraping_job_id: jobId })
           .maybeSingle()
 
@@ -133,7 +161,7 @@ export async function DELETE(request: NextRequest) {
           .from('scraping_jobs')
           .delete()
           .eq('id', jobId)
-          .eq('user_id', user.id)
+          .eq('organization_id', userData.organization_id)
 
         if (deleteError) {
           throw new Error(`Database deletion failed: ${deleteError.message}`)

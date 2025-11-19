@@ -22,11 +22,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's widget pages to filter conversations
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
+    // Get organization's widget pages to filter conversations
     const { data: userPages } = await supabase
       .from('widget_pages')
       .select('page_url')
-      .eq('user_id', user.id)
+      .eq('organization_id', userData.organization_id)
 
     const userPageUrls = userPages?.map(p => p.page_url) || []
 

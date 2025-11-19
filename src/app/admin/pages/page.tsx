@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import { Plus, Trash2, Copy, CheckCircle } from 'lucide-react'
 
@@ -22,9 +21,12 @@ interface WidgetPage {
 interface UserInfo {
   id: string
   email: string | null
-  organization_name: string | null
-  website_url: string | null
-  file_search_store_name: string | null
+  organization_id: string
+  organizations: {
+    name: string
+    website_url: string | null
+    file_search_store_name: string | null
+  }
 }
 
 export default function PagesPage() {
@@ -48,19 +50,12 @@ export default function PagesPage() {
 
   const fetchUserInfo = async () => {
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const response = await fetch('/api/admin/user-info')
+      const data = await response.json()
 
-      if (!user) return
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, email, organization_name, website_url, file_search_store_name')
-        .eq('id', user.id)
-        .single()
-
-      if (error) throw error
-      setUserInfo(data)
+      if (data.user) {
+        setUserInfo(data.user as UserInfo)
+      }
     } catch (error) {
       console.error('Error fetching user info:', error)
     }
@@ -230,16 +225,16 @@ export default function PagesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-400 font-medium">Organization:</span>
-                <p className="text-white mt-1">{userInfo.organization_name || 'Not set'}</p>
+                <p className="text-white mt-1">{userInfo.organizations.name || 'Not set'}</p>
               </div>
               <div>
                 <span className="text-gray-400 font-medium">Website:</span>
-                <p className="text-white mt-1">{userInfo.website_url || 'Not set'}</p>
+                <p className="text-white mt-1">{userInfo.organizations.website_url || 'Not set'}</p>
               </div>
               <div className="md:col-span-2">
                 <span className="text-gray-400 font-medium">File Search Store:</span>
                 <code className="block bg-gray-700 px-3 py-2 rounded text-xs mt-1 text-gray-300 break-all">
-                  {userInfo.file_search_store_name || 'Not created'}
+                  {userInfo.organizations.file_search_store_name || 'Not created'}
                 </code>
               </div>
             </div>

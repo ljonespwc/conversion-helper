@@ -99,6 +99,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     // Create scraping job record (use service role to bypass RLS)
     const { data: job, error: createError } = await supabaseAdmin
       .from('scraping_jobs')
@@ -107,7 +121,8 @@ export async function POST(request: NextRequest) {
         status: 'pending',
         scraping_status: 'pending',
         indexing_status: 'not_indexed',
-        user_id: user.id
+        organization_id: userData.organization_id,
+        created_by_user_id: user.id
       })
       .select()
       .single()

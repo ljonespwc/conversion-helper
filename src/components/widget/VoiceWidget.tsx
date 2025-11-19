@@ -24,8 +24,15 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   // Fetch page title and organization name if pageUrl is provided
   useEffect(() => {
     if (pageUrl && embedded) {
-      // Try to fetch page info from widget pages API
-      fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}`)
+      // Reset state when pageUrl changes
+      setIsActive(null)
+      setPageTitle(undefined)
+      setOrganizationName(undefined)
+
+      // Try to fetch page info from widget pages API (with cache-busting)
+      fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}&_t=${Date.now()}`, {
+        cache: 'no-store'
+      })
         .then(res => res.json())
         .then(data => {
           if (data?.page?.page_title) {

@@ -37,12 +37,13 @@ async function trackConversation(params: {
   matched: boolean
   category: string | null
   page_url: string | null
+  organization_id?: string | null
 }) {
   try {
     // First, ensure the session exists
     const { data: session, error: sessionError } = await supabase
       .from('conversation_sessions')
-      .select('id, total_questions, matched_responses, page_url')
+      .select('id, total_questions, matched_responses, page_url, organization_id')
       .eq('session_id', params.session_id)
       .single()
 
@@ -54,7 +55,8 @@ async function trackConversation(params: {
           session_id: params.session_id,
           total_questions: params.role === 'user' ? 1 : 0,
           matched_responses: params.matched ? 1 : 0,
-          page_url: params.page_url || null
+          page_url: params.page_url || null,
+          organization_id: params.organization_id || null
         })
 
       if (createError) {
@@ -71,6 +73,10 @@ async function trackConversation(params: {
 
       if (!session.page_url && params.page_url) {
         updateData.page_url = params.page_url
+      }
+
+      if (!session.organization_id && params.organization_id) {
+        updateData.organization_id = params.organization_id
       }
 
       const { error: updateError } = await supabase
@@ -210,8 +216,24 @@ export async function POST(request: Request) {
     // Extract page URL from custom_metadata (forwarded by Layercode)
     const pageUrl = custom_metadata?.page_url || ''
 
+    // Look up organization_id from widget_page (for conversation tracking)
+    let organizationId: string | null = null
+    if (pageUrl) {
+      try {
+        const { data: widgetPageData } = await supabase
+          .from('widget_pages')
+          .select('organization_id')
+          .eq('page_url', pageUrl)
+          .single()
+
+        organizationId = widgetPageData?.organization_id || null
+      } catch (error) {
+        console.error('Failed to lookup organization_id:', error)
+      }
+    }
+
     // Debug logging
-    console.log('📋 Webhook received:', { type, conversation_id, custom_metadata, pageUrl })
+    console.log('📋 Webhook received:', { type, conversation_id, custom_metadata, pageUrl, organizationId })
 
     return streamResponse(requestBody, async ({ stream }) => {
       try {
@@ -300,7 +322,8 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
               timestamp: message.timestamp,
               matched: false,
               category: null,
-              page_url: pageUrl || null
+              page_url: pageUrl || null,
+              organization_id: organizationId
             })
           }
 

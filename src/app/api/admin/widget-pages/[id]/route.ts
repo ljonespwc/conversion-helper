@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function DELETE(
   request: NextRequest,
@@ -13,12 +19,26 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user's organization_id (use service role to bypass RLS)
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     const { id } = params
 
-    // Verify page belongs to user before deleting
-    const { data: page } = await supabase
+    // Verify page belongs to user's organization before deleting (use service role)
+    const { data: page } = await supabaseAdmin
       .from('widget_pages')
-      .select('user_id')
+      .select('organization_id')
       .eq('id', id)
       .single()
 
@@ -26,12 +46,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Page not found' }, { status: 404 })
     }
 
-    if (page.user_id !== user.id) {
+    if (page.organization_id !== userData.organization_id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Delete the page
-    const { error } = await supabase
+    // Delete the page (use service role)
+    const { error } = await supabaseAdmin
       .from('widget_pages')
       .delete()
       .eq('id', id)
@@ -62,6 +82,20 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get user's organization_id (use service role to bypass RLS)
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
+
     const { id } = params
     const body = await request.json()
     const { is_active } = body
@@ -74,10 +108,10 @@ export async function PATCH(
       )
     }
 
-    // Verify page belongs to user before updating
-    const { data: page } = await supabase
+    // Verify page belongs to user's organization before updating (use service role)
+    const { data: page } = await supabaseAdmin
       .from('widget_pages')
-      .select('user_id')
+      .select('organization_id')
       .eq('id', id)
       .single()
 
@@ -85,12 +119,12 @@ export async function PATCH(
       return NextResponse.json({ error: 'Page not found' }, { status: 404 })
     }
 
-    if (page.user_id !== user.id) {
+    if (page.organization_id !== userData.organization_id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Update the page
-    const { data: updatedPage, error } = await supabase
+    // Update the page (use service role)
+    const { data: updatedPage, error } = await supabaseAdmin
       .from('widget_pages')
       .update({ is_active })
       .eq('id', id)

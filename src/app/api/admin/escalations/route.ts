@@ -1,17 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-// Use service role to access all escalations (admin only)
-const supabase = createClient(
+// Use service role to access escalations (need service role to query conversation_sessions)
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(request: NextRequest) {
   try {
-    // Auth handled by middleware - /admin routes require authentication
+    // Get authenticated user
+    const serverSupabase = await createServerClient()
+    const { data: { user } } = await serverSupabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get user's organization_id
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData?.organization_id) {
+      return NextResponse.json(
+        { error: 'User organization not found' },
+        { status: 400 }
+      )
+    }
 
     // Get query params for filtering
     const searchParams = request.nextUrl.searchParams
@@ -19,8 +40,8 @@ export async function GET(request: NextRequest) {
     const pageUrl = searchParams.get('page_url')
     const sort = searchParams.get('sort') || 'newest' // 'newest', 'oldest', 'most_flagged'
 
-    // Build query
-    let query = supabase
+    // Build query - filter by organization
+    let query = supabaseAdmin
       .from('conversation_sessions')
       .select(`
         id,
@@ -37,6 +58,7 @@ export async function GET(request: NextRequest) {
         resolved_at
       `)
       .not('user_email', 'is', null) // Only escalated sessions
+      .eq('organization_id', userData.organization_id) // Filter by organization
 
     // Apply status filter
     if (status === 'unresolved') {
@@ -71,7 +93,7 @@ export async function GET(request: NextRequest) {
     // Fetch messages for each session (with flagged messages)
     const sessionIds = sessions.map(s => s.session_id)
 
-    const { data: messages, error: messagesError } = await supabase
+    const { data: messages, error: messagesError } = await supabaseAdmin
       .from('conversation_messages')
       .select('*')
       .in('session_id', sessionIds)

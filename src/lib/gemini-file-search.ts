@@ -53,10 +53,10 @@ export async function queryPageContent(
   systemPrompt?: string
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
-    // Get the widget page to find the user's store
+    // Get the widget page to find the organization's store
     const { data: widgetPageData, error: widgetPageError } = await supabase
       .from('widget_pages')
-      .select('user_id, page_title, page_goal')
+      .select('organization_id, page_title, page_goal')
       .eq('page_url', pageUrl)
       .single();
 
@@ -64,15 +64,15 @@ export async function queryPageContent(
       throw new Error(`Page not configured: ${pageUrl}`);
     }
 
-    // Get user's File Search store
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('file_search_store_name, organization_name')
-      .eq('id', widgetPageData.user_id)
+    // Get organization's File Search store
+    const { data: orgData, error: orgError } = await supabase
+      .from('organizations')
+      .select('file_search_store_name, name')
+      .eq('id', widgetPageData.organization_id)
       .single();
 
-    if (userError || !userData?.file_search_store_name) {
-      throw new Error(`User store not found for page: ${pageUrl}`);
+    if (orgError || !orgData?.file_search_store_name) {
+      throw new Error(`Organization store not found for page: ${pageUrl}`);
     }
 
     // Query File Search with page_url metadata filter
@@ -101,7 +101,7 @@ export async function queryPageContent(
         tools: [
           {
             fileSearch: {
-              fileSearchStoreNames: [userData.file_search_store_name],
+              fileSearchStoreNames: [orgData.file_search_store_name],
               metadataFilter
             }
           }
@@ -112,7 +112,7 @@ export async function queryPageContent(
     return {
       answer: response.text || 'No answer generated',
       citations: response.candidates?.[0]?.groundingMetadata || null,
-      organization: userData.organization_name
+      organization: orgData.name
     };
   } catch (error) {
     console.error('Error querying page content:', error);
@@ -127,7 +127,7 @@ export async function getWidgetPage(pageUrl: string) {
   try {
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('user_id, page_title, page_url, page_goal')
+      .select('organization_id, page_title, page_url, page_goal')
       .eq('page_url', pageUrl)
       .single();
 
