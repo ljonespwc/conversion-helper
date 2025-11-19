@@ -33,12 +33,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Handle Supabase join result (organizations is returned as array)
+    // Handle Supabase join result (organizations can be object or array depending on relationship)
     let userInfo: any = data
     let organization = null
 
-    if (data && Array.isArray(data.organizations) && data.organizations.length > 0) {
-      organization = data.organizations[0]
+    if (data?.organizations) {
+      // If it's an array, take the first item; if it's an object, use it directly
+      organization = Array.isArray(data.organizations)
+        ? data.organizations[0]
+        : data.organizations
+
       userInfo = {
         ...data,
         organization: organization
