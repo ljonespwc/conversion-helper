@@ -148,7 +148,7 @@ export default function ScrapedPagesList({
                   ({jobs.length})
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">Enter a URL to scrape and convert to markdown</p>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">Enter a URL to scrape for the Assistant to use later</p>
             </div>
             <div className="flex-shrink-0 ml-4">
               {isExpanded ? (

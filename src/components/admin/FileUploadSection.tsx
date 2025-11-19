@@ -144,7 +144,7 @@ export default function FileUploadSection({
                   ({uploads.length})
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">Upload text or markdown files (content validated for security)</p>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">Upload text or markdown files for the Assistant to use later</p>
             </div>
             <div className="flex-shrink-0 ml-4">
               {isExpanded ? (

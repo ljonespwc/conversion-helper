@@ -214,8 +214,8 @@ export default function ContentManagementPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Content Management</h1>
-          <p className="text-gray-400 mt-2 text-sm sm:text-base">Scrape pages, upload files, and manage File Search content</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">AI Assistant Knowledgebase</h1>
+          <p className="text-gray-400 mt-2 text-sm sm:text-base">Scrape pages, upload files, and manage content for the AI Assistant</p>
         </div>
 
         {/* 1. Currently Indexed Documents - Collapsible */}
@@ -229,7 +229,7 @@ export default function ContentManagementPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                      Currently Indexed Documents
+                      Current Knowledgebase Documents
                       {!indexedPagesLoading && (
                         <span className="text-sm font-normal text-gray-400">
                           ({indexedPages.length} in registry)
@@ -237,7 +237,7 @@ export default function ContentManagementPage() {
                       )}
                     </h2>
                     <p className="text-sm text-gray-400 mt-1">
-                      Documents in Supabase registry with sync status to Google File Search
+                      These are all the files the AI Assistant has access to
                     </p>
                   </div>
                   <div className="flex-shrink-0 ml-4">
@@ -393,7 +393,7 @@ export default function ContentManagementPage() {
                   <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
                   <h3 className="text-lg font-semibold text-white mb-2">No documents indexed yet</h3>
                   <p className="text-gray-400 text-sm max-w-md mx-auto">
-                    Documents uploaded to Google File Search will appear here. Scrape and upload pages above to get started.
+                    Documents selected from below will appear here.
                   </p>
                 </div>
               )}
