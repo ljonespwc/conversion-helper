@@ -1,5 +1,6 @@
 import { completeOnboarding } from './actions'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 
 export default async function OnboardingPage({
@@ -16,8 +17,14 @@ export default async function OnboardingPage({
     redirect('/login?error=Not authenticated')
   }
 
+  // Use service role to bypass RLS when checking if user has organization
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   // Check if user already has organization (shouldn't be here if they do)
-  const { data: userData } = await supabase
+  const { data: userData } = await supabaseAdmin
     .from('users')
     .select('organization_id')
     .eq('id', user.id)
