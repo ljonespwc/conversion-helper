@@ -10,51 +10,32 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
 })
 
-export async function login(formData: FormData) {
+/**
+ * Complete onboarding for OAuth users
+ * Creates organization, File Search store, and user record
+ * Similar to signup() but for users already authenticated via OAuth
+ */
+export async function completeOnboarding(formData: FormData) {
   const supabase = await createClient()
 
-  // Type-casting for form data
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+  // Get current authenticated user
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    redirect('/login?error=Not authenticated')
   }
-
-  const { error } = await supabase.auth.signInWithPassword(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/admin')
-}
-
-export async function signup(formData: FormData) {
-  const supabase = await createClient()
 
   // Get form data
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
   const organizationName = formData.get('organizationName') as string
   const websiteUrl = formData.get('websiteUrl') as string
 
   // Validate required fields
   if (!organizationName || organizationName.length < 2) {
-    redirect('/login?error=Organization name must be at least 2 characters')
+    redirect('/onboarding?error=Organization name must be at least 2 characters')
   }
 
   if (!websiteUrl || !websiteUrl.match(/^https?:\/\//)) {
-    redirect('/login?error=Please enter a valid website URL (must start with http:// or https://)')
-  }
-
-  // Create auth user
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-
-  if (authError || !authData.user) {
-    redirect(`/login?error=${encodeURIComponent(authError?.message || 'Failed to create account')}`)
+    redirect('/onboarding?error=Please enter a valid website URL (must start with http:// or https://)')
   }
 
   // Use service role for remaining operations (bypasses RLS)
@@ -75,7 +56,7 @@ export async function signup(formData: FormData) {
 
   if (orgError || !orgData) {
     console.error('Failed to create organization:', orgError)
-    redirect('/login?error=Failed to create organization')
+    redirect('/onboarding?error=Failed to create organization')
   }
 
   // Step 2: Create File Search store for the organization
@@ -117,71 +98,20 @@ export async function signup(formData: FormData) {
   }
 
   // Step 3: Create user record with organization_id and role
-  const { error: userError } = await supabaseAdmin
+  const { error: userRecordError } = await supabaseAdmin
     .from('users')
     .insert({
-      id: authData.user.id,
-      email: authData.user.email,
+      id: user.id,
+      email: user.email,
       organization_id: orgData.id,
       role: 'owner', // First user is the owner
     })
 
-  if (userError) {
-    console.error('Failed to save user details:', userError)
-    redirect('/login?error=Failed to save user details')
+  if (userRecordError) {
+    console.error('Failed to save user details:', userRecordError)
+    redirect('/onboarding?error=Failed to save user details')
   }
 
   revalidatePath('/', 'layout')
   redirect('/admin/pages')  // New users need to set up widget pages first
-}
-
-export async function signInWithMagicLink(formData: FormData) {
-  const supabase = await createClient()
-
-  const email = formData.get('email') as string
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      shouldCreateUser: true,
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-    },
-  })
-
-  if (error) {
-    redirect('/error')
-  }
-
-  // Show success message (we'll create a success page or use the same login page with a message)
-  redirect('/login?message=Check your email for the magic link')
-}
-
-export async function signInWithGoogle() {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
-      },
-    },
-  })
-
-  if (error) {
-    redirect('/login?error=Failed to sign in with Google')
-  }
-
-  if (data?.url) {
-    redirect(data.url) // Redirect to Google OAuth consent screen
-  }
-}
-
-export async function signOut() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
-  revalidatePath('/', 'layout')
-  redirect('/login')
 }
