@@ -152,9 +152,9 @@ export default function TestPage() {
 
         {/* Test Instructions */}
         <div className="text-center mb-6">
-          {selectedPage && organizationName ? (
+          {selectedPage ? (
             <p className="text-gray-400 text-sm">
-              Simulating the <span className="text-blue-400 font-medium">{selectedPage.page_title}</span> for <span className="text-purple-400 font-medium">{organizationName}</span>'s website
+              Simulating the <span className="text-blue-400 font-medium">{selectedPage.page_title}</span> for <span className="text-purple-400 font-medium">{organizationName || 'your'}</span> website
             </p>
           ) : (
             <p className="text-gray-400 text-sm">Select a page to test the assistant</p>
