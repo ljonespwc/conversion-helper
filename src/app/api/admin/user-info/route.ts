@@ -35,14 +35,20 @@ export async function GET(request: NextRequest) {
 
     // Handle Supabase join result (organizations is returned as array)
     let userInfo: any = data
+    let organization = null
+
     if (data && Array.isArray(data.organizations) && data.organizations.length > 0) {
+      organization = data.organizations[0]
       userInfo = {
         ...data,
-        organizations: data.organizations[0]
+        organization: organization
       }
     }
 
-    return NextResponse.json({ user: userInfo })
+    return NextResponse.json({
+      user: userInfo,
+      organization: organization
+    })
   } catch (error) {
     console.error('User info API error:', error)
     return NextResponse.json(
