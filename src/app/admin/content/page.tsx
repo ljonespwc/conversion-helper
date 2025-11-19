@@ -219,7 +219,7 @@ export default function ContentManagementPage() {
         </div>
 
         {/* 1. Currently Indexed Documents - Collapsible */}
-        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
+        <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden mb-8">
           <div className="p-6 border-b border-gray-700 bg-gray-900">
             <div className="flex items-center justify-between mb-2">
               <button
