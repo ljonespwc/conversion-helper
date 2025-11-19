@@ -270,16 +270,21 @@ export async function POST(request: NextRequest) {
         // Extract title from filename (remove extension)
         const title = upload.filename.replace(/\.(txt|md)$/i, '')
 
-        // Upload to File Search
-        const documentId = await uploadToFileSearch(content, title, '', pageUrls, userStoreName)
+        // Generate unique upload identifier for matching DB records with Google docs
+        // Format: upload://{sanitized-filename}-{timestamp}
+        const sanitizedTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 100)
+        const uploadIdentifier = `upload://${sanitizedTitle}-${Date.now()}`
+
+        // Upload to File Search with upload identifier as sourceUrl
+        const documentId = await uploadToFileSearch(content, title, uploadIdentifier, pageUrls, userStoreName)
 
         // Create indexed_pages record
-        // For uploaded files, use document_id as page_url since we don't have a source URL
-        // This ensures uniqueness while still tracking the document
+        // For uploaded files, use uploadIdentifier as page_url for consistent matching
+        // This ensures DB records can be matched to Google docs via source_url
         const uploadIndexedPageData: any = {
           organization_id: userData.organization_id,
           created_by_user_id: user.id,
-          page_url: documentId, // Use document_id for uniqueness
+          page_url: uploadIdentifier, // Use upload identifier for matching
           page_title: title,
           document_id: documentId,
           file_search_store_name: userStoreName,
@@ -376,7 +381,7 @@ async function uploadToFileSearch(
   const file = new File([blob], `${sanitizeFilename(title)}.md`, { type: 'text/markdown' })
 
   // Build custom metadata array
-  // Store source info
+  // sourceUrl is either the actual URL (for scraped pages) or upload identifier (for uploaded files)
   const customMetadata: Array<{ key: string; stringValue: string }> = [
     { key: 'source_url', stringValue: sourceUrl },
     { key: 'page_title', stringValue: title },
@@ -423,7 +428,8 @@ async function uploadToFileSearch(
   console.log('📄 File Search upload completed:', {
     operationName: (operation as any).name,
     documentName: response?.name,
-    finalDocumentId: documentId
+    finalDocumentId: documentId,
+    sourceUrl
   })
 
   return documentId
