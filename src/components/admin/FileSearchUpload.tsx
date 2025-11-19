@@ -107,7 +107,7 @@ export default function FileSearchUpload({
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 p-4 sm:p-6">
       <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Upload to the Knowledgebase</h2>
       <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
-        Select pages where this content should be accessible to the EasyAsk Assistant
+        Select pages where this content should be made accessible to the AI Assistant
       </p>
 
       {/* Page Selection */}
@@ -233,7 +233,7 @@ export default function FileSearchUpload({
 
         {totalSelected === 0 && (
           <p className="text-sm text-gray-400">
-            Select scraped pages or uploaded docs above
+            To activate, select scraped pages or uploaded docs below
           </p>
         )}
       </div>
