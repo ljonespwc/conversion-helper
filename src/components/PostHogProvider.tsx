@@ -35,11 +35,13 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
           disable_session_recording: false, // Enable session recording (as requested)
           loaded: (posthog) => {
             console.log('PostHog loaded successfully')
+            // Capture pageview to satisfy PostHog onboarding detection
+            posthog.capture('$pageview')
             // Send a test event to verify connection
             posthog.capture('posthog_initialized', {
               timestamp: new Date().toISOString()
             })
-            console.log('Test event sent: posthog_initialized')
+            console.log('Test events sent: $pageview, posthog_initialized')
           },
           on_xhr_error: (error) => {
             console.error('PostHog XHR error:', error)
