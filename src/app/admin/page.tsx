@@ -6,6 +6,7 @@ import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, 
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
+import { usePostHog } from 'posthog-js/react'
 
 // Force dynamic rendering - prevent page caching
 export const dynamic = 'force-dynamic'
@@ -49,6 +50,7 @@ interface WidgetPage {
 }
 
 export default function AdminDashboard() {
+  const posthog = usePostHog()
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
@@ -61,7 +63,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     checkUser()
     fetchWidgetPages()
-  }, [])
+    // Track admin dashboard view
+    posthog?.capture('admin_dashboard_viewed')
+  }, [posthog])
 
   // Fetch stats when selected page changes or widget pages are loaded
   useEffect(() => {
@@ -74,6 +78,11 @@ export default function AdminDashboard() {
     const { data: { user: authUser } } = await supabase.auth.getUser()
     if (authUser) {
       setUser({ id: authUser.id, email: authUser.email })
+      // Identify admin user in PostHog
+      posthog?.identify(authUser.id, {
+        email: authUser.email,
+        user_type: 'admin'
+      })
     }
   }
 
@@ -118,6 +127,10 @@ export default function AdminDashboard() {
         newSet.delete(sessionId)
       } else {
         newSet.add(sessionId)
+        // Track conversation expansion
+        posthog?.capture('conversation_expanded', {
+          session_id: sessionId
+        })
       }
       return newSet
     })
@@ -160,6 +173,11 @@ export default function AdminDashboard() {
                       onClick={() => {
                         setSelectedPage(null)
                         setIsDropdownOpen(false)
+                        // Track page filter change
+                        posthog?.capture('admin_page_filtered', {
+                          page_title: 'All Pages',
+                          page_url: null
+                        })
                       }}
                       className={`w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 ${
                         !selectedPage ? 'bg-blue-900/30' : ''
@@ -176,6 +194,11 @@ export default function AdminDashboard() {
                         onClick={() => {
                           setSelectedPage(page)
                           setIsDropdownOpen(false)
+                          // Track page filter change
+                          posthog?.capture('admin_page_filtered', {
+                            page_title: page.page_title,
+                            page_url: page.page_url
+                          })
                         }}
                         className={`w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0 ${
                           selectedPage?.id === page.id ? 'bg-blue-900/30' : ''

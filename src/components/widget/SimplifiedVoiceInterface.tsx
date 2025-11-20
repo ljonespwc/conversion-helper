@@ -5,6 +5,7 @@ import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCirc
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
+import { usePostHog } from 'posthog-js/react'
 
 // URL extraction types (inline)
 type ExtractedLink = {
@@ -31,6 +32,7 @@ interface SimplifiedVoiceInterfaceProps {
 }
 
 export default function SimplifiedVoiceInterface({ onClose, pageUrl }: SimplifiedVoiceInterfaceProps) {
+  const posthog = usePostHog()
   const [hasStarted, setHasStarted] = useState(false)
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
   const [currentURLs, setCurrentURLs] = useState<URLExtractionResult | null>(null)
@@ -137,12 +139,23 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
   useEffect(() => {
     if (isConnected && !hasStarted) {
       setHasStarted(true)
+      // Track conversation start
+      posthog?.capture('conversation_started', {
+        page_url: effectivePageUrl,
+        conversation_id: conversationId
+      })
       // Conversation starts automatically - user can just speak
     }
-  }, [isConnected, hasStarted])
+  }, [isConnected, hasStarted, posthog, effectivePageUrl, conversationId])
 
   // Handle end conversation
   const handleEndConversation = () => {
+    // Track conversation end
+    posthog?.capture('widget_closed', {
+      page_url: effectivePageUrl,
+      conversation_id: conversationId,
+      message_count: conversationHistory.length
+    })
     startNewConversation()
     onClose()
   }
@@ -154,6 +167,12 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       await navigator.clipboard.writeText(currentResponse)
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000)
+      // Track copy event
+      posthog?.capture('response_copied', {
+        page_url: effectivePageUrl,
+        conversation_id: conversationId,
+        response_length: currentResponse.length
+      })
     } catch (err) {
       console.error('Failed to copy:', err)
     }
@@ -185,6 +204,12 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       await navigator.clipboard.writeText(fullText)
       setIsConversationCopied(true)
       setTimeout(() => setIsConversationCopied(false), 2000)
+      // Track conversation copy
+      posthog?.capture('conversation_copied', {
+        page_url: effectivePageUrl,
+        conversation_id: conversationId,
+        message_count: conversationHistory.length
+      })
     } catch (err) {
       console.error('Failed to copy conversation:', err)
     }
@@ -220,6 +245,14 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         // Set feedback state (disables buttons)
         setConversationFeedback(feedback)
         console.log(`✅ Conversation feedback submitted: ${feedback}`)
+
+        // Track feedback submission
+        posthog?.capture('feedback_submitted', {
+          feedback_type: feedback,
+          session_id: conversationId,
+          page_url: effectivePageUrl,
+          message_count: conversationHistory.length
+        })
       } else {
         const errorData = await response.json()
         console.error('❌ API error:', errorData)
@@ -266,6 +299,13 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
       setEscalationSuccess(true)
       setEmail('') // Clear email input
       console.log('✅ Email escalation submitted successfully')
+
+      // Track escalation submission
+      posthog?.capture('escalation_submitted', {
+        session_id: conversationId,
+        page_url: effectivePageUrl,
+        message_count: conversationHistory.length
+      })
 
       // Auto-collapse after 3 seconds
       setTimeout(() => {
@@ -520,7 +560,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
             >
               {/* Toggle Button */}
               <button
-                onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+                onClick={() => {
+                  const newExpanded = !isHistoryExpanded
+                  setIsHistoryExpanded(newExpanded)
+                  // Track conversation history view
+                  if (newExpanded) {
+                    posthog?.capture('conversation_history_viewed', {
+                      page_url: effectivePageUrl,
+                      conversation_id: conversationId,
+                      message_count: conversationHistory.length
+                    })
+                  }
+                }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 rounded-lg transition-colors text-sm text-gray-400 hover:text-white relative z-10"
               >
                 <MessageCircle className="w-4 h-4" />
@@ -647,7 +698,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
             >
               {/* Toggle Button */}
               <button
-                onClick={() => setIsEscalationExpanded(!isEscalationExpanded)}
+                onClick={() => {
+                  const newExpanded = !isEscalationExpanded
+                  setIsEscalationExpanded(newExpanded)
+                  // Track escalation form opened
+                  if (newExpanded) {
+                    posthog?.capture('escalation_form_opened', {
+                      page_url: effectivePageUrl,
+                      conversation_id: conversationId,
+                      message_count: conversationHistory.length
+                    })
+                  }
+                }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800/50 to-purple-800/50 hover:from-blue-700/50 hover:to-purple-700/50 border border-blue-700/50 rounded-lg transition-colors text-sm text-gray-200 hover:text-white relative z-10"
               >
                 <Mail className="w-4 h-4" />

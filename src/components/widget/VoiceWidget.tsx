@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import WidgetModal from './WidgetModal'
 import WidgetButton from './WidgetButton'
+import { usePostHog } from 'posthog-js/react'
 
 interface VoiceWidgetProps {
   isOpen?: boolean
@@ -13,6 +14,7 @@ interface VoiceWidgetProps {
 }
 
 export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl }: VoiceWidgetProps) {
+  const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
   const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
@@ -60,7 +62,15 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     <>
       {embedded && (
         <WidgetButton
-          onClick={() => setInternalOpen(true)}
+          onClick={() => {
+            setInternalOpen(true)
+            // Track widget opened
+            posthog?.capture('widget_opened', {
+              page_url: pageUrl,
+              page_title: pageTitle,
+              organization_name: organizationName
+            })
+          }}
           pageUrl={pageUrl}
           pageTitle={pageTitle}
         />
