@@ -47,6 +47,7 @@ interface Stats {
 export default function EscalationsPage() {
   const [escalations, setEscalations] = useState<Escalation[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
+  const [availablePages, setAvailablePages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
@@ -97,6 +98,7 @@ export default function EscalationsPage() {
 
       setEscalations(data.escalations || [])
       setStats(data.stats)
+      setAvailablePages(data.availablePages || [])
     } catch (error) {
       console.error('Failed to fetch escalations:', error)
     } finally {
@@ -162,9 +164,6 @@ export default function EscalationsPage() {
     if (hours > 0) return `${hours}h ago`
     return 'Just now'
   }
-
-  // Get unique page URLs for filter dropdown
-  const uniquePages = Array.from(new Set(escalations.map(e => e.page_url).filter(Boolean)))
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
@@ -268,16 +267,16 @@ export default function EscalationsPage() {
             </div>
 
             {/* Page URL Filter */}
-            {uniquePages.length > 0 && (
+            {availablePages.length > 0 && (
               <select
                 value={pageUrlFilter}
                 onChange={(e) => setPageUrlFilter(e.target.value)}
                 className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Pages</option>
-                {uniquePages.map(page => (
-                  <option key={page} value={page!}>
-                    {new URL(page!).pathname}
+                {availablePages.map(page => (
+                  <option key={page} value={page}>
+                    {new URL(page).pathname}
                   </option>
                 ))}
               </select>
