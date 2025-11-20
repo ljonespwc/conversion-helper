@@ -264,7 +264,7 @@ If you can't find the answer in the indexed content, say so naturally.
 Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
-                welcomeMsg = `Hello! I can answer questions about ${widgetPage.page_title || 'this page'}. What would you like to know?`
+                welcomeMsg = "Hi! What can I help you with?"
               } else {
                 systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them. Be concise, natural, and encouraging in your responses. Never mention sources or citations. CRITICAL FOR TTS: When the source material contains abbreviations or acronyms, rewrite them conversationally or refer to them generically rather than listing abbreviations."
                 welcomeMsg = "Hello! How can I help you today?"
