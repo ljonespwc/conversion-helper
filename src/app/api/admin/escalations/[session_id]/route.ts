@@ -4,17 +4,17 @@ import { createClient as createServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+// Use service role for admin operations
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { session_id: string } }
 ) {
   try {
-    // Use service role for admin operations
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
     // Get authenticated user
     const serverSupabase = await createServerClient()
     const { data: { user } } = await serverSupabase.auth.getUser()
@@ -24,7 +24,7 @@ export async function PATCH(
     }
 
     // Get user's organization_id
-    const { data: userData, error: userError} = await supabaseAdmin
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('organization_id')
       .eq('id', user.id)
