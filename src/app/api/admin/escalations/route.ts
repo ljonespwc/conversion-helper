@@ -86,8 +86,23 @@ export async function GET(request: NextRequest) {
       throw sessionsError
     }
 
+    // Get all unique page URLs for this organization (for filter dropdown)
+    // Do this BEFORE early return so dropdown always has options
+    const { data: allPages } = await supabaseAdmin
+      .from('conversation_sessions')
+      .select('page_url')
+      .not('user_email', 'is', null)
+      .eq('organization_id', userData.organization_id)
+      .not('page_url', 'is', null)
+
+    const availablePages = Array.from(new Set(allPages?.map(p => p.page_url).filter(Boolean) || []))
+
     if (!sessions || sessions.length === 0) {
-      return NextResponse.json({ escalations: [], stats: null })
+      return NextResponse.json({
+        escalations: [],
+        stats: { total: 0, unresolved: 0, resolved: 0, total_flagged_messages: 0 },
+        availablePages
+      })
     }
 
     // Fetch messages for each session (with flagged messages)
@@ -137,16 +152,6 @@ export async function GET(request: NextRequest) {
       resolved: escalations.filter(e => e.resolved).length,
       total_flagged_messages: escalations.reduce((sum, e) => sum + e.flagged_count, 0)
     }
-
-    // Get all unique page URLs for this organization (for filter dropdown)
-    const { data: allPages } = await supabaseAdmin
-      .from('conversation_sessions')
-      .select('page_url')
-      .not('user_email', 'is', null)
-      .eq('organization_id', userData.organization_id)
-      .not('page_url', 'is', null)
-
-    const availablePages = Array.from(new Set(allPages?.map(p => p.page_url).filter(Boolean) || []))
 
     return NextResponse.json({ escalations, stats, availablePages }, {
       headers: {
