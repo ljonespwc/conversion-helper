@@ -259,7 +259,7 @@ CRITICAL RULES:
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
 5. NEVER mention sources, citations, or references - just provide the information naturally
 
-If you truly cannot find relevant information in the indexed content, say "I don't have that information on this page."
+If you can't find the answer in the indexed content, say so naturally.
 
 Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
 
@@ -406,7 +406,7 @@ CRITICAL RULES:
 3. NEVER ask users to clarify or specify - always search the content and attempt to answer
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
 
-If you truly cannot find relevant information in the indexed content, say "I don't have that information on this page."
+If you can't find the answer in the indexed content, say so naturally.
 
 Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage?.page_goal)}.
 
