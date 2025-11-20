@@ -312,7 +312,7 @@ export default function ScrapedPagesList({
                     {job.scraping_status === 'scraped' && job.indexing_status === 'not_indexed' && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-green-900/30 text-green-400">
                         <Check className="w-3 h-3" />
-                        Ready
+                        Ready to Index
                       </span>
                     )}
                     {job.scraping_status === 'scraped' && job.indexing_status === 'uploading' && (
@@ -322,9 +322,9 @@ export default function ScrapedPagesList({
                       </span>
                     )}
                     {job.scraping_status === 'scraped' && job.indexing_status === 'indexed' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-gray-700 text-gray-400">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-purple-900/30 text-purple-400">
                         <Check className="w-3 h-3" />
-                        Indexed
+                        Live in AI
                       </span>
                     )}
                     {job.scraping_status === 'scraped' && job.indexing_status === 'failed' && (
