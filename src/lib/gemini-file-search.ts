@@ -127,7 +127,7 @@ export async function getWidgetPage(pageUrl: string) {
   try {
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('organization_id, page_title, page_url, page_goal')
+      .select('organization_id, page_title, page_url, page_goal, organization_name')
       .eq('page_url', pageUrl)
       .single();
 
