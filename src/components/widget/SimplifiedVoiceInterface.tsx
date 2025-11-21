@@ -431,9 +431,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
             {isConnecting ? (
               <Loader2 className="w-8 h-8 text-white animate-spin" />
             ) : isListening ? (
-              <div className="p-2 rounded-full border-2 border-white/30 pointer-events-none">
-                <Volume2 className="w-8 h-8 text-white" />
-              </div>
+              <Volume2 className="w-8 h-8 text-white" />
             ) : (
               <Mic className="w-8 h-8 text-white" />
             )}

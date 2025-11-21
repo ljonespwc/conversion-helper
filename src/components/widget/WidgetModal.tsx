@@ -42,11 +42,13 @@ export default function WidgetModal({ onClose, pageUrl, organizationName }: Widg
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           {/* WiFi indicator on the left */}
           <div className="w-8 flex items-center">
-            {isConnected ? (
-              <Wifi className="w-4 h-4 text-green-500" />
-            ) : (
-              <WifiOff className="w-4 h-4 text-gray-400" />
-            )}
+            <div className="p-1.5 rounded-full border-2 border-gray-300 dark:border-gray-600">
+              {isConnected ? (
+                <Wifi className="w-4 h-4 text-green-500" />
+              ) : (
+                <WifiOff className="w-4 h-4 text-gray-400" />
+              )}
+            </div>
           </div>
 
           {/* Title in center */}
