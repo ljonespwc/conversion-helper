@@ -52,17 +52,26 @@ export async function GET() {
 
     // Fetch documents from Google File Search (source of truth) - parallel with DB query
     const [googleDocsResult, dbPagesResult] = await Promise.all([
-      // Fetch from Google File Search
+      // Fetch from Google File Search with pagination
       (async () => {
         try {
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20&key=${process.env.GEMINI_API_KEY}`
-          )
-          if (!response.ok) {
-            throw new Error(`Google API error: ${response.statusText}`)
-          }
-          const data = await response.json()
-          return data.documents || []
+          const allDocs = []
+          let pageToken = null
+
+          do {
+            const url = `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20${pageToken ? `&pageToken=${pageToken}` : ''}&key=${process.env.GEMINI_API_KEY}`
+            const response = await fetch(url)
+
+            if (!response.ok) {
+              throw new Error(`Google API error: ${response.statusText}`)
+            }
+
+            const data = await response.json()
+            allDocs.push(...(data.documents || []))
+            pageToken = data.nextPageToken
+          } while (pageToken)
+
+          return allDocs
         } catch (error) {
           console.error('Error fetching from Google File Search:', error)
           return []
