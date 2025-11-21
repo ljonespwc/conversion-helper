@@ -72,16 +72,26 @@ export default function PNDemoPage() {
       {/* PN Page in iframe */}
       <iframe
         src={validatedUrl}
-        className="absolute inset-0 w-full h-full border-0"
+        className="absolute inset-0 w-full h-full border-0 bg-white"
         title="Precision Nutrition Page"
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
         allow="microphone *; autoplay *"
       />
 
       {/* Widget overlay - positioned absolutely on top */}
+      {/* Move widget to bottom-left to avoid PN's help button on bottom-right */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="pointer-events-auto">
-          <VoiceWidget pageUrl={validatedUrl} embedded={true} />
+          <style jsx global>{`
+            /* Override widget button position for demo page only */
+            .demo-widget-container button[aria-label="Open voice assistant"] {
+              right: auto !important;
+              left: 1.5rem !important;
+            }
+          `}</style>
+          <div className="demo-widget-container">
+            <VoiceWidget pageUrl={validatedUrl} embedded={true} />
+          </div>
         </div>
       </div>
 
