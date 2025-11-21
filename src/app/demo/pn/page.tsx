@@ -106,6 +106,40 @@ export default function PNDemoPage() {
             .demo-widget-container .fixed.inset-0 > div:last-child {
               pointer-events: auto !important;
             }
+
+            /* === OPTION 1: LIGHT GLASS EFFECT === */
+            /* Apply glassmorphism to URL link cards (currently solid white) */
+            .demo-widget-container a[class*="border-2"][class*="border-gray-300"] {
+              background: linear-gradient(to bottom right,
+                rgba(30, 58, 138, 0.3),
+                rgba(88, 28, 135, 0.25),
+                rgba(15, 23, 42, 0.3)) !important;
+              backdrop-filter: blur(12px) !important;
+              border: 1px solid rgba(255, 255, 255, 0.2) !important;
+              color: rgba(255, 255, 255, 0.95) !important;
+            }
+
+            /* Apply glassmorphism to URL text cards (currently solid gray) */
+            .demo-widget-container div[class*="border-2"][class*="border-gray-200"] {
+              background: linear-gradient(to bottom right,
+                rgba(30, 58, 138, 0.3),
+                rgba(88, 28, 135, 0.25),
+                rgba(15, 23, 42, 0.3)) !important;
+              backdrop-filter: blur(12px) !important;
+              border: 1px solid rgba(255, 255, 255, 0.2) !important;
+              color: rgba(255, 255, 255, 0.95) !important;
+            }
+
+            /* Enhance toggle buttons with blur */
+            .demo-widget-container button[class*="bg-gradient-to-r"] {
+              backdrop-filter: blur(8px) !important;
+            }
+
+            /* Enhance email input with glass effect */
+            .demo-widget-container input[class*="bg-gray-800"] {
+              backdrop-filter: blur(6px) !important;
+              border-color: rgba(255, 255, 255, 0.2) !important;
+            }
           `}</style>
           <div className="demo-widget-container">
             <VoiceWidget pageUrl={validatedUrl} embedded={true} />
