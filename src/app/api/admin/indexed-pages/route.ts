@@ -56,10 +56,10 @@ export async function GET() {
       (async () => {
         try {
           const allDocs = []
-          let pageToken = null
+          let pageToken: string | null = null
 
           do {
-            const url = `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20${pageToken ? `&pageToken=${pageToken}` : ''}&key=${process.env.GEMINI_API_KEY}`
+            const url: string = `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20${pageToken ? `&pageToken=${pageToken}` : ''}&key=${process.env.GEMINI_API_KEY}`
             const response = await fetch(url)
 
             if (!response.ok) {
