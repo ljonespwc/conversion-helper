@@ -88,6 +88,24 @@ export default function PNDemoPage() {
               right: auto !important;
               left: 1.5rem !important;
             }
+
+            /* Remove backdrop blur to allow page scrolling */
+            .demo-widget-container .fixed.inset-0 > div.absolute.inset-0 {
+              background: transparent !important;
+              backdrop-filter: none !important;
+              pointer-events: none !important;
+            }
+
+            /* Keep modal container clickable but transparent background */
+            .demo-widget-container .fixed.inset-0 {
+              background: transparent !important;
+              pointer-events: none !important;
+            }
+
+            /* Make the modal card itself interactable */
+            .demo-widget-container .fixed.inset-0 > div:last-child {
+              pointer-events: auto !important;
+            }
           `}</style>
           <div className="demo-widget-container">
             <VoiceWidget pageUrl={validatedUrl} embedded={true} />
