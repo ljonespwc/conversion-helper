@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Header } from '@/components/Header'
-import { Plus, Trash2, Copy, CheckCircle } from 'lucide-react'
+import { Plus, Trash2, Copy, CheckCircle, Edit2, Check, X } from 'lucide-react'
 
 // Force dynamic rendering - prevent page caching
 export const dynamic = 'force-dynamic'
@@ -42,6 +42,9 @@ export default function PagesPage() {
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [editingPageId, setEditingPageId] = useState<string | null>(null)
+  const [editingTitle, setEditingTitle] = useState('')
+  const [savingTitle, setSavingTitle] = useState(false)
 
   useEffect(() => {
     fetchUserInfo()
@@ -163,6 +166,51 @@ export default function PagesPage() {
       setTimeout(() => setCopiedId(null), 2000)
     } catch (error) {
       console.error('Failed to copy:', error)
+    }
+  }
+
+  const handleStartEditTitle = (page: WidgetPage) => {
+    setEditingPageId(page.id)
+    setEditingTitle(page.page_title)
+  }
+
+  const handleCancelEditTitle = () => {
+    setEditingPageId(null)
+    setEditingTitle('')
+  }
+
+  const handleSaveTitle = async (pageId: string) => {
+    if (editingTitle.trim().length < 2) {
+      alert('Page title must be at least 2 characters')
+      return
+    }
+
+    setSavingTitle(true)
+    try {
+      const response = await fetch(`/api/admin/widget-pages/${pageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page_title: editingTitle.trim() })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update page title')
+      }
+
+      // Update local state
+      setPages(prevPages =>
+        prevPages.map(p => p.id === pageId ? { ...p, page_title: editingTitle.trim() } : p)
+      )
+
+      // Clear editing state
+      setEditingPageId(null)
+      setEditingTitle('')
+    } catch (error) {
+      console.error('Error updating page title:', error)
+      alert(error instanceof Error ? error.message : 'Failed to update page title')
+    } finally {
+      setSavingTitle(false)
     }
   }
 
@@ -363,9 +411,52 @@ export default function PagesPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className={`text-xl font-semibold ${page.is_active ? 'text-white' : 'text-gray-400'}`}>
-                        {page.page_title}
-                      </h3>
+                      {editingPageId === page.id ? (
+                        // Edit mode
+                        <div className="flex items-center gap-2 flex-1">
+                          <input
+                            type="text"
+                            value={editingTitle}
+                            onChange={(e) => setEditingTitle(e.target.value)}
+                            className="px-3 py-1 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-lg font-semibold"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveTitle(page.id)
+                              if (e.key === 'Escape') handleCancelEditTitle()
+                            }}
+                          />
+                          <button
+                            onClick={() => handleSaveTitle(page.id)}
+                            disabled={savingTitle}
+                            className="p-1.5 text-green-400 hover:bg-green-900/30 rounded-lg transition-colors disabled:opacity-50"
+                            title="Save"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={handleCancelEditTitle}
+                            disabled={savingTitle}
+                            className="p-1.5 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        // Display mode
+                        <>
+                          <h3 className={`text-xl font-semibold ${page.is_active ? 'text-white' : 'text-gray-400'}`}>
+                            {page.page_title}
+                          </h3>
+                          <button
+                            onClick={() => handleStartEditTitle(page)}
+                            className="p-1 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded transition-colors"
+                            title="Edit page title"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                       {!page.is_active && (
                         <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-700 text-gray-400 border border-gray-600">
                           Inactive

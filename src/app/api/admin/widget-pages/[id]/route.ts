@@ -98,12 +98,37 @@ export async function PATCH(
 
     const { id } = params
     const body = await request.json()
-    const { is_active } = body
+    const { is_active, page_title } = body
 
-    // Validate is_active is a boolean
-    if (typeof is_active !== 'boolean') {
+    // Build update object based on what fields are provided
+    const updates: { is_active?: boolean; page_title?: string } = {}
+
+    // Validate and add is_active if provided
+    if (is_active !== undefined) {
+      if (typeof is_active !== 'boolean') {
+        return NextResponse.json(
+          { error: 'is_active must be a boolean' },
+          { status: 400 }
+        )
+      }
+      updates.is_active = is_active
+    }
+
+    // Validate and add page_title if provided
+    if (page_title !== undefined) {
+      if (typeof page_title !== 'string' || page_title.trim().length < 2) {
+        return NextResponse.json(
+          { error: 'page_title must be a string with at least 2 characters' },
+          { status: 400 }
+        )
+      }
+      updates.page_title = page_title.trim()
+    }
+
+    // Ensure at least one field is being updated
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json(
-        { error: 'is_active must be a boolean' },
+        { error: 'No valid fields to update' },
         { status: 400 }
       )
     }
@@ -126,7 +151,7 @@ export async function PATCH(
     // Update the page (use service role)
     const { data: updatedPage, error } = await supabaseAdmin
       .from('widget_pages')
-      .update({ is_active })
+      .update(updates)
       .eq('id', id)
       .select()
       .single()

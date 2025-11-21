@@ -250,7 +250,7 @@ export async function POST(request: Request) {
               const widgetPage = await getWidgetPage(pageUrl)
 
               if (widgetPage) {
-                systemPrompt = `You are a sales assistant for ${widgetPage.page_title || 'this page'}.
+                systemPrompt = `You are a sales assistant for the ${widgetPage.page_title || 'this page'}.
 
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
@@ -400,7 +400,7 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
 
             if (pageUrl) {
               const widgetPage = await getWidgetPage(pageUrl)
-              fallbackPrompt = `You are a sales assistant for ${widgetPage?.page_title || 'this page'}.
+              fallbackPrompt = `You are a sales assistant for the ${widgetPage?.page_title || 'this page'}.
 
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
