@@ -757,7 +757,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
                         <form onSubmit={handleEmailSubmit} className="space-y-3">
                           <div>
                             <label htmlFor="escalation-email" className="block text-xs text-gray-400 mb-2">
-                              We'll analyze the conversation and send you a detailed response:
+                              We'll analyze the Assistant's responses and get back to you soon:
                             </label>
                             <input
                               id="escalation-email"
