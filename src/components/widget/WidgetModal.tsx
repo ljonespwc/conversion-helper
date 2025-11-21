@@ -29,8 +29,17 @@ export default function WidgetModal({ onClose, pageUrl, organizationName }: Widg
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       onClick={onClose}
+      style={{ pointerEvents: 'none' }} // Allow clicks through to page content
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      {/*
+        BACKDROP REMOVED: Allows users to scroll and interact with page while modal is open
+
+        TO REVERT TO ORIGINAL BEHAVIOR (blurred backdrop, no scrolling):
+        1. Uncomment the backdrop div below
+        2. Remove the `style={{ pointerEvents: 'none' }}` from this container (line above)
+        3. Remove the `style={{ pointerEvents: 'auto' }}` from the modal card below
+      */}
+      {/* <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" /> */}
 
       <motion.div
         initial={{ y: 100, opacity: 0 }}
@@ -38,6 +47,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName }: Widg
         exit={{ y: 100, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
         className="relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
+        style={{ pointerEvents: 'auto' }} // Modal card itself remains interactive
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           {/* WiFi indicator on the left */}
