@@ -123,7 +123,13 @@ export async function queryPageContent(
 /**
  * Get widget page configuration
  */
-export async function getWidgetPage(pageUrl: string) {
+export async function getWidgetPage(pageUrl: string): Promise<{
+  organization_id: string;
+  page_title: string;
+  page_url: string;
+  page_goal: string | null;
+  organization_name: string;
+} | null> {
   try {
     const { data, error } = await supabase
       .from('widget_pages')
@@ -135,16 +141,19 @@ export async function getWidgetPage(pageUrl: string) {
       throw error;
     }
 
-    // Flatten the organization name from nested structure
-    if (data && data.organizations) {
-      return {
-        ...data,
-        organization_name: (data.organizations as any).name,
-        organizations: undefined
-      };
+    if (!data) {
+      return null;
     }
 
-    return data;
+    // Flatten the organization name from nested structure
+    const organizations = data.organizations as any;
+    return {
+      organization_id: data.organization_id,
+      page_title: data.page_title,
+      page_url: data.page_url,
+      page_goal: data.page_goal,
+      organization_name: organizations?.name || ''
+    };
   } catch (error) {
     console.error('Error getting widget page:', error);
     return null;
