@@ -220,25 +220,21 @@ export default function AdminDashboard() {
           <StatsCard
             title="Total Conversations"
             value={loading ? '...' : stats?.total || 0}
-            subtitle="All time"
             icon={<MessageCircle className="w-5 h-5" />}
           />
           <StatsCard
             title="Today's Conversations"
             value={loading ? '...' : stats?.today || 0}
-            subtitle="Last 24 hours"
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
             title="Avg Session Duration"
             value={loading ? '...' : stats?.avgDuration ? `${Math.floor((stats.avgDuration || 0) / 60)}m ${(stats.avgDuration || 0) % 60}s` : '0s'}
-            subtitle="Time per conversation"
             icon={<Activity className="w-5 h-5" />}
           />
           <StatsCard
             title="Active Now"
             value={loading ? '...' : stats?.activeNow || 0}
-            subtitle="Last 5 minutes"
             icon={<Users className="w-5 h-5" />}
           />
           <StatsCard
@@ -251,7 +247,6 @@ export default function AdminDashboard() {
                 </div>
               )
             }
-            subtitle="Total ratings"
             icon={<ThumbsUp className="w-5 h-5" />}
           />
         </div>
