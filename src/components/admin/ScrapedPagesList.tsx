@@ -35,7 +35,7 @@ export default function ScrapedPagesList({
   const [error, setError] = useState('')
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
