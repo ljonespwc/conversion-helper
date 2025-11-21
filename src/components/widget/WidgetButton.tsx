@@ -29,7 +29,7 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
 
   // Static text for button
   const getButtonText = () => {
-    return "Got questions? Save time and ask!"
+    return "Don't feel like reading? Just ask!"
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -150,7 +150,7 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
                 {getButtonText()}
               </span>
               <span className="text-xs text-blue-100 leading-tight">
-                🎤 Voice-enabled • Instant answers
+                🎤 Voice answers • Instant help
               </span>
             </motion.div>
           )}
