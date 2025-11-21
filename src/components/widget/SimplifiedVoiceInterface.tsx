@@ -431,7 +431,9 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
             {isConnecting ? (
               <Loader2 className="w-8 h-8 text-white animate-spin" />
             ) : isListening ? (
-              <Volume2 className="w-8 h-8 text-white" />
+              <div className="p-2 rounded-full border-2 border-white/30">
+                <Volume2 className="w-8 h-8 text-white" />
+              </div>
             ) : (
               <Mic className="w-8 h-8 text-white" />
             )}
@@ -467,7 +469,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         </div>
 
         {/* Status Text - Fixed height container */}
-        <div className="h-5 flex items-center justify-center">
+        <div className="h-12 flex flex-col items-center justify-center">
           <motion.p
             className="text-sm text-gray-600 dark:text-gray-400 text-center"
             key={getStatusText()}
@@ -477,6 +479,16 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
           >
             {getStatusText()}
           </motion.p>
+          {isListening && (
+            <motion.p
+              className="text-xs text-gray-500 dark:text-gray-500 text-center mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              (Feel free to interrupt)
+            </motion.p>
+          )}
         </div>
 
         {/* AI Response Text Display */}
@@ -550,8 +562,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
           </AnimatePresence>
         </div>
 
-        {/* Conversation History - Collapsible */}
-        {conversationHistory.length > 0 && (
+        {/* Conversation History - COMMENTED OUT */}
+        {false && conversationHistory.length > 0 && (
           <div className="w-full max-w-md px-4 mt-4">
             <motion.div
               initial={{ opacity: 0 }}
