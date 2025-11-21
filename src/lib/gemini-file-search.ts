@@ -127,12 +127,21 @@ export async function getWidgetPage(pageUrl: string) {
   try {
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('organization_id, page_title, page_url, page_goal, organization_name')
+      .select('organization_id, page_title, page_url, page_goal, organizations(name)')
       .eq('page_url', pageUrl)
       .single();
 
     if (error && error.code !== 'PGRST116') {
       throw error;
+    }
+
+    // Flatten the organization name from nested structure
+    if (data && data.organizations) {
+      return {
+        ...data,
+        organization_name: (data.organizations as any).name,
+        organizations: undefined
+      };
     }
 
     return data;
