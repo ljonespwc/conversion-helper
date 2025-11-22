@@ -14,8 +14,10 @@ import { NextRequest, NextResponse } from 'next/server'
 // Whitelist of allowed domains to proxy
 const ALLOWED_PROXY_DOMAINS = [
   'hubermanlab.com',
+  'www.hubermanlab.com',
   'ai.hubermanlab.com',
-  'dexa.ai'
+  'dexa.ai',
+  'www.dexa.ai'
 ]
 
 export async function GET(request: NextRequest) {
