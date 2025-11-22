@@ -106,6 +106,78 @@ export default function PNDemoPage() {
             .demo-widget-container .fixed.inset-0 > div:last-child {
               pointer-events: auto !important;
             }
+
+            /* === SIZE REDUCTION OVERRIDES FOR DEMO === */
+
+            /* Shrink modal container */
+            .demo-widget-container .fixed.inset-0 > div[class*="rounded"] {
+              max-width: 360px !important;
+              min-width: 320px !important;
+            }
+
+            /* Reduce header padding */
+            .demo-widget-container .fixed.inset-0 > div > div:first-child {
+              padding: 0.75rem !important;
+            }
+
+            /* Reduce header title font size */
+            .demo-widget-container .fixed.inset-0 > div > div:first-child h2 {
+              font-size: 1rem !important;
+            }
+
+            /* Shrink voice button by 50% */
+            .demo-widget-container button[class*="rounded-full"][class*="gradient"] {
+              padding: 1rem !important; /* Was 2rem (p-8), now 1rem = 50% smaller diameter */
+            }
+
+            /* Reduce main container padding */
+            .demo-widget-container > div > div {
+              padding: 1rem !important;
+            }
+
+            /* Reduce spacing between sections */
+            .demo-widget-container > div > div[class*="space-y"] {
+              gap: 0.75rem !important;
+            }
+
+            /* Shrink status text container */
+            .demo-widget-container div[class*="flex"][class*="items-center"][class*="justify-center"] {
+              min-height: 2.5rem !important;
+            }
+
+            /* Reduce response display container */
+            .demo-widget-container div[class*="max-w-md"] {
+              max-width: 384px !important;
+              padding-left: 0.75rem !important;
+              padding-right: 0.75rem !important;
+            }
+
+            /* Shrink response box */
+            .demo-widget-container div[class*="gradient"][class*="backdrop-blur"] {
+              padding: 0.75rem !important;
+              max-height: 160px !important;
+            }
+
+            /* Reduce response text size */
+            .demo-widget-container div[class*="gradient"][class*="backdrop-blur"] > div > div {
+              font-size: 0.75rem !important;
+            }
+
+            /* Reduce copy button spacing */
+            .demo-widget-container button[class*="Copy"] {
+              margin-top: 0.5rem !important;
+              padding: 0.25rem 0.625rem !important;
+            }
+
+            /* Reduce email input padding */
+            .demo-widget-container input[type="email"] {
+              padding: 0.375rem 0.625rem !important;
+            }
+
+            /* Reduce form container padding */
+            .demo-widget-container form > div {
+              padding: 0.75rem !important;
+            }
           `}</style>
           <div className="demo-widget-container">
             <VoiceWidget pageUrl={validatedUrl} embedded={true} />
