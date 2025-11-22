@@ -46,7 +46,8 @@ This includes:
 **Structure**:
 - **URL**: `/demo?url=https://example.com/[page]`
 - **Architecture**: Target page loads in iframe with widget overlay
-- **Validation**: Whitelist of allowed domains (precisionnutrition.com, hubermanlab.com, layercode.com)
+- **Validation**: Whitelist of allowed domains (precisionnutrition.com, layercode.com)
+- **Note**: Some sites block iframe embedding with X-Frame-Options or CSP headers
 - **Widget positioning**: Bottom-left (CSS override)
 - **Customizations**:
   - No backdrop blur (allows page scrolling/interaction)
@@ -56,6 +57,19 @@ This includes:
 **Files**:
 - `/src/app/demo/page.tsx` - Main demo page with iframe + widget
 - `/src/app/demo/layout.tsx` - Layout wrapper with Suspense
+
+### Bookmarklet Demo Tool
+**Location**: `/src/app/bookmarklet/`
+
+**Purpose**: Alternative demo method for sites that block iframe embedding (e.g., hubermanlab.com)
+
+**How it works**:
+1. User drags bookmarklet to browser bookmark bar
+2. Visits any website (even ones that block iframes)
+3. Clicks bookmark - widget injects onto page
+4. Works on ANY site, bypasses iframe restrictions
+
+**Note**: Requires standalone widget script (`/widget.js`) to be built for full functionality. Currently provides installation instructions and bookmarklet code.
 
 ---
 
