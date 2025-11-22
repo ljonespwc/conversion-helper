@@ -58,6 +58,40 @@ This includes:
 - `/src/app/demo/page.tsx` - Main demo page with iframe + widget
 - `/src/app/demo/layout.tsx` - Layout wrapper with Suspense
 
+### Proxy Demo Endpoint (For Iframe-Restricted Sites)
+**Location**: `/src/app/api/proxy-demo/route.ts`
+
+**Purpose**: Fetches external pages server-side and strips iframe-blocking headers to enable iframe embedding in the demo page.
+
+**⚠️ IMPORTANT**: Only use with **explicit permission** from the target site owner. This endpoint bypasses security headers intentionally.
+
+**How it works**:
+1. Accepts `?url=` parameter with target page URL
+2. Validates domain against whitelist (hubermanlab.com, ai.hubermanlab.com, dexa.ai)
+3. Fetches page server-side
+4. Rewrites URLs to route through proxy
+5. Strips `X-Frame-Options` and `Content-Security-Policy` headers
+6. Returns modified HTML that can be iframed
+
+**Usage**:
+```
+/demo?url=https://easyask.io/api/proxy-demo?url=https://hubermanlab.com/episode/example
+```
+
+**Whitelist** (edit in route.ts):
+- `hubermanlab.com`
+- `ai.hubermanlab.com`
+- `dexa.ai`
+
+**Limitations**:
+- Dynamic JavaScript features may break (cookies, CORS)
+- Adds latency (server-side fetch)
+- Cached for 5 minutes
+- Requires permission from site owner
+
+**Files**:
+- `/src/app/api/proxy-demo/route.ts` - Standalone proxy endpoint
+
 ---
 
 ## 📚 Google File Search - CRITICAL Patterns
