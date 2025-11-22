@@ -108,36 +108,46 @@ export default function PNDemoPage() {
             }
 
             /* === OPTION 1: LIGHT GLASS EFFECT === */
-            /* Apply glassmorphism to URL link cards (currently solid white) */
-            .demo-widget-container a[class*="border-2"][class*="border-gray-300"] {
+            /* Target ALL links and divs that look like cards (have rounded borders and padding) */
+            /* This will catch URL cards when they appear */
+            .demo-widget-container a[class*="border"][class*="rounded"][class*="p-"] {
               background: linear-gradient(to bottom right,
                 rgba(30, 58, 138, 0.3),
                 rgba(88, 28, 135, 0.25),
                 rgba(15, 23, 42, 0.3)) !important;
               backdrop-filter: blur(12px) !important;
-              border: 1px solid rgba(255, 255, 255, 0.2) !important;
+              border-color: rgba(255, 255, 255, 0.2) !important;
               color: rgba(255, 255, 255, 0.95) !important;
             }
 
-            /* Apply glassmorphism to URL text cards (currently solid gray) */
-            .demo-widget-container div[class*="border-2"][class*="border-gray-200"] {
+            /* Also target divs that look like cards */
+            .demo-widget-container div[class*="border"][class*="rounded"][class*="p-"]:not([class*="gradient"]) {
               background: linear-gradient(to bottom right,
                 rgba(30, 58, 138, 0.3),
                 rgba(88, 28, 135, 0.25),
                 rgba(15, 23, 42, 0.3)) !important;
               backdrop-filter: blur(12px) !important;
-              border: 1px solid rgba(255, 255, 255, 0.2) !important;
+              border-color: rgba(255, 255, 255, 0.2) !important;
               color: rgba(255, 255, 255, 0.95) !important;
+            }
+
+            /* Make the AI response text area even more transparent */
+            .demo-widget-container div[class*="gradient"][class*="backdrop-blur"] {
+              background: linear-gradient(to bottom right,
+                rgba(30, 58, 138, 0.25),
+                rgba(88, 28, 135, 0.20),
+                rgba(15, 23, 42, 0.25)) !important;
+              backdrop-filter: blur(16px) !important;
             }
 
             /* Enhance toggle buttons with blur */
-            .demo-widget-container button[class*="bg-gradient-to-r"] {
-              backdrop-filter: blur(8px) !important;
+            .demo-widget-container button[class*="gradient"] {
+              backdrop-filter: blur(10px) !important;
             }
 
             /* Enhance email input with glass effect */
-            .demo-widget-container input[class*="bg-gray-800"] {
-              backdrop-filter: blur(6px) !important;
+            .demo-widget-container input {
+              backdrop-filter: blur(8px) !important;
               border-color: rgba(255, 255, 255, 0.2) !important;
             }
           `}</style>
