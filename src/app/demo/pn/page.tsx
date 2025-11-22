@@ -108,6 +108,16 @@ export default function PNDemoPage() {
             }
 
             /* === OPTION 1: LIGHT GLASS EFFECT === */
+
+            /* Make the main modal card itself glass-like (the white/dark container) */
+            .demo-widget-container .fixed.inset-0 > div[class*="rounded-2xl"] {
+              background: linear-gradient(to bottom right,
+                rgba(15, 23, 42, 0.85),
+                rgba(30, 41, 59, 0.85),
+                rgba(15, 23, 42, 0.85)) !important;
+              backdrop-filter: blur(24px) !important;
+              border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            }
             /* Target ALL links and divs that look like cards (have rounded borders and padding) */
             /* This will catch URL cards when they appear */
             .demo-widget-container a[class*="border"][class*="rounded"][class*="p-"] {
