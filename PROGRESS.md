@@ -40,6 +40,23 @@ This includes:
 3. **Indexing**: Storage → Google File Search (embeddings)
 4. **Voice Query**: User → Layercode STT → Gemini + File Search → Layercode TTS
 
+### Demo Page Architecture
+**Location**: `/src/app/demo/pn/`
+
+**Structure**:
+- **URL**: `/demo/pn?url=https://www.precisionnutrition.com/[page]`
+- **Architecture**: Target page loads in iframe with widget overlay
+- **Validation**: Only allows `precisionnutrition.com` URLs
+- **Widget positioning**: Bottom-left (CSS override to avoid PN's help button)
+- **Customizations**:
+  - No backdrop blur (allows page scrolling/interaction)
+  - Voice button 50% smaller (`p-4` instead of `p-8`)
+  - Demo badge in top-left corner
+
+**Files**:
+- `/src/app/demo/pn/page.tsx` - Main demo page with iframe + widget
+- `/src/app/demo/pn/layout.tsx` - Layout wrapper with Suspense
+
 ---
 
 ## 📚 Google File Search - CRITICAL Patterns
