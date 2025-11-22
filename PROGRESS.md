@@ -63,13 +63,38 @@ This includes:
 
 **Purpose**: Alternative demo method for sites that block iframe embedding (e.g., hubermanlab.com)
 
-**How it works**:
-1. User drags bookmarklet to browser bookmark bar
-2. Visits any website (even ones that block iframes)
-3. Clicks bookmark - widget injects onto page
-4. Works on ANY site, bypasses iframe restrictions
+**Architecture**:
+1. **Bookmarklet page** (`/bookmarklet`) - Instructions and draggable bookmark
+2. **Widget loader script** (`/public/widget.js`) - Standalone JavaScript that injects widget
+3. **Widget embed page** (`/widget-embed`) - Minimal page that renders floating widget
 
-**Note**: Requires standalone widget script (`/widget.js`) to be built for full functionality. Currently provides installation instructions and bookmarklet code.
+**How it works**:
+1. User visits `/bookmarklet` and drags bookmark to bookmark bar
+2. User visits ANY website (hubermanlab.com, competitor sites, etc.)
+3. User clicks bookmarklet → loads `/widget.js`
+4. Script creates iframe pointing to `/widget-embed?url=[current-page]`
+5. Widget appears and works exactly like embedded version
+
+**Files**:
+- `/src/app/bookmarklet/page.tsx` - Installation instructions page
+- `/public/widget.js` - Standalone loader script (served statically)
+- `/src/app/widget-embed/page.tsx` - Floating widget container
+
+**Benefits**:
+- Works on ANY site, even those blocking iframes
+- No deployment to client site needed
+- Perfect for sales demos and testing
+- Bypasses X-Frame-Options and CSP restrictions
+- Reuses existing widget code (no separate bundle needed)
+
+**API**:
+- `window.EasyAskWidget.remove()` - Remove widget from page
+- `window.EasyAskWidget.reload()` - Reload widget
+
+**Bookmarklet code**:
+```javascript
+javascript:(function(){if(window.easyaskWidgetLoaded){alert('Widget already loaded');return;}const s=document.createElement('script');s.src='https://easyask.io/widget.js';document.head.appendChild(s);})();
+```
 
 ---
 

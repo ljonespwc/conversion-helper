@@ -6,21 +6,7 @@ export default function BookmarkletPage() {
   const [copied, setCopied] = useState(false)
 
   // Bookmarklet code that injects the widget
-  const bookmarkletCode = `javascript:(function(){
-    if(window.easyaskWidgetLoaded){alert('Widget already loaded');return;}
-    window.easyaskWidgetLoaded=true;
-    const script=document.createElement('script');
-    script.src='${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js';
-    script.onload=function(){
-      if(window.EasyAskWidget){
-        window.EasyAskWidget.init({
-          pageUrl:window.location.href,
-          embedded:true
-        });
-      }
-    };
-    document.head.appendChild(script);
-  })();`
+  const bookmarkletCode = `javascript:(function(){if(window.easyaskWidgetLoaded){alert('Widget already loaded');return;}const s=document.createElement('script');s.src='https://easyask.io/widget.js';document.head.appendChild(s);})();`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(bookmarkletCode)
