@@ -110,11 +110,15 @@ export default function PNDemoPage() {
             /* === OPTION 1: LIGHT GLASS EFFECT === */
 
             /* Make the main modal card itself glass-like (the white/dark container) */
-            .demo-widget-container .fixed.inset-0 > div[class*="rounded-2xl"] {
+            /* Target all possible states - initial, animated, etc. */
+            .demo-widget-container .fixed.inset-0 > div[class*="rounded"],
+            .demo-widget-container .fixed.inset-0 > div[class*="bg-white"],
+            .demo-widget-container .fixed.inset-0 > div[class*="bg-easyask"],
+            .demo-widget-container .fixed.inset-0 > div[class*="dark:bg-easyask"] {
               background: linear-gradient(to bottom right,
-                rgba(15, 23, 42, 0.85),
-                rgba(30, 41, 59, 0.85),
-                rgba(15, 23, 42, 0.85)) !important;
+                rgba(15, 23, 42, 0.65),
+                rgba(30, 41, 59, 0.65),
+                rgba(15, 23, 42, 0.65)) !important;
               backdrop-filter: blur(24px) !important;
               border: 1px solid rgba(255, 255, 255, 0.15) !important;
             }
