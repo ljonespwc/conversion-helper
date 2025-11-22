@@ -106,64 +106,6 @@ export default function PNDemoPage() {
             .demo-widget-container .fixed.inset-0 > div:last-child {
               pointer-events: auto !important;
             }
-
-            /* === OPTION 1: LIGHT GLASS EFFECT === */
-
-            /* Make the main modal card itself glass-like (the white/dark container) */
-            /* Target all possible states - initial, animated, etc. */
-            .demo-widget-container .fixed.inset-0 > div[class*="rounded"],
-            .demo-widget-container .fixed.inset-0 > div[class*="bg-white"],
-            .demo-widget-container .fixed.inset-0 > div[class*="bg-easyask"],
-            .demo-widget-container .fixed.inset-0 > div[class*="dark:bg-easyask"] {
-              background: linear-gradient(to bottom right,
-                rgba(15, 23, 42, 0.65),
-                rgba(30, 41, 59, 0.65),
-                rgba(15, 23, 42, 0.65)) !important;
-              backdrop-filter: blur(24px) !important;
-              border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            }
-            /* Target ALL links and divs that look like cards (have rounded borders and padding) */
-            /* This will catch URL cards when they appear */
-            .demo-widget-container a[class*="border"][class*="rounded"][class*="p-"] {
-              background: linear-gradient(to bottom right,
-                rgba(30, 58, 138, 0.3),
-                rgba(88, 28, 135, 0.25),
-                rgba(15, 23, 42, 0.3)) !important;
-              backdrop-filter: blur(12px) !important;
-              border-color: rgba(255, 255, 255, 0.2) !important;
-              color: rgba(255, 255, 255, 0.95) !important;
-            }
-
-            /* Also target divs that look like cards */
-            .demo-widget-container div[class*="border"][class*="rounded"][class*="p-"]:not([class*="gradient"]) {
-              background: linear-gradient(to bottom right,
-                rgba(30, 58, 138, 0.3),
-                rgba(88, 28, 135, 0.25),
-                rgba(15, 23, 42, 0.3)) !important;
-              backdrop-filter: blur(12px) !important;
-              border-color: rgba(255, 255, 255, 0.2) !important;
-              color: rgba(255, 255, 255, 0.95) !important;
-            }
-
-            /* Make the AI response text area even more transparent */
-            .demo-widget-container div[class*="gradient"][class*="backdrop-blur"] {
-              background: linear-gradient(to bottom right,
-                rgba(30, 58, 138, 0.25),
-                rgba(88, 28, 135, 0.20),
-                rgba(15, 23, 42, 0.25)) !important;
-              backdrop-filter: blur(16px) !important;
-            }
-
-            /* Enhance toggle buttons with blur */
-            .demo-widget-container button[class*="gradient"] {
-              backdrop-filter: blur(10px) !important;
-            }
-
-            /* Enhance email input with glass effect */
-            .demo-widget-container input {
-              backdrop-filter: blur(8px) !important;
-              border-color: rgba(255, 255, 255, 0.2) !important;
-            }
           `}</style>
           <div className="demo-widget-container">
             <VoiceWidget pageUrl={validatedUrl} embedded={true} />
