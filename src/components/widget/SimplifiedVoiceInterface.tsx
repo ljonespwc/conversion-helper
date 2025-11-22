@@ -420,7 +420,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
               }
             }}
             disabled={!isConnected || (hasStarted && isActive)}
-            className={`relative p-8 rounded-full transition-all ${getButtonColor()} ${
+            className={`relative p-4 rounded-full transition-all ${getButtonColor()} ${
               !isConnected ? 'opacity-50 cursor-not-allowed' : ''
             } ${
               isSpeaking || isListening ? 'animate-pulse' : ''

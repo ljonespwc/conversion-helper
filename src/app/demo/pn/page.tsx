@@ -106,11 +106,6 @@ export default function PNDemoPage() {
             .demo-widget-container .fixed.inset-0 > div:last-child {
               pointer-events: auto !important;
             }
-
-            /* Shrink voice button (speaker orb) by 50% */
-            .demo-widget-container button[class*="rounded-full"][class*="gradient"] {
-              padding: 1rem !important; /* Was 2rem (p-8), now 1rem = 50% smaller */
-            }
           `}</style>
           <div className="demo-widget-container">
             <VoiceWidget pageUrl={validatedUrl} embedded={true} />
