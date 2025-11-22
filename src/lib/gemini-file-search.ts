@@ -109,13 +109,52 @@ export async function queryPageContent(
       }
     });
 
+    // Log response metadata for debugging
+    const finishReason = response.candidates?.[0]?.finishReason
+    const hasText = !!response.text
+    const hasGrounding = !!response.candidates?.[0]?.groundingMetadata
+
+    console.log('🔍 Gemini File Search Response:', {
+      hasText,
+      textLength: response.text?.length || 0,
+      finishReason,
+      hasGrounding,
+      groundingChunksCount: response.candidates?.[0]?.groundingMetadata?.groundingChunks?.length || 0
+    })
+
+    // Warn if finish reason indicates an issue
+    if (finishReason && finishReason !== 'STOP') {
+      console.warn('⚠️ Unusual finish reason:', finishReason, {
+        possibleCause:
+          finishReason === 'MAX_TOKENS' ? 'Output truncated - increase maxOutputTokens' :
+          finishReason === 'SAFETY' ? 'Content blocked by safety filters' :
+          finishReason === 'RECITATION' ? 'Content blocked due to recitation' :
+          finishReason === 'OTHER' ? 'API quota/rate limit may be exceeded' :
+          'Unknown issue'
+      })
+    }
+
+    // Warn if no text but no clear error
+    if (!response.text) {
+      console.error('❌ Empty response.text from Gemini API', {
+        finishReason,
+        candidatesCount: response.candidates?.length || 0,
+        hasGrounding
+      })
+    }
+
     return {
-      answer: response.text || 'No answer generated',
+      answer: response.text || 'Unable to generate response. Please try again in a moment.',
       citations: response.candidates?.[0]?.groundingMetadata || null,
       organization: orgData.name
     };
-  } catch (error) {
-    console.error('Error querying page content:', error);
+  } catch (error: any) {
+    console.error('❌ Error querying Gemini File Search:', {
+      error: error.message,
+      status: error.status,
+      code: error.code,
+      isQuotaError: error.message?.includes('RESOURCE_EXHAUSTED') || error.status === 429
+    })
     throw error;
   }
 }
