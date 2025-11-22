@@ -4,14 +4,60 @@ import { useState } from 'react'
 
 export default function BookmarkletPage() {
   const [copied, setCopied] = useState(false)
+  const [consoleCopied, setConsoleCopied] = useState(false)
 
   // Bookmarklet code that injects the widget
   const bookmarkletCode = `javascript:(function(){if(window.easyaskWidgetLoaded){alert('Widget already loaded');return;}const s=document.createElement('script');s.src='https://easyask.io/widget.js';document.head.appendChild(s);})();`
+
+  // Console code for sites with strict CSP
+  const consoleCode = `(function() {
+  if (window.easyaskWidgetLoaded) {
+    alert('Widget already loaded');
+    return;
+  }
+  window.easyaskWidgetLoaded = true;
+
+  const WIDGET_HOST = 'https://easyask.io';
+  const currentPageUrl = encodeURIComponent(window.location.href);
+
+  const iframe = document.createElement('iframe');
+  iframe.id = 'easyask-widget-frame';
+  iframe.src = \`\${WIDGET_HOST}/widget-embed?url=\${currentPageUrl}\`;
+  iframe.style.cssText = \`
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border: none !important;
+    z-index: 2147483647 !important;
+    background: transparent !important;
+  \`;
+
+  document.body.appendChild(iframe);
+  console.log('✅ EasyAsk Widget loaded');
+
+  window.EasyAskWidget = {
+    remove: function() {
+      const frame = document.getElementById('easyask-widget-frame');
+      if (frame) {
+        frame.remove();
+        window.easyaskWidgetLoaded = false;
+      }
+    }
+  };
+})();`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(bookmarkletCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleConsoleCopy = () => {
+    navigator.clipboard.writeText(consoleCode)
+    setConsoleCopied(true)
+    setTimeout(() => setConsoleCopied(false), 2000)
   }
 
   return (
@@ -105,6 +151,46 @@ export default function BookmarkletPage() {
               <strong>Note:</strong> Some browsers (Safari) may strip the <code>javascript:</code> prefix when you paste.
               Make sure the bookmark URL starts with <code>javascript:</code>
             </p>
+          </div>
+        </div>
+
+        {/* Dev Console Alternative */}
+        <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+          <h2 className="text-2xl font-semibold mb-4">For sites with strict security policies</h2>
+          <p className="text-gray-300 mb-4">
+            Some sites (like hubermanlab.com) block external scripts with Content Security Policy (CSP).
+            For these sites, paste this code directly into the browser's dev console:
+          </p>
+
+          <div className="space-y-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+              <p className="text-sm text-blue-200 mb-2">
+                <strong>How to use:</strong>
+              </p>
+              <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
+                <li>Press <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">F12</kbd> or right-click → "Inspect"</li>
+                <li>Click the "Console" tab</li>
+                <li>Paste the code below and press Enter</li>
+              </ol>
+            </div>
+
+            <div className="relative">
+              <pre className="bg-black/50 rounded-lg p-4 overflow-x-auto text-xs mb-4 border border-white/10 max-h-64">
+                <code className="text-green-300">{consoleCode}</code>
+              </pre>
+              <button
+                onClick={handleConsoleCopy}
+                className="absolute top-2 right-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+              >
+                {consoleCopied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+
+            <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4">
+              <p className="text-sm text-green-200">
+                <strong>Why this works:</strong> Code pasted into the browser console runs in the page's security context, bypassing CSP restrictions that block external scripts.
+              </p>
+            </div>
           </div>
         </div>
 
