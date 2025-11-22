@@ -41,21 +41,21 @@ This includes:
 4. **Voice Query**: User → Layercode STT → Gemini + File Search → Layercode TTS
 
 ### Demo Page Architecture
-**Location**: `/src/app/demo/pn/`
+**Location**: `/src/app/demo/`
 
 **Structure**:
-- **URL**: `/demo/pn?url=https://www.precisionnutrition.com/[page]`
+- **URL**: `/demo?url=https://example.com/[page]`
 - **Architecture**: Target page loads in iframe with widget overlay
-- **Validation**: Only allows `precisionnutrition.com` URLs
-- **Widget positioning**: Bottom-left (CSS override to avoid PN's help button)
+- **Validation**: Whitelist of allowed domains (precisionnutrition.com, hubermanlab.com, layercode.com)
+- **Widget positioning**: Bottom-left (CSS override)
 - **Customizations**:
   - No backdrop blur (allows page scrolling/interaction)
   - Voice button 50% smaller (`p-4` instead of `p-8`)
   - Demo badge in top-left corner
 
 **Files**:
-- `/src/app/demo/pn/page.tsx` - Main demo page with iframe + widget
-- `/src/app/demo/pn/layout.tsx` - Layout wrapper with Suspense
+- `/src/app/demo/page.tsx` - Main demo page with iframe + widget
+- `/src/app/demo/layout.tsx` - Layout wrapper with Suspense
 
 ---
 

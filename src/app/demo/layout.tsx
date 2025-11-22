@@ -1,8 +1,8 @@
 import { Suspense } from 'react'
 
 export const metadata = {
-  title: 'EasyAsk Demo - Precision Nutrition',
-  description: 'Demo of EasyAsk voice widget on Precision Nutrition pages',
+  title: 'EasyAsk Demo',
+  description: 'Demo of EasyAsk voice widget',
 }
 
 export default function DemoLayout({

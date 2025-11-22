@@ -13,27 +13,41 @@ const VoiceWidget = dynamicImport(() => import('@/components/widget/VoiceWidget'
 // Disable static generation for this page (contains dynamic params and client-only code)
 export const dynamic = 'force-dynamic'
 
-export default function PNDemoPage() {
+// Whitelist of allowed domains for demo
+const ALLOWED_DOMAINS = [
+  'precisionnutrition.com',
+  'hubermanlab.com',
+  'layercode.com'
+]
+
+export default function DemoPage() {
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
   const [error, setError] = useState<string | null>(null)
   const [validatedUrl, setValidatedUrl] = useState<string | null>(null)
+  const [domainName, setDomainName] = useState<string>('')
 
   useEffect(() => {
     // Validate URL
     if (!url) {
-      setError('No URL provided. Add ?url=https://www.precisionnutrition.com/your-page')
+      setError('No URL provided. Add ?url=https://example.com/your-page')
       return
     }
 
     try {
       const parsedUrl = new URL(url)
 
-      // Only allow precisionnutrition.com URLs
-      if (!parsedUrl.hostname.includes('precisionnutrition.com')) {
-        setError('Only precisionnutrition.com URLs are allowed')
+      // Check if hostname matches any allowed domain
+      const isAllowed = ALLOWED_DOMAINS.some(domain => parsedUrl.hostname.includes(domain))
+
+      if (!isAllowed) {
+        setError(`Only ${ALLOWED_DOMAINS.join(', ')} URLs are allowed`)
         return
       }
+
+      // Extract domain name for display
+      const matchedDomain = ALLOWED_DOMAINS.find(domain => parsedUrl.hostname.includes(domain))
+      setDomainName(matchedDomain || '')
 
       setValidatedUrl(url)
       setError(null)
@@ -51,8 +65,14 @@ export default function PNDemoPage() {
           <div className="bg-gray-800 rounded-lg p-6">
             <p className="text-sm text-gray-400 mb-2">Example usage:</p>
             <code className="text-blue-400 text-sm break-all">
-              /demo/pn?url=https://www.precisionnutrition.com/nutrition-certification-level-1-register-now
+              /demo?url=https://www.precisionnutrition.com/nutrition-certification-level-1-register-now
             </code>
+            <p className="text-sm text-gray-400 mt-4">Allowed domains:</p>
+            <ul className="text-blue-400 text-sm mt-2 space-y-1">
+              {ALLOWED_DOMAINS.map(domain => (
+                <li key={domain}>• {domain}</li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
@@ -69,17 +89,16 @@ export default function PNDemoPage() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* PN Page in iframe */}
+      {/* Target page in iframe */}
       <iframe
         src={validatedUrl}
         className="absolute inset-0 w-full h-full border-0 bg-white"
-        title="Precision Nutrition Page"
+        title={`${domainName} Demo`}
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
         allow="microphone *; autoplay *"
       />
 
       {/* Widget overlay - positioned absolutely on top */}
-      {/* Move widget to bottom-left to avoid PN's help button on bottom-right */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="pointer-events-auto">
           <style jsx global>{`
