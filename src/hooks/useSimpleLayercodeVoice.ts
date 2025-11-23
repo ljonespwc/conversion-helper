@@ -111,6 +111,10 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
         clearInterval(idleCheckIntervalRef.current)
         idleCheckIntervalRef.current = null
       }
+      // Disconnect agent when component unmounts
+      if (agentRef.current?.disconnect) {
+        agentRef.current.disconnect()
+      }
     }
   }, [status, options.onIdleTimeout])
 
