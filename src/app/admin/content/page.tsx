@@ -69,12 +69,14 @@ export default function ContentManagementPage() {
   const [isDeleteIndexedModalOpen, setIsDeleteIndexedModalOpen] = useState(false)
   const [isDeletingIndexed, setIsDeletingIndexed] = useState(false)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
+  const [widgetPagesMap, setWidgetPagesMap] = useState<Record<string, string>>({})
 
   useEffect(() => {
     checkUser()
     fetchJobs()
     fetchUploads()
     fetchIndexedPages()
+    fetchWidgetPages()
   }, [])
 
   const checkUser = async () => {
@@ -135,6 +137,21 @@ export default function ContentManagementPage() {
       console.error('Failed to fetch indexed pages:', error)
     } finally {
       setIndexedPagesLoading(false)
+    }
+  }
+
+  const fetchWidgetPages = async () => {
+    try {
+      const response = await fetch('/api/admin/widget-pages')
+      const data = await response.json()
+      // Create a map of page_url -> page_title for quick lookup
+      const map: Record<string, string> = {}
+      data.pages?.forEach((page: any) => {
+        map[page.page_url] = page.page_title
+      })
+      setWidgetPagesMap(map)
+    } catch (error) {
+      console.error('Failed to fetch widget pages:', error)
     }
   }
 
@@ -364,7 +381,7 @@ export default function ContentManagementPage() {
                                           key={idx}
                                           className="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-blue-900/30 text-blue-400 border border-blue-700/50"
                                         >
-                                          {new URL(url).pathname || '/'}
+                                          {widgetPagesMap[url] || new URL(url).pathname || '/'}
                                         </span>
                                       ))}
                                     </div>
