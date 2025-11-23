@@ -49,6 +49,14 @@ export async function GET(request: NextRequest) {
     const organizationName = org?.name || 'EasyAsk'
     const showBranding = org?.show_branding ?? true
 
+    // Debug logging
+    console.log('Widget page API response for', pageUrl, {
+      page_title: page.page_title,
+      org_raw: page.organizations,
+      org_extracted: org,
+      show_branding: showBranding
+    })
+
     const response = {
       page_title: page.page_title,
       page_url: page.page_url,
