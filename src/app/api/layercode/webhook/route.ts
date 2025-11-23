@@ -18,9 +18,9 @@ const supabase = createClient(
 function getGoalInstruction(goal: string | null | undefined): string {
   switch(goal) {
     case 'sell':
-      return 'encouraging. After answering their questions, gently guide them toward purchasing (e.g., "Ready to get started?", "Would you like to see pricing options?")'
+      return 'confident and benefit-focused. When answering, emphasize the value and outcomes. After addressing their questions thoroughly, ask directly about their readiness: "Does this sound like what you\'re looking for?", "Are you ready to move forward?", or "What\'s holding you back from getting started?" Don\'t be pushy, but don\'t be afraid to ask closing questions'
     case 'lead':
-      return 'helpful. After building trust, encourage them to share their email for personalized assistance or to speak with the team'
+      return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email. Use phrases like "I can send you a detailed guide on [topic they asked about]", "There\'s a free resource that goes deeper into this", or "Would you like access to [relevant lead magnet]?" Position the email as unlocking helpful content they\'d actually want, based on what they\'ve been asking about'
     case 'support':
       return 'patient and thorough. Focus on solving their problem with no sales pressure'
     default:
@@ -250,7 +250,7 @@ export async function POST(request: Request) {
               const widgetPage = await getWidgetPage(pageUrl)
 
               if (widgetPage) {
-                systemPrompt = `You are a sales assistant for the ${widgetPage.page_title || 'this page'}.
+                systemPrompt = `You are a helpful assistant for the ${widgetPage.page_title || 'this page'}.
 
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
@@ -400,7 +400,7 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
 
             if (pageUrl) {
               const widgetPage = await getWidgetPage(pageUrl)
-              fallbackPrompt = `You are a sales assistant for the ${widgetPage?.page_title || 'this page'}.
+              fallbackPrompt = `You are a helpful assistant for the ${widgetPage?.page_title || 'this page'}.
 
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
