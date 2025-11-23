@@ -925,6 +925,18 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl }: Simplifie
         </div>
       </div>
 
+      {/* Powered by EasyAsk Footer */}
+      <div className="flex items-center justify-center pt-4 pb-2">
+        <a
+          href="https://easyask.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
+        >
+          Powered by EasyAsk
+        </a>
+      </div>
+
     </div>
   )
 }
