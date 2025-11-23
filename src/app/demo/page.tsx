@@ -36,17 +36,33 @@ export default function DemoPage() {
     try {
       const parsedUrl = new URL(url)
 
-      // Check if hostname matches any allowed domain
-      const isAllowed = ALLOWED_DOMAINS.some(domain => parsedUrl.hostname.includes(domain))
+      // Allow our own proxy endpoint OR whitelisted domains
+      const isProxyUrl = parsedUrl.hostname.includes('easyask.io') && parsedUrl.pathname === '/api/proxy-demo'
+      const isAllowedDomain = ALLOWED_DOMAINS.some(domain => parsedUrl.hostname.includes(domain))
 
-      if (!isAllowed) {
+      if (!isProxyUrl && !isAllowedDomain) {
         setError(`Only ${ALLOWED_DOMAINS.join(', ')} URLs are allowed`)
         return
       }
 
       // Extract domain name for display
-      const matchedDomain = ALLOWED_DOMAINS.find(domain => parsedUrl.hostname.includes(domain))
-      setDomainName(matchedDomain || '')
+      if (isProxyUrl) {
+        // For proxy URLs, extract the actual target domain from query params
+        const targetUrl = parsedUrl.searchParams.get('url')
+        if (targetUrl) {
+          try {
+            const targetParsed = new URL(targetUrl)
+            setDomainName(targetParsed.hostname)
+          } catch {
+            setDomainName('Proxied Page')
+          }
+        } else {
+          setDomainName('Proxied Page')
+        }
+      } else {
+        const matchedDomain = ALLOWED_DOMAINS.find(domain => parsedUrl.hostname.includes(domain))
+        setDomainName(matchedDomain || '')
+      }
 
       setValidatedUrl(url)
       setError(null)
