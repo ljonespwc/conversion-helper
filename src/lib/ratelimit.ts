@@ -8,10 +8,10 @@ const redis = Redis.fromEnv()
 // Rate limit configurations for different endpoint types
 export const rateLimits = {
   // Layercode session creation - prevent spam session generation
-  // 50 sessions per IP per hour
+  // 100 sessions per IP per hour
   layercodeAuthorize: new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(50, '1 h'),
+    limiter: Ratelimit.slidingWindow(100, '1 h'),
     analytics: true,
     prefix: '@easyask/ratelimit/layercode-authorize',
   }),
