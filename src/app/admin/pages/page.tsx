@@ -26,6 +26,7 @@ interface UserInfo {
     name: string
     website_url: string | null
     file_search_store_name: string | null
+    show_branding: boolean
   }
 }
 
@@ -159,6 +160,26 @@ export default function PagesPage() {
     }
   }
 
+  const handleToggleBranding = async (currentStatus: boolean) => {
+    try {
+      const response = await fetch('/api/admin/organization', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ show_branding: !currentStatus })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle branding visibility')
+      }
+
+      // Refresh user info to get updated branding setting
+      await fetchUserInfo()
+    } catch (error) {
+      console.error('Error toggling branding:', error)
+      alert('Failed to toggle branding visibility')
+    }
+  }
+
   const copyToClipboard = async (text: string, id: string) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -284,6 +305,29 @@ export default function PagesPage() {
                 <code className="block bg-gray-700 px-3 py-2 rounded text-xs mt-1 text-gray-300 break-all">
                   {userInfo.organizations.file_search_store_name || 'Not created'}
                 </code>
+              </div>
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between py-2 px-3 bg-gray-700/50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-300 font-medium">Show EasyAsk branding:</span>
+                    <span className="text-xs text-gray-400">
+                      ({userInfo.organizations.show_branding ? 'Footer visible on all widgets' : 'Footer hidden on all widgets'})
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleToggleBranding(userInfo.organizations.show_branding)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      userInfo.organizations.show_branding ? 'bg-blue-600' : 'bg-gray-600'
+                    }`}
+                    title={userInfo.organizations.show_branding ? 'Hide "Powered by EasyAsk" footer' : 'Show "Powered by EasyAsk" footer'}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        userInfo.organizations.show_branding ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

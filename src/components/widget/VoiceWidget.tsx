@@ -19,6 +19,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
   const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
   const [isActive, setIsActive] = useState<boolean | null>(null)
+  const [showBranding, setShowBranding] = useState<boolean>(true)
 
   const isModalOpen = embedded ? internalOpen : isOpen
   const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
@@ -45,6 +46,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           }
           // Check if widget is active on this page
           setIsActive(data?.page?.is_active ?? true)
+          // Set branding visibility from organization setting
+          setShowBranding(data?.page?.show_branding ?? true)
         })
         .catch(err => {
           console.error('Failed to fetch page info:', err)
@@ -82,6 +85,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             onClose={handleClose}
             pageUrl={pageUrl}
             organizationName={organizationName}
+            showBranding={showBranding}
           />
         )}
       </AnimatePresence>

@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         page_url,
         organization_id,
         is_active,
-        organizations!inner(name)
+        organizations!inner(name, show_branding)
       `)
       .eq('page_url', pageUrl)
       .single()
@@ -45,13 +45,16 @@ export async function GET(request: NextRequest) {
 
     // Flatten the response structure
     // @ts-ignore - Supabase returns single object for inner join, not array
-    const organizationName = page.organizations?.name || 'EasyAsk'
+    const org = Array.isArray(page.organizations) ? page.organizations[0] : page.organizations
+    const organizationName = org?.name || 'EasyAsk'
+    const showBranding = org?.show_branding ?? true
 
     const response = {
       page_title: page.page_title,
       page_url: page.page_url,
       organization_name: organizationName,
-      is_active: page.is_active
+      is_active: page.is_active,
+      show_branding: showBranding
     }
 
     return NextResponse.json({ page: response }, {

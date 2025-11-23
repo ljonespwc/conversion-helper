@@ -9,9 +9,10 @@ interface WidgetModalProps {
   onClose: () => void
   pageUrl?: string
   organizationName?: string
+  showBranding?: boolean
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -76,7 +77,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName }: Widg
           </button>
         </div>
 
-        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} />
+        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} />
       </motion.div>
     </motion.div>
   )
