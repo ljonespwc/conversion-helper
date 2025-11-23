@@ -20,16 +20,10 @@ export async function GET(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Fetch page with organization name from organizations table
+    // Fetch page (without join to avoid PostgREST caching issues)
     const { data: page, error } = await supabase
       .from('widget_pages')
-      .select(`
-        page_title,
-        page_url,
-        organization_id,
-        is_active,
-        organizations!inner(name, show_branding)
-      `)
+      .select('page_title, page_url, organization_id, is_active')
       .eq('page_url', pageUrl)
       .single()
 
@@ -43,19 +37,15 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Flatten the response structure
-    // @ts-ignore - Supabase returns single object for inner join, not array
-    const org = Array.isArray(page.organizations) ? page.organizations[0] : page.organizations
+    // Fetch organization separately to avoid join caching bug
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('name, show_branding')
+      .eq('id', page.organization_id)
+      .single()
+
     const organizationName = org?.name || 'EasyAsk'
     const showBranding = org?.show_branding ?? true
-
-    // Debug logging
-    console.log('Widget page API response for', pageUrl, {
-      page_title: page.page_title,
-      org_raw: page.organizations,
-      org_extracted: org,
-      show_branding: showBranding
-    })
 
     const response = {
       page_title: page.page_title,
