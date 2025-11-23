@@ -24,6 +24,7 @@ export default function DemoPage() {
   const url = searchParams.get('url')
   const [error, setError] = useState<string | null>(null)
   const [validatedUrl, setValidatedUrl] = useState<string | null>(null)
+  const [actualPageUrl, setActualPageUrl] = useState<string | null>(null)
   const [domainName, setDomainName] = useState<string>('')
 
   useEffect(() => {
@@ -45,23 +46,27 @@ export default function DemoPage() {
         return
       }
 
-      // Extract domain name for display
+      // Extract domain name for display and actual page URL for widget
       if (isProxyUrl) {
-        // For proxy URLs, extract the actual target domain from query params
+        // For proxy URLs, extract the actual target URL from query params
         const targetUrl = parsedUrl.searchParams.get('url')
         if (targetUrl) {
           try {
             const targetParsed = new URL(targetUrl)
             setDomainName(targetParsed.hostname)
+            setActualPageUrl(targetUrl) // Pass the actual URL to the widget
           } catch {
             setDomainName('Proxied Page')
+            setActualPageUrl(null)
           }
         } else {
           setDomainName('Proxied Page')
+          setActualPageUrl(null)
         }
       } else {
         const matchedDomain = ALLOWED_DOMAINS.find(domain => parsedUrl.hostname.includes(domain))
         setDomainName(matchedDomain || '')
+        setActualPageUrl(url) // Direct URL - use as-is
       }
 
       setValidatedUrl(url)
@@ -142,7 +147,7 @@ export default function DemoPage() {
             }
           `}</style>
           <div className="demo-widget-container">
-            <VoiceWidget pageUrl={validatedUrl} embedded={true} />
+            <VoiceWidget pageUrl={actualPageUrl || validatedUrl} embedded={true} />
           </div>
         </div>
       </div>
