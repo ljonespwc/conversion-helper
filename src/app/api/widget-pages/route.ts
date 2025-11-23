@@ -38,12 +38,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch organization using RPC to bypass PostgREST caching
-    const { data: orgData } = await supabase.rpc('get_organization_branding', {
+    const { data: orgRows } = await supabase.rpc('get_organization_branding', {
       org_id: page.organization_id
     })
 
-    const organizationName = orgData?.name || 'EasyAsk'
-    const showBranding = orgData?.show_branding ?? true
+    const org = orgRows?.[0]
+    const organizationName = org?.name || 'EasyAsk'
+    const showBranding = org?.show_branding ?? true
 
     const response = {
       page_title: page.page_title,
