@@ -77,6 +77,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normalize page URLs to ensure trailing slashes for consistent matching
+    // This prevents mismatch between "https://example.com" and "https://example.com/"
+    const normalizedPageUrls = pageUrls.map((url: string) => {
+      // Add trailing slash if not present
+      return url.endsWith('/') ? url : `${url}/`
+    })
+
     const results = []
 
     // Process scraped jobs
@@ -149,7 +156,7 @@ export async function POST(request: NextRequest) {
 
         // Upload to File Search
         const title = new URL(job.url).pathname.split('/').pop() || 'page'
-        const documentId = await uploadToFileSearch(markdown, title, job.url, pageUrls, userStoreName)
+        const documentId = await uploadToFileSearch(markdown, title, job.url, normalizedPageUrls, userStoreName)
 
         // Create or update indexed_pages record
         const indexedPageData: any = {
@@ -164,7 +171,7 @@ export async function POST(request: NextRequest) {
           markdown_preview: markdown.substring(0, 500),
           scraped_at: new Date().toISOString(),
           status: 'active',
-          page_urls: pageUrls, // Array of pages where this content should be available
+          page_urls: normalizedPageUrls, // Array of pages where this content should be available
           metadata: {
             file_size: job.file_size,
             word_count: job.word_count,
@@ -276,7 +283,7 @@ export async function POST(request: NextRequest) {
         const uploadIdentifier = `upload://${sanitizedTitle}-${Date.now()}`
 
         // Upload to File Search with upload identifier as sourceUrl
-        const documentId = await uploadToFileSearch(content, title, uploadIdentifier, pageUrls, userStoreName)
+        const documentId = await uploadToFileSearch(content, title, uploadIdentifier, normalizedPageUrls, userStoreName)
 
         // Create indexed_pages record
         // For uploaded files, use uploadIdentifier as page_url for consistent matching
@@ -293,7 +300,7 @@ export async function POST(request: NextRequest) {
           markdown_preview: content.substring(0, 500),
           scraped_at: new Date().toISOString(),
           status: 'active',
-          page_urls: pageUrls, // Array of pages where this content should be available
+          page_urls: normalizedPageUrls, // Array of pages where this content should be available
           metadata: {
             file_size: upload.file_size,
             word_count: upload.word_count,

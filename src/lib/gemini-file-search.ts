@@ -53,11 +53,15 @@ export async function queryPageContent(
   systemPrompt?: string
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
+    // Normalize page URL to ensure trailing slash for consistent matching
+    // This prevents mismatch between "https://example.com" and "https://example.com/"
+    const normalizedPageUrl = pageUrl.endsWith('/') ? pageUrl : `${pageUrl}/`
+
     // Get the widget page to find the organization's store
     const { data: widgetPageData, error: widgetPageError } = await supabase
       .from('widget_pages')
       .select('organization_id, page_title, page_goal')
-      .eq('page_url', pageUrl)
+      .eq('page_url', normalizedPageUrl)
       .single();
 
     if (widgetPageError || !widgetPageData) {
@@ -79,8 +83,9 @@ export async function queryPageContent(
     // Page URLs are stored with indexed keys (page_url_0, page_url_1, ..., page_url_9)
     // to avoid duplicate key errors. Build OR filter to check all slots.
     // Filter syntax: (key = "value" OR key = "value" ...)
+    // Use normalized URL (with trailing slash) for consistent matching
     const pageUrlConditions = Array.from({ length: 10 }, (_, i) =>
-      `page_url_${i} = "${pageUrl}"`
+      `page_url_${i} = "${normalizedPageUrl}"`
     ).join(' OR ');
 
     const metadataFilter = `(${pageUrlConditions})`;
