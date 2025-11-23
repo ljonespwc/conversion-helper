@@ -1,7 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
+
+// Service role client to bypass RLS for organization updates
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 /**
  * PATCH /api/admin/organization
@@ -21,14 +28,15 @@ export async function PATCH(request: Request) {
       )
     }
 
-    // Get user's organization
-    const { data: userData, error: userError } = await supabase
+    // Get user's organization (use service role to bypass RLS)
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('organization_id')
       .eq('id', user.id)
       .single()
 
     if (userError || !userData?.organization_id) {
+      console.error('Error fetching user organization:', userError)
       return NextResponse.json(
         { error: 'Organization not found' },
         { status: 404 }
@@ -64,8 +72,8 @@ export async function PATCH(request: Request) {
     // Add updated_at timestamp
     updates.updated_at = new Date().toISOString()
 
-    // Update organization
-    const { data: updatedOrg, error: updateError } = await supabase
+    // Update organization (use service role to bypass RLS)
+    const { data: updatedOrg, error: updateError } = await supabaseAdmin
       .from('organizations')
       .update(updates)
       .eq('id', userData.organization_id)
