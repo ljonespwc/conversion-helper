@@ -19,16 +19,22 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   const idleCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const agentRef = useRef<any>(null)
 
+  // Detect if running on mobile device (one-time check, won't cause re-renders)
+  const [isMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  })
+
   // Use Layercode agent hook with automatic VAD
   const agent = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
-    // REMOVED: conversationId parameter to fix double-connection latency bug
-    // The SDK handles session persistence internally - passing conversationId caused
-    // a reconnection cycle (connect → update ref → re-render → reconnect with new ID)
-    // which added 2-3 seconds to initial greeting latency.
-    // If mobile breaks, uncomment the line below:
-    // conversationId: conversationIdRef.current || undefined,
+    // MOBILE vs DESKTOP OPTIMIZATION:
+    // - Desktop: Omit conversationId to avoid double-connection (2-3s faster)
+    // - Mobile: Include conversationId to delay connection until audio permission granted
+    //   Mobile browsers block autoplay audio. The reconnection happens AFTER user clicks
+    //   the pill button (second interaction), which authorizes audio playback.
+    ...(isMobile && { conversationId: conversationIdRef.current || undefined }),
     metadata: options.metadata,
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)
