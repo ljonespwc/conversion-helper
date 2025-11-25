@@ -54,8 +54,18 @@ export async function queryPageContent(
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
     // Normalize page URL to ensure trailing slash for consistent matching
-    // This prevents mismatch between "https://example.com" and "https://example.com/"
-    const normalizedPageUrl = pageUrl.endsWith('/') ? pageUrl : `${pageUrl}/`
+    // Only add trailing slash to root URLs (e.g., "https://example.com" -> "https://example.com/")
+    // Path URLs like "https://example.com/page" stay as-is
+    let normalizedPageUrl = pageUrl
+    try {
+      const parsed = new URL(pageUrl)
+      // Add trailing slash if it's a root URL (no path or just "/")
+      if (!parsed.pathname || parsed.pathname === '/') {
+        normalizedPageUrl = pageUrl.endsWith('/') ? pageUrl : pageUrl + '/'
+      }
+    } catch (e) {
+      // Invalid URL - use as-is
+    }
 
     // Get the widget page to find the organization's store
     const { data: widgetPageData, error: widgetPageError } = await supabase
@@ -83,7 +93,7 @@ export async function queryPageContent(
     // Page URLs are stored with indexed keys (page_url_0, page_url_1, ..., page_url_9)
     // to avoid duplicate key errors. Build OR filter to check all slots.
     // Filter syntax: (key = "value" OR key = "value" ...)
-    // Use normalized URL (with trailing slash) for consistent matching
+    // Use normalized URL (trailing slash only added to root URLs) for consistent matching
     const pageUrlConditions = Array.from({ length: 10 }, (_, i) =>
       `page_url_${i} = "${normalizedPageUrl}"`
     ).join(' OR ');
