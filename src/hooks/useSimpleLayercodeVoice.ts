@@ -23,9 +23,12 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   const agent = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
-    // Pass conversationId for mobile compatibility (mobile audio routing requires it)
-    // This causes double instantiation on first connect but ensures mobile works
-    conversationId: conversationIdRef.current || undefined,
+    // REMOVED: conversationId parameter to fix double-connection latency bug
+    // The SDK handles session persistence internally - passing conversationId caused
+    // a reconnection cycle (connect → update ref → re-render → reconnect with new ID)
+    // which added 2-3 seconds to initial greeting latency.
+    // If mobile breaks, uncomment the line below:
+    // conversationId: conversationIdRef.current || undefined,
     metadata: options.metadata,
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)
