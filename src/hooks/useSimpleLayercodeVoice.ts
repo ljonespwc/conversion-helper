@@ -105,18 +105,23 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
       }
     }
 
-    // Cleanup on unmount
+    // Cleanup interval when effect re-runs (but don't disconnect agent here)
     return () => {
       if (idleCheckIntervalRef.current) {
         clearInterval(idleCheckIntervalRef.current)
         idleCheckIntervalRef.current = null
       }
-      // Disconnect agent when component unmounts
+    }
+  }, [status, options.onIdleTimeout])
+
+  // Disconnect agent ONLY on component unmount (not on status changes)
+  useEffect(() => {
+    return () => {
       if (agentRef.current?.disconnect) {
         agentRef.current.disconnect()
       }
     }
-  }, [status, options.onIdleTimeout])
+  }, [])
 
   return {
     // Connection state
