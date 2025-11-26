@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
+import WidgetButtonDemo from '@/components/landing/WidgetButtonDemo'
 import './landing.css'
 
 export default async function Home() {
@@ -181,20 +182,10 @@ export default async function Home() {
             </div>
 
             <div className="landing-image-centered">
-              <div className="landing-image-wrapper-medium" style={{ margin: '0 auto' }}>
-                <div className="image-placeholder image-placeholder-wide">
-                  <div className="image-placeholder-text">
-                    <strong>assistant_launcher.png</strong>
-                    <br />
-                    600w x 150h
-                    <br /><br />
-                    The launcher widget in idle state: "Don't feel like reading? Just ask!" pill showing entry point
-                  </div>
-                </div>
-                <p className="landing-image-caption">
-                  Lorem ipsum dolor sit amet consectetur adipiscing elit.
-                </p>
-              </div>
+              <WidgetButtonDemo />
+              <p className="landing-image-caption">
+                Hover to see it in action. This is what your visitors will see.
+              </p>
             </div>
           </div>
         </section>
