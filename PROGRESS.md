@@ -303,6 +303,40 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ## 🔮 Upcoming Priorities
 
+### Landing Page Redesign (Next Priority)
+
+**Goal**: Complete rewrite and redesign of the app's landing page (root domain `/`)
+
+**Current State**: Dark mode landing page matching the post-login app aesthetic
+
+**New Direction**: Light, bright landing page with completely separate styling from the app
+
+**Design Assets**:
+- Styling guidelines: `docs/basecamp-styling-guidelines-for-llm.md`
+- Copy & content (3 docs):
+  - `docs/easyask-landing-page-pass2-sections1-4.md` (Hero, Problem, Solution, Features)
+  - `docs/easyask-landing-page-pass2-sections5-8.md` (How It Works, Use Cases, Pricing, Testimonials)
+  - `docs/easyask-landing-page-pass2-sections9-12.md` (FAQ, CTA, Footer)
+
+**Technical Requirements**:
+- **Separate styling** - DO NOT use app's dark theme styles
+- New stylesheet specific to landing page
+- Isolated CSS/styling from post-login admin app
+- Light, bright aesthetic per design guidelines (Basecamp-inspired)
+
+**Files to Create/Update**:
+- `/src/app/page.tsx` - Landing page component
+- Landing page specific styles (separate from app styles)
+- Image assets per design docs
+
+**Reference Docs**:
+- `docs/basecamp-styling-guidelines-for-llm.md` - Styling guidelines
+- `docs/easyask-landing-page-pass2-sections1-4.md` - Sections 1-4 copy
+- `docs/easyask-landing-page-pass2-sections5-8.md` - Sections 5-8 copy
+- `docs/easyask-landing-page-pass2-sections9-12.md` - Sections 9-12 copy
+
+---
+
 ### Performance: Smart Caching Strategy (When Needed)
 **Current**: No caching - always fresh data (works great for 1-10 users)
 
