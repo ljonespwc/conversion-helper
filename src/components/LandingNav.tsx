@@ -1,0 +1,163 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { LogIn, LogOut, User, Menu, X } from 'lucide-react'
+
+interface LandingNavProps {
+  user: { email?: string | null; id: string } | null
+  loading?: boolean
+}
+
+export function LandingNav({ user, loading = false }: LandingNavProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const handleLogout = async () => {
+    const response = await fetch('/auth/logout', { method: 'POST' })
+    if (response.ok) {
+      window.location.href = '/'
+    }
+  }
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false)
+
+  return (
+    <nav className={`landing-nav ${isScrolled ? 'scrolled' : ''}`}>
+      <div className="landing-nav-container">
+        <div className="landing-nav-content">
+          {/* Logo */}
+          <div className="landing-logo">
+            <Link href="/" onClick={closeMobileMenu}>
+              <span className="landing-logo-text">EasyAsk</span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          {!loading && (
+            <div className="landing-nav-desktop">
+              {user ? (
+                <>
+                  <Link href="/test" className="landing-nav-link">
+                    Test Page
+                  </Link>
+                  <Link href="/admin" className="landing-nav-link">
+                    Reports
+                  </Link>
+                  <Link href="/admin/escalations" className="landing-nav-link">
+                    Escalations
+                  </Link>
+                  <Link href="/admin/pages" className="landing-nav-link">
+                    Pages
+                  </Link>
+                  <Link href="/admin/content" className="landing-nav-link">
+                    Knowledgebase
+                  </Link>
+
+                  {/* User Email Display */}
+                  <div className="landing-nav-user">
+                    <User className="w-4 h-4" />
+                    <span className="landing-nav-email">{user.email}</span>
+                  </div>
+
+                  {/* Logout Button */}
+                  <button onClick={handleLogout} className="landing-nav-link">
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a href="#features" className="landing-nav-link">
+                    Features
+                  </a>
+                  <a href="#pricing" className="landing-nav-link">
+                    Pricing
+                  </a>
+                  <a href="#faq" className="landing-nav-link">
+                    FAQ
+                  </a>
+                  <Link href="/login" className="landing-nav-link">
+                    Login
+                  </Link>
+                  <a href="#cta" className="landing-nav-cta">
+                    Get Early Access
+                  </a>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Mobile/Tablet Controls */}
+          <div className="landing-nav-mobile-controls">
+            {!loading && (
+              <>
+                {user ? (
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="landing-nav-hamburger"
+                    aria-label="Toggle menu"
+                  >
+                    {isMobileMenuOpen ? (
+                      <X className="w-5 h-5" />
+                    ) : (
+                      <Menu className="w-5 h-5" />
+                    )}
+                  </button>
+                ) : (
+                  <Link href="/login" className="landing-nav-login">
+                    <LogIn className="w-4 h-4" />
+                    <span>Login</span>
+                  </Link>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile/Tablet Menu Dropdown */}
+      {!loading && user && isMobileMenuOpen && (
+        <div className="landing-nav-mobile-menu">
+          <div className="landing-nav-mobile-menu-content">
+            <Link href="/test" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Test Page
+            </Link>
+            <Link href="/admin" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Reports
+            </Link>
+            <Link href="/admin/escalations" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Escalations
+            </Link>
+            <Link href="/admin/pages" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Pages
+            </Link>
+            <Link href="/admin/content" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Knowledgebase
+            </Link>
+
+            {/* User Email */}
+            <div className="landing-nav-mobile-user">
+              <User className="w-4 h-4" />
+              <span>{user.email}</span>
+            </div>
+
+            {/* Logout Button */}
+            <button onClick={handleLogout} className="landing-nav-mobile-link">
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </nav>
+  )
+}
