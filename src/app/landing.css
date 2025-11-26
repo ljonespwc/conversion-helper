@@ -1223,12 +1223,13 @@
 .landing-faq-answer {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0 1.5em;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .landing-faq-item[data-open="true"] .landing-faq-answer {
-  max-height: 1000px;
-  padding: 0 1.5em 1.5em 1.5em;
+  max-height: 300px;
+  padding: 1em 1.5em 1.5em 1.5em;
 }
 
 .landing-faq-answer p {
