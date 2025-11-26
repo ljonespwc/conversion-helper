@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
-import { ScrollAnimation } from '@/components/ScrollAnimation'
 import './landing.css'
 
 export default async function Home() {
@@ -53,11 +52,9 @@ export default async function Home() {
         {/* SECTION 2: THE PROBLEM */}
         <section className="landing-section landing-section-problem">
           <div className="landing-container-narrow">
-            <ScrollAnimation>
-              <h2 className="landing-section-heading">
-                Your website is a monologue. Visitors want a conversation.
-              </h2>
-            </ScrollAnimation>
+            <h2 className="landing-section-heading">
+              Your website is a monologue. Visitors want a conversation.
+            </h2>
             <p className="landing-subhead">
               And right now, you're losing them.
             </p>
@@ -171,16 +168,14 @@ export default async function Home() {
         {/* SECTION 5: THE 7 DIFFERENTIATORS */}
         <section className="landing-section landing-section-differentiators">
           <div className="landing-container">
-            <ScrollAnimation>
-              <div className="landing-section-intro">
-                <h2 className="landing-section-heading">
-                  Why EasyAsk works.
-                </h2>
-                <p className="landing-subhead">
-                  Seven things we do differently—and why they matter.
-                </p>
-              </div>
-            </ScrollAnimation>
+            <div className="landing-section-intro">
+              <h2 className="landing-section-heading">
+                Why EasyAsk works.
+              </h2>
+              <p className="landing-subhead">
+                Seven things we do differently—and why they matter.
+              </p>
+            </div>
 
             {/* Differentiator 1: Voice-First */}
             <div className="differentiator-card">
