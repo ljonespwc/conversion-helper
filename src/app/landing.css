@@ -523,8 +523,10 @@
 }
 
 .image-placeholder-tall {
-  aspect-ratio: 17 / 25; /* 340x500 */
+  aspect-ratio: 340 / 500;
   width: 100%;
+  max-width: 21.25rem; /* 340px equivalent */
+  margin: 0 auto; /* center horizontally */
 }
 
 .image-placeholder-landscape {
