@@ -440,6 +440,19 @@
   color: var(--landing-color-text-secondary);
 }
 
+/* Rotating Word Animation */
+.rotating-word-container {
+  display: inline-block;
+  position: relative;
+  width: 10.5ch; /* Fixed width for "conversion" - prevents text jump */
+}
+
+.rotating-word {
+  display: inline-block;
+  color: var(--landing-color-orange-text);
+  font-weight: 600;
+}
+
 .landing-supporting {
   font-size: var(--landing-font-size-x-small);
   letter-spacing: var(--landing-letter-spacing);
@@ -582,6 +595,7 @@
 
 .landing-section-product {
   background: transparent;
+  text-align: center;
 }
 
 .landing-section-heading {
@@ -653,6 +667,15 @@
   font-style: italic;
   font-weight: 500;
   color: var(--landing-color-text-primary);
+}
+
+.landing-callout-purple {
+  background: var(--landing-color-purple-bg);
+  border: 1px solid var(--landing-color-purple-border);
+  border-left: 3px solid var(--landing-color-purple-border);
+  border-radius: 8px;
+  color: var(--landing-color-purple-text);
+  text-align: center;
 }
 
 /* Stat Callout Boxes */

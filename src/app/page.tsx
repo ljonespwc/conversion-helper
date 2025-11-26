@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
 import WidgetButtonDemo from '@/components/landing/WidgetButtonDemo'
+import { RotatingWord } from '@/components/landing/RotatingWord'
 import './landing.css'
 
 export default async function Home() {
@@ -19,10 +20,10 @@ export default async function Home() {
             <div className="landing-hero-grid">
               <div className="landing-hero-content">
                 <h1 className="landing-h1">
-                  Don't make them read. Let them ask.
+                  Don't make your visitors read. Let them ask.
                 </h1>
                 <h2 className="landing-h2">
-                  Answer every question, capture every lead, with AI that knows your product.
+                  Answer their questions with 100% accuracy—at the moment of intent—and capture the <RotatingWord />
                 </h2>
                 <div className="landing-cta-wrapper">
                   <a href="#" className="landing-button-green landing-button-large landing-button-pulse">
@@ -56,19 +57,16 @@ export default async function Home() {
             <h2 className="landing-section-heading">
               Your website is a monologue. Visitors want a conversation.
             </h2>
-            <p className="landing-subhead">
-              And right now, you're losing them.
-            </p>
 
             {/* Stat Callouts */}
             <div className="landing-stat-callouts">
               <div className="landing-stat">
-                <span className="landing-stat-number">73%</span>
-                <span className="landing-stat-label">bounce rate on pricing pages</span>
+                <span className="landing-stat-number">24/7</span>
+                <span className="landing-stat-label">available when your sales team isn't</span>
               </div>
               <div className="landing-stat">
                 <span className="landing-stat-number">60%</span>
-                <span className="landing-stat-label">of traffic is mobile</span>
+                <span className="landing-stat-label">of traffic is mobile (TL;DR)</span>
               </div>
               <div className="landing-stat">
                 <span className="landing-stat-number">0</span>
@@ -78,61 +76,15 @@ export default async function Home() {
 
             <div className="landing-text-block">
               <p>
-                Your features page gets traffic but no demo requests. Your sales team spends half their day answering "What's the difference between Pro and Enterprise?" over email.
+                You built great content—case studies, comparison pages, an FAQ with 30 questions. Nobody reads it. Especially on mobile.
               </p>
 
               <p>
-                Meanwhile, prospects land on your site with real questions—and leave because finding answers takes too long.
+                What if every visitor could just <em>ask</em>—out loud—and get an instant, accurate answer? Not a chatbot. Not live chat with a 4-minute wait. Not generic AI that hallucinates.
               </p>
 
-              <p>
-                You built great content. Case studies. Comparison pages. A 2,000-word "How It Works" section. Nobody reads it. Especially not on mobile.
-              </p>
-
-              <p>
-                By the time they fill out a form—if they fill out a form—half your competitors have already talked to them.
-              </p>
-
-              <p className="landing-callout">
+              <p className="landing-callout landing-callout-purple">
                 Every silent bounce is a conversation that never happened.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 3: THE SHIFT */}
-        <section className="landing-section">
-          <div className="landing-container-narrow">
-            <h2 className="landing-section-heading">
-              What if your website could answer back?
-            </h2>
-
-            <div className="landing-text-block">
-              <ul className="landing-icon-list">
-                <li>
-                  <span className="icon icon-negative">✕</span>
-                  <span>Not with a chatbot that makes visitors type paragraphs into a tiny box.</span>
-                </li>
-                <li>
-                  <span className="icon icon-negative">✕</span>
-                  <span>Not with live chat that says "Average wait time: 4 minutes."</span>
-                </li>
-                <li>
-                  <span className="icon icon-negative">✕</span>
-                  <span>Not with a generic AI that hallucinates answers and damages your brand.</span>
-                </li>
-              </ul>
-
-              <p>
-                What if every visitor could just <em>ask</em>—out loud—and get an instant, accurate answer based on your actual content?
-              </p>
-
-              <p>
-                Imagine: A prospect lands on your pricing page at 11pm. They have one question about enterprise features. Instead of bouncing to a competitor, they tap a button, ask their question, and get a real answer in 3 seconds. They're satisfied. They're engaged. And you captured their intent before they ever filled out a form.
-              </p>
-
-              <p className="landing-callout">
-                That's not a better chatbot. That's a different category entirely.
               </p>
             </div>
           </div>
@@ -142,46 +94,31 @@ export default async function Home() {
         <section className="landing-section landing-section-product">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
-              Meet EasyAsk
+              EasyAsk answers when your visitors ask.
             </h2>
-            <p className="landing-subhead">
-              The voice sales assistant that turns your website into a buying experience.
-            </p>
 
             <div className="landing-widget-demo-centered">
               <WidgetButtonDemo />
             </div>
 
             <div className="landing-text-block">
-              <p>
-                EasyAsk is a voice-enabled AI assistant built for B2B websites. It replaces static content with real-time conversation—answering product questions, handling objections, and capturing purchase intent while your prospects are still on the page.
-              </p>
-
               <ul className="landing-icon-list">
                 <li>
                   <span className="icon">›</span>
-                  <span>Feed it your website pages, sales decks, pricing sheets, and battle cards. It learns your product in minutes.</span>
+                  <span>Feed it your pages, sales decks, pricing sheets. It learns your product in minutes.</span>
                 </li>
                 <li>
                   <span className="icon">›</span>
-                  <span>It answers visitor questions using <em>your</em> words, grounded in <em>your</em> content—never inventing, never hallucinating.</span>
+                  <span>Answers in <em>your</em> words—never inventing, never hallucinating.</span>
                 </li>
                 <li>
                   <span className="icon">›</span>
-                  <span>When the AI can't fully answer? It captures the visitor's email and question, then flags it for your sales team.</span>
+                  <span>Can't answer? Captures their email and flags it for sales.</span>
                 </li>
               </ul>
 
-              <p className="landing-callout">
-                This isn't a chatbot. It's not customer support. It's not another enterprise tool that takes 6 months to implement.
-              </p>
-
-              <p className="landing-category">
-                It's a new category: <strong>Voice Sales Assistant.</strong>
-              </p>
-
-              <p>
-                Built for growth and marketing teams who need to turn website traffic into pipeline—without waiting for engineering, without enterprise complexity, without the "let me get back to you" delays that kill deals.
+              <p className="landing-callout landing-callout-purple">
+                Not a chatbot. Not support. Not another 6-month rollout.
               </p>
             </div>
           </div>
@@ -759,7 +696,7 @@ export default async function Home() {
                 </li>
               </ul>
 
-              <p className="landing-callout">
+              <p className="landing-callout landing-callout-purple">
                 You could have your first conversation with a real visitor today.
               </p>
             </div>
