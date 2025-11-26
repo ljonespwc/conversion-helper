@@ -56,17 +56,17 @@
   --landing-color-purple-tint: rgba(147, 51, 234, 0.05);
   --landing-color-green-tint: rgba(34, 197, 94, 0.05);
 
-  /* Typography - Fluid scaling */
-  --landing-font-size: max(1.375rem, 2.225vw);
-  --landing-font-size-xxxx-small: max(0.875rem, 50%);
-  --landing-font-size-xxx-small: max(0.9375rem, 60%);
-  --landing-font-size-xx-small: max(1rem, 65%);
-  --landing-font-size-x-small: max(1.0625rem, 75%);
-  --landing-font-size-small: 85%;
-  --landing-font-size-medium: 120%;
-  --landing-font-size-large: 140%;
-  --landing-font-size-x-large: 160%;
-  --landing-font-size-xx-large: 200%;
+  /* Typography - Relative scaling for zoom compatibility */
+  --landing-font-size: 1rem;
+  --landing-font-size-xxxx-small: 0.75rem;
+  --landing-font-size-xxx-small: 0.875rem;
+  --landing-font-size-xx-small: 0.9375rem;
+  --landing-font-size-x-small: 1rem;
+  --landing-font-size-small: 1.125rem;
+  --landing-font-size-medium: 1.25rem;
+  --landing-font-size-large: 1.5rem;
+  --landing-font-size-x-large: 1.75rem;
+  --landing-font-size-xx-large: 2.5rem;
 
   /* Letter spacing - negative for refined look */
   --landing-letter-spacing: -0.025em;
@@ -111,10 +111,10 @@
 /* Scale up typography on desktop */
 @media (min-width: 64em) {
   :root {
-    --landing-font-size-medium: 125%;
-    --landing-font-size-large: 175%;
-    --landing-font-size-x-large: 200%;
-    --landing-font-size-xx-large: 300%;
+    --landing-font-size-medium: 1.5rem;
+    --landing-font-size-large: 2rem;
+    --landing-font-size-x-large: 2.5rem;
+    --landing-font-size-xx-large: 3.5rem;
   }
 }
 
@@ -124,7 +124,7 @@
 
 .landing-page {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: var(--landing-font-size);
+  font-size: 1rem;
   letter-spacing: var(--landing-letter-spacing);
   line-height: var(--landing-line-height);
   color: var(--landing-color-text-primary);
@@ -379,13 +379,13 @@
    ================================= */
 
 .landing-container {
-  max-width: 80em;
+  max-width: 75rem;
   margin: 0 auto;
   padding: 0 var(--landing-space-neutral);
 }
 
 .landing-container-narrow {
-  max-width: 35em;
+  max-width: 55rem;
   margin: 0 auto;
   padding: 0 var(--landing-space-neutral);
 }
@@ -395,7 +395,7 @@
    ================================= */
 
 .landing-hero {
-  padding-top: calc(4em + 80px); /* Account for fixed nav */
+  padding-top: 8rem; /* Account for fixed nav - all in rem for zoom */
   padding-bottom: var(--landing-space-xxx-large);
   /* Subtle radial gradient overlay */
   background:
@@ -493,6 +493,76 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Image wrapper constraints - use max-width in rem for zoom compatibility */
+.landing-image-wrapper-small {
+  max-width: 31.25rem; /* 500px equivalent */
+  width: 100%;
+}
+
+.landing-image-wrapper-medium {
+  max-width: 37.5rem; /* 600px equivalent */
+  width: 100%;
+}
+
+.landing-image-wrapper-large {
+  max-width: 50rem; /* 800px equivalent */
+  width: 100%;
+}
+
+/* Image placeholders - use aspect ratio instead of fixed heights */
+.image-placeholder-hero {
+  aspect-ratio: 5 / 4; /* 500x400 */
+  width: 100%;
+}
+
+.image-placeholder-wide {
+  aspect-ratio: 4 / 1; /* 600x150 */
+  width: 100%;
+}
+
+.image-placeholder-tall {
+  aspect-ratio: 17 / 25; /* 340x500 */
+  width: 100%;
+}
+
+.image-placeholder-landscape {
+  aspect-ratio: 3 / 2; /* 600x400 */
+  width: 100%;
+}
+
+.image-placeholder-landscape-wide {
+  aspect-ratio: 13 / 9; /* 650x450 */
+  width: 100%;
+}
+
+.image-placeholder-square {
+  aspect-ratio: 4 / 3; /* 600x450 */
+  width: 100%;
+}
+
+.image-placeholder-ultrawide {
+  aspect-ratio: 4 / 1; /* 800x200 */
+  width: 100%;
+}
+
+.image-placeholder-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+}
+
+.image-placeholder-icon-large {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+}
+
+.image-placeholder-icon-xlarge {
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 50%;
 }
 
 /* =================================

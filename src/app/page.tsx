@@ -31,8 +31,8 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-hero-image">
-                <div style={{ maxWidth: '500px' }}>
-                  <div className="image-placeholder" style={{ width: '100%', height: '400px' }}>
+                <div className="landing-image-wrapper-small">
+                  <div className="image-placeholder image-placeholder-hero">
                     <div className="image-placeholder-text">
                       <strong>assistant_speaking.jpg</strong>
                       <br />
@@ -150,8 +150,8 @@ export default async function Home() {
             </div>
 
             <div className="landing-image-centered">
-              <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <div className="image-placeholder" style={{ width: '100%', height: '150px' }}>
+              <div className="landing-image-wrapper-medium" style={{ margin: '0 auto' }}>
+                <div className="image-placeholder image-placeholder-wide">
                   <div className="image-placeholder-text">
                     <strong>assistant_launcher.png</strong>
                     <br />
@@ -207,8 +207,8 @@ export default async function Home() {
                   </div>
                 </div>
                 <div className="landing-differentiator-image">
-                  <div style={{ maxWidth: '340px' }}>
-                    <div className="image-placeholder" style={{ width: '100%', height: '500px' }}>
+                  <div className="landing-image-wrapper-small">
+                    <div className="image-placeholder image-placeholder-tall">
                       <div className="image-placeholder-text">
                         <strong>assistant_active.png</strong>
                         <br />
@@ -249,8 +249,8 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div style={{ maxWidth: '600px' }}>
-                  <div className="image-placeholder" style={{ width: '100%', height: '400px' }}>
+                <div className="landing-image-wrapper-medium">
+                  <div className="image-placeholder image-placeholder-landscape">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__assistant_knowledgebase.png</strong>
                       <br />
@@ -290,8 +290,8 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div style={{ maxWidth: '600px' }}>
-                  <div className="image-placeholder" style={{ width: '100%', height: '450px' }}>
+                <div className="landing-image-wrapper-medium">
+                  <div className="image-placeholder image-placeholder-square">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__assistant_pages.png</strong>
                       <br />
@@ -334,8 +334,8 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div style={{ maxWidth: '600px' }}>
-                  <div className="image-placeholder" style={{ width: '100%', height: '400px' }}>
+                <div className="landing-image-wrapper-medium">
+                  <div className="image-placeholder image-placeholder-landscape">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__sales_leads.png</strong>
                       <br />
@@ -379,8 +379,8 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div style={{ maxWidth: '650px' }}>
-                  <div className="image-placeholder" style={{ width: '100%', height: '450px' }}>
+                <div className="landing-image-wrapper-medium">
+                  <div className="image-placeholder image-placeholder-landscape-wide">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__reporting.png</strong>
                       <br />
@@ -451,8 +451,8 @@ export default async function Home() {
                   </ul>
                 </div>
                 <div className="landing-image-centered" style={{ marginTop: '2em' }}>
-                  <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <div className="image-placeholder" style={{ width: '100%', height: '200px' }}>
+                  <div className="landing-image-wrapper-large" style={{ margin: '0 auto' }}>
+                    <div className="image-placeholder image-placeholder-ultrawide">
                       <div className="image-placeholder-text">
                         <strong>4-step process diagram</strong>
                         <br />
@@ -517,8 +517,8 @@ export default async function Home() {
               {/* Card 1 */}
               <div className="landing-use-case-card">
                 <div className="landing-use-case-icon">
-                  <div className="image-placeholder" style={{ width: '48px', height: '48px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Puzzle
                     </div>
                   </div>
@@ -534,8 +534,8 @@ export default async function Home() {
               {/* Card 2 */}
               <div className="landing-use-case-card">
                 <div className="landing-use-case-icon">
-                  <div className="image-placeholder" style={{ width: '48px', height: '48px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Scale
                     </div>
                   </div>
@@ -551,8 +551,8 @@ export default async function Home() {
               {/* Card 3 */}
               <div className="landing-use-case-card">
                 <div className="landing-use-case-icon">
-                  <div className="image-placeholder" style={{ width: '48px', height: '48px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Mobile
                     </div>
                   </div>
@@ -568,8 +568,8 @@ export default async function Home() {
               {/* Card 4 */}
               <div className="landing-use-case-card">
                 <div className="landing-use-case-icon">
-                  <div className="image-placeholder" style={{ width: '48px', height: '48px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Team
                     </div>
                   </div>
@@ -598,8 +598,8 @@ export default async function Home() {
             <div className="landing-steps">
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder" style={{ width: '64px', height: '64px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon-large">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Globe
                     </div>
                   </div>
@@ -614,8 +614,8 @@ export default async function Home() {
 
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder" style={{ width: '64px', height: '64px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon-large">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Upload
                     </div>
                   </div>
@@ -630,8 +630,8 @@ export default async function Home() {
 
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder" style={{ width: '64px', height: '64px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon-large">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Tag
                     </div>
                   </div>
@@ -646,8 +646,8 @@ export default async function Home() {
 
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder" style={{ width: '64px', height: '64px', borderRadius: '50%' }}>
-                    <div className="image-placeholder-text" style={{ fontSize: '10px', padding: '0.5em' }}>
+                  <div className="image-placeholder image-placeholder-icon-large">
+                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
                       Rocket
                     </div>
                   </div>
@@ -740,8 +740,8 @@ export default async function Home() {
               </div>
 
               <div className="landing-next-steps-icon">
-                <div className="image-placeholder" style={{ width: '120px', height: '120px', borderRadius: '50%' }}>
-                  <div className="image-placeholder-text" style={{ fontSize: '11px', padding: '0.8em' }}>
+                <div className="image-placeholder image-placeholder-icon-xlarge">
+                  <div className="image-placeholder-text" style={{ fontSize: '0.6875rem', padding: '0.8em' }}>
                     <strong>Icon</strong>
                     <br />
                     120x120
