@@ -537,9 +537,9 @@
 }
 
 .image-placeholder-tall {
-  aspect-ratio: 340 / 500;
+  aspect-ratio: 240 / 300;
   width: 100%;
-  max-width: 21.25rem; /* 340px equivalent */
+  max-width: 15rem; /* 240px equivalent */
   margin: 0 auto; /* center horizontally */
 }
 
@@ -912,6 +912,10 @@
 
 .landing-section-clarity {
   background: var(--landing-color-paper);
+}
+
+.landing-section-clarity .landing-section-heading {
+  text-align: center;
 }
 
 .landing-comparison-table {

@@ -129,11 +129,8 @@ export default async function Home() {
           <div className="landing-container">
             <div className="landing-section-intro">
               <h2 className="landing-section-heading">
-                Why EasyAsk works.
+                What makes EasyAsk deliciously different.
               </h2>
-              <p className="landing-subhead">
-                Seven things we do differently—and why they matter.
-              </p>
             </div>
 
             {/* Differentiator 1: Voice-First */}
@@ -147,16 +144,10 @@ export default async function Home() {
                     Speaking is 3x faster than typing. Lower friction = higher engagement.
                   </p>
                   <div className="landing-text-block">
-                    <p>
-                      Your visitors have questions. Typing them into a chat box is a chore—especially on mobile, where thumbs are slow and autocorrect is aggressive.
-                    </p>
-                    <p>
-                      Voice changes everything. Visitors tap a button, ask their question out loud, and get an answer in seconds. They say more than they'd ever type. Richer questions mean better answers. And because there's no friction, they actually engage instead of bouncing.
-                    </p>
                     <ul className="landing-sub-diff-list">
-                      <li><strong>Interruptible conversation</strong> — Talk to it like a human. Interrupt mid-sentence, redirect, ask follow-ups. No waiting for it to finish.</li>
-                      <li><strong>Zero wait time</strong> — Instant answers. No queue. No "an agent will be with you shortly."</li>
-                      <li><strong>Mobile-native</strong> — Built for thumbs-free interaction. Because nobody types paragraphs on their phone.</li>
+                      <li><strong>Interruptible.</strong> Talk to it like a human. Interrupt, redirect, follow up.</li>
+                      <li><strong>Instant.</strong> No queue. No "an agent will be with you shortly."</li>
+                      <li><strong>Mobile-native.</strong> Thumbs-free. Because nobody types paragraphs on their phone.</li>
                     </ul>
                   </div>
                 </div>
@@ -166,9 +157,9 @@ export default async function Home() {
                       <div className="image-placeholder-text">
                         <strong>assistant_active.png</strong>
                         <br />
-                        340w x 500h
+                        240w x 300h
                         <br /><br />
-                        Widget in "Speaking..." state with audio visualization active and "(Feel free to interrupt)" text visible
+                        Widget in "Speaking..." state with audio visualization active
                       </div>
                     </div>
                     <p className="landing-image-caption">
@@ -190,27 +181,21 @@ export default async function Home() {
                   Every answer comes from your actual content. Nothing invented. Nothing off-brand.
                 </p>
                 <div className="landing-text-block">
-                  <p>
-                    Generic AI tools make things up. They sound confident while saying something completely wrong about your product. That's not a sales tool—it's a liability.
-                  </p>
-                  <p>
-                    EasyAsk only answers from content you provide. Scrape your website pages in seconds. Upload your sales decks, case studies, pricing sheets, battle cards. The AI learns your product, your messaging, your voice—then uses it to answer questions accurately.
-                  </p>
                   <ul className="landing-sub-diff-list">
-                    <li><strong>Grounded in your content</strong> — Scrape pages in seconds. Upload any doc. The AI references only what you give it.</li>
-                    <li><strong>Always current</strong> — Daily auto-sync keeps the AI up to date. Change your pricing? Update a feature? The AI knows tomorrow.</li>
+                    <li><strong>Grounded.</strong> Scrape pages in seconds. Upload any doc. The AI only references what you give it.</li>
+                    <li><strong>Always current.</strong> Change your pricing Monday, the AI knows Tuesday.</li>
                   </ul>
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-medium">
+                <div className="landing-image-wrapper-small">
                   <div className="image-placeholder image-placeholder-landscape">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__assistant_knowledgebase.png</strong>
                       <br />
-                      600w x 400h
+                      400w x 267h
                       <br /><br />
-                      Knowledgebase management screen showing "28 in registry," scraped pages, uploaded docs
+                      Knowledgebase management screen showing scraped pages, uploaded docs
                     </div>
                   </div>
                   <p className="landing-image-caption">
@@ -231,25 +216,19 @@ export default async function Home() {
                 <p className="landing-differentiator-subhead">
                   Different pages = different visitor intent. EasyAsk adapts.
                 </p>
-                <div className="landing-text-block">
-                  <p>
-                    A visitor on your pricing page has different questions than one on your features page. Generic chatbots don't know the difference. EasyAsk does.
-                  </p>
-                  <p>
-                    You control which content the AI can access on each page. Pricing page? It talks pricing, plans, and ROI. Features page? It demonstrates value and explains how things work. Comparison page? It handles objections against competitors.
-                  </p>
-                  <p>
-                    No generic answers. Every response matches where the visitor is in their journey.
-                  </p>
-                </div>
+                <ul className="landing-sub-diff-list">
+                  <li><strong>Contextual.</strong> Pricing page talks pricing. Features page demonstrates value. No generic answers.</li>
+                  <li><strong>Configurable.</strong> You control which content the AI can access on each page.</li>
+                  <li><strong>Intent-matched.</strong> Every response matches where the visitor is in their journey.</li>
+                </ul>
               </div>
               <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-medium">
+                <div className="landing-image-wrapper-small">
                   <div className="image-placeholder image-placeholder-square">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__assistant_pages.png</strong>
                       <br />
-                      600w x 450h
+                      400w x 300h
                       <br /><br />
                       Assistant Pages screen showing page list with tags (Sell, Lead, Support) and active/inactive toggles
                     </div>
@@ -270,30 +249,21 @@ export default async function Home() {
                   Didn't get their answer? Got their email.
                 </h3>
                 <p className="landing-differentiator-subhead">
-                  If AI can't fully answer, it captures the question AND the contact. No hot prospect left behind.
+                  If AI can't fully answer, it captures the question AND the contact.
                 </p>
-                <div className="landing-text-block">
-                  <p>
-                    Every AI has limits. The question is what happens when it hits one.
-                  </p>
-                  <p>
-                    Most tools just say "I don't know" and let the visitor leave. EasyAsk captures their email and the exact question they asked, then flags the conversation in your sales queue. Your team sees the full context—what they asked, what the AI said, where it fell short.
-                  </p>
-                  <p>
-                    That "I'll think about it" visitor? Now they're a warm lead with a specific question you can answer directly.
-                  </p>
-                  <ul className="landing-sub-diff-list">
-                    <li><strong>Context-rich handoffs</strong> — Your sales team sees the whole conversation, not just "someone wants to talk." They know exactly what to address.</li>
-                  </ul>
-                </div>
+                <ul className="landing-sub-diff-list">
+                  <li><strong>Graceful fallback.</strong> AI hits a limit? It captures their email and the exact question.</li>
+                  <li><strong>Full context handoffs.</strong> Sales sees the whole conversation, not just "someone wants to talk."</li>
+                  <li><strong>Strike while hot.</strong> Your team follows up while the question—and the intent—is still fresh.</li>
+                </ul>
               </div>
               <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-medium">
+                <div className="landing-image-wrapper-small">
                   <div className="image-placeholder image-placeholder-landscape">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__sales_leads.png</strong>
                       <br />
-                      600w x 400h
+                      400w x 267h
                       <br /><br />
                       Sales Leads / Escalations dashboard showing email, conversation preview, resolved/unresolved status, flagged messages
                     </div>
@@ -311,34 +281,23 @@ export default async function Home() {
               <div className="landing-differentiator">
               <div className="landing-differentiator-content">
                 <h3 className="landing-differentiator-heading">
-                  Know what they care about before they tell you who they are.
+                  See what visitors care about before they fill out a form.
                 </h3>
                 <p className="landing-differentiator-subhead">
-                  See what anonymous visitors are asking—before they fill out a form.
+                  Every conversation is captured. Every question is a signal.
                 </p>
-                <div className="landing-text-block">
-                  <p>
-                    Right now, you don't know what prospects care about until they book a demo. By then, you've already lost the ones who didn't.
-                  </p>
-                  <p>
-                    EasyAsk captures every conversation. You see what questions visitors ask, which pages trigger the most engagement, where your content has gaps, and how satisfied visitors are with the answers they get.
-                  </p>
-                  <p>
-                    Intent signals from prospects who never would have filled out a form. Market research from real conversations, not surveys.
-                  </p>
-                  <ul className="landing-sub-diff-list">
-                    <li><strong>Content gap discovery</strong> — See exactly where your content fails. Fix it before you lose another lead.</li>
-                    <li><strong>Anonymous visitor intent</strong> — Know what they're thinking before they identify themselves. Prioritize follow-ups based on real signals.</li>
-                  </ul>
-                </div>
+                <ul className="landing-sub-diff-list">
+                  <li><strong>Content intelligence.</strong> See what visitors ask, which pages spark engagement, and where your answers fall short.</li>
+                  <li><strong>Real market research.</strong> Patterns from actual conversations. Not surveys people lie on.</li>
+                </ul>
               </div>
               <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-medium">
+                <div className="landing-image-wrapper-small">
                   <div className="image-placeholder image-placeholder-landscape-wide">
                     <div className="image-placeholder-text">
                       <strong>easyask_backend__reporting.png</strong>
                       <br />
-                      650w x 450h
+                      400w x 267h
                       <br /><br />
                       Reports & Analytics dashboard showing Total Conversations, Session Duration, User Feedback (thumbs up/down), Recent Conversations with transcript previews
                     </div>
@@ -351,35 +310,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Differentiator 6: Built for Sales */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator landing-differentiator-text-only">
-              <div className="landing-differentiator-content-full">
-                <h3 className="landing-differentiator-heading">
-                  This isn't customer support. It's revenue generation.
-                </h3>
-                <p className="landing-differentiator-subhead">
-                  EasyAsk is for pre-purchase prospects, not post-purchase tickets.
-                </p>
-                <div className="landing-text-block">
-                  <p>
-                    Most website AI tools are designed to deflect support tickets. Reduce costs. Handle complaints. That's not what you need on your marketing pages.
-                  </p>
-                  <p>
-                    EasyAsk is built for the moment before someone buys. It answers product questions, handles objections in real-time, captures purchase intent, and escalates to your sales team—not your support queue.
-                  </p>
-                  <p>
-                    Every conversation is a sales opportunity, not a cost center.
-                  </p>
-                  <ul className="landing-sub-diff-list">
-                    <li><strong>Buyer-led, not seller-led</strong> — Let prospects lead the conversation. No scripts. No funnels. Answer what they actually care about, not what you want to pitch.</li>
-                  </ul>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            {/* Differentiator 7: Self-Serve Setup */}
+            {/* Differentiator 6: Self-Serve Setup */}
             <div className="differentiator-card">
               <div className="landing-differentiator landing-differentiator-text-only">
               <div className="landing-differentiator-content-full">
@@ -389,21 +320,11 @@ export default async function Home() {
                 <p className="landing-differentiator-subhead">
                   No developers. No integrations. No enterprise sales cycle.
                 </p>
-                <div className="landing-text-block">
-                  <p>
-                    Enterprise tools like Drift and Qualified take months to implement. You need IT, engineering, procurement, and a six-figure budget.
-                  </p>
-                  <p>
-                    EasyAsk is self-serve. Scrape your site, upload your docs, assign content to pages, paste one embed code. You're live. Update your content anytime—no dev tickets, no waiting.
-                  </p>
-                  <p>
-                    Built for growth and marketing teams who move fast and don't have time for "implementation phases."
-                  </p>
-                  <ul className="landing-sub-diff-list">
-                    <li><strong>No training required</strong> — No intents. No flows. No chatbot builder. Just point it at your content and go.</li>
-                    <li><strong>Works on your existing site</strong> — No redesign. No migration. Add it in 5 minutes without touching your codebase.</li>
-                  </ul>
-                </div>
+                <ul className="landing-sub-diff-list">
+                  <li><strong>Self-serve setup.</strong> Scrape your site, upload docs, assign content to pages, paste one embed code.</li>
+                  <li><strong>No training required.</strong> No flows. No chatbot builder. Point it at your content and go.</li>
+                  <li><strong>Works on any site.</strong> No redesign. No migration. Add it without touching your codebase.</li>
+                </ul>
                 <div className="landing-image-centered" style={{ marginTop: '2em' }}>
                   <div className="landing-image-wrapper-large" style={{ margin: '0 auto' }}>
                     <div className="image-placeholder image-placeholder-ultrawide">
@@ -430,7 +351,7 @@ export default async function Home() {
         <section className="landing-section landing-section-clarity">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
-              Let's be clear about what this is.
+              What you're getting. What you're not.
             </h2>
 
             <div className="landing-comparison-table">
