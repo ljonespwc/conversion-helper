@@ -78,10 +78,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Normalize page URLs to ensure trailing slashes for consistent matching
-    // This prevents mismatch between "https://example.com" and "https://example.com/"
+    // Only add trailing slash to ROOT URLs (e.g., "https://example.com" -> "https://example.com/")
+    // Path URLs like "https://example.com/page" stay as-is (matching gemini-file-search.ts logic)
     const normalizedPageUrls = pageUrls.map((url: string) => {
-      // Add trailing slash if not present
-      return url.endsWith('/') ? url : `${url}/`
+      try {
+        const parsed = new URL(url)
+        // Add trailing slash only if it's a root URL (no path or just "/")
+        if (!parsed.pathname || parsed.pathname === '/') {
+          return url.endsWith('/') ? url : `${url}/`
+        }
+        return url // Path URLs stay as-is
+      } catch {
+        return url // Invalid URL - use as-is
+      }
     })
 
     const results = []
