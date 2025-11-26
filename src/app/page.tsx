@@ -59,9 +59,25 @@ export default async function Home() {
               And right now, you're losing them.
             </p>
 
+            {/* Stat Callouts */}
+            <div className="landing-stat-callouts">
+              <div className="landing-stat">
+                <span className="landing-stat-number">73%</span>
+                <span className="landing-stat-label">bounce rate on pricing pages</span>
+              </div>
+              <div className="landing-stat">
+                <span className="landing-stat-number">60%</span>
+                <span className="landing-stat-label">of traffic is mobile</span>
+              </div>
+              <div className="landing-stat">
+                <span className="landing-stat-number">0</span>
+                <span className="landing-stat-label">visibility into visitor intent</span>
+              </div>
+            </div>
+
             <div className="landing-text-block">
               <p>
-                Your pricing page has a 73% bounce rate. Your features page gets traffic but no demo requests. Your sales team spends half their day answering "What's the difference between Pro and Enterprise?" over email.
+                Your features page gets traffic but no demo requests. Your sales team spends half their day answering "What's the difference between Pro and Enterprise?" over email.
               </p>
 
               <p>
@@ -69,14 +85,14 @@ export default async function Home() {
               </p>
 
               <p>
-                You built great content. Case studies. Comparison pages. A 2,000-word "How It Works" section. Nobody reads it. Especially not on mobile, where 60% of your traffic comes from.
+                You built great content. Case studies. Comparison pages. A 2,000-word "How It Works" section. Nobody reads it. Especially not on mobile.
               </p>
 
               <p>
-                You have zero visibility into what anonymous visitors actually care about. By the time they fill out a form—if they fill out a form—half your competitors have already talked to them.
+                By the time they fill out a form—if they fill out a form—half your competitors have already talked to them.
               </p>
 
-              <p className="landing-closing-line">
+              <p className="landing-callout">
                 Every silent bounce is a conversation that never happened.
               </p>
             </div>
@@ -91,9 +107,20 @@ export default async function Home() {
             </h2>
 
             <div className="landing-text-block">
-              <p>
-                Not with a chatbot that makes visitors type paragraphs into a tiny box. Not with live chat that says "Average wait time: 4 minutes." Not with a generic AI that hallucinates answers and damages your brand.
-              </p>
+              <ul className="landing-icon-list">
+                <li>
+                  <span className="icon">✕</span>
+                  <span>Not with a chatbot that makes visitors type paragraphs into a tiny box.</span>
+                </li>
+                <li>
+                  <span className="icon">✕</span>
+                  <span>Not with live chat that says "Average wait time: 4 minutes."</span>
+                </li>
+                <li>
+                  <span className="icon">✕</span>
+                  <span>Not with a generic AI that hallucinates answers and damages your brand.</span>
+                </li>
+              </ul>
 
               <p>
                 What if every visitor could just <em>ask</em>—out loud—and get an instant, accurate answer based on your actual content?
@@ -103,7 +130,7 @@ export default async function Home() {
                 Imagine: A prospect lands on your pricing page at 11pm. They have one question about enterprise features. Instead of bouncing to a competitor, they tap a button, ask their question, and get a real answer in 3 seconds. They're satisfied. They're engaged. And you captured their intent before they ever filled out a form.
               </p>
 
-              <p className="landing-closing-line">
+              <p className="landing-callout">
                 That's not a better chatbot. That's a different category entirely.
               </p>
             </div>
@@ -125,15 +152,22 @@ export default async function Home() {
                 EasyAsk is a voice-enabled AI assistant built for B2B websites. It replaces static content with real-time conversation—answering product questions, handling objections, and capturing purchase intent while your prospects are still on the page.
               </p>
 
-              <p>
-                Feed it your website pages, sales decks, pricing sheets, and battle cards. It learns your product in minutes. Then it answers visitor questions using <em>your</em> words, grounded in <em>your</em> content—never inventing, never hallucinating.
-              </p>
+              <ul className="landing-icon-list">
+                <li>
+                  <span className="icon">+</span>
+                  <span>Feed it your website pages, sales decks, pricing sheets, and battle cards. It learns your product in minutes.</span>
+                </li>
+                <li>
+                  <span className="icon">+</span>
+                  <span>It answers visitor questions using <em>your</em> words, grounded in <em>your</em> content—never inventing, never hallucinating.</span>
+                </li>
+                <li>
+                  <span className="icon">+</span>
+                  <span>When the AI can't fully answer? It captures the visitor's email and question, then flags it for your sales team.</span>
+                </li>
+              </ul>
 
-              <p>
-                When the AI can't fully answer? It captures the visitor's email and question, then flags the conversation for your sales team. No hot prospect slips through.
-              </p>
-
-              <p>
+              <p className="landing-callout">
                 This isn't a chatbot. It's not customer support. It's not another enterprise tool that takes 6 months to implement.
               </p>
 
