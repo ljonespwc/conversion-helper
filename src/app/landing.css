@@ -257,23 +257,22 @@
 .landing-nav-cta {
   padding: 0.5em 1em;
   font-size: var(--landing-font-size-xxx-small);
-  font-weight: 600;
-  color: var(--landing-color-text-primary);
-  background: linear-gradient(to right, var(--landing-color-cta-from), var(--landing-color-cta-to));
-  border: none;
+  font-weight: 500;
+  color: var(--landing-color-green-text);
+  background: rgba(20, 83, 45, 0.3); /* green-900/30 */
+  border: 1px solid rgba(34, 197, 94, 0.3); /* green-500/30 */
   border-radius: var(--landing-border-radius);
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-purple), 0.3);
+  box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.15);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .landing-nav-cta:hover {
-  background: linear-gradient(to right, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
-  transform: translateY(-1px);
-  box-shadow:
-    0 4px 12px rgba(var(--landing-rgb-purple), 0.4),
-    0 0 0 3px rgba(var(--landing-rgb-purple), 0.15);
+  background: rgba(20, 83, 45, 0.5); /* green-900/50 */
+  border-color: rgba(34, 197, 94, 0.5); /* green-500/50 */
+  color: rgb(187, 247, 208); /* green-200 - brighter on hover */
+  box-shadow: 0 4px 16px rgba(var(--landing-rgb-green), 0.25);
 }
 
 .landing-nav-user {
@@ -466,27 +465,26 @@
   font-size: var(--landing-font-size-xxx-small);
   font-weight: 500;
   letter-spacing: var(--landing-letter-spacing);
-  color: var(--landing-color-text-primary);
-  background: linear-gradient(to right, var(--landing-color-cta-from), var(--landing-color-cta-to));
-  border: none;
+  color: var(--landing-color-green-text);
+  background: rgba(20, 83, 45, 0.3); /* green-900/30 */
+  border: 1px solid rgba(34, 197, 94, 0.3); /* green-500/30 */
   border-radius: var(--landing-border-radius);
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-purple), 0.3);
+  box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.15);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .landing-button-green:hover {
-  background: linear-gradient(to right, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
-  transform: translateY(-2px);
-  box-shadow:
-    0 6px 16px rgba(var(--landing-rgb-purple), 0.4),
-    0 0 0 4px rgba(var(--landing-rgb-purple), 0.15);
+  background: rgba(20, 83, 45, 0.5); /* green-900/50 */
+  border-color: rgba(34, 197, 94, 0.5); /* green-500/50 */
+  color: rgb(187, 247, 208); /* green-200 - brighter on hover */
+  box-shadow: 0 4px 16px rgba(var(--landing-rgb-green), 0.25);
 }
 
 .landing-button-green:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-purple), 0.3);
+  background: rgba(20, 83, 45, 0.6); /* green-900/60 */
+  box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.2);
 }
 
 .landing-hero-image {
@@ -1385,4 +1383,29 @@ a:focus,
 button:focus {
   outline: 0.1em solid var(--landing-color-blue-text);
   outline-offset: 0.12em;
+}
+
+/* =================================
+   CTA PULSE ANIMATION
+   ================================= */
+
+@keyframes cta-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.15);
+  }
+  50% {
+    box-shadow:
+      0 4px 16px rgba(var(--landing-rgb-green), 0.35),
+      0 0 24px rgba(var(--landing-rgb-green), 0.2);
+  }
+}
+
+/* Apply pulse to CTA buttons */
+.landing-button-pulse {
+  animation: cta-pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* Pause animation on hover (user is interacting) */
+.landing-button-pulse:hover {
+  animation: none;
 }
