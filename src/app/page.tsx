@@ -22,11 +22,8 @@ export default async function Home() {
                   Don't make them read. Let them ask.
                 </h1>
                 <h2 className="landing-h2">
-                  Turn browsing into buying. Answer every question, capture every lead, with AI that knows your product.
+                  Answer every question, capture every lead, with AI that knows your product.
                 </h2>
-                <p className="landing-supporting">
-                  Voice-first sales assistant for B2B websites. No chatbot. No support tool. No dev required.
-                </p>
                 <div className="landing-cta-wrapper">
                   <a href="#" className="landing-button-green">
                     Get Early Access →
@@ -34,14 +31,19 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-hero-image">
-                <div className="image-placeholder" style={{ width: '100%', maxWidth: '500px', height: '400px' }}>
-                  <div className="image-placeholder-text">
-                    <strong>assistant_speaking.jpg</strong>
-                    <br />
-                    500w x 400h
-                    <br /><br />
-                    EasyAsk widget in "Speaking..." state, showing cyan audio icon, response bubble, and "Was this helpful?" feedback prompt
+                <div style={{ maxWidth: '500px' }}>
+                  <div className="image-placeholder" style={{ width: '100%', height: '400px' }}>
+                    <div className="image-placeholder-text">
+                      <strong>assistant_speaking.jpg</strong>
+                      <br />
+                      500w x 400h
+                      <br /><br />
+                      EasyAsk widget in "Speaking..." state, showing cyan audio icon, response bubble, and "Was this helpful?" feedback prompt
+                    </div>
                   </div>
+                  <p className="landing-image-caption">
+                    Voice-first sales assistant for B2B websites. No chatbot. No support tool. No dev required.
+                  </p>
                 </div>
               </div>
             </div>
@@ -148,14 +150,19 @@ export default async function Home() {
             </div>
 
             <div className="landing-image-centered">
-              <div className="image-placeholder" style={{ width: '100%', maxWidth: '600px', height: '150px', margin: '0 auto' }}>
-                <div className="image-placeholder-text">
-                  <strong>assistant_launcher.png</strong>
-                  <br />
-                  600w x 150h
-                  <br /><br />
-                  The launcher widget in idle state: "Don't feel like reading? Just ask!" pill showing entry point
+              <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <div className="image-placeholder" style={{ width: '100%', height: '150px' }}>
+                  <div className="image-placeholder-text">
+                    <strong>assistant_launcher.png</strong>
+                    <br />
+                    600w x 150h
+                    <br /><br />
+                    The launcher widget in idle state: "Don't feel like reading? Just ask!" pill showing entry point
+                  </div>
                 </div>
+                <p className="landing-image-caption">
+                  Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                </p>
               </div>
             </div>
           </div>
@@ -200,14 +207,19 @@ export default async function Home() {
                   </div>
                 </div>
                 <div className="landing-differentiator-image">
-                  <div className="image-placeholder" style={{ width: '100%', maxWidth: '340px', height: '500px' }}>
-                    <div className="image-placeholder-text">
-                      <strong>assistant_active.png</strong>
-                      <br />
-                      340w x 500h
-                      <br /><br />
-                      Widget in "Speaking..." state with audio visualization active and "(Feel free to interrupt)" text visible
+                  <div style={{ maxWidth: '340px' }}>
+                    <div className="image-placeholder" style={{ width: '100%', height: '500px' }}>
+                      <div className="image-placeholder-text">
+                        <strong>assistant_active.png</strong>
+                        <br />
+                        340w x 500h
+                        <br /><br />
+                        Widget in "Speaking..." state with audio visualization active and "(Feel free to interrupt)" text visible
+                      </div>
                     </div>
+                    <p className="landing-image-caption">
+                      Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -237,14 +249,19 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div className="image-placeholder" style={{ width: '100%', maxWidth: '600px', height: '400px' }}>
-                  <div className="image-placeholder-text">
-                    <strong>easyask_backend__assistant_knowledgebase.png</strong>
-                    <br />
-                    600w x 400h
-                    <br /><br />
-                    Knowledgebase management screen showing "28 in registry," scraped pages, uploaded docs
+                <div style={{ maxWidth: '600px' }}>
+                  <div className="image-placeholder" style={{ width: '100%', height: '400px' }}>
+                    <div className="image-placeholder-text">
+                      <strong>easyask_backend__assistant_knowledgebase.png</strong>
+                      <br />
+                      600w x 400h
+                      <br /><br />
+                      Knowledgebase management screen showing "28 in registry," scraped pages, uploaded docs
+                    </div>
                   </div>
+                  <p className="landing-image-caption">
+                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                  </p>
                 </div>
               </div>
               </div>
@@ -273,14 +290,19 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div className="image-placeholder" style={{ width: '100%', maxWidth: '600px', height: '450px' }}>
-                  <div className="image-placeholder-text">
-                    <strong>easyask_backend__assistant_pages.png</strong>
-                    <br />
-                    600w x 450h
-                    <br /><br />
-                    Assistant Pages screen showing page list with tags (Sell, Lead, Support) and active/inactive toggles
+                <div style={{ maxWidth: '600px' }}>
+                  <div className="image-placeholder" style={{ width: '100%', height: '450px' }}>
+                    <div className="image-placeholder-text">
+                      <strong>easyask_backend__assistant_pages.png</strong>
+                      <br />
+                      600w x 450h
+                      <br /><br />
+                      Assistant Pages screen showing page list with tags (Sell, Lead, Support) and active/inactive toggles
+                    </div>
                   </div>
+                  <p className="landing-image-caption">
+                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                  </p>
                 </div>
               </div>
               </div>
@@ -312,14 +334,19 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div className="image-placeholder" style={{ width: '100%', maxWidth: '600px', height: '400px' }}>
-                  <div className="image-placeholder-text">
-                    <strong>easyask_backend__sales_leads.png</strong>
-                    <br />
-                    600w x 400h
-                    <br /><br />
-                    Sales Leads / Escalations dashboard showing email, conversation preview, resolved/unresolved status, flagged messages
+                <div style={{ maxWidth: '600px' }}>
+                  <div className="image-placeholder" style={{ width: '100%', height: '400px' }}>
+                    <div className="image-placeholder-text">
+                      <strong>easyask_backend__sales_leads.png</strong>
+                      <br />
+                      600w x 400h
+                      <br /><br />
+                      Sales Leads / Escalations dashboard showing email, conversation preview, resolved/unresolved status, flagged messages
+                    </div>
                   </div>
+                  <p className="landing-image-caption">
+                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                  </p>
                 </div>
               </div>
               </div>
@@ -352,14 +379,19 @@ export default async function Home() {
                 </div>
               </div>
               <div className="landing-differentiator-image">
-                <div className="image-placeholder" style={{ width: '100%', maxWidth: '650px', height: '450px' }}>
-                  <div className="image-placeholder-text">
-                    <strong>easyask_backend__reporting.png</strong>
-                    <br />
-                    650w x 450h
-                    <br /><br />
-                    Reports & Analytics dashboard showing Total Conversations, Session Duration, User Feedback (thumbs up/down), Recent Conversations with transcript previews
+                <div style={{ maxWidth: '650px' }}>
+                  <div className="image-placeholder" style={{ width: '100%', height: '450px' }}>
+                    <div className="image-placeholder-text">
+                      <strong>easyask_backend__reporting.png</strong>
+                      <br />
+                      650w x 450h
+                      <br /><br />
+                      Reports & Analytics dashboard showing Total Conversations, Session Duration, User Feedback (thumbs up/down), Recent Conversations with transcript previews
+                    </div>
                   </div>
+                  <p className="landing-image-caption">
+                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                  </p>
                 </div>
               </div>
               </div>
@@ -419,14 +451,19 @@ export default async function Home() {
                   </ul>
                 </div>
                 <div className="landing-image-centered" style={{ marginTop: '2em' }}>
-                  <div className="image-placeholder" style={{ width: '100%', maxWidth: '800px', height: '200px', margin: '0 auto' }}>
-                    <div className="image-placeholder-text">
-                      <strong>4-step process diagram</strong>
-                      <br />
-                      800w x 200h
-                      <br /><br />
-                      Simple horizontal flow: Scrape → Upload → Assign → Launch (clean, minimal icons)
+                  <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <div className="image-placeholder" style={{ width: '100%', height: '200px' }}>
+                      <div className="image-placeholder-text">
+                        <strong>4-step process diagram</strong>
+                        <br />
+                        800w x 200h
+                        <br /><br />
+                        Simple horizontal flow: Scrape → Upload → Assign → Launch (clean, minimal icons)
+                      </div>
                     </div>
+                    <p className="landing-image-caption">
+                      Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -472,7 +509,7 @@ export default async function Home() {
         {/* SECTION 7: USE CASE SPOTLIGHTS */}
         <section className="landing-section landing-section-use-cases">
           <div className="landing-container">
-            <h2 className="landing-section-heading" style={{ textAlign: 'center', marginBottom: '3em' }}>
+            <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
               EasyAsk is built for...
             </h2>
 
@@ -755,9 +792,6 @@ export default async function Home() {
               <a href="#" className="landing-button-green landing-button-large">
                 Get Early Access →
               </a>
-              <p className="landing-final-cta-subcta">
-                Free to start. Live in 10 minutes. No credit card required.
-              </p>
             </div>
           </div>
         </section>
