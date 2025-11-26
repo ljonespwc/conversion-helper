@@ -744,41 +744,36 @@ export default async function Home() {
         {/* SECTION 11: WHAT HAPPENS NEXT */}
         <section className="landing-section landing-section-next-steps">
           <div className="landing-container-narrow">
-            <div className="landing-next-steps-grid">
-              <div className="landing-next-steps-content">
-                <h2 className="landing-section-heading">
-                  Here's what happens next.
-                </h2>
+            <h2 className="landing-section-heading">
+              Here's what happens next.
+            </h2>
+            <p className="landing-subhead">
+              No sales calls. No "implementation kickoff." No waiting.
+            </p>
 
-                <div className="landing-text-block">
-                  <p>
-                    No sales calls. No "implementation kickoff." No waiting.
-                  </p>
+            <div className="landing-text-block">
+              <ul className="landing-icon-list">
+                <li>
+                  <span className="icon">+</span>
+                  <span><strong>Immediate access</strong> — You'll get your EasyAsk dashboard the moment you sign up.</span>
+                </li>
+                <li>
+                  <span className="icon">+</span>
+                  <span><strong>Live in 5 minutes</strong> — Scrape your first page, see the assistant working on your actual content. Not a demo. Your product.</span>
+                </li>
+                <li>
+                  <span className="icon">+</span>
+                  <span><strong>Quick-start guide</strong> — We'll send a short guide to help you go live fast. Skim it in 2 minutes.</span>
+                </li>
+                <li>
+                  <span className="icon">+</span>
+                  <span><strong>Real humans if you need them</strong> — Questions? Just reply to any email. No ticket queue. Actual responses from people who built this.</span>
+                </li>
+              </ul>
 
-                  <ul className="landing-next-steps-list">
-                    <li><strong>Immediate access</strong> — You'll get your EasyAsk dashboard the moment you sign up.</li>
-                    <li><strong>Live in 5 minutes</strong> — Scrape your first page, see the assistant working on your actual content. Not a demo. Your product.</li>
-                    <li><strong>Quick-start guide</strong> — We'll send a short guide to help you go live fast. Skim it in 2 minutes.</li>
-                    <li><strong>Real humans if you need them</strong> — Questions? Just reply to any email. No ticket queue. Actual responses from people who built this.</li>
-                  </ul>
-
-                  <p className="landing-closing-line" style={{ marginTop: '2em' }}>
-                    You could have your first conversation with a real visitor today.
-                  </p>
-                </div>
-              </div>
-
-              <div className="landing-next-steps-icon">
-                <div className="image-placeholder image-placeholder-icon-xlarge">
-                  <div className="image-placeholder-text" style={{ fontSize: '0.6875rem', padding: '0.8em' }}>
-                    <strong>Icon</strong>
-                    <br />
-                    120x120
-                    <br />
-                    Dashboard/Rocket
-                  </div>
-                </div>
-              </div>
+              <p className="landing-callout">
+                You could have your first conversation with a real visitor today.
+              </p>
             </div>
           </div>
         </section>
