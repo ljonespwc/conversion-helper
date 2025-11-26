@@ -24,7 +24,7 @@ export default async function Home() {
                   Answer every question, capture every lead, with AI that knows your product.
                 </h2>
                 <div className="landing-cta-wrapper">
-                  <a href="#" className="landing-button-green">
+                  <a href="#" className="landing-button-green landing-button-large">
                     Get Early Access →
                   </a>
                 </div>
