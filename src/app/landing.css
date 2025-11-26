@@ -498,17 +498,17 @@
 
 /* Image wrapper constraints - use max-width in rem for zoom compatibility */
 .landing-image-wrapper-small {
-  max-width: 31.25rem; /* 500px equivalent */
+  max-width: min(31.25rem, 100%); /* 500px equivalent, constrained to viewport */
   width: 100%;
 }
 
 .landing-image-wrapper-medium {
-  max-width: 37.5rem; /* 600px equivalent */
+  max-width: min(37.5rem, 100%); /* 600px equivalent, constrained to viewport */
   width: 100%;
 }
 
 .landing-image-wrapper-large {
-  max-width: 50rem; /* 800px equivalent */
+  max-width: min(50rem, 100%); /* 800px equivalent, constrained to viewport */
   width: 100%;
 }
 
@@ -878,6 +878,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* =================================
