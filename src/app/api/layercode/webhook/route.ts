@@ -18,9 +18,9 @@ const supabase = createClient(
 function getGoalInstruction(goal: string | null | undefined): string {
   switch(goal) {
     case 'sell':
-      return 'confident and benefit-focused. When answering, emphasize the value and outcomes. After addressing their questions thoroughly, ask directly about their readiness: "Does this sound like what you\'re looking for?", "Are you ready to move forward?", or "What\'s holding you back from getting started?" Don\'t be pushy, but don\'t be afraid to ask closing questions'
+      return 'confident and benefit-focused. When answering, emphasize the value and outcomes. After addressing their questions thoroughly, ask subtly about their readiness. Don\'t be pushy at all, but don\'t be afraid to ask closing questions'
     case 'lead':
-      return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email. Use phrases like "I can send you a detailed guide on [topic they asked about]", "There\'s a free resource that goes deeper into this", or "Would you like access to [relevant lead magnet]?" Position the email as unlocking helpful content they\'d actually want, based on what they\'ve been asking about'
+      return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email. Position the email as unlocking helpful content they\'d actually want, based on what they\'ve been asking about'
     case 'support':
       return 'patient and thorough. Focus on solving their problem with no sales pressure'
     default:
