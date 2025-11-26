@@ -110,15 +110,15 @@ export default async function Home() {
             <div className="landing-text-block">
               <ul className="landing-icon-list">
                 <li>
-                  <span className="icon">✕</span>
+                  <span className="icon icon-negative">✕</span>
                   <span>Not with a chatbot that makes visitors type paragraphs into a tiny box.</span>
                 </li>
                 <li>
-                  <span className="icon">✕</span>
+                  <span className="icon icon-negative">✕</span>
                   <span>Not with live chat that says "Average wait time: 4 minutes."</span>
                 </li>
                 <li>
-                  <span className="icon">✕</span>
+                  <span className="icon icon-negative">✕</span>
                   <span>Not with a generic AI that hallucinates answers and damages your brand.</span>
                 </li>
               </ul>
@@ -148,6 +148,10 @@ export default async function Home() {
               The voice sales assistant that turns your website into a buying experience.
             </p>
 
+            <div className="landing-widget-demo-centered">
+              <WidgetButtonDemo />
+            </div>
+
             <div className="landing-text-block">
               <p>
                 EasyAsk is a voice-enabled AI assistant built for B2B websites. It replaces static content with real-time conversation—answering product questions, handling objections, and capturing purchase intent while your prospects are still on the page.
@@ -155,15 +159,15 @@ export default async function Home() {
 
               <ul className="landing-icon-list">
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span>Feed it your website pages, sales decks, pricing sheets, and battle cards. It learns your product in minutes.</span>
                 </li>
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span>It answers visitor questions using <em>your</em> words, grounded in <em>your</em> content—never inventing, never hallucinating.</span>
                 </li>
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span>When the AI can't fully answer? It captures the visitor's email and question, then flags it for your sales team.</span>
                 </li>
               </ul>
@@ -178,13 +182,6 @@ export default async function Home() {
 
               <p>
                 Built for growth and marketing teams who need to turn website traffic into pipeline—without waiting for engineering, without enterprise complexity, without the "let me get back to you" delays that kill deals.
-              </p>
-            </div>
-
-            <div className="landing-image-centered">
-              <WidgetButtonDemo />
-              <p className="landing-image-caption">
-                Hover to see it in action. This is what your visitors will see.
               </p>
             </div>
           </div>
@@ -745,19 +742,19 @@ export default async function Home() {
             <div className="landing-text-block">
               <ul className="landing-icon-list">
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span><strong>Immediate access</strong> — You'll get your EasyAsk dashboard the moment you sign up.</span>
                 </li>
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span><strong>Live in 5 minutes</strong> — Scrape your first page, see the assistant working on your actual content. Not a demo. Your product.</span>
                 </li>
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span><strong>Quick-start guide</strong> — We'll send a short guide to help you go live fast. Skim it in 2 minutes.</span>
                 </li>
                 <li>
-                  <span className="icon">+</span>
+                  <span className="icon">›</span>
                   <span><strong>Real humans if you need them</strong> — Questions? Just reply to any email. No ticket queue. Actual responses from people who built this.</span>
                 </li>
               </ul>

@@ -44,12 +44,15 @@
   --landing-color-red-text: rgb(248, 113, 113); /* red-400 */
   --landing-color-red-border: rgb(185, 28, 28); /* red-700 */
 
+  --landing-color-orange-text: rgb(251, 146, 60); /* orange-400 */
+
   /* RGB for opacity control */
   --landing-rgb-white: 255, 255, 255;
   --landing-rgb-black: 0, 0, 0;
   --landing-rgb-blue: 37, 99, 235;
   --landing-rgb-purple: 147, 51, 234;
   --landing-rgb-green: 34, 197, 94;
+  --landing-rgb-orange: 251, 146, 60;
 
   /* Section Background Tints (subtle color overlays) */
   --landing-color-blue-tint: rgba(59, 130, 246, 0.05);
@@ -710,15 +713,26 @@
 }
 
 .landing-icon-list .icon {
-  color: var(--landing-color-accent);
+  color: var(--landing-color-orange-text);
   font-weight: 700;
   flex-shrink: 0;
   font-size: 1.1em;
 }
 
+/* Keep X marks red for negative items */
+.landing-icon-list .icon-negative {
+  color: var(--landing-color-red-text);
+}
+
 .landing-image-centered {
   margin-top: var(--landing-space-xx-large);
   text-align: center;
+}
+
+.landing-widget-demo-centered {
+  display: flex;
+  justify-content: center;
+  margin: calc(-1 * var(--landing-space-small)) 0 var(--landing-space-small) 0;
 }
 
 /* =================================
@@ -848,10 +862,10 @@
 }
 
 .landing-sub-diff-list li:before {
-  content: "→";
+  content: "›";
   position: absolute;
   left: 0;
-  color: var(--landing-color-green-text);
+  color: var(--landing-color-orange-text);
   font-weight: 700;
 }
 

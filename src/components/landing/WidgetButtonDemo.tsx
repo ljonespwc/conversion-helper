@@ -11,6 +11,7 @@ import { Sparkles } from 'lucide-react'
 export default function WidgetButtonDemo() {
   const [isHovered, setIsHovered] = useState(false)
   const [isTapped, setIsTapped] = useState(false)
+  const [showSparkleBurst, setShowSparkleBurst] = useState(false)
   const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Determine if we should show expanded state
@@ -27,6 +28,10 @@ export default function WidgetButtonDemo() {
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
+
+    // Trigger sparkle burst on every click
+    setShowSparkleBurst(true)
+    setTimeout(() => setShowSparkleBurst(false), 800)
 
     // On mobile (touch devices), toggle expanded state
     const isTouchDevice = 'ontouchstart' in window
@@ -86,6 +91,34 @@ export default function WidgetButtonDemo() {
           <div className="sound-wave-ring sound-wave-ring-2" />
           <div className="sound-wave-ring sound-wave-ring-3" />
         </div>
+
+        {/* Sparkle Burst Animation on Click */}
+        <AnimatePresence>
+          {showSparkleBurst && (
+            <>
+              {[...Array(8)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                  initial={{ scale: 0, opacity: 1, x: 0, y: 0 }}
+                  animate={{
+                    scale: [0, 1.5],
+                    opacity: [1, 0],
+                    x: Math.cos((i * Math.PI * 2) / 8) * 60,
+                    y: Math.sin((i * Math.PI * 2) / 8) * 60
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: 0.8,
+                    ease: "easeOut"
+                  }}
+                >
+                  <Sparkles className="w-5 h-5 text-yellow-400" />
+                </motion.div>
+              ))}
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Breathing Pulse Effect */}
         <motion.div
