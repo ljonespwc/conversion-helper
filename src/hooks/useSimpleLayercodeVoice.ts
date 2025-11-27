@@ -21,14 +21,13 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
 
   // Use Layercode agent hook with deferred mic permission
   // audioInput: false prevents immediate mic permission request
-  // enableAmplitudeMonitoring: false skips audio processing until voice enabled
+  // NOTE: enableAmplitudeMonitoring must be true (default) for audio levels to work
   const agent = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
     conversationId: conversationIdRef.current || undefined,
     metadata: options.metadata,
     audioInput: false,
-    enableAmplitudeMonitoring: false,
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)
       if (conversationId) {
