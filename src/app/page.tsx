@@ -84,7 +84,7 @@ export default async function Home() {
               </p>
 
               <p className="landing-callout landing-callout-purple">
-                Every silent bounce is a conversation that never happened.
+                <strong>Every silent bounce is a conversation that never happened.</strong>
               </p>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default async function Home() {
               </ul>
 
               <p className="landing-callout landing-callout-purple">
-                Not a chatbot. Not support. Not another 6-month rollout.
+                <strong>Not a chatbot. Not support. Not another 6-month rollout.</strong>
               </p>
             </div>
           </div>
@@ -385,75 +385,83 @@ export default async function Home() {
         <section className="landing-section landing-section-use-cases">
           <div className="landing-container">
             <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
-              EasyAsk is built for...
+              If this is you, we should talk.
             </h2>
 
             <div className="landing-use-case-grid">
               {/* Card 1 */}
               <div className="landing-use-case-card">
-                <div className="landing-use-case-icon">
-                  <div className="image-placeholder image-placeholder-icon">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Puzzle
+                <div className="landing-use-case-header">
+                  <div className="landing-use-case-icon">
+                    <div className="image-placeholder image-placeholder-icon">
+                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
+                        Puzzle
+                      </div>
                     </div>
                   </div>
+                  <h3 className="landing-use-case-heading">
+                    Your product takes 4 pages to explain. Your prospects have 2 minutes.
+                  </h3>
                 </div>
-                <h3 className="landing-use-case-heading">
-                  Your product takes 10 pages to explain. Your prospects have 2 minutes.
-                </h3>
                 <p className="landing-use-case-body">
-                  Voice makes complex information digestible. Page-specific AI delivers relevant answers based on where visitors are. Result: shorter sales cycles, fewer "I don't get it" objections.
+                  Voice makes dense info digestible. Page-specific AI delivers relevant answers and shortens sales cycles.
                 </p>
               </div>
 
               {/* Card 2 */}
               <div className="landing-use-case-card">
-                <div className="landing-use-case-icon">
-                  <div className="image-placeholder image-placeholder-icon">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Scale
+                <div className="landing-use-case-header">
+                  <div className="landing-use-case-icon">
+                    <div className="image-placeholder image-placeholder-icon">
+                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
+                        Scale
+                      </div>
                     </div>
                   </div>
+                  <h3 className="landing-use-case-heading">
+                    Prospects are comparing 2+ options. Small unanswered questions become deal-breakers.
+                  </h3>
                 </div>
-                <h3 className="landing-use-case-heading">
-                  Prospects are comparing 3-5 options. Small unanswered questions become deal-breakers.
-                </h3>
                 <p className="landing-use-case-body">
-                  Instant answers to "Does it integrate with X?" or "What's included in Enterprise?" keep them on your site instead of your competitor's. Win more deals by being the one who actually answered.
+                  Instant answers to "Does it integrate with X?" keep them on your site instead of bouncing.
                 </p>
               </div>
 
               {/* Card 3 */}
               <div className="landing-use-case-card">
-                <div className="landing-use-case-icon">
-                  <div className="image-placeholder image-placeholder-icon">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Mobile
+                <div className="landing-use-case-header">
+                  <div className="landing-use-case-icon">
+                    <div className="image-placeholder image-placeholder-icon">
+                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
+                        Mobile
+                      </div>
                     </div>
                   </div>
+                  <h3 className="landing-use-case-heading">
+                    60% of your traffic is mobile. Nobody reads your 1,200-word page on a phone.
+                  </h3>
                 </div>
-                <h3 className="landing-use-case-heading">
-                  60% of your traffic is mobile. Nobody reads your 5,000-word page on a phone.
-                </h3>
                 <p className="landing-use-case-body">
-                  Voice eliminates scroll fatigue. Visitors ask what they care about instead of hunting for it. Higher mobile conversion without rewriting your content.
+                  Voice eliminates scroll fatigue. Visitors ask instead of hunt. Higher mobile conversion.
                 </p>
               </div>
 
               {/* Card 4 */}
               <div className="landing-use-case-card">
-                <div className="landing-use-case-icon">
-                  <div className="image-placeholder image-placeholder-icon">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Team
+                <div className="landing-use-case-header">
+                  <div className="landing-use-case-icon">
+                    <div className="image-placeholder image-placeholder-icon">
+                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
+                        Team
+                      </div>
                     </div>
                   </div>
+                  <h3 className="landing-use-case-heading">
+                    Your reps spend 40% of their time on "What's the price?" questions.
+                  </h3>
                 </div>
-                <h3 className="landing-use-case-heading">
-                  Your reps spend 40% of their time on "What's the price?" questions.
-                </h3>
                 <p className="landing-use-case-body">
-                  AI handles the basics—pricing, features, comparisons. Your sales team focuses on high-value conversations that actually close deals.
+                  AI handles the basics. Your team focuses on conversations that close deals.
                 </p>
               </div>
             </div>
@@ -536,47 +544,13 @@ export default async function Home() {
               </div>
             </div>
 
-            <p className="landing-closing-line" style={{ textAlign: 'center', marginTop: '3em' }}>
-              Update anytime. No tickets. No waiting. Change your pricing on Monday, the AI knows by Tuesday.
+            <p className="landing-callout landing-callout-purple" style={{ marginTop: '3em' }}>
+              Update anytime. No tickets. No waiting.
             </p>
           </div>
         </section>
 
-        {/* SECTION 9: IS THIS FOR YOU? */}
-        <section className="landing-section landing-section-qualification">
-          <div className="landing-container-narrow">
-            <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
-              Is EasyAsk right for you?
-            </h2>
-
-            <div className="landing-qualification-grid">
-              <div className="landing-qualification-column landing-qualification-yes">
-                <h3 className="landing-qualification-header">This is for you if...</h3>
-                <ul className="landing-qualification-list">
-                  <li>You sell a B2B product that takes more than a tagline to explain</li>
-                  <li>Your website gets traffic but not enough demo requests</li>
-                  <li>You want to capture leads, not deflect support tickets</li>
-                  <li>You need something live this week, not this quarter</li>
-                  <li>You're tired of prospects bouncing before they understand your value</li>
-                  <li>Your sales team wastes time on questions your website should answer</li>
-                </ul>
-              </div>
-
-              <div className="landing-qualification-column landing-qualification-no">
-                <h3 className="landing-qualification-header">This is NOT for you if...</h3>
-                <ul className="landing-qualification-list">
-                  <li>You need post-purchase customer support — use Intercom or Zendesk</li>
-                  <li>You want to build custom AI workflows from scratch — check out Voiceflow or Retell</li>
-                  <li>You're looking for a developer platform — Layercode is built for that</li>
-                  <li>You won't try anything without deep CRM/MAP integrations on day one</li>
-                  <li>Your product is simple enough that nobody has questions</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 10: FAQ */}
+        {/* SECTION 9: FAQ */}
         <section className="landing-section landing-section-faq">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
@@ -587,44 +561,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 11: WHAT HAPPENS NEXT */}
-        <section className="landing-section landing-section-next-steps">
-          <div className="landing-container-narrow">
-            <h2 className="landing-section-heading">
-              Here's what happens next.
-            </h2>
-            <p className="landing-subhead">
-              No sales calls. No "implementation kickoff." No waiting.
-            </p>
-
-            <div className="landing-text-block">
-              <ul className="landing-icon-list">
-                <li>
-                  <span className="icon">›</span>
-                  <span><strong>Immediate access</strong> — You'll get your EasyAsk dashboard the moment you sign up.</span>
-                </li>
-                <li>
-                  <span className="icon">›</span>
-                  <span><strong>Live in 5 minutes</strong> — Scrape your first page, see the assistant working on your actual content. Not a demo. Your product.</span>
-                </li>
-                <li>
-                  <span className="icon">›</span>
-                  <span><strong>Quick-start guide</strong> — We'll send a short guide to help you go live fast. Skim it in 2 minutes.</span>
-                </li>
-                <li>
-                  <span className="icon">›</span>
-                  <span><strong>Real humans if you need them</strong> — Questions? Just reply to any email. No ticket queue. Actual responses from people who built this.</span>
-                </li>
-              </ul>
-
-              <p className="landing-callout landing-callout-purple">
-                You could have your first conversation with a real visitor today.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 12: FINAL CTA */}
+        {/* SECTION 11: FINAL CTA */}
         <section className="landing-section landing-section-final-cta">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
@@ -653,6 +590,10 @@ export default async function Home() {
                 </p>
               </div>
             </div>
+
+            <p className="landing-callout landing-callout-purple">
+              <strong>You could have your first conversation with a real visitor today.</strong>
+            </p>
 
             <p className="landing-final-cta-summary">
               EasyAsk is the voice sales assistant that turns browsing into buying—answering prospect questions in real-time and capturing leads before they bounce.

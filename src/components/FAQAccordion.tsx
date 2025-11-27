@@ -5,45 +5,45 @@ import { ChevronDown } from 'lucide-react'
 
 const faqItems = [
   {
-    question: '"We already have live chat on our website."',
+    question: 'How is this different from live chat?',
     answer: [
-      'Live chat means typing and waiting. Your visitors type a question, then stare at "An agent will be with you shortly" for 4 minutes. Half of them leave.',
-      'EasyAsk uses voice for instant answers. No queue. No staffing. No wait time. And it\'s built for sales conversations, not support tickets—so it captures intent and purchase signals, not complaint categories.',
+      'Live chat requires someone to answer. Your visitor types a question, sees "An agent will be with you shortly," and waits. If it\'s after hours, they get a form. If your team is busy, they wait longer. Most leave before anyone responds.',
+      'EasyAsk answers instantly—24/7—using voice or text. No staffing required. No queue. And because it only knows your content, the answers are accurate and consistent every time. It\'s also built for sales conversations, not support tickets. It captures purchase intent and escalates to your team when needed, instead of just deflecting to a help article.',
     ],
   },
   {
-    question: '"Why wouldn\'t I just embed ChatGPT or Claude on my site?"',
+    question: 'Why wouldn\'t I just use ChatGPT or Claude?',
     answer: [
-      'Generic AI hallucinates. It sounds confident while saying something completely wrong about your product. That\'s not a sales tool—it\'s a brand risk.',
-      'EasyAsk only answers from content you provide. Scraped pages, uploaded docs, nothing else. Plus it captures leads when it can\'t answer, escalates to your sales team, and gives you analytics on every conversation. It\'s built for conversion, not just conversation.',
+      'Generic AI makes things up. It\'ll confidently tell your prospect something completely wrong about your pricing, your features, or your policies. That\'s not a sales tool—it\'s a liability.',
+      'EasyAsk only answers from content you provide: your pages, your docs, your sales materials. Nothing else. If it doesn\'t know something, it says so and captures the visitor\'s email so your team can follow up. You also get analytics on every conversation—what people ask, how satisfied they are, and how likely they are to buy. It\'s built for conversion, not just conversation.',
     ],
   },
   {
-    question: '"Our prospects won\'t want to talk to a website."',
+    question: 'Will visitors actually talk to my website?',
     answer: [
-      'They don\'t have to. EasyAsk supports voice AND text—visitors choose.',
-      'But here\'s what we\'ve seen: voice drops friction dramatically, especially on mobile. People say more than they type. They ask follow-ups. They engage longer. And either way, you see what they asked—intent signals you\'d never get from a static page.',
+      'They don\'t have to talk—they can read the AI\'s response as text while it speaks. But voice removes a lot of friction, especially on mobile. People say more than they type. They ask follow-up questions. They stay engaged longer.',
+      'What matters most is that visitors get answers instantly. And you see every question they ask. That\'s intent data you\'d never get from a static page or a form they didn\'t fill out.',
     ],
   },
   {
-    question: '"What if the AI gives wrong answers?"',
+    question: 'What if the AI gives wrong answers?',
     answer: [
-      'It only answers from content you provide. No inventing. No hallucinating.',
-      'If the AI doesn\'t have an answer, it doesn\'t fake one. It captures the visitor\'s email and exact question, then flags the conversation for your team. You\'re in complete control of what it knows. And satisfaction ratings on every response let you catch issues fast.',
+      'It can only answer from content you provide. No outside knowledge. No inventing. No hallucinating.',
+      'If the AI doesn\'t have an answer, it tells the visitor honestly and offers to capture their email so your team can follow up with the right information. You\'re in complete control of what it knows—scrape pages, upload docs, remove anything outdated. And every response includes a satisfaction rating, so you\'ll know immediately if something isn\'t working.',
     ],
   },
   {
-    question: '"We don\'t have budget for another tool."',
+    question: 'What does it cost?',
     answer: [
-      'What\'s the cost of losing 3 prospects this month because they couldn\'t find an answer? Or 10?',
-      'If EasyAsk converts even 2-3 extra leads, it pays for itself. There\'s no implementation cost—you set it up yourself in minutes. No dev team. No procurement process. No six-month "pilot program."',
+      'We\'re currently in early access, so pricing isn\'t finalized yet. Sign up and we\'ll work with you directly to get you set up.',
+      'What we can tell you: there are no setup fees, no implementation costs, and you can set it up yourself in under 10 minutes. No dev team required. No six-month "pilot program."',
     ],
   },
   {
-    question: '"Does it integrate with our CRM?"',
+    question: 'Does it integrate with my CRM?',
     answer: [
-      'EasyAsk captures emails and full conversation context. You can export that data or connect it to your existing tools.',
-      'But the real value isn\'t CRM integration—it\'s the conversations happening BEFORE someone fills out a form. Intent signals from anonymous visitors. Questions that reveal objections. Insights you\'d never get otherwise. The CRM gets the lead after EasyAsk captures it.',
+      'EasyAsk captures emails, conversation transcripts, and purchase intent signals. You can export that data anytime or connect it to your existing tools via webhook.',
+      'But the real value isn\'t the CRM integration—it\'s what happens before someone fills out a form. You\'re seeing questions from anonymous visitors who would have bounced. You\'re learning what objections people have. You\'re getting intent signals that no form or CRM could ever capture. The CRM gets the lead after EasyAsk surfaces it.',
     ],
   },
 ]

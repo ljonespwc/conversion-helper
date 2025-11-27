@@ -28,7 +28,7 @@
 
   /* Tag/Badge Colors with Transparency */
   --landing-color-purple-bg: rgba(88, 28, 135, 0.4); /* purple-900/40 */
-  --landing-color-purple-text: rgb(216, 180, 254); /* purple-300 */
+  --landing-color-purple-text: rgb(243, 232, 255); /* purple-100 - brighter for better contrast */
   --landing-color-purple-border: rgb(126, 34, 206); /* purple-700 */
 
   --landing-color-blue-bg: rgba(30, 58, 138, 0.4); /* blue-900/40 */
@@ -590,7 +590,7 @@
 }
 
 .landing-section-problem {
-  background: var(--landing-color-paper);
+  background: linear-gradient(135deg, var(--landing-color-paper) 0%, rgba(var(--landing-rgb-blue), 0.05) 100%);
 }
 
 .landing-section-product {
@@ -676,6 +676,10 @@
   border-radius: 8px;
   color: var(--landing-color-purple-text);
   text-align: center;
+}
+
+.landing-callout-purple strong {
+  color: var(--landing-color-purple-text) !important;
 }
 
 /* Stat Callout Boxes */
@@ -1036,6 +1040,22 @@
   box-shadow: var(--shadow-lg);
   border-color: var(--landing-color-purple-border);
   background: rgba(var(--landing-rgb-purple), 0.03);
+}
+
+.landing-use-case-header {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-medium);
+  margin-bottom: var(--landing-space-small);
+}
+
+.landing-use-case-header .landing-use-case-icon {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.landing-use-case-header .landing-use-case-heading {
+  margin: 0;
 }
 
 .landing-use-case-icon {
