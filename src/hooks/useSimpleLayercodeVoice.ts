@@ -53,8 +53,16 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     }
   })
 
-  const { status, userAudioAmplitude, agentAudioAmplitude, setAudioInput, audioInput } = agent
+  const { status, userAudioAmplitude, agentAudioAmplitude, setAudioInput, audioInput, connect, disconnect } = agent
   agentRef.current = agent
+
+  // Connect to agent on mount
+  useEffect(() => {
+    connect()
+    return () => {
+      disconnect()
+    }
+  }, [connect, disconnect])
 
   // Track user audio activity (speaking)
   useEffect(() => {
@@ -81,9 +89,7 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
           console.warn('Session idle timeout reached (5 minutes)')
 
           // Disconnect the agent
-          if (agentRef.current?.disconnect) {
-            agentRef.current.disconnect()
-          }
+          disconnect()
 
           // Notify parent component
           if (options.onIdleTimeout) {
@@ -112,16 +118,8 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
         idleCheckIntervalRef.current = null
       }
     }
-  }, [status, options.onIdleTimeout])
+  }, [status, options.onIdleTimeout, disconnect])
 
-  // Disconnect agent ONLY on component unmount (not on status changes)
-  useEffect(() => {
-    return () => {
-      if (agentRef.current?.disconnect) {
-        agentRef.current.disconnect()
-      }
-    }
-  }, [])
 
   // Enable audio input on user gesture - uses SDK's setAudioInput method
   const enableAudioInput = useCallback(() => {
