@@ -1,7 +1,7 @@
 'use client'
 
 import { useLayercodeAgent } from '@layercode/react-sdk'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface UseSimpleLayercodeVoiceOptions {
   metadata?: Record<string, any>
@@ -19,14 +19,12 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   const idleCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const agentRef = useRef<any>(null)
 
-  // Use Layercode agent hook - defer microphone until user gesture
-  // audioInput: false is STATIC - use setAudioInput() method to enable later
+  // Use Layercode agent hook with automatic VAD
   const agent = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
     conversationId: conversationIdRef.current || undefined,
     metadata: options.metadata,
-    audioInput: false, // Start without mic - enable via setAudioInput() on user gesture
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)
       if (conversationId) {
@@ -53,16 +51,8 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     }
   })
 
-  const { status, userAudioAmplitude, agentAudioAmplitude, setAudioInput, audioInput, connect, disconnect } = agent
+  const { status, userAudioAmplitude, agentAudioAmplitude } = agent
   agentRef.current = agent
-
-  // Connect to agent on mount
-  useEffect(() => {
-    connect()
-    return () => {
-      disconnect()
-    }
-  }, [connect, disconnect])
 
   // Track user audio activity (speaking)
   useEffect(() => {
@@ -89,7 +79,9 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
           console.warn('Session idle timeout reached (5 minutes)')
 
           // Disconnect the agent
-          disconnect()
+          if (agentRef.current?.disconnect) {
+            agentRef.current.disconnect()
+          }
 
           // Notify parent component
           if (options.onIdleTimeout) {
@@ -118,16 +110,16 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
         idleCheckIntervalRef.current = null
       }
     }
-  }, [status, options.onIdleTimeout, disconnect])
+  }, [status, options.onIdleTimeout])
 
-
-  // Enable audio input on user gesture - uses SDK's setAudioInput method
-  const enableAudioInput = useCallback(() => {
-    if (!audioInput) {
-      console.log('Enabling audio input on user gesture via SDK')
-      setAudioInput(true)
+  // Disconnect agent ONLY on component unmount (not on status changes)
+  useEffect(() => {
+    return () => {
+      if (agentRef.current?.disconnect) {
+        agentRef.current.disconnect()
+      }
     }
-  }, [audioInput, setAudioInput])
+  }, [])
 
   return {
     // Connection state
@@ -143,15 +135,10 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     conversationStarted,
     conversationId: conversationIdRef.current,
 
-    // Audio input state (from SDK)
-    audioInputEnabled: audioInput,
-
     // Actions
-    enableAudioInput, // Call on user gesture to enable microphone
     startNewConversation: () => {
       conversationIdRef.current = null
       setConversationStarted(false)
-      setAudioInput(false)
       // Will create new conversation on next connection
     }
   }
