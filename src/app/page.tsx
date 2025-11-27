@@ -595,8 +595,8 @@ export default async function Home() {
               <strong>You could have your first conversation with a real visitor today.</strong>
             </p>
 
-            <p className="landing-final-cta-summary">
-              EasyAsk is the voice sales assistant that turns browsing into buying—answering prospect questions in real-time and capturing leads before they bounce.
+            <p className="landing-final-cta-summary" style={{ marginTop: '2.5em' }}>
+              Turn browsers into buyers. Answer questions in real-time. Capture leads before they bounce.
             </p>
 
             <div className="landing-final-cta-button-wrapper">
