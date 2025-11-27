@@ -19,12 +19,16 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   const idleCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const agentRef = useRef<any>(null)
 
-  // Use Layercode agent hook with automatic VAD
+  // Use Layercode agent hook with deferred mic permission
+  // audioInput: false prevents immediate mic permission request
+  // enableAmplitudeMonitoring: false skips audio processing until voice enabled
   const agent = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
     conversationId: conversationIdRef.current || undefined,
     metadata: options.metadata,
+    audioInput: false,
+    enableAmplitudeMonitoring: false,
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)
       if (conversationId) {
@@ -51,8 +55,22 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     }
   })
 
-  const { status, userAudioAmplitude, agentAudioAmplitude } = agent
+  const { status, userAudioAmplitude, agentAudioAmplitude, connect, disconnect, setAudioInput } = agent
   agentRef.current = agent
+
+  // Start voice session - call from user gesture (button click)
+  // This enables mic and connects, satisfying browser requirements
+  const startVoiceSession = () => {
+    console.log('Starting voice session...')
+    setAudioInput(true)  // Enable mic (triggers permission prompt)
+    connect()            // Connect to Layercode
+  }
+
+  // End session cleanly
+  const endSession = () => {
+    console.log('Ending voice session...')
+    disconnect()
+  }
 
   // Track user audio activity (speaking)
   useEffect(() => {
@@ -135,7 +153,11 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     conversationStarted,
     conversationId: conversationIdRef.current,
 
-    // Actions
+    // Actions - NEW: explicit session control for SDK 2.8.2
+    startVoiceSession,  // Call from user gesture to start mic + connection
+    endSession,         // Clean disconnect
+
+    // Legacy action
     startNewConversation: () => {
       conversationIdRef.current = null
       setConversationStarted(false)

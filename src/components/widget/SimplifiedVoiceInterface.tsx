@@ -130,11 +130,22 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
     userAudioLevel,
     agentAudioLevel,
     conversationId,
-    startNewConversation
+    startNewConversation,
+    startVoiceSession
   } = useLayercodeVoice({
     metadata,
     onDataMessage: handleDataMessage
   })
+
+  // Track if user has initiated the voice session (clicked start button)
+  const [voiceSessionStarted, setVoiceSessionStarted] = useState(false)
+
+  // Handle start voice button click - user gesture triggers mic permission
+  const handleStartVoice = () => {
+    console.log('User clicked start voice button')
+    setVoiceSessionStarted(true)
+    startVoiceSession()  // This calls connect() + setAudioInput(true)
+  }
 
   // Auto-start conversation when connected
   useEffect(() => {
@@ -410,7 +421,42 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
   return (
     <div className="relative p-6 space-y-4">
 
-      {/* Main Interface */}
+      {/* Pre-connection Start Screen */}
+      {!voiceSessionStarted && (
+        <div className="flex flex-col items-center space-y-6 py-8">
+          <motion.button
+            onClick={handleStartVoice}
+            className="relative p-6 rounded-full bg-easyask-secondary hover:bg-easyask-accent transition-all shadow-lg hover:shadow-xl"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Mic className="w-12 h-12 text-white" />
+          </motion.button>
+          <div className="text-center">
+            <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
+              Tap to start voice assistant
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Microphone access required
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Connecting State - After user clicked start */}
+      {voiceSessionStarted && isConnecting && (
+        <div className="flex flex-col items-center space-y-4 py-8">
+          <div className="p-4 rounded-full bg-gray-400">
+            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Connecting...
+          </p>
+        </div>
+      )}
+
+      {/* Main Interface - Only show after connected */}
+      {voiceSessionStarted && isConnected && (
       <div className="flex flex-col items-center space-y-4">
         {/* Voice Button with Sparkle Burst */}
         <div className="relative">
@@ -925,6 +971,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
           </AnimatePresence>
         </div>
       </div>
+      )}
 
       {/* Powered by EasyAsk Footer - Conditional based on organization setting */}
       {showBranding && (
