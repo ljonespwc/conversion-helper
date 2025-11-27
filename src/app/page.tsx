@@ -3,6 +3,7 @@ import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
 import WidgetButtonDemo from '@/components/landing/WidgetButtonDemo'
 import { RotatingWord } from '@/components/landing/RotatingWord'
+import { EarlyAccessButton } from '@/components/landing/EarlyAccessButton'
 import './landing.css'
 
 export default async function Home() {
@@ -26,9 +27,9 @@ export default async function Home() {
                   Don't make visitors scroll. Give them 100% accurate answers—at the perfect moment—and capture the <RotatingWord />
                 </h2>
                 <div className="landing-cta-wrapper">
-                  <a href="#" className="landing-button-green landing-button-large landing-button-pulse">
+                  <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
                     Get Early Access →
-                  </a>
+                  </EarlyAccessButton>
                 </div>
               </div>
               <div className="landing-hero-image">
@@ -594,9 +595,9 @@ export default async function Home() {
             </p>
 
             <div className="landing-final-cta-button-wrapper">
-              <a href="#" className="landing-button-green landing-button-large landing-button-pulse">
+              <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
                 Get Early Access →
-              </a>
+              </EarlyAccessButton>
             </div>
           </div>
         </section>

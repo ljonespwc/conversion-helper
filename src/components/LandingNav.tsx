@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { LogIn, LogOut, User, Menu, X } from 'lucide-react'
+import { LogOut, User, Menu, X } from 'lucide-react'
+import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
 
 interface LandingNavProps {
   user: { email?: string | null; id: string } | null
@@ -12,6 +13,7 @@ interface LandingNavProps {
 export function LandingNav({ user, loading = false }: LandingNavProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,9 +78,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                 </>
               ) : (
                 <>
-                  <a href="#cta" className="landing-nav-cta">
+                  <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta">
                     Get Early Access
-                  </a>
+                  </button>
                 </>
               )}
             </div>
@@ -101,15 +103,18 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                     )}
                   </button>
                 ) : (
-                  <a href="#cta" className="landing-nav-cta">
+                  <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta">
                     Get Early Access
-                  </a>
+                  </button>
                 )}
               </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Early Access Modal */}
+      <EarlyAccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       {/* Mobile/Tablet Menu Dropdown */}
       {!loading && user && isMobileMenuOpen && (
