@@ -20,7 +20,7 @@ function getGoalInstruction(goal: string | null | undefined): string {
     case 'sell':
       return 'confident and benefit-focused. When answering, emphasize the value and outcomes. After addressing their questions thoroughly, ask subtly about their readiness. Don\'t be pushy at all, but don\'t be afraid to ask closing questions'
     case 'lead':
-      return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email. Position the email as unlocking helpful content they\'d actually want, based on what they\'ve been asking about'
+      return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email'
     case 'support':
       return 'patient and thorough. Focus on solving their problem with no sales pressure'
     default:
