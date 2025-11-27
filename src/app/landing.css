@@ -678,6 +678,10 @@
   text-align: center;
 }
 
+.landing-text-block p.landing-callout-purple {
+  color: var(--landing-color-purple-text);
+}
+
 .landing-callout-purple strong {
   color: var(--landing-color-purple-text) !important;
 }

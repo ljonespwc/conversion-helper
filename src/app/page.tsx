@@ -84,13 +84,13 @@ export default async function Home() {
               </p>
 
               <p className="landing-callout landing-callout-purple">
-                <strong>Every silent bounce is a conversation that never happened.</strong>
+                Every silent bounce is a conversation that never happened.
               </p>
             </div>
           </div>
         </section>
 
-        {/* SECTION 4: WHAT EASYASK IS */}
+        {/* SECTION 3: WHAT EASYASK IS */}
         <section className="landing-section landing-section-product">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
@@ -118,13 +118,13 @@ export default async function Home() {
               </ul>
 
               <p className="landing-callout landing-callout-purple">
-                <strong>Not a chatbot. Not support. Not another 6-month rollout.</strong>
+                Not a chatbot. Not support. Not another 6-month rollout.
               </p>
             </div>
           </div>
         </section>
 
-        {/* SECTION 5: THE 7 DIFFERENTIATORS */}
+        {/* SECTION 4: THE 6 DIFFERENTIATORS */}
         <section className="landing-section landing-section-differentiators">
           <div className="landing-container">
             <div className="landing-section-intro">
@@ -143,13 +143,11 @@ export default async function Home() {
                   <p className="landing-differentiator-subhead">
                     Speaking is 3x faster than typing. Lower friction = higher engagement.
                   </p>
-                  <div className="landing-text-block">
-                    <ul className="landing-sub-diff-list">
-                      <li><strong>Interruptible.</strong> Talk to it like a human. Interrupt, redirect, follow up.</li>
-                      <li><strong>Instant.</strong> No queue. No "an agent will be with you shortly."</li>
-                      <li><strong>Mobile-native.</strong> Thumbs-free. Because nobody types paragraphs on their phone.</li>
-                    </ul>
-                  </div>
+                  <ul className="landing-sub-diff-list">
+                    <li><strong>Interruptible.</strong> Talk to it like a human. Interrupt, redirect, follow up.</li>
+                    <li><strong>Instant.</strong> No queue. No "an agent will be with you shortly."</li>
+                    <li><strong>Mobile-native.</strong> Thumbs-free. Because nobody types paragraphs on their phone.</li>
+                  </ul>
                 </div>
                 <div className="landing-differentiator-image">
                   <div className="landing-image-wrapper-small">
@@ -180,12 +178,10 @@ export default async function Home() {
                 <p className="landing-differentiator-subhead">
                   Every answer comes from your actual content. Nothing invented. Nothing off-brand.
                 </p>
-                <div className="landing-text-block">
-                  <ul className="landing-sub-diff-list">
-                    <li><strong>Grounded.</strong> Scrape pages in seconds. Upload any doc. The AI only references what you give it.</li>
-                    <li><strong>Always current.</strong> Change your pricing Monday, the AI knows Tuesday.</li>
-                  </ul>
-                </div>
+                <ul className="landing-sub-diff-list">
+                  <li><strong>Grounded.</strong> Scrape pages in seconds. Upload any doc. The AI only references what you give it.</li>
+                  <li><strong>Always current.</strong> Change your pricing Monday, the AI knows Tuesday.</li>
+                </ul>
               </div>
               <div className="landing-differentiator-image">
                 <div className="landing-image-wrapper-small">
@@ -347,7 +343,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 6: WE ARE / WE ARE NOT TABLE */}
+        {/* SECTION 5: WE ARE / WE ARE NOT TABLE */}
         <section className="landing-section landing-section-clarity">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
@@ -381,7 +377,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 7: USE CASE SPOTLIGHTS */}
+        {/* SECTION 6: USE CASE SPOTLIGHTS */}
         <section className="landing-section landing-section-use-cases">
           <div className="landing-container">
             <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
@@ -468,7 +464,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 8: HOW IT WORKS */}
+        {/* SECTION 7: HOW IT WORKS */}
         <section className="landing-section landing-section-how-it-works">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
@@ -550,7 +546,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 9: FAQ */}
+        {/* SECTION 8: FAQ */}
         <section className="landing-section landing-section-faq">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
@@ -561,7 +557,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 11: FINAL CTA */}
+        {/* SECTION 9: FINAL CTA */}
         <section className="landing-section landing-section-final-cta">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
@@ -592,7 +588,7 @@ export default async function Home() {
             </div>
 
             <p className="landing-callout landing-callout-purple">
-              <strong>You could have your first conversation with a real visitor today.</strong>
+              You could have your first conversation with a real visitor today.
             </p>
 
             <p className="landing-final-cta-summary" style={{ marginTop: '2.5em' }}>
