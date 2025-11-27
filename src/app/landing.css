@@ -593,9 +593,17 @@
   background: linear-gradient(135deg, var(--landing-color-paper) 0%, rgba(var(--landing-rgb-blue), 0.05) 100%);
 }
 
+.landing-section-problem .landing-section-heading {
+  text-align: center;
+}
+
 .landing-section-product {
   background: transparent;
   text-align: center;
+}
+
+.landing-section-product .landing-icon-list {
+  text-align: left;
 }
 
 .landing-section-heading {
