@@ -20,7 +20,7 @@ export default async function Home() {
             <div className="landing-hero-grid">
               <div className="landing-hero-content">
                 <h1 className="landing-h1">
-                  Don't make your visitors read. Let them ask.
+                  Don't make your visitors read. Let them talk to your site.
                 </h1>
                 <h2 className="landing-h2">
                   Answer visitor questions with 100% accuracy—at the moment of intent—and capture the <RotatingWord />
@@ -94,7 +94,7 @@ export default async function Home() {
         <section className="landing-section landing-section-product">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
-              EasyAsk answers when your visitors ask.
+              EasyAsk listens when your visitors talk.
             </h2>
 
             <div className="landing-widget-demo-centered">
