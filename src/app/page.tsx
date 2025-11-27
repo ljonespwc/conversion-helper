@@ -539,7 +539,7 @@ export default async function Home() {
             </div>
 
             <p className="landing-callout landing-callout-purple" style={{ marginTop: '3em' }}>
-              Update anytime. No tickets. No waiting.
+              Most teams go live before lunch.
             </p>
           </div>
         </section>
@@ -586,7 +586,7 @@ export default async function Home() {
             </div>
 
             <p className="landing-callout landing-callout-purple">
-              You could have your first conversation with a real visitor today.
+              By tonight, your site could be answering questions.
             </p>
 
             <p className="landing-final-cta-summary" style={{ marginTop: '2.5em' }}>
