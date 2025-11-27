@@ -32,7 +32,18 @@ interface SimplifiedVoiceInterfaceProps {
   showBranding?: boolean
 }
 
-export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true }: SimplifiedVoiceInterfaceProps) {
+// Inner component that contains the Layercode hook - only rendered after user tap
+function VoiceSession({
+  onClose,
+  pageUrl,
+  showBranding,
+  effectivePageUrl
+}: {
+  onClose: () => void
+  pageUrl?: string
+  showBranding: boolean
+  effectivePageUrl: string
+}) {
   const posthog = usePostHog()
   const [hasStarted, setHasStarted] = useState(false)
   const [hasHadFirstInteraction, setHasHadFirstInteraction] = useState(false)
@@ -59,9 +70,6 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
   // Feedback state for conversation
   const [conversationFeedback, setConversationFeedback] = useState<'positive' | 'negative' | null>(null)
   const [showFeedbackCheck, setShowFeedbackCheck] = useState(false)
-
-  // Use provided pageUrl or capture from window if not provided
-  const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
   // Memoize metadata to prevent unnecessary reconnections on every render
   // NOTE: timestamp is generated fresh each time to avoid mobile audio issues
@@ -137,15 +145,11 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
     onDataMessage: handleDataMessage
   })
 
-  // Track if user has initiated the voice session (clicked start button)
-  const [voiceSessionStarted, setVoiceSessionStarted] = useState(false)
-
-  // Handle start voice button click - user gesture triggers mic permission
-  const handleStartVoice = () => {
-    console.log('User clicked start voice button')
-    setVoiceSessionStarted(true)
-    startVoiceSession()  // This calls connect() + setAudioInput(true)
-  }
+  // Auto-start voice session when this component mounts (user already tapped)
+  useEffect(() => {
+    console.log('VoiceSession mounted - starting voice session')
+    startVoiceSession()
+  }, []) // Only on mount
 
   // Auto-start conversation when connected
   useEffect(() => {
@@ -421,30 +425,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
   return (
     <div className="relative p-6 space-y-4">
 
-      {/* Pre-connection Start Screen */}
-      {!voiceSessionStarted && (
-        <div className="flex flex-col items-center space-y-6 py-8">
-          <motion.button
-            onClick={handleStartVoice}
-            className="relative p-6 rounded-full bg-easyask-secondary hover:bg-easyask-accent transition-all shadow-lg hover:shadow-xl"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Mic className="w-12 h-12 text-white" />
-          </motion.button>
-          <div className="text-center">
-            <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
-              Tap to start voice assistant
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Microphone access required
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Connecting State - After user clicked start */}
-      {voiceSessionStarted && isConnecting && (
+      {/* Connecting State */}
+      {isConnecting && (
         <div className="flex flex-col items-center space-y-4 py-8">
           <div className="p-4 rounded-full bg-gray-400">
             <Loader2 className="w-8 h-8 text-white animate-spin" />
@@ -455,8 +437,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
         </div>
       )}
 
-      {/* Main Interface - Only show after connected */}
-      {voiceSessionStarted && isConnected && (
+      {/* Main Interface - Show after connected */}
+      {isConnected && (
       <div className="flex flex-col items-center space-y-4">
         {/* Voice Button with Sparkle Burst */}
         <div className="relative">
@@ -988,5 +970,69 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
       )}
 
     </div>
+  )
+}
+
+// Main exported component - shows start button, only renders VoiceSession after tap
+export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true }: SimplifiedVoiceInterfaceProps) {
+  const [voiceSessionStarted, setVoiceSessionStarted] = useState(false)
+
+  // Use provided pageUrl or capture from window if not provided
+  const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
+
+  // Handle start voice button click - user gesture triggers mic permission
+  const handleStartVoice = () => {
+    console.log('User clicked start voice button - rendering VoiceSession')
+    setVoiceSessionStarted(true)
+  }
+
+  // If user hasn't tapped yet, show the start button (NO hook initialized yet)
+  if (!voiceSessionStarted) {
+    return (
+      <div className="relative p-6 space-y-4">
+        <div className="flex flex-col items-center space-y-6 py-8">
+          <motion.button
+            onClick={handleStartVoice}
+            className="relative p-6 rounded-full bg-easyask-secondary hover:bg-easyask-accent transition-all shadow-lg hover:shadow-xl"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Mic className="w-12 h-12 text-white" />
+          </motion.button>
+          <div className="text-center">
+            <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
+              Tap to start voice assistant
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Microphone access required
+            </p>
+          </div>
+        </div>
+
+        {/* Powered by EasyAsk Footer */}
+        {showBranding && (
+          <div className="flex items-center justify-center pt-4 pb-2">
+            <a
+              href="https://easyask.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
+            >
+              Powered by EasyAsk
+            </a>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // User tapped - render the VoiceSession which initializes the Layercode hook
+  return (
+    <VoiceSession
+      onClose={onClose}
+      pageUrl={pageUrl}
+      showBranding={showBranding}
+      effectivePageUrl={effectivePageUrl}
+    />
   )
 }
