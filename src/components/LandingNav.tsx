@@ -76,15 +76,6 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                 </>
               ) : (
                 <>
-                  <a href="#features" className="landing-nav-link">
-                    Features
-                  </a>
-                  <a href="#pricing" className="landing-nav-link">
-                    Pricing
-                  </a>
-                  <a href="#faq" className="landing-nav-link">
-                    FAQ
-                  </a>
                   <Link href="/login" className="landing-nav-link">
                     Login
                   </Link>
