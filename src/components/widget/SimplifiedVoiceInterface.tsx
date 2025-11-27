@@ -980,60 +980,12 @@ function VoiceSession({
   )
 }
 
-// Main exported component - shows start button, only renders VoiceSession after tap
+// Main exported component - renders VoiceSession immediately when modal opens
 export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true }: SimplifiedVoiceInterfaceProps) {
-  const [voiceSessionStarted, setVoiceSessionStarted] = useState(false)
-
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
-  // Handle start voice button click - user gesture triggers mic permission
-  const handleStartVoice = () => {
-    console.log('User clicked start voice button - rendering VoiceSession')
-    setVoiceSessionStarted(true)
-  }
-
-  // If user hasn't tapped yet, show the start button (NO hook initialized yet)
-  if (!voiceSessionStarted) {
-    return (
-      <div className="relative p-6 space-y-4">
-        <div className="flex flex-col items-center space-y-6 py-8">
-          <motion.button
-            onClick={handleStartVoice}
-            className="relative p-6 rounded-full bg-easyask-secondary hover:bg-easyask-accent transition-all shadow-lg hover:shadow-xl"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Mic className="w-12 h-12 text-white" />
-          </motion.button>
-          <div className="text-center">
-            <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
-              Tap to start voice assistant
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Microphone access required
-            </p>
-          </div>
-        </div>
-
-        {/* Powered by EasyAsk Footer */}
-        {showBranding && (
-          <div className="flex items-center justify-center pt-4 pb-2">
-            <a
-              href="https://easyask.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
-            >
-              Powered by EasyAsk
-            </a>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // User tapped - render the VoiceSession which initializes the Layercode hook
+  // Render VoiceSession immediately - connection starts when modal opens
   return (
     <VoiceSession
       onClose={onClose}
