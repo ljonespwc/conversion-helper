@@ -1,7 +1,7 @@
 'use client'
 
 import { useLayercodeAgent } from '@layercode/react-sdk'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 interface UseSimpleLayercodeVoiceOptions {
   metadata?: Record<string, any>
@@ -15,16 +15,18 @@ const IDLE_TIMEOUT_MS = 5 * 60 * 1000
 export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) {
   const conversationIdRef = useRef<string | null>(null)
   const [conversationStarted, setConversationStarted] = useState(false)
+  const [audioInputEnabled, setAudioInputEnabled] = useState(false)
   const lastActivityRef = useRef<number>(Date.now())
   const idleCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const agentRef = useRef<any>(null)
 
-  // Use Layercode agent hook with automatic VAD
+  // Use Layercode agent hook - defer microphone until user gesture
   const agent = useLayercodeAgent({
     agentId: process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID!,
     authorizeSessionEndpoint: '/api/layercode/authorize',
     conversationId: conversationIdRef.current || undefined,
     metadata: options.metadata,
+    audioInput: audioInputEnabled, // Only request mic after user gesture
     onConnect: ({ conversationId }) => {
       console.log('Connected to Layercode agent:', conversationId)
       if (conversationId) {
@@ -121,6 +123,14 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     }
   }, [])
 
+  // Enable audio input on user gesture
+  const enableAudioInput = useCallback(() => {
+    if (!audioInputEnabled) {
+      console.log('Enabling audio input on user gesture')
+      setAudioInputEnabled(true)
+    }
+  }, [audioInputEnabled])
+
   return {
     // Connection state
     isConnected: status === 'connected',
@@ -135,10 +145,15 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     conversationStarted,
     conversationId: conversationIdRef.current,
 
+    // Audio input state
+    audioInputEnabled,
+
     // Actions
+    enableAudioInput, // Call on user gesture to enable microphone
     startNewConversation: () => {
       conversationIdRef.current = null
       setConversationStarted(false)
+      setAudioInputEnabled(false)
       // Will create new conversation on next connection
     }
   }

@@ -130,6 +130,8 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
     userAudioLevel,
     agentAudioLevel,
     conversationId,
+    audioInputEnabled,
+    enableAudioInput,
     startNewConversation
   } = useLayercodeVoice({
     metadata,
@@ -387,7 +389,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
   // Get status text - only three states, no bouncing
   const getStatusText = () => {
     if (!isConnected) return 'Connecting...'
-    if (!hasStarted) return 'Click to start conversation'
+    if (!audioInputEnabled) return 'Tap to enable microphone'
 
     // During conversation - only show these two states
     if (isSpeaking) return 'Listening to you...'
@@ -416,17 +418,19 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
         <div className="relative">
           <motion.button
             onClick={() => {
-              if (!hasStarted && isConnected) {
+              if (isConnected && !audioInputEnabled) {
+                // Enable microphone on user gesture
+                enableAudioInput()
                 setHasStarted(true)
               }
             }}
-            disabled={!isConnected || (hasStarted && isActive)}
+            disabled={!isConnected || audioInputEnabled}
             className={`relative p-4 rounded-full transition-all ${getButtonColor()} ${
               !isConnected ? 'opacity-50 cursor-not-allowed' : ''
             } ${
               isSpeaking || isListening ? 'animate-pulse' : ''
             }`}
-            whileTap={!hasStarted ? { scale: 0.95 } : {}}
+            whileTap={!audioInputEnabled ? { scale: 0.95 } : {}}
           >
             {/* Icon */}
             {isConnecting ? (
