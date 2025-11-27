@@ -24,7 +24,7 @@ export default async function Home() {
                   Give your site the persuasive power of voice.
                 </h1>
                 <h2 className="landing-h2">
-                  Don't make visitors scroll. Give them 100% accurate answers—at the perfect moment—and capture the <RotatingWord />
+                  Don't make visitors scroll. Give them instant, 100% accurate answers—at the perfect moment—and get the <RotatingWord />
                 </h2>
                 <div className="landing-cta-wrapper">
                   <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
