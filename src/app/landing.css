@@ -983,7 +983,7 @@
   font-weight: 700;
   letter-spacing: var(--landing-letter-spacing-tight);
   margin: 0 0 var(--landing-space-small) 0;
-  color: var(--landing-color-text-primary);
+  color: var(--landing-color-green-text);
 }
 
 .landing-comparison-list {
