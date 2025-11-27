@@ -23,7 +23,7 @@ export default async function Home() {
                   Don't make your visitors read. Let them ask.
                 </h1>
                 <h2 className="landing-h2">
-                  Answer their questions with 100% accuracy—at the moment of intent—and capture the <RotatingWord />
+                  Answer visitor questions with 100% accuracy—at the moment of intent—and capture the <RotatingWord />
                 </h2>
                 <div className="landing-cta-wrapper">
                   <a href="#" className="landing-button-green landing-button-large landing-button-pulse">
