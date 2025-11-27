@@ -76,9 +76,6 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="landing-nav-link">
-                    Login
-                  </Link>
                   <a href="#cta" className="landing-nav-cta">
                     Get Early Access
                   </a>
@@ -104,10 +101,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                     )}
                   </button>
                 ) : (
-                  <Link href="/login" className="landing-nav-login">
-                    <LogIn className="w-4 h-4" />
-                    <span>Login</span>
-                  </Link>
+                  <a href="#cta" className="landing-nav-cta">
+                    Get Early Access
+                  </a>
                 )}
               </>
             )}
