@@ -289,6 +289,13 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
 
           stream.tts(welcomeMsg)
 
+          // Send greeting as data so frontend can display text (muted style, no sparkle)
+          stream.data({
+            type: 'greeting',
+            response: welcomeMsg,
+            urls: { hasLinks: false, links: [] }
+          })
+
           conversationMessages[conversationKey].push({
             role: 'assistant',
             content: welcomeMsg,

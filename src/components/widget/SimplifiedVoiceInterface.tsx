@@ -89,32 +89,39 @@ function VoiceSession({
       setCurrentResponse(null)
       setShowURLs(false)
 
-      // Trigger sparkle burst animation
-      setShowSparkleBurst(true)
-      setTimeout(() => setShowSparkleBurst(false), 800)
+      // Check if this is a greeting (muted style - no sparkle, no history)
+      const isGreeting = content?.type === 'greeting'
 
-      // Add messages to conversation history
-      const timestamp = Date.now()
-      const newMessages: ConversationMessage[] = []
-
-      // Add user question if available
-      if (content?.question) {
-        newMessages.push({
-          role: 'user',
-          text: content.question,
-          timestamp
-        })
+      // Trigger sparkle burst animation only for actual Q&A responses
+      if (!isGreeting) {
+        setShowSparkleBurst(true)
+        setTimeout(() => setShowSparkleBurst(false), 800)
       }
 
-      // Add AI response
-      const responseTimestamp = timestamp + 1 // Ensure AI response comes after
-      newMessages.push({
-        role: 'assistant',
-        text: content.response,
-        timestamp: responseTimestamp
-      })
+      // Add messages to conversation history (skip greetings)
+      if (!isGreeting) {
+        const timestamp = Date.now()
+        const newMessages: ConversationMessage[] = []
 
-      setConversationHistory(prev => [...prev, ...newMessages])
+        // Add user question if available
+        if (content?.question) {
+          newMessages.push({
+            role: 'user',
+            text: content.question,
+            timestamp
+          })
+        }
+
+        // Add AI response
+        const responseTimestamp = timestamp + 1 // Ensure AI response comes after
+        newMessages.push({
+          role: 'assistant',
+          text: content.response,
+          timestamp: responseTimestamp
+        })
+
+        setConversationHistory(prev => [...prev, ...newMessages])
+      }
 
       // Small delay to allow exit animation before showing new response
       setTimeout(() => {
