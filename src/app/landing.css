@@ -962,20 +962,20 @@
   border-color: var(--landing-color-border-light);
 }
 
-.landing-comparison-is {
+.landing-comparison-owners {
   border-top: 3px solid var(--landing-color-border);
 }
 
-.landing-comparison-is:hover {
+.landing-comparison-owners:hover {
   border-top-color: var(--landing-color-green-border);
 }
 
-.landing-comparison-not {
+.landing-comparison-visitors {
   border-top: 3px solid var(--landing-color-border);
 }
 
-.landing-comparison-not:hover {
-  border-top-color: var(--landing-color-red-border);
+.landing-comparison-visitors:hover {
+  border-top-color: var(--landing-color-green-border);
 }
 
 .landing-comparison-header {
@@ -1004,12 +1004,12 @@
   border-bottom: none;
 }
 
-.landing-comparison-is li {
+.landing-comparison-owners li {
   color: var(--landing-color-text-primary);
 }
 
-.landing-comparison-not li {
-  color: var(--landing-color-text-muted);
+.landing-comparison-visitors li {
+  color: var(--landing-color-text-primary);
 }
 
 /* =================================

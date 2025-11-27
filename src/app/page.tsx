@@ -343,34 +343,32 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* SECTION 5: WE ARE / WE ARE NOT TABLE */}
+        {/* SECTION 5: EVERYONE WINS */}
         <section className="landing-section landing-section-clarity">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
-              What you're getting. What you're not.
+              Built for both sides of the conversation.
             </h2>
 
             <div className="landing-comparison-table">
-              <div className="landing-comparison-column landing-comparison-is">
-                <h3 className="landing-comparison-header">EasyAsk IS...</h3>
+              <div className="landing-comparison-column landing-comparison-owners">
+                <h3 className="landing-comparison-header">Your Team Gets</h3>
                 <ul className="landing-comparison-list">
-                  <li>Voice sales assistant for B2B websites</li>
-                  <li>Pre-purchase buyer enablement</li>
-                  <li>Conversation-first engagement</li>
-                  <li>Self-serve, mid-market friendly</li>
-                  <li>Grounded in your content only</li>
-                  <li>Built to capture and convert leads</li>
+                  <li>24/7 sales coverage</li>
+                  <li>Qualified leads with context</li>
+                  <li>Insight into visitor questions</li>
+                  <li>Content that converts</li>
+                  <li>Live in minutes</li>
                 </ul>
               </div>
-              <div className="landing-comparison-column landing-comparison-not">
-                <h3 className="landing-comparison-header">EasyAsk is NOT...</h3>
+              <div className="landing-comparison-column landing-comparison-visitors">
+                <h3 className="landing-comparison-header">Your Visitors Get</h3>
                 <ul className="landing-comparison-list">
-                  <li>A chatbot you have to type into</li>
-                  <li>Post-purchase customer support</li>
-                  <li>Ticket deflection tool</li>
-                  <li>Enterprise-only, 6-month implementation</li>
-                  <li>Generic AI that makes things up</li>
-                  <li>Built to reduce support costs</li>
+                  <li>Instant, accurate answers</li>
+                  <li>No scrolling or searching</li>
+                  <li>A conversation, not a monologue</li>
+                  <li>Voice-first, no typing</li>
+                  <li>Help when they need it</li>
                 </ul>
               </div>
             </div>
