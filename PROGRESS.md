@@ -299,65 +299,30 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 - Anonymous visitor tracking, identified admin tracking
 - Files: `PostHogProvider.tsx`, widget/admin components
 
+### ✅ Layercode SDK Upgrade to 2.8.2 (2025-11-27)
+- **Upgraded**: `@layercode/react-sdk` from 2.1.3 → 2.8.2
+- **Breaking change**: SDK no longer auto-connects; requires explicit `connect()` call
+- **New flow**: User taps "Start" → `connect()` → on `connected` status → `setAudioInput(true)`
+- **Key config**: `audioInput: false` defers mic permission until after connection
+- **Hook**: `useSimpleLayercodeVoice.ts` with `startVoiceSession()` / `endSession()` actions
+- **Mobile note**: Greeting may be missed if permission dialog is slow (minor UX issue)
+
 ---
 
 ## 🔮 Upcoming Priorities
 
-### Landing Page Redesign (In Progress)
+### Landing Page Redesign (Images Remaining)
 
-**Goal**: Complete rewrite and redesign of the app's landing page (root domain `/`)
+**Status**: Code & copy complete. Only images remain.
 
-**Status**: ✅ **Copy complete. Preliminary design implemented and verified.**
+**Remaining**:
+- Hero image asset
+- 7 differentiator section images
+- Use case icons/images
+- Add widget to page (need billing protection - demo mode or stricter rate limits)
+- Finish early access modal with "one page free" offer
 
-**Current State**:
-- Light, bright landing page with Basecamp-inspired aesthetic
-- Fully separate styling from post-login dark theme app
-- All content sections implemented with comprehensive copy
-- Interactive FAQ accordion, scroll animations, enhanced navigation
-- Complete hover states and micro-interactions verified in code
-
-**Design Implementation**:
-- Shadow system (sm/md/lg/xl) with subtle elevation
-- Color tints (green-50, cyan-50, amber-50) for section backgrounds
-- Card styling for all 7 differentiators
-- Hover effects: buttons (lift + glow), cards (shadow transitions), nav (underline animation)
-- ScrollAnimation component with Intersection Observer
-- FAQAccordion with chevron icons and smooth expand/collapse
-- Enhanced navigation with scroll detection and menu items
-
-**Next Steps**:
-- Add hero image assets
-- Add differentiator section images (7 images)
-- Add use case icons/images
-- Final visual polish and spacing adjustments
-- User acceptance testing
-
-**Design Assets**:
-- Styling guidelines: `docs/basecamp-styling-guidelines-for-llm.md`
-- Copy & content (3 docs):
-  - `docs/easyask-landing-page-pass2-sections1-4.md` (Hero, Problem, Solution, Features)
-  - `docs/easyask-landing-page-pass2-sections5-8.md` (How It Works, Use Cases, Pricing, Testimonials)
-  - `docs/easyask-landing-page-pass2-sections9-12.md` (FAQ, CTA, Footer)
-
-**Technical Implementation**:
-- **Separate styling** - Isolated CSS in `src/app/landing.css`
-- **Components**: FAQAccordion, ScrollAnimation, enhanced LandingNav
-- **Files**:
-  - `/src/app/page.tsx` - Landing page component
-  - `/src/app/landing.css` - Landing-specific stylesheet (1000+ lines)
-  - `/src/components/FAQAccordion.tsx` - Interactive FAQ component
-  - `/src/components/ScrollAnimation.tsx` - Scroll-triggered animations
-  - `/src/components/LandingNav.tsx` - Enhanced navigation
-
-**Verified Hover States** (2025-11-25):
-1. `.landing-button-green:hover` - CTA buttons with lift + glow
-2. `.landing-nav-cta:hover` - Nav CTA button
-3. `.differentiator-card:hover` - 7 feature cards with shadow transition
-4. `.landing-use-case-card:hover` - 4 use case cards with lift effect
-5. `.landing-nav-link:hover` - Nav links with background + underline animation
-6. `.landing-faq-item:hover` - FAQ items with border color change
-7. `.landing-faq-question:hover` - Clickable FAQ area
-8. All transitions verified (0.2s-0.3s cubic-bezier easing)
+**Files**: `/src/app/page.tsx`, `/src/app/landing.css`, `/src/components/FAQAccordion.tsx`
 
 ---
 
