@@ -18,6 +18,7 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   const lastActivityRef = useRef<number>(Date.now())
   const idleCheckIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const agentRef = useRef<any>(null)
+  const pendingAudioEnableRef = useRef<boolean>(false)
 
   // Use Layercode agent hook with deferred mic permission
   // audioInput: false prevents immediate mic permission request
@@ -58,11 +59,12 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
   agentRef.current = agent
 
   // Start voice session - call from user gesture (button click)
-  // This enables mic and connects, satisfying browser requirements
+  // Connection must be established BEFORE enabling audio input
+  // The onConnect callback will enable audio after connection is ready
   const startVoiceSession = () => {
     console.log('Starting voice session...')
-    setAudioInput(true)  // Enable mic (triggers permission prompt)
-    connect()            // Connect to Layercode
+    pendingAudioEnableRef.current = true  // Flag to enable audio after connect
+    connect()  // Connect first, audio enabled in onConnect callback
   }
 
   // End session cleanly
@@ -70,6 +72,19 @@ export function useLayercodeVoice(options: UseSimpleLayercodeVoiceOptions = {}) 
     console.log('Ending voice session...')
     disconnect()
   }
+
+  // Enable audio input AFTER connection is established
+  // This effect watches for connection status and enables audio when ready
+  useEffect(() => {
+    if (status === 'connected' && pendingAudioEnableRef.current) {
+      console.log('Connection established, now enabling audio input...')
+      pendingAudioEnableRef.current = false
+      // Small delay to ensure connection is fully ready for audio stream
+      setTimeout(() => {
+        setAudioInput(true)
+      }, 100)
+    }
+  }, [status, setAudioInput])
 
   // Track user audio activity (speaking)
   useEffect(() => {
