@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     // Send notification email to Lance
     await resend.emails.send({
-      from: 'EasyAsk <noreply@easyask.io>',
+      from: 'EasyAsk <noreply@updates.easyask.io>',
       to: 'lancecj@gmail.com',
       subject: `New Early Access Signup: ${normalizedEmail}`,
       text: `New early access signup!\n\nEmail: ${normalizedEmail}\nTime: ${new Date().toISOString()}`
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: 'EasyAsk <noreply@easyask.io>',
+      from: 'EasyAsk <noreply@updates.easyask.io>',
       to: normalizedEmail,
       subject: "You're on the EasyAsk early access list!",
       text: `Thanks for signing up for early access to EasyAsk!\n\nWe're rolling out access in batches and will reach out when your spot is ready.\n\nIn the meantime, if you have any questions, just reply to this email.\n\n— Lance\nFounder, EasyAsk`
