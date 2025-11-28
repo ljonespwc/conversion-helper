@@ -36,56 +36,54 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get organization's widget pages to filter conversations
-    const { data: userPages } = await supabase
-      .from('widget_pages')
-      .select('page_url')
-      .eq('organization_id', userData.organization_id)
-
-    const userPageUrls = userPages?.map(p => p.page_url) || []
-
-    if (userPageUrls.length === 0) {
-      // No pages configured, return empty stats
-      return NextResponse.json({
-        total: 0,
-        today: 0,
-        avgDuration: 0,
-        activeNow: 0,
-        positiveFeedback: 0,
-        negativeFeedback: 0,
-        recentSessions: []
-      })
-    }
+    const organizationId = userData.organization_id
 
     // Get pageUrl query param for filtering to specific page
     const searchParams = request.nextUrl.searchParams
     const pageUrl = searchParams.get('pageUrl')
 
-    // Determine which pages to filter by
-    const filterPages = pageUrl ? [pageUrl] : userPageUrls
-
-    // Get total sessions (filtered by user's pages)
-    const { count: total } = await supabase
+    // Build base query - always filter by organization_id
+    // Optionally also filter by specific page_url if provided
+    let totalQuery = supabase
       .from('conversation_sessions')
       .select('*', { count: 'exact', head: true })
-      .in('page_url', filterPages)
+      .eq('organization_id', organizationId)
 
-    // Get today's sessions (filtered by user's pages)
+    if (pageUrl) {
+      totalQuery = totalQuery.eq('page_url', pageUrl)
+    }
+
+    // Get total sessions (filtered by organization)
+    const { count: total } = await totalQuery
+
+    // Get today's sessions (filtered by organization)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const { count: todayCount } = await supabase
+    let todayQuery = supabase
       .from('conversation_sessions')
       .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
       .gte('created_at', today.toISOString())
-      .in('page_url', filterPages)
+
+    if (pageUrl) {
+      todayQuery = todayQuery.eq('page_url', pageUrl)
+    }
+
+    const { count: todayCount } = await todayQuery
 
     // Calculate average session duration using message timestamps (more accurate)
-    const { data: completedSessions } = await supabase
+    let completedQuery = supabase
       .from('conversation_sessions')
       .select('session_id, started_at, ended_at')
-      .in('page_url', filterPages)
+      .eq('organization_id', organizationId)
       .not('ended_at', 'is', null)
+
+    if (pageUrl) {
+      completedQuery = completedQuery.eq('page_url', pageUrl)
+    }
+
+    const { data: completedSessions } = await completedQuery
 
     let avgDuration = 0
     if (completedSessions && completedSessions.length > 0) {
@@ -131,21 +129,33 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get active sessions (last 5 minutes, filtered by user's pages)
+    // Get active sessions (last 5 minutes, filtered by organization)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
 
-    const { count: activeNow } = await supabase
+    let activeQuery = supabase
       .from('conversation_sessions')
       .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
       .gte('ended_at', fiveMinutesAgo.toISOString())
-      .in('page_url', filterPages)
 
-    // Get recent sessions (all sessions, filtered by user's pages)
-    const { data: recentSessions, error: sessionsError } = await supabase
+    if (pageUrl) {
+      activeQuery = activeQuery.eq('page_url', pageUrl)
+    }
+
+    const { count: activeNow } = await activeQuery
+
+    // Get recent sessions (all sessions, filtered by organization)
+    let recentQuery = supabase
       .from('conversation_sessions')
       .select('*')
+      .eq('organization_id', organizationId)
       .order('created_at', { ascending: false })
-      .in('page_url', filterPages)
+
+    if (pageUrl) {
+      recentQuery = recentQuery.eq('page_url', pageUrl)
+    }
+
+    const { data: recentSessions, error: sessionsError } = await recentQuery
 
     // Log any errors for debugging
     if (sessionsError) {
@@ -161,17 +171,29 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: true })
 
     // Count feedback from sessions (not messages - session-level feedback)
-    const { count: positiveFeedbackCount } = await supabase
+    let positiveFeedbackQuery = supabase
       .from('conversation_sessions')
       .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
       .eq('user_feedback', 'positive')
-      .in('page_url', filterPages)
 
-    const { count: negativeFeedbackCount } = await supabase
+    if (pageUrl) {
+      positiveFeedbackQuery = positiveFeedbackQuery.eq('page_url', pageUrl)
+    }
+
+    const { count: positiveFeedbackCount } = await positiveFeedbackQuery
+
+    let negativeFeedbackQuery = supabase
       .from('conversation_sessions')
       .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
       .eq('user_feedback', 'negative')
-      .in('page_url', filterPages)
+
+    if (pageUrl) {
+      negativeFeedbackQuery = negativeFeedbackQuery.eq('page_url', pageUrl)
+    }
+
+    const { count: negativeFeedbackCount } = await negativeFeedbackQuery
 
     const positiveFeedback = positiveFeedbackCount || 0
     const negativeFeedback = negativeFeedbackCount || 0
