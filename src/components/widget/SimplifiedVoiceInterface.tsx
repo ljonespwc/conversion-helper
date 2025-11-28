@@ -511,52 +511,59 @@ function VoiceSession({
           <AnimatePresence>
             {isThinking && (
               <>
-                {[...Array(3)].map((_, i) => (
-                  <motion.div
-                    key={`orbit-${i}`}
-                    className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full bg-blue-400 pointer-events-none"
-                    style={{
-                      marginLeft: '-4px',
-                      marginTop: '-4px',
-                    }}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{
-                      opacity: [0.4, 1, 0.4],
-                      scale: 1,
-                      x: [
-                        Math.cos((i / 3) * Math.PI * 2) * 35,
-                        Math.cos((i / 3) * Math.PI * 2 + Math.PI * 2) * 35,
-                      ],
-                      y: [
-                        Math.sin((i / 3) * Math.PI * 2) * 35,
-                        Math.sin((i / 3) * Math.PI * 2 + Math.PI * 2) * 35,
-                      ],
-                    }}
-                    exit={{ opacity: 0, scale: 0 }}
-                    transition={{
-                      opacity: {
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      },
-                      x: {
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "linear",
-                        delay: i * 0.15,
-                      },
-                      y: {
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "linear",
-                        delay: i * 0.15,
-                      },
-                      scale: {
-                        duration: 0.3,
-                      },
-                    }}
-                  />
-                ))}
+                {[...Array(3)].map((_, i) => {
+                  // Calculate orbit positions for smooth rotation
+                  // Each particle starts at 120° apart (i * 2π/3)
+                  const startAngle = (i / 3) * Math.PI * 2
+                  const radius = 35
+                  // Create keyframes for full orbit (8 points for smooth circle)
+                  const steps = 8
+                  const xKeyframes = Array.from({ length: steps + 1 }, (_, step) =>
+                    Math.cos(startAngle + (step / steps) * Math.PI * 2) * radius
+                  )
+                  const yKeyframes = Array.from({ length: steps + 1 }, (_, step) =>
+                    Math.sin(startAngle + (step / steps) * Math.PI * 2) * radius
+                  )
+
+                  return (
+                    <motion.div
+                      key={`orbit-${i}`}
+                      className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full bg-blue-400 pointer-events-none"
+                      style={{
+                        marginLeft: '-4px',
+                        marginTop: '-4px',
+                      }}
+                      initial={{ opacity: 0, scale: 0, x: xKeyframes[0], y: yKeyframes[0] }}
+                      animate={{
+                        opacity: [0.5, 1, 0.5],
+                        scale: 1,
+                        x: xKeyframes,
+                        y: yKeyframes,
+                      }}
+                      exit={{ opacity: 0, scale: 0 }}
+                      transition={{
+                        opacity: {
+                          duration: 1.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        },
+                        x: {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "linear",
+                        },
+                        y: {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "linear",
+                        },
+                        scale: {
+                          duration: 0.2,
+                        },
+                      }}
+                    />
+                  )
+                })}
               </>
             )}
           </AnimatePresence>
