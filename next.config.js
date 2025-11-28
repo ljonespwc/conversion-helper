@@ -36,6 +36,15 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/widget',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: 'frame-ancestors *',
+          },
+        ],
+      },
     ];
   },
 };

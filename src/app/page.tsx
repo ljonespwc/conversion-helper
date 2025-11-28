@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import Script from 'next/script'
 import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
 import WidgetButtonDemo from '@/components/landing/WidgetButtonDemo'
@@ -12,6 +13,7 @@ export default async function Home() {
 
   return (
     <div className="landing-page">
+      <Script src="/widget.js" data-position="bottom-left" strategy="lazyOnload" />
       <LandingNav user={user} />
 
       <main className="landing-main">

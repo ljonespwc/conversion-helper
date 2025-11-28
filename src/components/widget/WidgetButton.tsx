@@ -17,7 +17,7 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.03 }}
       onClick={onClick}
-      className="group fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 shadow-xl h-[52px] sm:h-[60px]"
+      className="group fixed bottom-4 right-4 z-40 shadow-xl h-[60px]"
       aria-label="Open voice assistant"
       style={{
         width: 'auto',
@@ -58,15 +58,15 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
       <div className="relative flex items-center justify-center h-full px-4 gap-2">
         {/* Sparkle Icon */}
         <div className="flex-shrink-0">
-          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <Sparkles className="w-6 h-6 text-white" />
         </div>
 
         {/* Text Content */}
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
-          <span className="text-xs sm:text-sm font-semibold text-white leading-tight">
+          <span className="text-sm font-semibold text-white leading-tight">
             Don't feel like reading? Just ask!
           </span>
-          <span className="text-[10px] sm:text-xs text-blue-100 leading-tight">
+          <span className="text-xs text-blue-100 leading-tight">
             🎤 Voice answers • Instant help
           </span>
         </div>
@@ -130,21 +130,6 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
           100% {
             transform: scale(1.8);
             opacity: 0;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .sound-wave-ring-1 {
-            width: 50px;
-            height: 50px;
-          }
-          .sound-wave-ring-2 {
-            width: 50px;
-            height: 50px;
-          }
-          .sound-wave-ring-3 {
-            width: 50px;
-            height: 50px;
           }
         }
       `}</style>

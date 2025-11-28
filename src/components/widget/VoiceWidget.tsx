@@ -56,6 +56,20 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     }
   }, [pageUrl, embedded])
 
+  // Notify parent of modal state changes (for iframe resize)
+  useEffect(() => {
+    if (embedded && typeof (window as any).onWidgetStateChange === 'function') {
+      (window as any).onWidgetStateChange(internalOpen)
+    }
+  }, [internalOpen, embedded])
+
+  // Hide widget if page not configured (send message to parent iframe)
+  useEffect(() => {
+    if (embedded && isActive === false && window.parent !== window) {
+      window.parent.postMessage({ type: 'easyask:hide' }, '*')
+    }
+  }, [isActive, embedded])
+
   // Don't render widget if page is inactive
   if (isActive === false) {
     return null
