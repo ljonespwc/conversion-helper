@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to user
     await resend.emails.send({
-      from: 'EasyAsk <noreply@updates.easyask.io>',
+      from: 'Lance from EasyAsk <lance@updates.easyask.io>',
+      replyTo: 'lancecj@gmail.com',
       to: normalizedEmail,
       subject: "You're on the EasyAsk early access list!",
       text: `Thanks for signing up for early access to EasyAsk!\n\nWe're rolling out access in batches and will reach out when your spot is ready.\n\nIn the meantime, if you have any questions, just reply to this email.\n\n— Lance\nFounder, EasyAsk`
