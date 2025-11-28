@@ -18,7 +18,13 @@ const supabase = createClient(
 function getGoalInstruction(goal: string | null | undefined): string {
   switch(goal) {
     case 'sell':
-      return 'confident and benefit-focused. When answering, emphasize the value and outcomes. After addressing their questions thoroughly, ask subtly about their readiness. Don\'t be pushy at all, but don\'t be afraid to ask closing questions'
+      return `confident and benefit-focused. Emphasize value and outcomes in your answers.
+
+CLOSING BEHAVIOR:
+- You may ask about readiness to buy ONCE per conversation, after answering 2+ substantive questions
+- Once you've asked OR the user expresses buying intent ("yes", "I'm ready", "let's do it", "how do I sign up"), direct them to sign up on this page and shift to "anything else I can help with?" mode
+- NEVER ask about readiness again after that point - just be helpful and answer questions
+- If they have objections or more questions after expressing intent, answer them without re-asking about readiness`
     case 'lead':
       return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email'
     case 'support':
@@ -259,9 +265,9 @@ CRITICAL RULES:
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
 5. NEVER mention sources, citations, or references - just provide the information naturally
 
-If you can't find the answer in the indexed content, say so naturally.
+If you can't find the answer in the stored content, say so naturally.
 
-Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
+Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
                 welcomeMsg = widgetPage.organization_name
@@ -415,9 +421,9 @@ CRITICAL RULES:
 3. NEVER ask users to clarify or specify - always search the content and attempt to answer
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
 
-If you can't find the answer in the indexed content, say so naturally.
+If you can't find the answer in the stored content, say so naturally.
 
-Answer based ONLY on indexed content. Be concise, natural, and ${getGoalInstruction(widgetPage?.page_goal)}.
+Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstruction(widgetPage?.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations, refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
             } else {
