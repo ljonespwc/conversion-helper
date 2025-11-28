@@ -45,14 +45,22 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           if (data?.page?.organization_name) {
             setOrganizationName(data.page.organization_name)
           }
-          // Check if widget is active on this page
-          setIsActive(data?.page?.is_active ?? true)
+          // Check if widget is active on this page (only active if page exists AND is_active is true)
+          const pageIsActive = data?.page?.is_active === true
+          setIsActive(pageIsActive)
           // Set branding visibility from organization setting
           setShowBranding(data?.page?.show_branding ?? true)
+          // Notify parent iframe to show/hide widget
+          if (window.parent !== window) {
+            window.parent.postMessage({ type: pageIsActive ? 'easyask:show' : 'easyask:hide' }, '*')
+          }
         })
         .catch(err => {
           console.error('Failed to fetch page info:', err)
-          setIsActive(true) // Default to active on error
+          setIsActive(false) // Hide on error
+          if (window.parent !== window) {
+            window.parent.postMessage({ type: 'easyask:hide' }, '*')
+          }
         })
     }
   }, [pageUrl, embedded])
@@ -64,12 +72,6 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     }
   }, [internalOpen, embedded])
 
-  // Hide widget if page not configured (send message to parent iframe)
-  useEffect(() => {
-    if (embedded && isActive === false && window.parent !== window) {
-      window.parent.postMessage({ type: 'easyask:hide' }, '*')
-    }
-  }, [isActive, embedded])
 
   // Don't render widget if page is inactive
   if (isActive === false) {

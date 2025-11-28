@@ -67,6 +67,9 @@
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';
     }
+    if (d.type === 'easyask:show') {
+      iframe.style.display = '';
+    }
   });
 
   // Track current URL to detect SPA navigation
@@ -77,8 +80,8 @@
     var newUrl = window.location.href;
     if (newUrl !== currentUrl) {
       currentUrl = newUrl;
-      // Reset visibility and update iframe src with new URL
-      iframe.style.display = '';
+      // Hide immediately, then update iframe src - widget will show itself if page is configured
+      iframe.style.display = 'none';
       iframe.style.transition = 'none';
       iframe.style.top = 'auto';
       iframe.style.left = isLeft ? '0' : 'auto';
