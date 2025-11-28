@@ -14,14 +14,13 @@
   var position = (script && script.getAttribute('data-position')) || 'bottom-right';
   var isLeft = position === 'bottom-left';
 
-  // Sizes: pill collapsed, modal expanded
-  var PILL = { w: 360, h: 100 };   // Button + sound wave overflow
-  var MODAL = { w: 440, h: 700 };  // Full modal
+  // Sizes: pill collapsed, full viewport when expanded
+  var PILL = { w: 360, h: 100 };
 
   // Create iframe
   var iframe = document.createElement('iframe');
   iframe.id = 'easyask-widget';
-  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href);
+  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position;
   iframe.title = 'EasyAsk Assistant';
   iframe.allow = 'microphone *; autoplay *';
   iframe.style.cssText = [
@@ -33,7 +32,7 @@
     'border:none',
     'background:transparent',
     'z-index:' + Z_INDEX,
-    'transition:width .3s,height .3s'
+    'transition:all .3s ease'
   ].join(';');
 
   // Handle messages from widget
@@ -43,8 +42,23 @@
     if (!d || !d.type) return;
 
     if (d.type === 'easyask:resize') {
-      iframe.style.width = (d.expanded ? MODAL.w : PILL.w) + 'px';
-      iframe.style.height = (d.expanded ? MODAL.h : PILL.h) + 'px';
+      if (d.expanded) {
+        // Expand to full viewport for modal
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+      } else {
+        // Collapse to pill
+        iframe.style.top = 'auto';
+        iframe.style.left = isLeft ? '0' : 'auto';
+        iframe.style.right = isLeft ? 'auto' : '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = PILL.w + 'px';
+        iframe.style.height = PILL.h + 'px';
+      }
     }
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';

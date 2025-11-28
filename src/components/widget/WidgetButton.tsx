@@ -7,9 +7,11 @@ interface WidgetButtonProps {
   onClick: () => void
   pageUrl?: string
   pageTitle?: string
+  position?: 'bottom-left' | 'bottom-right'
 }
 
-export default function WidgetButton({ onClick }: WidgetButtonProps) {
+export default function WidgetButton({ onClick, position = 'bottom-right' }: WidgetButtonProps) {
+  const isLeft = position === 'bottom-left'
   return (
     <motion.button
       initial={{ scale: 0 }}
@@ -17,7 +19,7 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.03 }}
       onClick={onClick}
-      className="group fixed bottom-4 right-4 z-40 shadow-xl h-[60px]"
+      className={`group fixed bottom-4 ${isLeft ? 'left-4' : 'right-4'} z-40 shadow-xl h-[60px]`}
       aria-label="Open voice assistant"
       style={{
         width: 'auto',

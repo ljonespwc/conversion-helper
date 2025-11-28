@@ -11,9 +11,10 @@ interface VoiceWidgetProps {
   onClose?: () => void
   embedded?: boolean
   pageUrl?: string
+  position?: 'bottom-left' | 'bottom-right'
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right' }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
@@ -90,6 +91,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           }}
           pageUrl={pageUrl}
           pageTitle={pageTitle}
+          position={position}
         />
       )}
 

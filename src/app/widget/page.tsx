@@ -12,6 +12,8 @@ const VoiceWidget = dynamic(() => import('@/components/widget/VoiceWidget'), {
 function WidgetContent() {
   const searchParams = useSearchParams()
   const pageUrl = searchParams.get('url')
+  const positionParam = searchParams.get('position')
+  const position: 'bottom-left' | 'bottom-right' = positionParam === 'bottom-left' ? 'bottom-left' : 'bottom-right'
 
   useEffect(() => {
     // Inject style tag to force transparent background (overrides Tailwind's bg-background)
@@ -41,7 +43,7 @@ function WidgetContent() {
 
   return (
     <div className="w-full h-screen bg-transparent">
-      <VoiceWidget embedded={true} pageUrl={pageUrl || undefined} />
+      <VoiceWidget embedded={true} pageUrl={pageUrl || undefined} position={position} />
     </div>
   )
 }
