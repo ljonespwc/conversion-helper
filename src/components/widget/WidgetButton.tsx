@@ -17,13 +17,12 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.03 }}
       onClick={onClick}
-      className="group fixed bottom-6 right-6 z-40 shadow-xl"
+      className="group fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 shadow-xl h-[52px] sm:h-[60px]"
       aria-label="Open voice assistant"
       style={{
         width: 'auto',
-        minWidth: '200px',
+        minWidth: '180px',
         maxWidth: '340px',
-        height: '60px',
         borderRadius: '30px',
       }}
     >
@@ -59,15 +58,15 @@ export default function WidgetButton({ onClick }: WidgetButtonProps) {
       <div className="relative flex items-center justify-center h-full px-4 gap-2">
         {/* Sparkle Icon */}
         <div className="flex-shrink-0">
-          <Sparkles className="w-6 h-6 text-white" />
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
 
         {/* Text Content */}
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
-          <span className="text-sm font-semibold text-white leading-tight">
+          <span className="text-xs sm:text-sm font-semibold text-white leading-tight">
             Don't feel like reading? Just ask!
           </span>
-          <span className="text-xs text-blue-100 leading-tight">
+          <span className="text-[10px] sm:text-xs text-blue-100 leading-tight">
             🎤 Voice answers • Instant help
           </span>
         </div>
