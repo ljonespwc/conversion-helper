@@ -78,7 +78,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
 
   return (
     <>
-      {embedded && (
+      {embedded && !isModalOpen && (
         <WidgetButton
           onClick={() => {
             setInternalOpen(true)
