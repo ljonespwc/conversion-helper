@@ -371,6 +371,9 @@ function VoiceSession({
   const isListening = aiIsSpeaking // AI speaking state set when response arrives
   const isActive = hasStarted && isConnected
 
+  // Detect thinking state (user stopped speaking, waiting for AI response)
+  const isThinking = hasHadFirstInteraction && !isSpeaking && !isListening && isConnected
+
   // Track first interaction
   useEffect(() => {
     if ((isSpeaking || isListening) && !hasHadFirstInteraction) {
@@ -414,6 +417,9 @@ function VoiceSession({
     // During conversation - only show these two states
     if (isSpeaking) return 'Listening to you...'
     if (isListening) return 'Speaking...'
+
+    // Thinking state - user stopped speaking, waiting for AI
+    if (isThinking) return 'Thinking...'
 
     // Initial state only (before first interaction)
     if (!hasHadFirstInteraction) return 'Ask me anything'
@@ -496,6 +502,60 @@ function VoiceSession({
                   >
                     <Sparkles className="w-5 h-5 text-yellow-400" />
                   </motion.div>
+                ))}
+              </>
+            )}
+          </AnimatePresence>
+
+          {/* Orbiting Particles - Thinking State */}
+          <AnimatePresence>
+            {isThinking && (
+              <>
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={`orbit-${i}`}
+                    className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full bg-blue-400 pointer-events-none"
+                    style={{
+                      marginLeft: '-4px',
+                      marginTop: '-4px',
+                    }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                      opacity: [0.4, 1, 0.4],
+                      scale: 1,
+                      x: [
+                        Math.cos((i / 3) * Math.PI * 2) * 35,
+                        Math.cos((i / 3) * Math.PI * 2 + Math.PI * 2) * 35,
+                      ],
+                      y: [
+                        Math.sin((i / 3) * Math.PI * 2) * 35,
+                        Math.sin((i / 3) * Math.PI * 2 + Math.PI * 2) * 35,
+                      ],
+                    }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{
+                      opacity: {
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
+                      x: {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: i * 0.15,
+                      },
+                      y: {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: i * 0.15,
+                      },
+                      scale: {
+                        duration: 0.3,
+                      },
+                    }}
+                  />
                 ))}
               </>
             )}
