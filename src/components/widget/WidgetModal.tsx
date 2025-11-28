@@ -43,9 +43,9 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
       {/* <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" /> */}
 
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
         className="relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
         style={{ pointerEvents: 'auto' }} // Modal card itself remains interactive
