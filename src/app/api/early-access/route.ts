@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+// Use service role client to bypass RLS
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +22,6 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase()
 
     // Store in Supabase
-    const supabase = await createClient()
     const { error: dbError } = await supabase
       .from('early_access_signups')
       .insert({ email: normalizedEmail })

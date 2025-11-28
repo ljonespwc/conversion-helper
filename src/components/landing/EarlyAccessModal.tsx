@@ -105,10 +105,10 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
         {submitted ? (
           /* Success state */
           <div className="early-access-success">
-            <div className="early-access-success-icon">✓</div>
-            <h2 id="modal-title" className="early-access-title">You're on the list!</h2>
+            <div className="early-access-success-icon">🎉</div>
+            <h2 id="modal-title" className="early-access-title">You're in!</h2>
             <p className="early-access-description">
-              We'll be in touch soon with early access details.
+              Check your inbox for a confirmation. We'll reach out soon with your early access details.
             </p>
             <button
               className="early-access-button-secondary"
@@ -122,8 +122,14 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
           <>
             <h2 id="modal-title" className="early-access-title">Get Early Access</h2>
             <p className="early-access-description">
-              Be among the first to try EasyAsk. We'll reach out when your spot is ready.
+              Be among the first to make your website voice-powered.
             </p>
+
+            <ul className="early-access-perks">
+              <li>🎁 <strong>Free for 30 days:</strong> One page, full features, no card required</li>
+              <li>💬 <strong>Direct founder access:</strong> Shape the product with your feedback</li>
+              <li>⚡ <strong>Priority onboarding:</strong> We'll help you get set up</li>
+            </ul>
 
             <form onSubmit={handleSubmit} className="early-access-form">
               <div className="early-access-field">
@@ -151,12 +157,12 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
                 className="early-access-button-primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Joining...' : 'Request Access'}
+                {isSubmitting ? 'Joining...' : 'Claim My Spot'}
               </button>
             </form>
 
             <p className="early-access-note">
-              No spam. Unsubscribe anytime.
+              Unsubscribe anytime.
             </p>
           </>
         )}
