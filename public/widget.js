@@ -69,6 +69,31 @@
     }
   });
 
+  // Track current URL to detect SPA navigation
+  var currentUrl = window.location.href;
+
+  // Update iframe when URL changes (SPA navigation)
+  function updateWidget() {
+    var newUrl = window.location.href;
+    if (newUrl !== currentUrl) {
+      currentUrl = newUrl;
+      // Reset visibility and update iframe src with new URL
+      iframe.style.display = '';
+      iframe.style.transition = 'none';
+      iframe.style.top = 'auto';
+      iframe.style.left = isLeft ? '0' : 'auto';
+      iframe.style.right = isLeft ? 'auto' : '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = PILL.w + 'px';
+      iframe.style.height = PILL.h + 'px';
+      iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(newUrl) + '&position=' + position;
+    }
+  }
+
+  // Listen for SPA navigation (popstate for back/forward, periodic check for pushState)
+  window.addEventListener('popstate', updateWidget);
+  setInterval(updateWidget, 500);
+
   // Insert into DOM
   function insert() {
     document.body.appendChild(iframe);
