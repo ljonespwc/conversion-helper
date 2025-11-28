@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 
 interface WidgetButtonProps {
@@ -10,89 +9,29 @@ interface WidgetButtonProps {
   pageTitle?: string
 }
 
-export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isTapped, setIsTapped] = useState(false)
-  const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  // Determine if we should show expanded state
-  const isExpanded = isHovered || isTapped
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (collapseTimeoutRef.current) {
-        clearTimeout(collapseTimeoutRef.current)
-      }
-    }
-  }, [])
-
-  // Static text for button
-  const getButtonText = () => {
-    return "Don't feel like reading? Just ask!"
-  }
-
-  const handleClick = (e: React.MouseEvent) => {
-    // On mobile (touch devices), only open modal if already expanded
-    // On desktop, always open immediately
-    const isTouchDevice = 'ontouchstart' in window
-
-    if (isTouchDevice && !isTapped) {
-      // First tap on mobile: just expand, don't open modal
-      e.preventDefault()
-
-      // Clear any existing timeout
-      if (collapseTimeoutRef.current) {
-        clearTimeout(collapseTimeoutRef.current)
-      }
-
-      setIsTapped(true)
-
-      // Auto-close tap expansion after 4 seconds
-      collapseTimeoutRef.current = setTimeout(() => {
-        setIsTapped(false)
-        collapseTimeoutRef.current = null
-      }, 4000)
-    } else {
-      // Desktop or second tap on mobile: open modal
-      // Clear timeout and reset state
-      if (collapseTimeoutRef.current) {
-        clearTimeout(collapseTimeoutRef.current)
-        collapseTimeoutRef.current = null
-      }
-      setIsTapped(false)
-      onClick()
-    }
-  }
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // Prevent default to avoid triggering onClick immediately
-    e.preventDefault()
-  }
-
+export default function WidgetButton({ onClick }: WidgetButtonProps) {
   return (
     <motion.button
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       whileTap={{ scale: 0.95 }}
-      onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={handleTouchStart}
+      whileHover={{ scale: 1.03 }}
+      onClick={onClick}
       className="group fixed bottom-6 right-6 z-40 shadow-xl"
       aria-label="Open voice assistant"
       style={{
-        width: isExpanded ? 'auto' : '60px',
-        minWidth: isExpanded ? '200px' : '60px',
-        maxWidth: isExpanded ? '340px' : '60px',
+        width: 'auto',
+        minWidth: '200px',
+        maxWidth: '340px',
         height: '60px',
-        borderRadius: isExpanded ? '30px' : '50%',
-        transition: 'all 0.3s ease-out'
+        borderRadius: '30px',
       }}
     >
       {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 rounded-full group-hover:rounded-[30px] transition-all duration-300"
-           style={{ borderRadius: isExpanded ? '30px' : '50%' }} />
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600"
+        style={{ borderRadius: '30px' }}
+      />
 
       {/* Animated Sound Wave Rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -103,7 +42,7 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
 
       {/* Breathing Pulse Effect */}
       <motion.div
-        className="absolute inset-0 bg-white rounded-full opacity-20"
+        className="absolute inset-0 bg-white opacity-20"
         animate={{
           scale: [1, 1.05, 1],
           opacity: [0.15, 0.25, 0.15]
@@ -113,48 +52,25 @@ export default function WidgetButton({ onClick, pageUrl, pageTitle }: WidgetButt
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        style={{ borderRadius: isExpanded ? '30px' : '50%' }}
+        style={{ borderRadius: '30px' }}
       />
 
       {/* Content Container */}
       <div className="relative flex items-center justify-center h-full px-4 gap-2">
         {/* Sparkle Icon */}
-        <motion.div
-          animate={{
-            rotate: isExpanded ? 0 : [0, -10, 10, -10, 0],
-          }}
-          transition={{
-            rotate: {
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              repeatDelay: 1
-            }
-          }}
-          className="flex-shrink-0"
-        >
+        <div className="flex-shrink-0">
           <Sparkles className="w-6 h-6 text-white" />
-        </motion.div>
+        </div>
 
-        {/* Text Content (shows on hover/tap) */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="flex flex-col items-start overflow-hidden whitespace-nowrap"
-            >
-              <span className="text-sm font-semibold text-white leading-tight">
-                {getButtonText()}
-              </span>
-              <span className="text-xs text-blue-100 leading-tight">
-                🎤 Voice answers • Instant help
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Text Content */}
+        <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
+          <span className="text-sm font-semibold text-white leading-tight">
+            Don't feel like reading? Just ask!
+          </span>
+          <span className="text-xs text-blue-100 leading-tight">
+            🎤 Voice answers • Instant help
+          </span>
+        </div>
       </div>
 
       {/* CSS for Sound Wave Rings */}

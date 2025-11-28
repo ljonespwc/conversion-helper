@@ -1,59 +1,23 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 
 /**
  * Demo version of the widget button for the landing page.
- * Shows all animations (pulsing, hover expansion) but doesn't launch anything.
+ * Shows all animations (pulsing, hover effects) but doesn't launch anything.
+ * Always displays in pill form.
  */
 export default function WidgetButtonDemo() {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isTapped, setIsTapped] = useState(false)
   const [showSparkleBurst, setShowSparkleBurst] = useState(false)
-  const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  // Determine if we should show expanded state
-  const isExpanded = isHovered || isTapped
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (collapseTimeoutRef.current) {
-        clearTimeout(collapseTimeoutRef.current)
-      }
-    }
-  }, [])
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
 
-    // Trigger sparkle burst on every click
+    // Trigger sparkle burst on click
     setShowSparkleBurst(true)
     setTimeout(() => setShowSparkleBurst(false), 800)
-
-    // On mobile (touch devices), toggle expanded state
-    const isTouchDevice = 'ontouchstart' in window
-
-    if (isTouchDevice) {
-      // Clear any existing timeout
-      if (collapseTimeoutRef.current) {
-        clearTimeout(collapseTimeoutRef.current)
-      }
-
-      if (!isTapped) {
-        setIsTapped(true)
-        // Auto-close tap expansion after 4 seconds
-        collapseTimeoutRef.current = setTimeout(() => {
-          setIsTapped(false)
-          collapseTimeoutRef.current = null
-        }, 4000)
-      } else {
-        setIsTapped(false)
-      }
-    }
-    // On desktop, hover handles expansion - click does nothing
   }
 
   return (
@@ -62,18 +26,16 @@ export default function WidgetButtonDemo() {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.03 }}
         onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         className="group relative shadow-xl cursor-pointer"
         aria-label="Widget demo"
         style={{
-          width: isExpanded ? 'auto' : '60px',
-          minWidth: isExpanded ? '200px' : '60px',
-          maxWidth: isExpanded ? '340px' : '60px',
+          width: 'auto',
+          minWidth: '200px',
+          maxWidth: '340px',
           height: '60px',
-          borderRadius: isExpanded ? '30px' : '50%',
-          transition: 'all 0.3s ease-out',
+          borderRadius: '30px',
           border: 'none',
           outline: 'none',
           background: 'transparent'
@@ -81,8 +43,8 @@ export default function WidgetButtonDemo() {
       >
         {/* Gradient Background */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 transition-all duration-300"
-          style={{ borderRadius: isExpanded ? '30px' : '50%' }}
+          className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600"
+          style={{ borderRadius: '30px' }}
         />
 
         {/* Animated Sound Wave Rings */}
@@ -132,48 +94,25 @@ export default function WidgetButtonDemo() {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          style={{ borderRadius: isExpanded ? '30px' : '50%' }}
+          style={{ borderRadius: '30px' }}
         />
 
         {/* Content Container */}
         <div className="relative flex items-center justify-center h-full px-4 gap-2">
           {/* Sparkle Icon */}
-          <motion.div
-            animate={{
-              rotate: isExpanded ? 0 : [0, -10, 10, -10, 0],
-            }}
-            transition={{
-              rotate: {
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                repeatDelay: 1
-              }
-            }}
-            className="flex-shrink-0"
-          >
+          <div className="flex-shrink-0">
             <Sparkles className="w-6 h-6 text-white" />
-          </motion.div>
+          </div>
 
-          {/* Text Content (shows on hover/tap) */}
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="flex flex-col items-start overflow-hidden whitespace-nowrap"
-              >
-                <span className="text-sm font-semibold text-white leading-tight">
-                  Don't feel like reading? Just ask!
-                </span>
-                <span className="text-xs text-blue-100 leading-tight">
-                  🎤 Voice answers • Instant help
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Text Content */}
+          <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
+            <span className="text-sm font-semibold text-white leading-tight">
+              Don't feel like reading? Just ask!
+            </span>
+            <span className="text-xs text-blue-100 leading-tight">
+              🎤 Voice answers • Instant help
+            </span>
+          </div>
         </div>
       </motion.button>
 
