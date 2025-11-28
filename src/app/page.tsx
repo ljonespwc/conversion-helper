@@ -186,17 +186,15 @@ export default async function Home() {
               </div>
               <div className="landing-differentiator-image">
                 <div className="landing-image-wrapper-small">
-                  <div className="image-placeholder image-placeholder-landscape">
-                    <div className="image-placeholder-text">
-                      <strong>easyask_backend__assistant_knowledgebase.png</strong>
-                      <br />
-                      400w x 267h
-                      <br /><br />
-                      Knowledgebase management screen showing scraped pages, uploaded docs
-                    </div>
-                  </div>
+                  <img
+                    src="/images/differentiator-2.png"
+                    alt="Documents and web pages flowing into a central AI knowledge hub"
+                    width={400}
+                    height={267}
+                    className="landing-differentiator-img"
+                  />
                   <p className="landing-image-caption">
-                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                    Feed it your content. It becomes your expert.
                   </p>
                 </div>
               </div>
@@ -290,17 +288,15 @@ export default async function Home() {
               </div>
               <div className="landing-differentiator-image">
                 <div className="landing-image-wrapper-small">
-                  <div className="image-placeholder image-placeholder-landscape-wide">
-                    <div className="image-placeholder-text">
-                      <strong>easyask_backend__reporting.png</strong>
-                      <br />
-                      400w x 267h
-                      <br /><br />
-                      Reports & Analytics dashboard showing Total Conversations, Session Duration, User Feedback (thumbs up/down), Recent Conversations with transcript previews
-                    </div>
-                  </div>
+                  <img
+                    src="/images/differentiator-5.png"
+                    alt="Analytics dashboard with conversation data and insights"
+                    width={400}
+                    height={268}
+                    className="landing-differentiator-img"
+                  />
                   <p className="landing-image-caption">
-                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                    Every question is a signal. Every pattern is an insight.
                   </p>
                 </div>
               </div>

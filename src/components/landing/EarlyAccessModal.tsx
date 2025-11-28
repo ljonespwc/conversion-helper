@@ -56,9 +56,24 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
 
     setIsSubmitting(true)
 
-    // TODO: Replace with actual API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 800))
+      const response = await fetch('/api/early-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          setError("You're already on the list!")
+        } else {
+          setError(data.error || 'Something went wrong. Please try again.')
+        }
+        return
+      }
+
       setSubmitted(true)
     } catch {
       setError('Something went wrong. Please try again.')
