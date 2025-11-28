@@ -45,7 +45,8 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        // Expand to full viewport for modal
+        // Expand to full viewport instantly (no transition)
+        iframe.style.transition = 'none';
         iframe.style.top = '0';
         iframe.style.left = '0';
         iframe.style.right = '0';
@@ -53,7 +54,8 @@
         iframe.style.width = '100%';
         iframe.style.height = '100%';
       } else {
-        // Collapse to pill
+        // Collapse to pill with smooth transition
+        iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
         iframe.style.left = isLeft ? '0' : 'auto';
         iframe.style.right = isLeft ? 'auto' : '0';
