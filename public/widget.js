@@ -36,8 +36,10 @@
   ].join(';');
 
   // Handle messages from widget
+  // Accept messages from both www and non-www origins
+  var ALLOWED_ORIGINS = ['https://easyask.io', 'https://www.easyask.io'];
   window.addEventListener('message', function(e) {
-    if (e.origin !== ORIGIN) return;
+    if (ALLOWED_ORIGINS.indexOf(e.origin) === -1) return;
     var d = e.data;
     if (!d || !d.type) return;
 
