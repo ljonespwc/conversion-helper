@@ -184,6 +184,7 @@ export default async function Home() {
                 <ul className="landing-sub-diff-list">
                   <li><strong>Grounded.</strong> Scrape pages in seconds. Upload any doc. The AI only references what you give it.</li>
                   <li><strong>Always current.</strong> Change your pricing Monday, the AI knows Tuesday.</li>
+                  <li><strong>Beyond the fold.</strong> Give the AI more content than the page can show—pricing edge cases, role-specific explainers, niche use cases. It pulls the right answer on demand.</li>
                 </ul>
               </div>
               <div className="landing-differentiator-image">
@@ -551,6 +552,33 @@ export default async function Home() {
             </h2>
 
             <FAQAccordion />
+          </div>
+        </section>
+
+        {/* SECTION 8.5: THE END OF SCROLL (MANIFESTO) */}
+        <section className="landing-section landing-section-manifesto">
+          <div className="landing-container-narrow">
+            <h2 className="landing-section-heading" style={{ textAlign: 'center' }}>
+              The end of scrolling.
+            </h2>
+
+            <div className="landing-text-block landing-manifesto-text">
+              <p>
+                We think the next UX shift isn't a new page layout—it's the end of scroll-first websites.
+              </p>
+
+              <p>
+                Most visitors don't read your pages—they hunt for one answer. With EasyAsk, you're no longer limited by what fits above the fold. Feed it the full story—pricing edge cases, role-specific explainers, niche use cases—and it pulls the right answer on demand.
+              </p>
+
+              <p>
+                In a few years, most serious products will have a conversational layer on top of a massive library of answers. EasyAsk is our way of letting you do that today, without rewriting your whole site.
+              </p>
+
+              <p className="landing-manifesto-signature">
+                — Lance Jones, Founder
+              </p>
+            </div>
           </div>
         </section>
 

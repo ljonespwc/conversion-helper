@@ -889,7 +889,9 @@
   letter-spacing: var(--landing-letter-spacing);
   line-height: var(--landing-line-height);
   margin: 0 0 var(--landing-space-small) 0;
-  color: var(--landing-color-text-muted);
+  color: rgba(255, 255, 255, 0.85);
+  padding-left: 0.75em;
+  border-left: 3px solid #a78bfa;
 }
 
 .landing-sub-diff-list {
@@ -1725,4 +1727,38 @@ button:focus {
 
 .early-access-success .early-access-description {
   margin-bottom: var(--landing-space-large);
+}
+
+/* =================================
+   MANIFESTO SECTION
+   ================================= */
+
+.landing-section-manifesto {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.landing-manifesto-text {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  max-width: 700px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.landing-manifesto-text p {
+  margin-bottom: 1.5em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.landing-manifesto-text p:last-child {
+  margin-bottom: 0;
+}
+
+.landing-manifesto-signature {
+  font-style: italic;
+  color: #a78bfa;
+  text-align: right;
+  margin-top: 2em;
 }
