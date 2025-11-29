@@ -14,6 +14,33 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Helper function to get time-based greeting using visitor's timezone
+function getTimeGreeting(timezone?: string): string {
+  let hour: number
+
+  if (timezone) {
+    try {
+      // Get hour in visitor's timezone
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        hour12: false
+      })
+      hour = parseInt(formatter.format(new Date()), 10)
+    } catch (e) {
+      // Invalid timezone, fall back to UTC
+      hour = new Date().getUTCHours()
+    }
+  } else {
+    hour = new Date().getUTCHours()
+  }
+
+  if (hour >= 5 && hour < 12) return 'Good morning'
+  if (hour >= 12 && hour < 17) return 'Good afternoon'
+  if (hour >= 17 && hour < 21) return 'Good evening'
+  return 'Hey there'
+}
+
 // Helper function to generate goal-specific instructions
 function getGoalInstruction(goal: string | null | undefined): string {
   switch(goal) {
@@ -147,6 +174,7 @@ type WebhookRequest = {
     source?: string
     page_url?: string
     timestamp?: string
+    timezone?: string
   }
   type: 'message' | 'session.start' | 'session.update' | 'session.end' | 'user.transcript.interim_delta' | string
   content?: string
@@ -219,8 +247,9 @@ export async function POST(request: Request) {
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
 
-    // Extract page URL from custom_metadata (forwarded by Layercode)
+    // Extract page URL and timezone from custom_metadata (forwarded by Layercode)
     const pageUrl = custom_metadata?.page_url || ''
+    const timezone = custom_metadata?.timezone || ''
 
     // Look up organization_id from widget_page (for conversation tracking)
     let organizationId: string | null = null
@@ -245,6 +274,9 @@ export async function POST(request: Request) {
       try {
         if (type === 'session.start') {
           console.log('🎬 Session start - pageUrl:', pageUrl, 'Will use File Search:', !!pageUrl)
+
+          // Get time-based greeting once for this session
+          const greeting = getTimeGreeting(timezone)
 
           // Initialize conversation history with system prompt
           let systemPrompt = ''
@@ -271,21 +303,21 @@ Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstructi
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
                 welcomeMsg = widgetPage.organization_name
-                  ? `Welcome to ${widgetPage.organization_name}! What can I help you with today?`
-                  : "Welcome! What can I help you with today?"
+                  ? `${greeting}! Welcome to ${widgetPage.organization_name}. What can I help you with?`
+                  : `${greeting}! What can I help you with today?`
               } else {
                 systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them. Be concise, natural, and encouraging in your responses. Never mention sources or citations. CRITICAL FOR TTS: When the source material contains abbreviations or acronyms, rewrite them conversationally or refer to them generically rather than listing abbreviations."
-                welcomeMsg = "Welcome! What can I help you with today?"
+                welcomeMsg = `${greeting}! What can I help you with today?`
               }
             } catch (error) {
               console.error('Error loading widget page for session.start:', error)
               systemPrompt = "You are a helpful assistant. Answer questions based on the available content. Never mention sources or citations."
-              welcomeMsg = "Hello! How can I help you today?"
+              welcomeMsg = `${greeting}! How can I help you today?`
             }
           } else {
             // Demo mode (no page configured)
             systemPrompt = "You are a friendly demo assistant. This is a demonstration of the voice assistant technology. You can answer general questions politely, but remind users that this is just a demo and the real system would be customized with their specific content and knowledge base."
-            welcomeMsg = "Hello! This is a demo of the voice assistant technology. The production version would be customized with your specific content. How can I help you understand how this system works?"
+            welcomeMsg = `${greeting}! This is a demo of the voice assistant. The production version would be customized with your content. How can I help you understand how it works?`
           }
 
           // Store system prompt in conversation history
