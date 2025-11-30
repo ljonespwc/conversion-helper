@@ -582,6 +582,17 @@
     0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* Persona icons with blue glow effect */
+.landing-persona-icon-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.5rem;
+  box-shadow:
+    0 0 20px rgba(96, 165, 250, 0.4),
+    0 0 40px rgba(96, 165, 250, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .image-placeholder-icon {
   width: 3rem;
   height: 3rem;

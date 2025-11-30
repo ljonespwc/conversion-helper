@@ -377,11 +377,13 @@ export default async function Home() {
               <div className="landing-use-case-card">
                 <div className="landing-use-case-header">
                   <div className="landing-use-case-icon">
-                    <div className="image-placeholder image-placeholder-icon">
-                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                        Puzzle
-                      </div>
-                    </div>
+                    <img
+                      src="/images/persona1.png"
+                      alt="Complex product icon"
+                      width={64}
+                      height={64}
+                      className="landing-persona-icon-img"
+                    />
                   </div>
                   <h3 className="landing-use-case-heading">
                     Your product takes 4 pages to explain. Your prospects have 2 minutes.
@@ -396,11 +398,13 @@ export default async function Home() {
               <div className="landing-use-case-card">
                 <div className="landing-use-case-header">
                   <div className="landing-use-case-icon">
-                    <div className="image-placeholder image-placeholder-icon">
-                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                        Scale
-                      </div>
-                    </div>
+                    <img
+                      src="/images/persona2.png"
+                      alt="Comparison shopping icon"
+                      width={64}
+                      height={64}
+                      className="landing-persona-icon-img"
+                    />
                   </div>
                   <h3 className="landing-use-case-heading">
                     Prospects are comparing 2+ options. Small unanswered questions become deal-breakers.
@@ -415,11 +419,13 @@ export default async function Home() {
               <div className="landing-use-case-card">
                 <div className="landing-use-case-header">
                   <div className="landing-use-case-icon">
-                    <div className="image-placeholder image-placeholder-icon">
-                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                        Mobile
-                      </div>
-                    </div>
+                    <img
+                      src="/images/persona3.png"
+                      alt="Mobile traffic icon"
+                      width={64}
+                      height={64}
+                      className="landing-persona-icon-img"
+                    />
                   </div>
                   <h3 className="landing-use-case-heading">
                     60% of your traffic is mobile. Nobody reads your 1,200-word page on a phone.
@@ -434,11 +440,13 @@ export default async function Home() {
               <div className="landing-use-case-card">
                 <div className="landing-use-case-header">
                   <div className="landing-use-case-icon">
-                    <div className="image-placeholder image-placeholder-icon">
-                      <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                        Team
-                      </div>
-                    </div>
+                    <img
+                      src="/images/persona4.png"
+                      alt="Sales team efficiency icon"
+                      width={64}
+                      height={64}
+                      className="landing-persona-icon-img"
+                    />
                   </div>
                   <h3 className="landing-use-case-heading">
                     Your reps spend 40% of their time on "What's the price?" questions.
@@ -577,7 +585,7 @@ export default async function Home() {
               </p>
 
               <p>
-                In a few years, most serious products will have a conversational layer on top of a massive library of answers. EasyAsk is our way of letting you do that today, without rewriting your whole site.
+                In 1-2 years, most serious products will have a conversational layer on top of a massive library of answers. EasyAsk is our way of letting you do that today, without rewriting your whole site.
               </p>
 
               <p className="landing-manifesto-signature">
