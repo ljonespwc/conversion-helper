@@ -465,11 +465,13 @@ export default async function Home() {
             <div className="landing-steps">
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder image-placeholder-icon-large">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Globe
-                    </div>
-                  </div>
+                  <img
+                    src="/images/step1.png"
+                    alt="Scrape icon"
+                    width={64}
+                    height={64}
+                    className="landing-step-icon-img"
+                  />
                 </div>
                 <div className="landing-step-content">
                   <h3 className="landing-step-heading">Step 1: Scrape</h3>
@@ -481,11 +483,13 @@ export default async function Home() {
 
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder image-placeholder-icon-large">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Upload
-                    </div>
-                  </div>
+                  <img
+                    src="/images/step2.png"
+                    alt="Upload icon"
+                    width={64}
+                    height={64}
+                    className="landing-step-icon-img"
+                  />
                 </div>
                 <div className="landing-step-content">
                   <h3 className="landing-step-heading">Step 2: Upload</h3>
@@ -497,11 +501,13 @@ export default async function Home() {
 
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder image-placeholder-icon-large">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Tag
-                    </div>
-                  </div>
+                  <img
+                    src="/images/step3.png"
+                    alt="Assign icon"
+                    width={64}
+                    height={64}
+                    className="landing-step-icon-img"
+                  />
                 </div>
                 <div className="landing-step-content">
                   <h3 className="landing-step-heading">Step 3: Assign</h3>
@@ -513,11 +519,13 @@ export default async function Home() {
 
               <div className="landing-step">
                 <div className="landing-step-icon">
-                  <div className="image-placeholder image-placeholder-icon-large">
-                    <div className="image-placeholder-text" style={{ fontSize: '0.625rem', padding: '0.5em' }}>
-                      Rocket
-                    </div>
-                  </div>
+                  <img
+                    src="/images/step4.png"
+                    alt="Launch icon"
+                    width={64}
+                    height={64}
+                    className="landing-step-icon-img"
+                  />
                 </div>
                 <div className="landing-step-content">
                   <h3 className="landing-step-heading">Step 4: Launch</h3>
