@@ -319,17 +319,15 @@ export default async function Home() {
                 </ul>
                 <div className="landing-image-centered" style={{ marginTop: '2em' }}>
                   <div className="landing-image-wrapper-large" style={{ margin: '0 auto' }}>
-                    <div className="image-placeholder image-placeholder-ultrawide">
-                      <div className="image-placeholder-text">
-                        <strong>4-step process diagram</strong>
-                        <br />
-                        800w x 200h
-                        <br /><br />
-                        Simple horizontal flow: Scrape → Upload → Assign → Launch (clean, minimal icons)
-                      </div>
-                    </div>
+                    <img
+                      src="/images/four-steps.png"
+                      alt="Four-step setup process: Scrape, Upload, Assign, Launch"
+                      width={800}
+                      height={300}
+                      className="landing-differentiator-img"
+                    />
                     <p className="landing-image-caption">
-                      Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                      Scrape → Upload → Assign → Launch
                     </p>
                   </div>
                 </div>
