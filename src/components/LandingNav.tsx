@@ -39,7 +39,11 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
           {/* Logo */}
           <div className="landing-logo">
             <Link href="/" onClick={closeMobileMenu}>
-              <span className="landing-logo-text">EasyAsk</span>
+              <img
+                src="/images/main-logo.png"
+                alt="EasyAsk"
+                className="landing-logo-img"
+              />
             </Link>
           </div>
 

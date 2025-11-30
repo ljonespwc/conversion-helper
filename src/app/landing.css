@@ -207,6 +207,17 @@
   color: var(--landing-color-blue-text);
 }
 
+.landing-logo-img {
+  height: 40px;
+  width: auto;
+  display: block;
+  transition: opacity var(--landing-transition);
+}
+
+.landing-logo-img:hover {
+  opacity: 0.85;
+}
+
 .landing-nav-desktop {
   display: none;
   align-items: center;
