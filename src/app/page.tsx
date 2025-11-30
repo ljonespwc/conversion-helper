@@ -36,15 +36,13 @@ export default async function Home() {
               </div>
               <div className="landing-hero-image">
                 <div className="landing-image-wrapper-small">
-                  <div className="image-placeholder image-placeholder-hero">
-                    <div className="image-placeholder-text">
-                      <strong>assistant_speaking.jpg</strong>
-                      <br />
-                      500w x 400h
-                      <br /><br />
-                      EasyAsk widget in "Speaking..." state, showing cyan audio icon, response bubble, and "Was this helpful?" feedback prompt
-                    </div>
-                  </div>
+                  <img
+                    src="/images/hero.png"
+                    alt="EasyAsk voice assistant widget speaking an answer with sound waves emanating"
+                    width={500}
+                    height={403}
+                    className="landing-differentiator-img"
+                  />
                   <p className="landing-image-caption">
                     Voice-first sales assistant for B2B websites. No chatbot. No support tool. No dev required.
                   </p>
@@ -154,17 +152,15 @@ export default async function Home() {
                 </div>
                 <div className="landing-differentiator-image">
                   <div className="landing-image-wrapper-small">
-                    <div className="image-placeholder image-placeholder-tall">
-                      <div className="image-placeholder-text">
-                        <strong>assistant_active.png</strong>
-                        <br />
-                        240w x 300h
-                        <br /><br />
-                        Widget in "Speaking..." state with audio visualization active
-                      </div>
-                    </div>
+                    <img
+                      src="/images/voice-first.png"
+                      alt="Voice-first interface with sound waves emanating from a glowing microphone"
+                      width={400}
+                      height={298}
+                      className="landing-differentiator-img"
+                    />
                     <p className="landing-image-caption">
-                      Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                      Just talk. It listens.
                     </p>
                   </div>
                 </div>
