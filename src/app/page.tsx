@@ -255,17 +255,15 @@ export default async function Home() {
               </div>
               <div className="landing-differentiator-image">
                 <div className="landing-image-wrapper-small">
-                  <div className="image-placeholder image-placeholder-landscape">
-                    <div className="image-placeholder-text">
-                      <strong>easyask_backend__sales_leads.png</strong>
-                      <br />
-                      400w x 267h
-                      <br /><br />
-                      Sales Leads / Escalations dashboard showing email, conversation preview, resolved/unresolved status, flagged messages
-                    </div>
-                  </div>
+                  <img
+                    src="/images/assistant-handoff.png"
+                    alt="AI assistant gracefully handing off a lead with full conversation context to a human sales rep"
+                    width={400}
+                    height={299}
+                    className="landing-differentiator-img"
+                  />
                   <p className="landing-image-caption">
-                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                    No lead left behind. Every question becomes an opportunity.
                   </p>
                 </div>
               </div>
