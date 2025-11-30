@@ -222,17 +222,15 @@ export default async function Home() {
               </div>
               <div className="landing-differentiator-image">
                 <div className="landing-image-wrapper-small">
-                  <div className="image-placeholder image-placeholder-square">
-                    <div className="image-placeholder-text">
-                      <strong>easyask_backend__assistant_pages.png</strong>
-                      <br />
-                      400w x 300h
-                      <br /><br />
-                      Assistant Pages screen showing page list with tags (Sell, Lead, Support) and active/inactive toggles
-                    </div>
-                  </div>
+                  <img
+                    src="/images/contextual-brain.png"
+                    alt="AI brain with multiple web pages orbiting around it, showing selective knowledge routing"
+                    width={400}
+                    height={299}
+                    className="landing-differentiator-img"
+                  />
                   <p className="landing-image-caption">
-                    Lorem ipsum dolor sit amet consectetur adipiscing elit.
+                    Different pages, different context. Always relevant.
                   </p>
                 </div>
               </div>
