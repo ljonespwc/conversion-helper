@@ -44,7 +44,7 @@ export default async function Home() {
                     className="landing-differentiator-img"
                   />
                   <p className="landing-image-caption">
-                    Voice-first sales assistant for B2B websites. No chatbot. No support tool. No dev required.
+                    Your site speaks now. Visitors love it. No more scrolling.
                   </p>
                 </div>
               </div>
