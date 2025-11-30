@@ -1770,13 +1770,17 @@ button:focus {
   float: right;
   width: 140px;
   height: 140px;
-  margin: 0 0 1em 1.5em;
-  border-radius: 0.5em;
-  shape-outside: circle(50%);
+  margin: 0 40px 1em 1.5em;
+  border-radius: 0.5rem;
+  shape-outside: margin-box;
+  box-shadow:
+    0 0 20px rgba(251, 146, 60, 0.4),
+    0 0 40px rgba(251, 146, 60, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .landing-manifesto-with-image {
-  overflow: hidden; /* clearfix for float */
+  overflow: visible;
 }
 
 .landing-manifesto-text {
