@@ -1739,6 +1739,24 @@ button:focus {
   border-bottom: 1px solid rgba(139, 92, 246, 0.2);
 }
 
+.landing-manifesto-image {
+  text-align: center;
+  margin-bottom: 2em;
+}
+
+.landing-manifesto-img {
+  float: right;
+  width: 140px;
+  height: 140px;
+  margin: 0 0 1em 1.5em;
+  border-radius: 0.5em;
+  shape-outside: circle(50%);
+}
+
+.landing-manifesto-with-image {
+  overflow: hidden; /* clearfix for float */
+}
+
 .landing-manifesto-text {
   font-size: 1.125rem;
   line-height: 1.8;

@@ -562,7 +562,14 @@ export default async function Home() {
               The end of scrolling.
             </h2>
 
-            <div className="landing-text-block landing-manifesto-text">
+            <div className="landing-text-block landing-manifesto-text landing-manifesto-with-image">
+              <img
+                src="/images/library-as-voice.png"
+                alt="A glowing microphone pulling threads of information from a massive library of floating documents"
+                width={140}
+                height={140}
+                className="landing-manifesto-img"
+              />
               <p>
                 We think the next UX shift isn't a new page layout—it's the end of scroll-first websites.
               </p>
