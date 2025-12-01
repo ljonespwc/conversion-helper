@@ -36,21 +36,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Send notification email to Lance
-    await resend.emails.send({
+    const { data: notifyData, error: notifyError } = await resend.emails.send({
       from: 'EasyAsk <noreply@easyask.io>',
       to: 'lancecj@gmail.com',
       subject: `New Early Access Signup: ${normalizedEmail}`,
       text: `New early access signup!\n\nEmail: ${normalizedEmail}\nTime: ${new Date().toISOString()}`
     })
+    console.log('Resend notify:', { data: notifyData, error: notifyError })
 
     // Send confirmation email to user
-    await resend.emails.send({
+    const { data: confirmData, error: confirmError } = await resend.emails.send({
       from: 'Lance from EasyAsk <lance@easyask.io>',
       replyTo: 'lancecj@gmail.com',
       to: normalizedEmail,
       subject: "You're on the EasyAsk early access list!",
       text: `Thanks for signing up for early access to EasyAsk!\n\nWe're rolling out access in batches and will reach out when your spot is ready.\n\nIn the meantime, if you have any questions, just reply to this email.\n\n— Lance\nFounder, EasyAsk`
     })
+    console.log('Resend confirm:', { data: confirmData, error: confirmError })
 
     return NextResponse.json({ success: true })
   } catch (error) {
