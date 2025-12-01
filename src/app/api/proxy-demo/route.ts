@@ -19,7 +19,9 @@ const ALLOWED_PROXY_DOMAINS = [
   'dexa.ai',
   'www.dexa.ai',
   'demandcurve.com',
-  'www.demandcurve.com'
+  'www.demandcurve.com',
+  'stripe.com',
+  'www.stripe.com'
 ]
 
 export async function GET(request: NextRequest) {
