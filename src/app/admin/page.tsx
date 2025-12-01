@@ -54,6 +54,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set())
+  const [expandedPageGroups, setExpandedPageGroups] = useState<Set<string>>(new Set())
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
   const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
   const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
@@ -131,6 +132,18 @@ export default function AdminDashboard() {
         posthog?.capture('conversation_expanded', {
           session_id: sessionId
         })
+      }
+      return newSet
+    })
+  }
+
+  const togglePageGroup = (pageKey: string) => {
+    setExpandedPageGroups(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(pageKey)) {
+        newSet.delete(pageKey)
+      } else {
+        newSet.add(pageKey)
       }
       return newSet
     })
@@ -286,22 +299,33 @@ export default function AdminDashboard() {
                   // Find page title from widgetPages
                   const page = pageUrl ? widgetPages.find(p => p.page_url === pageUrl) : null
                   const pageTitle = page?.page_title || (pageUrl ? 'Unknown Page' : 'Demo/Test Sessions')
+                  const pageKey = pageUrl || 'unknown'
+                  const isPageExpanded = expandedPageGroups.has(pageKey)
 
                   return (
-                    <div key={pageUrl || 'unknown'} className="border-b border-gray-700 last:border-b-0">
-                      {/* Page Group Header */}
-                      <div className="bg-gray-900/80 px-6 py-3 border-b border-gray-700/50">
+                    <div key={pageKey} className="border-b border-gray-700 last:border-b-0">
+                      {/* Page Group Header - Clickable */}
+                      <div
+                        className="bg-gray-900/80 px-6 py-3 cursor-pointer hover:bg-gray-800/80 transition-colors"
+                        onClick={() => togglePageGroup(pageKey)}
+                      >
                         <div className="flex items-center gap-2">
+                          {isPageExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                          )}
                           <Globe className="w-4 h-4 text-blue-400" />
                           <h3 className="text-sm font-semibold text-white">{pageTitle}</h3>
                           <span className="text-xs text-gray-500">({sessions.length})</span>
                         </div>
                         {pageUrl && (
-                          <p className="text-xs text-gray-500 mt-0.5 truncate">{pageUrl}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 ml-6 truncate">{pageUrl}</p>
                         )}
                       </div>
 
-                      {/* Sessions in this group */}
+                      {/* Sessions in this group - Only show when expanded */}
+                      {isPageExpanded && (
                       <div className="divide-y divide-gray-700">
                         {sessions.map((session) => {
                 const isExpanded = expandedSessions.has(session.id)
@@ -428,6 +452,7 @@ export default function AdminDashboard() {
                 )
               })}
                       </div>
+                      )}
                     </div>
                   )
                 })
