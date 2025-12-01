@@ -11,9 +11,10 @@ interface WidgetModalProps {
   organizationName?: string
   showBranding?: boolean
   timezone?: string
+  isDemo?: boolean
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -65,7 +66,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
 
           {/* Title in center */}
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {organizationName ? `${organizationName} Assistant` : 'Page Assistant'}
+            {isDemo ? 'EasyAsk Demo Assistant' : (organizationName ? `${organizationName} Assistant` : 'Page Assistant')}
           </h2>
 
           {/* Close button on the right */}

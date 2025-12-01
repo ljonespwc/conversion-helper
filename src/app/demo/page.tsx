@@ -147,7 +147,7 @@ export default function DemoPage() {
             }
           `}</style>
           <div className="demo-widget-container">
-            <VoiceWidget pageUrl={actualPageUrl || validatedUrl} embedded={true} />
+            <VoiceWidget pageUrl={actualPageUrl || validatedUrl} embedded={true} isDemo={true} />
           </div>
         </div>
       </div>

@@ -13,9 +13,10 @@ interface VoiceWidgetProps {
   pageUrl?: string
   position?: 'bottom-left' | 'bottom-right'
   timezone?: string
+  isDemo?: boolean
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
@@ -106,6 +107,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             organizationName={organizationName}
             showBranding={showBranding}
             timezone={timezone}
+            isDemo={isDemo}
           />
         )}
       </AnimatePresence>
