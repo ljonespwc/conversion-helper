@@ -8,23 +8,19 @@ export async function POST(request: NextRequest) {
   try {
     const event = await request.json()
 
+    console.log('Resend webhook received:', JSON.stringify(event, null, 2))
+
     // Only handle received emails
     if (event.type !== 'email.received') {
       return NextResponse.json({ received: true })
     }
 
-    const { email_id, from, to, subject } = event.data
-
-    // Fetch full email content (webhook only has metadata)
-    const { data: email } = await resend.emails.get(email_id)
-
-    if (!email) {
-      console.error('Could not fetch email:', email_id)
-      return NextResponse.json({ error: 'Email not found' }, { status: 404 })
-    }
+    // Inbound email data is in the webhook payload directly
+    const { from, to, subject, html, text } = event.data
+    const emailBody = html || text || 'No content'
 
     // Forward to Gmail
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'EasyAsk Inbox <noreply@easyask.io>',
       to: FORWARD_TO,
       replyTo: from, // Reply goes back to original sender
@@ -32,15 +28,20 @@ export async function POST(request: NextRequest) {
       html: `
         <div style="border-bottom: 1px solid #ccc; padding-bottom: 12px; margin-bottom: 12px; color: #666; font-size: 13px;">
           <strong>From:</strong> ${from}<br>
-          <strong>To:</strong> ${to.join(', ')}<br>
+          <strong>To:</strong> ${Array.isArray(to) ? to.join(', ') : to}<br>
           <strong>Subject:</strong> ${subject}
         </div>
-        ${(email as any).html || (email as any).text || 'No content'}
+        ${emailBody}
       `
     })
 
-    console.log('Forwarded email from', from, 'to', FORWARD_TO)
-    return NextResponse.json({ forwarded: true })
+    if (error) {
+      console.error('Failed to forward email:', error)
+      return NextResponse.json({ error: 'Forward failed' }, { status: 500 })
+    }
+
+    console.log('Forwarded email from', from, 'to', FORWARD_TO, 'id:', data?.id)
+    return NextResponse.json({ forwarded: true, id: data?.id })
   } catch (error) {
     console.error('Resend webhook error:', error)
     return NextResponse.json({ error: 'Webhook failed' }, { status: 500 })
