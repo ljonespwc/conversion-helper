@@ -267,7 +267,7 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ### ✅ Security Validation (2025-11-16)
 - **File Upload**: MIME type validation (magic numbers), UTF-8 validation, 10MB/50MB limits
-- **Scraping**: SSRF protection, private IP blocking, protocol restriction, 30s timeout, 5MB limit
+- **Scraping**: SSRF protection, private IP blocking, protocol restriction, 45s timeout + 3 retries, 5MB limit
 - Package: `file-type` for magic number detection
 
 ### ✅ Email Escalation & AI Analysis (2025-11-16)

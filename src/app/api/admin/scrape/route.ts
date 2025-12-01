@@ -10,6 +10,78 @@ const supabaseAdmin = createClient(
 
 const BUCKET_NAME = 'uploaded-docs'
 
+// Timeout per attempt (45 seconds)
+const SCRAPE_TIMEOUT_MS = 45000
+
+/**
+ * Fetch with retry logic and exponential backoff
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit & { signal?: AbortSignal },
+  maxRetries = 3,
+  baseDelayMs = 1000
+): Promise<Response> {
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    // Create new abort controller for each attempt
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), SCRAPE_TIMEOUT_MS)
+
+    try {
+      console.log(`Scrape attempt ${attempt}/${maxRetries} for: ${url}`)
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        console.log(`Scrape succeeded on attempt ${attempt}`)
+        return response
+      }
+
+      // Don't retry 4xx errors (client errors - URL doesn't exist, forbidden, etc.)
+      if (response.status >= 400 && response.status < 500) {
+        throw new Error(`Could not access this URL (${response.status}). Check if it's publicly accessible.`)
+      }
+
+      // 5xx errors - worth retrying
+      lastError = new Error(`Jina service error (${response.status}). Will retry...`)
+      console.warn(`Attempt ${attempt} got ${response.status}, will retry...`)
+
+    } catch (error) {
+      clearTimeout(timeoutId)
+      lastError = error instanceof Error ? error : new Error(String(error))
+
+      // Handle timeout (AbortError)
+      if (lastError.name === 'AbortError') {
+        console.warn(`Attempt ${attempt} timed out after ${SCRAPE_TIMEOUT_MS / 1000}s`)
+        if (attempt === maxRetries) {
+          throw new Error('The page took too long to load after multiple attempts. Try a simpler URL.')
+        }
+        // Continue to retry
+      } else {
+        // Network error or other issue
+        console.warn(`Attempt ${attempt} failed:`, lastError.message)
+      }
+    }
+
+    // Wait before retry (exponential backoff: 1s, 2s, 4s)
+    if (attempt < maxRetries) {
+      const delay = baseDelayMs * Math.pow(2, attempt - 1)
+      console.log(`Waiting ${delay}ms before retry...`)
+      await new Promise(r => setTimeout(r, delay))
+    }
+  }
+
+  // All attempts failed
+  throw lastError || new Error('Failed to scrape URL after multiple attempts')
+}
+
 /**
  * Generate a safe filename from URL
  */
@@ -171,69 +243,48 @@ async function scrapeInBackground(jobId: string, url: string, userId: string) {
       .eq('id', jobId)
 
     // Use Jina AI Reader for fast, high-quality markdown conversion
-    // SECURITY: Add timeout and abort controller
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+    // Uses retry logic with exponential backoff (3 attempts, 45s timeout each)
+    const response = await fetchWithRetry(`https://r.jina.ai/${url}`, {})
 
-    try {
-      const response = await fetch(`https://r.jina.ai/${url}`, {
-        signal: controller.signal
+    const markdown = await response.text()
+
+    // SECURITY: Check content size limit (5MB)
+    const MAX_CONTENT_SIZE = 5 * 1024 * 1024 // 5MB
+    if (markdown.length > MAX_CONTENT_SIZE) {
+      throw new Error(`Content exceeds 5MB limit (${(markdown.length / 1024 / 1024).toFixed(2)}MB)`)
+    }
+
+    const fileSize = Buffer.byteLength(markdown, 'utf8')
+    const wordCount = markdown.split(/\s+/).filter((w: string) => w.length > 0).length
+
+    // Generate filename from URL
+    const filename = generateFilenameFromUrl(url)
+    const storagePath = `${userId}/${Date.now()}-${filename}`
+
+    // Upload markdown to Supabase Storage
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from(BUCKET_NAME)
+      .upload(storagePath, markdown, {
+        contentType: 'text/markdown',
+        upsert: false
       })
 
-      clearTimeout(timeoutId)
-
-      if (!response.ok) {
-        throw new Error(`Jina Reader API error: ${response.statusText}`)
-      }
-
-      const markdown = await response.text()
-
-      // SECURITY: Check content size limit (5MB)
-      const MAX_CONTENT_SIZE = 5 * 1024 * 1024 // 5MB
-      if (markdown.length > MAX_CONTENT_SIZE) {
-        throw new Error(`Content exceeds 5MB limit (${(markdown.length / 1024 / 1024).toFixed(2)}MB)`)
-      }
-
-      const fileSize = Buffer.byteLength(markdown, 'utf8')
-      const wordCount = markdown.split(/\s+/).filter((w: string) => w.length > 0).length
-
-      // Generate filename from URL
-      const filename = generateFilenameFromUrl(url)
-      const storagePath = `${userId}/${Date.now()}-${filename}`
-
-      // Upload markdown to Supabase Storage
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from(BUCKET_NAME)
-        .upload(storagePath, markdown, {
-          contentType: 'text/markdown',
-          upsert: false
-        })
-
-      if (uploadError) {
-        throw new Error(`Storage upload failed: ${uploadError.message}`)
-      }
-
-      // Update job with results (file_path instead of markdown_content)
-      await supabaseAdmin
-        .from('scraping_jobs')
-        .update({
-          status: 'scraped',
-          scraping_status: 'scraped',
-          file_path: storagePath,
-          file_size: fileSize,
-          word_count: wordCount,
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', jobId)
-
-    } catch (error) {
-      clearTimeout(timeoutId)
-      // Handle timeout or fetch errors
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout: URL took longer than 30 seconds to scrape')
-      }
-      throw error
+    if (uploadError) {
+      throw new Error(`Storage upload failed: ${uploadError.message}`)
     }
+
+    // Update job with results (file_path instead of markdown_content)
+    await supabaseAdmin
+      .from('scraping_jobs')
+      .update({
+        status: 'scraped',
+        scraping_status: 'scraped',
+        file_path: storagePath,
+        file_size: fileSize,
+        word_count: wordCount,
+        completed_at: new Date().toISOString()
+      })
+      .eq('id', jobId)
 
   } catch (error) {
     console.error('Scraping error:', error)
