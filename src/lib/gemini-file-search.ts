@@ -42,56 +42,6 @@ function buildContentsArray(
   return contents
 }
 
-// URLs to filter out from retrieved content
-const EXCLUDED_URL_PATTERNS = ['cdn.', 'analytics', 'twitter.com', 't.co', 'linkedin.com', 'youtube.com', 'mailto:']
-
-/**
- * Extract source URLs from Gemini grounding metadata by parsing markdown links
- * in retrieved content and matching against our indexed_pages.
- */
-async function getSourceURLsFromCitations(
-  citations: any
-): Promise<Array<{ url: string; title: string }>> {
-  if (!citations?.groundingChunks?.length) return []
-
-  // Extract markdown links from all retrieved text chunks
-  const urls = new Set<string>()
-  const mdLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g
-
-  for (const chunk of citations.groundingChunks) {
-    const text = chunk.retrievedContext?.text || ''
-    let match
-    while ((match = mdLinkRegex.exec(text)) !== null) {
-      const url = match[2].replace(/#.*$/, '') // Remove hash fragments
-      if (url && !url.endsWith('#') && !EXCLUDED_URL_PATTERNS.some(p => url.includes(p))) {
-        urls.add(url)
-      }
-    }
-  }
-
-  if (urls.size === 0) return []
-
-  // Match against indexed_pages
-  const { data } = await supabase
-    .from('indexed_pages')
-    .select('page_url, page_title')
-    .eq('status', 'active')
-
-  if (!data) return []
-
-  const indexed = new Map(
-    data.filter(r => !r.page_url.startsWith('upload://')).map(r => [r.page_url, r.page_title])
-  )
-
-  const matched = [...urls]
-    .filter(url => indexed.has(url))
-    .map(url => ({ url, title: indexed.get(url) || url.split('/').pop() || url }))
-
-  if (matched.length) console.log(`🔗 ${matched.length}/${urls.size} URLs matched indexed pages`)
-
-  return matched
-}
-
 /**
  * Query File Search for content available on a specific page
  * Uses the new page-based architecture with page_urls metadata
@@ -101,12 +51,7 @@ export async function queryPageContent(
   pageUrl: string,
   conversationHistory?: Array<{ role: string; content: string }>,
   systemPrompt?: string
-): Promise<{
-  answer: string;
-  citations: any;
-  organization?: string;
-  sourceURLs: Array<{ url: string; title: string }>;
-}> {
+): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
     // Normalize page URL to ensure trailing slash for consistent matching
     // Only add trailing slash to root URLs (e.g., "https://example.com" -> "https://example.com/")
@@ -213,19 +158,10 @@ export async function queryPageContent(
       })
     }
 
-    // Extract source URLs from grounding metadata
-    const citations = response.candidates?.[0]?.groundingMetadata || null
-    const sourceURLs = await getSourceURLsFromCitations(citations)
-
-    if (sourceURLs.length > 0) {
-      console.log('📎 Found source URLs:', sourceURLs.map(s => s.url))
-    }
-
     return {
       answer: response.text || 'Unable to generate response. Please try again in a moment.',
-      citations,
-      organization: orgData.name,
-      sourceURLs
+      citations: response.candidates?.[0]?.groundingMetadata || null,
+      organization: orgData.name
     };
   } catch (error: any) {
     console.error('❌ Error querying Gemini File Search:', {
