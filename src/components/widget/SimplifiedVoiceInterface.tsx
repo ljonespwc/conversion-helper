@@ -31,6 +31,7 @@ interface SimplifiedVoiceInterfaceProps {
   pageUrl?: string
   showBranding?: boolean
   timezone?: string
+  isDemo?: boolean
 }
 
 // Inner component that contains the Layercode hook - only rendered after user tap
@@ -39,13 +40,15 @@ function VoiceSession({
   pageUrl,
   showBranding,
   effectivePageUrl,
-  timezone
+  timezone,
+  isDemo
 }: {
   onClose: () => void
   pageUrl?: string
   showBranding: boolean
   effectivePageUrl: string
   timezone?: string
+  isDemo?: boolean
 }) {
   const posthog = usePostHog()
   const [hasStarted, setHasStarted] = useState(false)
@@ -79,8 +82,9 @@ function VoiceSession({
   const metadata = useMemo(() => ({
     source: 'easyask-assistant',
     ...(effectivePageUrl && { page_url: effectivePageUrl }),
-    ...(timezone && { timezone })
-  }), [effectivePageUrl, timezone])
+    ...(timezone && { timezone }),
+    ...(isDemo && { is_demo: true })
+  }), [effectivePageUrl, timezone, isDemo])
 
   // Memoize onDataMessage callback to prevent reconnections
   const handleDataMessage = useCallback((data: any) => {
@@ -1052,7 +1056,7 @@ function VoiceSession({
 }
 
 // Main exported component - renders VoiceSession immediately when modal opens
-export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true, timezone }: SimplifiedVoiceInterfaceProps) {
+export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true, timezone, isDemo = false }: SimplifiedVoiceInterfaceProps) {
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
@@ -1064,6 +1068,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
       showBranding={showBranding}
       effectivePageUrl={effectivePageUrl}
       timezone={timezone}
+      isDemo={isDemo}
     />
   )
 }

@@ -175,6 +175,7 @@ type WebhookRequest = {
     page_url?: string
     timestamp?: string
     timezone?: string
+    is_demo?: boolean
   }
   type: 'message' | 'session.start' | 'session.update' | 'session.end' | 'user.transcript.interim_delta' | string
   content?: string
@@ -247,9 +248,10 @@ export async function POST(request: Request) {
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
 
-    // Extract page URL and timezone from custom_metadata (forwarded by Layercode)
+    // Extract page URL, timezone, and demo flag from custom_metadata (forwarded by Layercode)
     const pageUrl = custom_metadata?.page_url || ''
     const timezone = custom_metadata?.timezone || ''
+    const isDemo = custom_metadata?.is_demo === true
 
     // Look up organization_id from widget_page (for conversation tracking)
     let organizationId: string | null = null
@@ -302,8 +304,10 @@ If you can't find the answer in the stored content, say so naturally.
 Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
-                welcomeMsg = widgetPage.organization_name
-                  ? `${greeting}! Welcome to ${widgetPage.organization_name}. What can I help you with?`
+                // Use "the EasyAsk Demo" for demo mode, otherwise use organization name
+                const displayName = isDemo ? 'the EasyAsk Demo' : widgetPage.organization_name
+                welcomeMsg = displayName
+                  ? `${greeting}! Welcome to ${displayName}. What can I help you with?`
                   : `${greeting}! What can I help you with today?`
               } else {
                 systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them. Be concise, natural, and encouraging in your responses. Never mention sources or citations. CRITICAL FOR TTS: When the source material contains abbreviations or acronyms, rewrite them conversationally or refer to them generically rather than listing abbreviations."
