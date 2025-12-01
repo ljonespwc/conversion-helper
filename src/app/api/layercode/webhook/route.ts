@@ -284,7 +284,7 @@ export async function POST(request: Request) {
               const widgetPage = await getWidgetPage(pageUrl)
 
               if (widgetPage) {
-                systemPrompt = `You are a helpful assistant for the ${widgetPage.page_title || 'this page'}.
+                systemPrompt = `You are a helpful expert on ${widgetPage.page_title || 'this page'}. When visitors ask questions, they're genuinely interested and looking for your help—give them clear, useful answers.
 
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
