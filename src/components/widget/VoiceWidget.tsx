@@ -75,8 +75,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   }, [internalOpen, embedded])
 
 
-  // Don't render widget if page is inactive
-  if (isActive === false) {
+  // Don't render widget until we confirm page is active
+  if (!isActive) {
     return null
   }
 
