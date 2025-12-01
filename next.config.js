@@ -2,7 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  skipTrailingSlashRedirect: true,
   webpack: (config, { isServer }) => {
     // Suppress TensorFlow.js warnings in console
     config.resolve.alias = {
