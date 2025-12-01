@@ -16,29 +16,23 @@ const supabase = createClient(
 
 // Helper function to get time-based greeting using visitor's timezone
 function getTimeGreeting(timezone?: string): string {
-  let hour: number
+  if (!timezone) return 'Hey there'
 
-  if (timezone) {
-    try {
-      // Get hour in visitor's timezone
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: timezone,
-        hour: 'numeric',
-        hour12: false
-      })
-      hour = parseInt(formatter.format(new Date()), 10)
-    } catch (e) {
-      // Invalid timezone, fall back to UTC
-      hour = new Date().getUTCHours()
-    }
-  } else {
-    hour = new Date().getUTCHours()
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      hour: 'numeric',
+      hour12: false
+    })
+    const hour = parseInt(formatter.format(new Date()), 10)
+
+    if (hour >= 5 && hour < 12) return 'Good morning'
+    if (hour >= 12 && hour < 17) return 'Good afternoon'
+    if (hour >= 17 && hour < 21) return 'Good evening'
+    return 'Hey there'
+  } catch (e) {
+    return 'Hey there'
   }
-
-  if (hour >= 5 && hour < 12) return 'Good morning'
-  if (hour >= 12 && hour < 17) return 'Good afternoon'
-  if (hour >= 17 && hour < 21) return 'Good evening'
-  return 'Hey there'
 }
 
 // Helper function to generate goal-specific instructions
