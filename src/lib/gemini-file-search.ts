@@ -43,6 +43,61 @@ function buildContentsArray(
 }
 
 /**
+ * Extract source URLs from Gemini grounding metadata by querying our indexed_pages database
+ * Maps document IDs from groundingChunks to their original page URLs and titles
+ */
+async function getSourceURLsFromCitations(
+  citations: any
+): Promise<Array<{ url: string; title: string }>> {
+  if (!citations?.groundingChunks?.length) return []
+
+  // Extract document IDs from grounding chunks
+  // Format: "corpora/xxx/documents/yyy" or "fileSearchStores/xxx/documents/yyy"
+  const documentIds = citations.groundingChunks
+    .map((chunk: any) => chunk.documentReference?.documentName)
+    .filter(Boolean)
+
+  if (documentIds.length === 0) return []
+
+  // Query indexed_pages for matching document IDs
+  // We need to match partial document IDs since Gemini may return shortened versions
+  const { data, error } = await supabase
+    .from('indexed_pages')
+    .select('document_id, page_url, page_title')
+    .eq('status', 'active')
+
+  if (error || !data) {
+    console.error('Error fetching source URLs:', error)
+    return []
+  }
+
+  // Match document IDs (Gemini may return partial or full IDs)
+  const matchedPages = data.filter(row => {
+    return documentIds.some((docId: string) => {
+      // Extract the document portion after "/documents/"
+      const docIdPart = docId.split('/documents/').pop()
+      const rowDocIdPart = row.document_id?.split('/documents/').pop()
+      return docIdPart && rowDocIdPart && docIdPart === rowDocIdPart
+    })
+  })
+
+  // Filter out upload:// URLs (internal identifiers for uploaded files)
+  // and deduplicate by URL
+  const seen = new Set<string>()
+  return matchedPages
+    .filter(row => !row.page_url.startsWith('upload://'))
+    .filter(row => {
+      if (seen.has(row.page_url)) return false
+      seen.add(row.page_url)
+      return true
+    })
+    .map(row => ({
+      url: row.page_url,
+      title: row.page_title || new URL(row.page_url).hostname
+    }))
+}
+
+/**
  * Query File Search for content available on a specific page
  * Uses the new page-based architecture with page_urls metadata
  */
@@ -51,7 +106,12 @@ export async function queryPageContent(
   pageUrl: string,
   conversationHistory?: Array<{ role: string; content: string }>,
   systemPrompt?: string
-): Promise<{ answer: string; citations: any; organization?: string }> {
+): Promise<{
+  answer: string;
+  citations: any;
+  organization?: string;
+  sourceURLs: Array<{ url: string; title: string }>;
+}> {
   try {
     // Normalize page URL to ensure trailing slash for consistent matching
     // Only add trailing slash to root URLs (e.g., "https://example.com" -> "https://example.com/")
@@ -158,10 +218,19 @@ export async function queryPageContent(
       })
     }
 
+    // Extract source URLs from grounding metadata
+    const citations = response.candidates?.[0]?.groundingMetadata || null
+    const sourceURLs = await getSourceURLsFromCitations(citations)
+
+    if (sourceURLs.length > 0) {
+      console.log('📎 Found source URLs:', sourceURLs.map(s => s.url))
+    }
+
     return {
       answer: response.text || 'Unable to generate response. Please try again in a moment.',
-      citations: response.candidates?.[0]?.groundingMetadata || null,
-      organization: orgData.name
+      citations,
+      organization: orgData.name,
+      sourceURLs
     };
   } catch (error: any) {
     console.error('❌ Error querying Gemini File Search:', {

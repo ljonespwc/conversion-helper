@@ -549,7 +549,7 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
 
               // Query content available for this page using page_urls metadata
               // Pass full conversation history and system prompt for context
-              const { answer, citations, organization } = await queryPageContent(
+              const { answer, citations, organization, sourceURLs } = await queryPageContent(
                 text,
                 pageUrl,
                 conversationMessages[conversationKey],
@@ -563,14 +563,24 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
               // Send the response via TTS
               stream.tts(finalResponse)
 
-              // Send response data (no citations needed in UI)
+              // Send response data with source URLs from grounding metadata
+              // Transform to frontend expected format: { type, text, href, description? }
+              const formattedLinks = sourceURLs.map(({ url, title }) => ({
+                type: 'url' as const,
+                text: title,
+                href: url
+              }))
+
               stream.data({
                 type: 'page_search_match',
                 question: text,
                 response: finalResponse,
                 page_url: pageUrl,
                 organization: organization,
-                urls: { hasLinks: false, links: [] }
+                urls: {
+                  hasLinks: formattedLinks.length > 0,
+                  links: formattedLinks
+                }
               })
             } catch (error) {
               console.error('File Search error:', error)
