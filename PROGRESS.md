@@ -332,6 +332,27 @@ When ready to accept new users again:
 
 ---
 
+## ✅ iOS Audio Permission Fix (2025-12-02)
+
+Fixed race condition where iOS Safari blocks greeting TTS if mic permission isn't granted fast enough.
+
+### Root Cause
+Layercode backend sends `stream.tts(greeting)` immediately on `session.start`, but iOS gates audio output behind mic permission. If user is slow to tap "Allow", greeting displays but doesn't speak, and subsequent interactions hang.
+
+### Solution: Permission-First Flow + Proactive Recovery
+1. **Permission-first**: Request mic via `getUserMedia()` BEFORE calling Layercode `connect()`. iOS audio system is initialized when greeting arrives.
+2. **Recovery handler**: `handleRecovery()` disconnects broken connection and reconnects fresh
+3. **Proactive retry**: "Didn't hear me? Tap to retry" link appears 2s after greeting (no 10s timeout wait)
+4. **Safety net**: 10-second thinking timeout still exists as final fallback
+
+### Files Modified
+- `src/components/widget/SimplifiedVoiceInterface.tsx` - All changes in this single file
+
+### Limitations
+Cannot fully fix root cause without Layercode backend changes (greeting TTS timing). This is a graceful workaround.
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Landing Page Redesign (Images Remaining)

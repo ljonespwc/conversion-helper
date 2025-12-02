@@ -818,6 +818,23 @@ function VoiceSession({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Proactive retry for greeting (iOS audio fix) */}
+          {responseType === 'greeting' && currentResponse && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2, duration: 0.3 }}
+              className="mt-2 text-center"
+            >
+              <button
+                onClick={handleRecovery}
+                className="text-xs text-gray-500 hover:text-blue-400 underline"
+              >
+                Didn't hear me? Tap to retry
+              </button>
+            </motion.div>
+          )}
         </div>
 
         {/* Conversation History - COMMENTED OUT */}
