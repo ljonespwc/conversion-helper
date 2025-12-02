@@ -165,7 +165,8 @@ function VoiceSession({
     agentAudioLevel,
     conversationId,
     startNewConversation,
-    startVoiceSession
+    startVoiceSession,
+    endSession
   } = useLayercodeVoice({
     metadata,
     onDataMessage: handleDataMessage
@@ -352,16 +353,30 @@ function VoiceSession({
   }
 
   // Handle recovery from stuck "thinking" state (safety net for iOS timing issues)
+  // This actually disconnects and reconnects to fix broken Layercode connections
   const handleRecovery = useCallback(() => {
-    console.log('User initiated recovery from stuck state')
+    console.log('User initiated recovery - disconnecting and reconnecting')
     posthog?.capture('voice_recovery_attempted', {
       page_url: effectivePageUrl,
       conversation_id: conversationId
     })
+
+    // Reset UI state
     setThinkingTooLong(false)
     setAiIsSpeaking(false)
     setHasHadFirstInteraction(false)
-  }, [posthog, effectivePageUrl, conversationId])
+    setHasStarted(false)
+    setCurrentResponse(null)
+
+    // Disconnect broken connection and reconnect
+    endSession()
+
+    // Small delay before reconnecting to ensure clean disconnect
+    setTimeout(() => {
+      console.log('Reconnecting to Layercode...')
+      startVoiceSession()
+    }, 500)
+  }, [posthog, effectivePageUrl, conversationId, endSession, startVoiceSession])
 
   // Handle email escalation submission
   const handleEmailSubmit = async (e: React.FormEvent) => {
