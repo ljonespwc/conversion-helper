@@ -301,8 +301,8 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
                 // Use "the EasyAsk Demo" for demo mode, otherwise use organization name
                 const displayName = isDemo ? 'the EasyAsk Demo' : widgetPage.organization_name
                 welcomeMsg = displayName
-                  ? `${greeting}! Welcome to ${displayName}. What can I help you with?`
-                  : `${greeting}! What can I help you with today?`
+                  ? `${greeting}! Welcome to ${displayName}'s new voice assistant. What questions can I answer for you?`
+                  : `${greeting}! What questions can I answer for you?`
               } else {
                 systemPrompt = "You are a helpful assistant for this page. All questions are about this page's content. Assume ambiguous questions refer to this page's offerings and search the available content to answer them. Be concise, natural, and encouraging in your responses. Never mention sources or citations. CRITICAL FOR TTS: When the source material contains abbreviations or acronyms, rewrite them conversationally or refer to them generically rather than listing abbreviations."
                 welcomeMsg = `${greeting}! What can I help you with today?`
