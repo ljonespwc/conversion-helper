@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
@@ -76,6 +76,9 @@ function VoiceSession({
   // Feedback state for conversation
   const [conversationFeedback, setConversationFeedback] = useState<'positive' | 'negative' | null>(null)
   const [showFeedbackCheck, setShowFeedbackCheck] = useState(false)
+
+  // Ref to track latest values for widget_closed event on unmount
+  const closeDataRef = useRef({ conversationId: '', messageCount: 0, pageUrl: effectivePageUrl })
 
   // Memoize metadata to prevent unnecessary reconnections on every render
   // NOTE: timestamp is generated fresh each time to avoid mobile audio issues
@@ -160,6 +163,27 @@ function VoiceSession({
     onDataMessage: handleDataMessage
   })
 
+  // Keep ref updated with latest values for widget_closed tracking
+  useEffect(() => {
+    closeDataRef.current = {
+      conversationId: conversationId || '',
+      messageCount: conversationHistory.length,
+      pageUrl: effectivePageUrl
+    }
+  }, [conversationId, conversationHistory.length, effectivePageUrl])
+
+  // Track widget_closed when component unmounts
+  useEffect(() => {
+    return () => {
+      const { conversationId, messageCount, pageUrl } = closeDataRef.current
+      posthog?.capture('widget_closed', {
+        page_url: pageUrl,
+        conversation_id: conversationId,
+        message_count: messageCount
+      })
+    }
+  }, [posthog])
+
   // Auto-start voice session when this component mounts (user already tapped)
   useEffect(() => {
     console.log('VoiceSession mounted - starting voice session')
@@ -178,18 +202,6 @@ function VoiceSession({
       // Conversation starts automatically - user can just speak
     }
   }, [isConnected, hasStarted, posthog, effectivePageUrl, conversationId])
-
-  // Handle end conversation
-  const handleEndConversation = () => {
-    // Track conversation end
-    posthog?.capture('widget_closed', {
-      page_url: effectivePageUrl,
-      conversation_id: conversationId,
-      message_count: conversationHistory.length
-    })
-    startNewConversation()
-    onClose()
-  }
 
   // Handle copy response
   const handleCopyResponse = async () => {
