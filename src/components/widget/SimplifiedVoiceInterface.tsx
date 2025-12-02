@@ -77,6 +77,14 @@ function VoiceSession({
   const [conversationFeedback, setConversationFeedback] = useState<'positive' | 'negative' | null>(null)
   const [showFeedbackCheck, setShowFeedbackCheck] = useState(false)
 
+  // Permission flow state for iOS audio compatibility
+  const [permissionState, setPermissionState] = useState<'pending' | 'requesting' | 'granted' | 'denied'>('pending')
+
+  // Thinking timeout / recovery state (safety net for stuck states)
+  const [thinkingTooLong, setThinkingTooLong] = useState(false)
+  const thinkingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const THINKING_TIMEOUT_MS = 10000  // 10 seconds
+
   // Ref to track latest values for widget_closed event on unmount
   const closeDataRef = useRef({ conversationId: '', messageCount: 0, pageUrl: effectivePageUrl })
 
@@ -184,10 +192,48 @@ function VoiceSession({
     }
   }, [posthog])
 
+  // Request mic permission before connecting - fixes iOS audio race condition
+  // iOS gates audio output behind mic permission, so we need permission granted
+  // BEFORE Layercode connects and sends the greeting TTS
+  const requestMicPermission = async (): Promise<boolean> => {
+    try {
+      console.log('Requesting mic permission...')
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Immediately stop - we just needed permission granted
+      stream.getTracks().forEach(track => track.stop())
+      console.log('Mic permission granted')
+      return true
+    } catch (error) {
+      console.error('Mic permission denied or error:', error)
+      return false
+    }
+  }
+
   // Auto-start voice session when this component mounts (user already tapped)
+  // Permission-first flow: Request mic permission BEFORE connecting to fix iOS audio race condition
   useEffect(() => {
-    console.log('VoiceSession mounted - starting voice session')
-    startVoiceSession()
+    let cancelled = false
+
+    async function initializeSession() {
+      console.log('VoiceSession mounted - requesting mic permission first')
+      setPermissionState('requesting')
+
+      const granted = await requestMicPermission()
+
+      if (cancelled) return
+
+      if (granted) {
+        setPermissionState('granted')
+        console.log('Permission granted - connecting to Layercode')
+        startVoiceSession()
+      } else {
+        setPermissionState('denied')
+      }
+    }
+
+    initializeSession()
+
+    return () => { cancelled = true }
   }, []) // Only on mount
 
   // Auto-start conversation when connected
@@ -305,6 +351,18 @@ function VoiceSession({
     }
   }
 
+  // Handle recovery from stuck "thinking" state (safety net for iOS timing issues)
+  const handleRecovery = useCallback(() => {
+    console.log('User initiated recovery from stuck state')
+    posthog?.capture('voice_recovery_attempted', {
+      page_url: effectivePageUrl,
+      conversation_id: conversationId
+    })
+    setThinkingTooLong(false)
+    setAiIsSpeaking(false)
+    setHasHadFirstInteraction(false)
+  }, [posthog, effectivePageUrl, conversationId])
+
   // Handle email escalation submission
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -419,7 +477,24 @@ function VoiceSession({
     }
   }, [userAudioLevel, aiIsSpeaking])
 
-  // Removed debug logging
+  // Thinking timeout - safety net for stuck states (e.g., iOS audio permission timing issues)
+  useEffect(() => {
+    if (isThinking) {
+      thinkingTimeoutRef.current = setTimeout(() => {
+        console.warn('Thinking timeout reached - showing recovery option')
+        setThinkingTooLong(true)
+      }, THINKING_TIMEOUT_MS)
+    } else {
+      if (thinkingTimeoutRef.current) {
+        clearTimeout(thinkingTimeoutRef.current)
+        thinkingTimeoutRef.current = null
+      }
+      setThinkingTooLong(false)
+    }
+    return () => {
+      if (thinkingTimeoutRef.current) clearTimeout(thinkingTimeoutRef.current)
+    }
+  }, [isThinking])
 
   // Get button color based on state
   const getButtonColor = () => {
@@ -458,8 +533,35 @@ function VoiceSession({
   return (
     <div className="relative p-6 space-y-4">
 
-      {/* Connecting State */}
-      {isConnecting && (
+      {/* Permission Requesting State - iOS audio fix */}
+      {permissionState === 'requesting' && (
+        <div className="flex flex-col items-center space-y-4 py-8">
+          <div className="p-4 rounded-full bg-blue-500 animate-pulse">
+            <Mic className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 text-center px-4">
+            Preparing voice assistant...
+          </p>
+        </div>
+      )}
+
+      {/* Permission Denied State */}
+      {permissionState === 'denied' && (
+        <div className="flex flex-col items-center space-y-4 py-8">
+          <div className="p-4 rounded-full bg-red-500">
+            <Mic className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 text-center px-4">
+            Microphone access is required for voice chat
+          </p>
+          <button onClick={onClose} className="text-sm text-blue-500 hover:underline">
+            Close
+          </button>
+        </div>
+      )}
+
+      {/* Connecting State - Show after permission granted */}
+      {permissionState === 'granted' && isConnecting && (
         <div className="flex flex-col items-center space-y-4 py-8">
           <div className="p-4 rounded-full bg-gray-400">
             <Loader2 className="w-8 h-8 text-white animate-spin" />
@@ -471,7 +573,7 @@ function VoiceSession({
       )}
 
       {/* Main Interface - Show after connected */}
-      {isConnected && (
+      {permissionState === 'granted' && isConnected && (
       <div className="flex flex-col items-center space-y-4">
         {/* Voice Button with Sparkle Burst */}
         <div className="relative">
@@ -589,18 +691,38 @@ function VoiceSession({
           </AnimatePresence>
         </div>
 
-        {/* Status Text - Fixed height container */}
-        <div className="h-12 flex flex-col items-center justify-center">
-          <motion.p
-            className="text-sm text-gray-600 dark:text-gray-400 text-center"
-            key={getStatusText()}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {getStatusText()}
-          </motion.p>
-          {isListening && (
+        {/* Status Text - Fixed height container with recovery option */}
+        <div className="h-14 flex flex-col items-center justify-center">
+          <AnimatePresence mode="wait">
+            {thinkingTooLong ? (
+              <motion.div
+                key="recovery"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="flex flex-col items-center gap-1"
+              >
+                <p className="text-sm text-amber-500">Taking longer than expected...</p>
+                <button
+                  onClick={handleRecovery}
+                  className="text-xs text-blue-400 hover:text-blue-300 underline"
+                >
+                  Tap to try again
+                </button>
+              </motion.div>
+            ) : (
+              <motion.p
+                className="text-sm text-gray-600 dark:text-gray-400 text-center"
+                key={getStatusText()}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {getStatusText()}
+              </motion.p>
+            )}
+          </AnimatePresence>
+          {isListening && !thinkingTooLong && (
             <motion.p
               className="text-xs text-gray-500 dark:text-gray-500 text-center mt-1"
               initial={{ opacity: 0 }}
