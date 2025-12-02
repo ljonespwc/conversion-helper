@@ -353,22 +353,15 @@ Cannot fully fix root cause without Layercode backend changes (greeting TTS timi
 
 ---
 
-## 🔮 Upcoming Priorities
+## ✅ Landing Page Redesign (2025-12-02)
 
-### Landing Page Redesign (Images Remaining)
-
-**Status**: Code & copy complete. Only images remain.
-
-**Remaining**:
-- Hero image asset
-- 7 differentiator section images
-- Use case icons/images
-- Add widget to page (need billing protection - demo mode or stricter rate limits)
-- Finish early access modal with "one page free" offer
+Complete redesign with new copy, hero, differentiator sections, use cases, and FAQ accordion.
 
 **Files**: `/src/app/page.tsx`, `/src/app/landing.css`, `/src/components/FAQAccordion.tsx`
 
 ---
+
+## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)
 **Current**: No caching - always fresh data (works great for 1-10 users)
