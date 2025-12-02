@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, X, FileText, Globe, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Check, Loader2, X, FileText, Globe, Plus, Trash2, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface ScrapingJob {
@@ -132,6 +132,16 @@ export default function ScrapedPagesList({
     ['not_indexed', 'failed'].includes(j.indexing_status)
   )
   const allSelected = selectedJobs.length === readyJobs.length && readyJobs.length > 0
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   return (
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
@@ -271,6 +281,15 @@ export default function ScrapedPagesList({
                       {displayUrl}
                     </h4>
                     <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                      {job.created_at && (
+                        <>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(job.created_at)}
+                          </span>
+                          <span>•</span>
+                        </>
+                      )}
                       {job.file_size && (
                         <>
                           <span>{(job.file_size / 1024).toFixed(1)} KB</span>

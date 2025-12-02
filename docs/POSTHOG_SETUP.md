@@ -42,8 +42,9 @@
 - **Steps**:
   1. `widget_opened`
   2. `conversation_started`
-  3. `widget_closed` (filter: `message_count` > 0)
+  3. `widget_closed` → click `≡ •••` next to this step → add filter: `message_count` > 0
 - **Conversion window**: 1 hour
+- **Note**: Add the filter on the step itself, NOT in the global "Filters" section at the bottom (global filters apply to all steps)
 
 ### Insight 3: Feedback Distribution
 - **Type**: Trends

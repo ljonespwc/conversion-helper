@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, DragEvent } from 'react'
-import { Upload, FileText, Check, X, Loader2, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Upload, FileText, Check, X, Loader2, Trash2, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 interface FileUpload {
@@ -128,6 +128,16 @@ export default function FileUploadSection({
 
   const readyUploads = uploads.filter(u => u.status === 'ready' || u.status === 'failed')
   const allSelected = selectedUploads.length === readyUploads.length && readyUploads.length > 0
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   return (
     <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
@@ -278,6 +288,15 @@ export default function FileUploadSection({
                       {upload.filename}
                     </h4>
                     <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                      {upload.created_at && (
+                        <>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(upload.created_at)}
+                          </span>
+                          <span>•</span>
+                        </>
+                      )}
                       <span>{(upload.file_size / 1024).toFixed(1)} KB</span>
                       <span>•</span>
                       <span>{upload.word_count} words</span>
