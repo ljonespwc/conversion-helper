@@ -1,14 +1,15 @@
 'use client'
 
 import { login, signup, signInWithGoogle } from './actions'
-import { useState } from 'react'
+// import { useState } from 'react'  // SIGNUP DISABLED
 
 export default function LoginPage({
   searchParams,
 }: {
   searchParams: { message?: string; error?: string }
 }) {
-  const [isSignup, setIsSignup] = useState(false)
+  // SIGNUP DISABLED - uncomment to re-enable
+  // const [isSignup, setIsSignup] = useState(false)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 flex items-center justify-center p-4 sm:p-6">
@@ -17,7 +18,8 @@ export default function LoginPage({
           Welcome
         </h1>
         <p className="text-gray-400 text-center mb-6 sm:mb-8 text-sm sm:text-base">
-          {isSignup ? 'Create your account to get started' : 'Sign in to manage your content'}
+          {/* SIGNUP DISABLED: {isSignup ? 'Create your account to get started' : 'Sign in to manage your content'} */}
+          Sign in to manage your content
         </p>
 
         {searchParams?.message && (
@@ -87,6 +89,7 @@ export default function LoginPage({
             />
           </div>
 
+          {/* SIGNUP DISABLED - uncomment to re-enable signup fields
           {isSignup && (
             <>
               <div>
@@ -119,14 +122,18 @@ export default function LoginPage({
               </div>
             </>
           )}
+          */}
 
+          {/* SIGNUP DISABLED: formAction was {isSignup ? signup : login} */}
           <button
-            formAction={isSignup ? signup : login}
+            formAction={login}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg transition-all shadow-lg text-sm sm:text-base"
           >
-            {isSignup ? 'Create Account' : 'Sign In'}
+            {/* SIGNUP DISABLED: {isSignup ? 'Create Account' : 'Sign In'} */}
+            Sign In
           </button>
 
+          {/* SIGNUP DISABLED - uncomment to re-enable toggle
           <button
             type="button"
             onClick={() => setIsSignup(!isSignup)}
@@ -134,6 +141,7 @@ export default function LoginPage({
           >
             {isSignup ? 'Already have an account? Sign in' : 'Need an account? Create one'}
           </button>
+          */}
         </form>
       </div>
     </div>

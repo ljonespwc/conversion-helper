@@ -309,6 +309,29 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ---
 
+## ✅ Signup Prevention (2025-12-01)
+
+Blocked unauthorized account creation while allowing existing users to log in.
+
+### Files Modified (all code commented out for easy re-enable)
+1. `/src/app/login/actions.ts` - Blocked signup function, disabled magic link user creation
+2. `/src/app/login/page.tsx` - Removed signup UI elements
+3. `/src/app/auth/callback/route.ts` - Reject new OAuth users
+
+### Existing Users Still Work
+- Email/password login via `login()` action - unchanged
+- Google OAuth for users WITH organization record - unchanged
+- Magic link for existing users - works (just won't create new)
+
+### Future: Re-enable Signups
+When ready to accept new users again:
+1. Uncomment `signup()` function logic in actions.ts
+2. Uncomment signup UI toggle in login page
+3. Restore onboarding redirect in OAuth callback
+4. Change `shouldCreateUser` back to `true`
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Landing Page Redesign (Images Remaining)

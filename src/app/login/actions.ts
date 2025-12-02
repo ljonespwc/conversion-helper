@@ -30,6 +30,10 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  // SIGNUP DISABLED - Uncomment below to re-enable
+  redirect('/login?error=Signup is currently disabled. Contact admin for access.')
+
+  /*
   const supabase = await createClient()
 
   // Get form data
@@ -133,6 +137,7 @@ export async function signup(formData: FormData) {
 
   revalidatePath('/', 'layout')
   redirect('/admin/pages')  // New users need to set up widget pages first
+  */
 }
 
 export async function signInWithMagicLink(formData: FormData) {
@@ -143,7 +148,7 @@ export async function signInWithMagicLink(formData: FormData) {
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      shouldCreateUser: true,
+      shouldCreateUser: false,  // DISABLED - change to true to allow new signups
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   })

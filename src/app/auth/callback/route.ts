@@ -41,9 +41,11 @@ export async function GET(request: Request) {
       })
 
       if (userError || !userData || !userData.organization_id) {
-        // New OAuth user - needs onboarding
-        console.log('New OAuth user detected - redirecting to onboarding')
-        return NextResponse.redirect(`${origin}/onboarding`)
+        // SIGNUP DISABLED - reject new OAuth users
+        // Original: redirect to onboarding
+        // return NextResponse.redirect(`${origin}/onboarding`)
+        console.log('OAuth signup blocked - user not in system:', session.user.email)
+        return NextResponse.redirect(`${origin}/login?error=Account not found. Contact admin for access.`)
       }
 
       // Existing user with organization - redirect to admin
