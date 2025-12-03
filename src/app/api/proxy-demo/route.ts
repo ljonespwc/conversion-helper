@@ -16,12 +16,10 @@ const ALLOWED_PROXY_DOMAINS = [
   'hubermanlab.com',
   'www.hubermanlab.com',
   'ai.hubermanlab.com',
-  'dexa.ai',
-  'www.dexa.ai',
+  'layercode.com',
+  'www.layercode.com',
   'demandcurve.com',
   'www.demandcurve.com',
-  'stripe.com',
-  'www.stripe.com',
   'pilot.com',
   'www.pilot.com'
 ]
