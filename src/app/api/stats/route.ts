@@ -170,33 +170,24 @@ export async function GET(request: NextRequest) {
       .in('session_id', sessionIds)
       .order('created_at', { ascending: true })
 
-    // Count feedback from sessions (not messages - session-level feedback)
-    let positiveFeedbackQuery = supabase
+    // Get ratings from sessions (1-5 star rating)
+    let ratingsQuery = supabase
       .from('conversation_sessions')
-      .select('*', { count: 'exact', head: true })
+      .select('user_rating')
       .eq('organization_id', organizationId)
-      .eq('user_feedback', 'positive')
+      .not('user_rating', 'is', null)
 
     if (pageUrl) {
-      positiveFeedbackQuery = positiveFeedbackQuery.eq('page_url', pageUrl)
+      ratingsQuery = ratingsQuery.eq('page_url', pageUrl)
     }
 
-    const { count: positiveFeedbackCount } = await positiveFeedbackQuery
+    const { data: ratingsData } = await ratingsQuery
 
-    let negativeFeedbackQuery = supabase
-      .from('conversation_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-      .eq('user_feedback', 'negative')
-
-    if (pageUrl) {
-      negativeFeedbackQuery = negativeFeedbackQuery.eq('page_url', pageUrl)
-    }
-
-    const { count: negativeFeedbackCount } = await negativeFeedbackQuery
-
-    const positiveFeedback = positiveFeedbackCount || 0
-    const negativeFeedback = negativeFeedbackCount || 0
+    const ratings = ratingsData?.map(r => r.user_rating).filter(Boolean) || []
+    const totalRatings = ratings.length
+    const avgRating = totalRatings > 0
+      ? Math.round((ratings.reduce((sum, r) => sum + r, 0) / totalRatings) * 10) / 10
+      : 0
 
     // Group messages by session_id
     const messagesBySession = (allMessages || []).reduce((acc, msg) => {
@@ -218,8 +209,8 @@ export async function GET(request: NextRequest) {
       today: todayCount || 0,
       avgDuration,
       activeNow: activeNow || 0,
-      positiveFeedback,
-      negativeFeedback,
+      avgRating,
+      totalRatings,
       recentSessions: formattedSessions
     }, {
       headers: {
@@ -235,8 +226,8 @@ export async function GET(request: NextRequest) {
       today: 0,
       avgDuration: 0,
       activeNow: 0,
-      positiveFeedback: 0,
-      negativeFeedback: 0,
+      avgRating: 0,
+      totalRatings: 0,
       recentSessions: []
     })
   }

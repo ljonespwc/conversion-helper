@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail } from 'lucide-react'
+import { Mic, Volume2, Loader2, ExternalLink, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, Star } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
@@ -73,9 +73,10 @@ function VoiceSession({
   const [escalationSuccess, setEscalationSuccess] = useState(false)
   const [escalationError, setEscalationError] = useState('')
 
-  // Feedback state for conversation
-  const [conversationFeedback, setConversationFeedback] = useState<'positive' | 'negative' | null>(null)
-  const [showFeedbackCheck, setShowFeedbackCheck] = useState(false)
+  // Rating state for conversation (1-5 stars)
+  const [userRating, setUserRating] = useState<number | null>(null)
+  const [hoverRating, setHoverRating] = useState<number | null>(null)
+  const [showRatingCheck, setShowRatingCheck] = useState(false)
 
   // Permission flow state for iOS audio compatibility
   const [permissionState, setPermissionState] = useState<'pending' | 'requesting' | 'granted' | 'denied'>('pending')
@@ -305,15 +306,15 @@ function VoiceSession({
     }
   }
 
-  // Handle feedback submission (session-level)
-  const handleFeedback = async (feedback: 'positive' | 'negative') => {
+  // Handle rating submission (session-level, 1-5 stars)
+  const handleRating = async (rating: number) => {
     if (!conversationId) {
-      console.warn('❌ No conversationId - cannot submit feedback')
+      console.warn('❌ No conversationId - cannot submit rating')
       return
     }
 
-    if (conversationFeedback) {
-      console.warn('❌ Already gave feedback - cannot submit again')
+    if (userRating) {
+      console.warn('❌ Already gave rating - cannot submit again')
       return
     }
 
@@ -323,22 +324,22 @@ function VoiceSession({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: conversationId,
-          feedback
+          rating
         })
       })
 
       if (response.ok) {
         // Show checkmark animation
-        setShowFeedbackCheck(true)
-        setTimeout(() => setShowFeedbackCheck(false), 1000)
+        setShowRatingCheck(true)
+        setTimeout(() => setShowRatingCheck(false), 1000)
 
-        // Set feedback state (disables buttons)
-        setConversationFeedback(feedback)
-        console.log(`✅ Conversation feedback submitted: ${feedback}`)
+        // Set rating state (disables stars)
+        setUserRating(rating)
+        console.log(`✅ Conversation rating submitted: ${rating}/5`)
 
-        // Track feedback submission
+        // Track rating submission
         posthog?.capture('feedback_submitted', {
-          feedback_type: feedback,
+          rating,
           session_id: conversationId,
           page_url: effectivePageUrl,
           message_count: conversationHistory.length
@@ -348,7 +349,7 @@ function VoiceSession({
         console.error('❌ API error:', errorData)
       }
     } catch (error) {
-      console.error('❌ Failed to submit feedback:', error)
+      console.error('❌ Failed to submit rating:', error)
     }
   }
 
@@ -1080,12 +1081,12 @@ function VoiceSession({
           </div>
         )}
 
-        {/* Conversation Feedback - Appears after first AI response */}
+        {/* Conversation Rating - Appears after first AI response */}
         {conversationHistory.length > 0 && (
           <div className="w-full max-w-md px-4 mt-3">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex flex-col items-center gap-2">
               <AnimatePresence mode="wait">
-                {showFeedbackCheck ? (
+                {showRatingCheck ? (
                   <motion.div
                     key="checkmark"
                     initial={{ scale: 0, opacity: 0 }}
@@ -1099,45 +1100,42 @@ function VoiceSession({
                   </motion.div>
                 ) : (
                   <motion.div
-                    key="buttons"
+                    key="stars"
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
-                    className="flex items-center gap-2"
+                    className="flex flex-col items-center gap-1"
                   >
                     <span className="text-xs italic text-gray-400">Was this helpful?</span>
-                    <button
-                      onClick={() => handleFeedback('positive')}
-                      disabled={conversationFeedback !== null}
-                      className={`
-                        w-8 h-8 rounded-full border-2
-                        flex items-center justify-center
-                        text-base transition-all
-                        ${conversationFeedback === null
-                          ? 'border-gray-600 hover:border-green-400 hover:bg-green-400/10 hover:scale-110 cursor-pointer'
-                          : 'border-gray-700 opacity-30 cursor-not-allowed'
-                        }
-                      `}
-                      title="Helpful conversation"
-                    >
-                      👍
-                    </button>
-                    <button
-                      onClick={() => handleFeedback('negative')}
-                      disabled={conversationFeedback !== null}
-                      className={`
-                        w-8 h-8 rounded-full border-2
-                        flex items-center justify-center
-                        text-base transition-all
-                        ${conversationFeedback === null
-                          ? 'border-gray-600 hover:border-red-400 hover:bg-red-400/10 hover:scale-110 cursor-pointer'
-                          : 'border-gray-700 opacity-30 cursor-not-allowed'
-                        }
-                      `}
-                      title="Not helpful"
-                    >
-                      👎
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-500 mr-1">No</span>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => handleRating(star)}
+                          onMouseEnter={() => !userRating && setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(null)}
+                          disabled={userRating !== null}
+                          className={`
+                            p-0.5 transition-all
+                            ${userRating === null
+                              ? 'cursor-pointer hover:scale-110'
+                              : 'cursor-not-allowed opacity-50'
+                            }
+                          `}
+                          title={`Rate ${star} out of 5`}
+                        >
+                          <Star
+                            className={`w-6 h-6 transition-colors ${
+                              (hoverRating !== null ? star <= hoverRating : star <= (userRating || 0))
+                                ? 'text-orange-400 fill-orange-400'
+                                : 'text-gray-600'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                      <span className="text-xs text-gray-500 ml-1">Yes</span>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

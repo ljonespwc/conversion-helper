@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { session_id, feedback } = await request.json()
+    const { session_id, rating } = await request.json()
 
     // Validate required fields
     if (!session_id) {
@@ -44,9 +44,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!feedback || !['positive', 'negative'].includes(feedback)) {
+    // Validate rating is integer 1-5
+    if (!rating || !Number.isInteger(rating) || rating < 1 || rating > 5) {
       return NextResponse.json(
-        { error: 'feedback must be "positive" or "negative"' },
+        { error: 'rating must be an integer from 1 to 5' },
         { status: 400 }
       )
     }
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     // Check if session exists
     const { data: session, error: fetchError } = await supabase
       .from('conversation_sessions')
-      .select('id, user_feedback')
+      .select('id, user_rating')
       .eq('session_id', session_id)
       .maybeSingle()
 
@@ -63,21 +64,21 @@ export async function POST(request: NextRequest) {
     }
 
     if (session) {
-      // Session exists - check if feedback already submitted
-      if (session.user_feedback) {
+      // Session exists - check if rating already submitted
+      if (session.user_rating) {
         return NextResponse.json(
           {
-            message: 'Feedback already submitted for this conversation',
-            current_feedback: session.user_feedback
+            message: 'Rating already submitted for this conversation',
+            current_rating: session.user_rating
           },
           { status: 200 }
         )
       }
 
-      // Update existing session with feedback
+      // Update existing session with rating
       const { error: updateError } = await supabase
         .from('conversation_sessions')
-        .update({ user_feedback: feedback })
+        .update({ user_rating: rating })
         .eq('session_id', session_id)
 
       if (updateError) {
@@ -85,13 +86,13 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Session doesn't exist yet (conversation still in progress)
-      // Create it now with just session_id and feedback
+      // Create it now with just session_id and rating
       // The webhook will fill in the rest at session.end
       const { error: insertError } = await supabase
         .from('conversation_sessions')
         .insert({
           session_id,
-          user_feedback: feedback,
+          user_rating: rating,
           started_at: new Date().toISOString(),
           total_questions: 0,
           matched_responses: 0
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
           // Retry update
           const { error: retryError } = await supabase
             .from('conversation_sessions')
-            .update({ user_feedback: feedback })
+            .update({ user_rating: rating })
             .eq('session_id', session_id)
 
           if (retryError) {
@@ -115,20 +116,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`👍👎 Feedback captured: ${feedback} for session ${session_id}`)
+    console.log(`⭐ Rating captured: ${rating}/5 for session ${session_id}`)
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Feedback recorded successfully',
-        feedback
+        message: 'Rating recorded successfully',
+        rating
       },
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error recording feedback:', error)
+    console.error('Error recording rating:', error)
     return NextResponse.json(
-      { error: 'Failed to record feedback' },
+      { error: 'Failed to record rating' },
       { status: 500 }
     )
   }

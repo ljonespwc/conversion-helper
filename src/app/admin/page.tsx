@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, ThumbsUp } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -29,7 +29,7 @@ interface ConversationSession {
   total_questions: number
   matched_responses: number
   page_url: string | null
-  user_feedback: 'positive' | 'negative' | null
+  user_rating: number | null
   messages: ConversationMessage[]
 }
 
@@ -38,8 +38,8 @@ interface Stats {
   today: number
   avgDuration: number
   activeNow: number
-  positiveFeedback: number
-  negativeFeedback: number
+  avgRating: number
+  totalRatings: number
   recentSessions: ConversationSession[]
 }
 
@@ -251,16 +251,19 @@ export default function AdminDashboard() {
             icon={<Users className="w-5 h-5" />}
           />
           <StatsCard
-            title="User Feedback"
+            title="User Ratings"
             value={
               loading ? '...' : (
                 <div className="flex flex-col items-center leading-tight">
-                  <div>👍 {stats?.positiveFeedback || 0}</div>
-                  <div>👎 {stats?.negativeFeedback || 0}</div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
+                    <span>{stats?.avgRating?.toFixed(1) || '0.0'}</span>
+                  </div>
+                  <div className="text-xs text-gray-400">{stats?.totalRatings || 0} ratings</div>
                 </div>
               )
             }
-            icon={<ThumbsUp className="w-5 h-5" />}
+            icon={<Star className="w-5 h-5" />}
           />
         </div>
 
@@ -352,8 +355,8 @@ export default function AdminDashboard() {
                 const assistantMessageCount = assistantMessages.length
                 const userMessageCount = userMessages.length
 
-                // Session-level feedback
-                const hasFeedback = !!session.user_feedback
+                // Session-level rating
+                const hasRating = !!session.user_rating
 
                 return (
                   <div key={session.id}>
@@ -388,11 +391,11 @@ export default function AdminDashboard() {
                             {' • '}
                             {userMessageCount} User message{userMessageCount !== 1 ? 's' : ''}
                             {duration > 0 && ` • ${duration}s duration`}
-                            {hasFeedback && (
+                            {hasRating && (
                               <>
                                 {' • '}
-                                <span className="text-gray-300" title={session.user_feedback === 'positive' ? 'Positive feedback' : 'Negative feedback'}>
-                                  {session.user_feedback === 'positive' ? '👍' : '👎'}
+                                <span className="text-orange-400" title={`User rating: ${session.user_rating}/5`}>
+                                  {'★'.repeat(session.user_rating || 0)}{'☆'.repeat(5 - (session.user_rating || 0))}
                                 </span>
                               </>
                             )}
