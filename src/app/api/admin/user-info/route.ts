@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     // Get user's organization info (use service role to bypass RLS)
     const { data, error } = await supabaseAdmin
       .from('users')
-      .select('id, email, organization_id, organizations(name, website_url, file_search_store_name, show_branding)')
+      .select('id, email, organization_id, organizations(name, website_url, file_search_store_name, show_branding, publishable_key)')
       .eq('id', user.id)
       .single()
 

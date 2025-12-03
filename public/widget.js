@@ -9,9 +9,10 @@
   var ORIGIN = 'https://easyask.io';
   var Z_INDEX = 2147483647;
 
-  // Read position from script tag (default: bottom-right)
+  // Read configuration from script tag
   var script = document.currentScript;
   var position = (script && script.getAttribute('data-position')) || 'bottom-right';
+  var apiKey = (script && script.getAttribute('data-key')) || '';
   var isLeft = position === 'bottom-left';
 
   // Get visitor's timezone for personalized greeting
@@ -26,7 +27,7 @@
   // Create iframe
   var iframe = document.createElement('iframe');
   iframe.id = 'easyask-widget';
-  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz);
+  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey);
   iframe.title = 'EasyAsk Assistant';
   iframe.allow = 'microphone *; autoplay *';
   iframe.style.cssText = [
@@ -95,7 +96,7 @@
       iframe.style.bottom = '0';
       iframe.style.width = PILL.w + 'px';
       iframe.style.height = PILL.h + 'px';
-      iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(newUrl) + '&position=' + position + '&tz=' + encodeURIComponent(tz);
+      iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(newUrl) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey);
     }
   }
 

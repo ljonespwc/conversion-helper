@@ -148,7 +148,7 @@ export default function DemoPage() {
             }
           `}</style>
           <div className="demo-widget-container">
-            <VoiceWidget pageUrl={actualPageUrl || validatedUrl} embedded={true} isDemo={true} />
+            <VoiceWidget pageUrl={actualPageUrl || validatedUrl} embedded={true} isDemo={true} apiKey="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab" />
           </div>
         </div>
       </div>

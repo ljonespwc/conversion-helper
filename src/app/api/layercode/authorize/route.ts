@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { conversationMetadata } from '@/lib/conversation-metadata'
 import { rateLimits, getClientIP } from '@/lib/ratelimit'
+import { isValidKeyFormat } from '@/lib/api-keys'
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +35,30 @@ export async function POST(request: Request) {
       console.error('Rate limiting error (allowing request):', rateLimitError)
     }
 
+    // Parse request body first to check API key
+    const requestBody = await request.json()
+    const customerApiKey = requestBody.metadata?.api_key
+
+    // Validate customer API key before consuming Layercode credits
+    if (!isValidKeyFormat(customerApiKey)) {
+      return NextResponse.json({ error: 'Invalid or missing API key' }, { status: 401 })
+    }
+
+    // Verify key exists in database
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .select('id')
+      .eq('publishable_key', customerApiKey)
+      .single()
+
+    if (orgError || !org) {
+      return NextResponse.json({ error: 'Invalid API key' }, { status: 401 })
+    }
+
     // Get environment variables
     const apiKey = process.env.LAYERCODE_API_KEY
     const agentId = process.env.NEXT_PUBLIC_LAYERCODE_PIPELINE_ID
@@ -44,9 +70,6 @@ export async function POST(request: Request) {
     if (!agentId) {
       throw new Error('NEXT_PUBLIC_LAYERCODE_PIPELINE_ID is not configured')
     }
-
-    // Parse request body
-    const requestBody = await request.json()
 
     console.log('🔐 Authorize request metadata:', requestBody.metadata)
 

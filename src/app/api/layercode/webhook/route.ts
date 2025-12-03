@@ -170,6 +170,7 @@ type WebhookRequest = {
     timestamp?: string
     timezone?: string
     is_demo?: boolean
+    api_key?: string
   }
   type: 'message' | 'session.start' | 'session.update' | 'session.end' | 'user.transcript.interim_delta' | string
   content?: string
@@ -242,14 +243,32 @@ export async function POST(request: Request) {
     // Use conversation_id as the primary key for message storage
     const conversationKey = conversation_id || session_id || 'unknown'
 
-    // Extract page URL, timezone, and demo flag from custom_metadata (forwarded by Layercode)
+    // Extract page URL, timezone, demo flag, and API key from custom_metadata (forwarded by Layercode)
     const pageUrl = custom_metadata?.page_url || ''
     const timezone = custom_metadata?.timezone || ''
     const isDemo = custom_metadata?.is_demo === true
+    const apiKey = custom_metadata?.api_key || ''
 
-    // Look up organization_id from widget_page (for conversation tracking)
+    // Look up organization_id - prefer API key lookup, fallback to page_url
     let organizationId: string | null = null
-    if (pageUrl) {
+
+    // First, try to look up by API key (most reliable)
+    if (apiKey) {
+      try {
+        const { data: orgData } = await supabase
+          .from('organizations')
+          .select('id')
+          .eq('publishable_key', apiKey)
+          .single()
+
+        organizationId = orgData?.id || null
+      } catch (error) {
+        console.error('Failed to lookup organization by API key:', error)
+      }
+    }
+
+    // Fallback: Look up from widget_page if no API key or lookup failed
+    if (!organizationId && pageUrl) {
       try {
         const { data: widgetPageData } = await supabase
           .from('widget_pages')
@@ -259,7 +278,7 @@ export async function POST(request: Request) {
 
         organizationId = widgetPageData?.organization_id || null
       } catch (error) {
-        console.error('Failed to lookup organization_id:', error)
+        console.error('Failed to lookup organization_id from page:', error)
       }
     }
 

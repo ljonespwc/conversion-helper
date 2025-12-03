@@ -14,9 +14,10 @@ interface VoiceWidgetProps {
   position?: 'bottom-left' | 'bottom-right'
   timezone?: string
   isDemo?: boolean
+  apiKey?: string
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
@@ -36,7 +37,9 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
       setOrganizationName(undefined)
 
       // Try to fetch page info from widget pages API (with cache-busting)
-      fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}&_t=${Date.now()}`, {
+      // Include API key for authorization
+      const keyParam = apiKey ? `&key=${encodeURIComponent(apiKey)}` : ''
+      fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}${keyParam}&_t=${Date.now()}`, {
         cache: 'no-store'
       })
         .then(res => res.json())
@@ -65,7 +68,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           }
         })
     }
-  }, [pageUrl, embedded])
+  }, [pageUrl, embedded, apiKey])
 
   // Notify parent of modal state changes (for iframe resize)
   useEffect(() => {
@@ -108,6 +111,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             showBranding={showBranding}
             timezone={timezone}
             isDemo={isDemo}
+            apiKey={apiKey}
           />
         )}
       </AnimatePresence>

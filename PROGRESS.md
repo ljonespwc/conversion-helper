@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-11-21
+**Last Updated**: 2025-12-02
 **Current Phase**: Production Ready - Multi-User Organizations + Security + Analytics
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -358,6 +358,45 @@ Cannot fully fix root cause without Layercode backend changes (greeting TTS timi
 Complete redesign with new copy, hero, differentiator sections, use cases, and FAQ accordion.
 
 **Files**: `/src/app/page.tsx`, `/src/app/landing.css`, `/src/components/FAQAccordion.tsx`
+
+---
+
+## ✅ Publishable API Key Security (2025-12-02)
+
+Added API key authorization to prevent unauthorized widget usage. Previously, anyone could embed the widget on any domain without permission.
+
+### Business Logic
+- Each organization gets a unique **publishable API key** (format: `pk_live_` + 48 hex chars)
+- Customers must include `data-key="pk_live_..."` in their embed snippet
+- Widget silently fails (doesn't appear) if key is missing or invalid
+- All API calls validate key and scope data to that organization only
+
+### Customer Embed Code (New Format)
+```html
+<script src="https://easyask.io/widget.js" data-key="pk_live_..."></script>
+```
+
+### Security Model
+- **Defense in depth**: Key validated at 3 points (widget-pages API, layercode authorize, webhook)
+- **Silent failure**: Invalid keys return empty data, no error messages exposed
+- **Organization scoping**: Page queries filtered by org ID from key lookup
+
+### Admin Experience
+- Embed code in admin dashboard now auto-populates with customer's key
+- API key displayed in Organization Details with copy button
+
+### Files Modified
+- `src/lib/api-keys.ts` (NEW) - Key generation, validation, masking utilities
+- `public/widget.js` - Reads `data-key` attribute, passes to iframe
+- `src/app/api/widget-pages/route.ts` - Validates key, scopes queries to org
+- `src/app/api/layercode/authorize/route.ts` - Validates key before Layercode session
+- `src/app/api/layercode/webhook/route.ts` - Uses key for org lookup
+- `src/app/admin/pages/page.tsx` - Shows personalized embed code + API key display
+
+### Migration
+- Existing orgs (EasyAsk, Precision Nutrition) have keys auto-generated
+- EasyAsk landing page and demo page updated with key
+- Precision Nutrition needs to update their embed code
 
 ---
 

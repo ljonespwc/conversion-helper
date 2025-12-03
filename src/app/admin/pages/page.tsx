@@ -22,11 +22,19 @@ interface UserInfo {
   id: string
   email: string | null
   organization_id: string
+  organization?: {
+    name: string
+    website_url: string | null
+    file_search_store_name: string | null
+    show_branding: boolean
+    publishable_key: string | null
+  }
   organizations: {
     name: string
     website_url: string | null
     file_search_store_name: string | null
     show_branding: boolean
+    publishable_key?: string | null
   }
 }
 
@@ -256,30 +264,36 @@ export default function PagesPage() {
             The assistant automatically detects which page it's on and shows the right content.
           </p>
 
-          <div className="relative">
-            <pre className="bg-gray-950 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto border border-gray-700 text-xs sm:text-sm">
-              <code>{`<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js"></script>`}</code>
-            </pre>
-            <button
-              onClick={() => copyToClipboard(
-                `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js"></script>`,
-                'universal-embed'
-              )}
-              className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 shadow-lg"
-            >
-              {copiedId === 'universal-embed' ? (
-                <>
-                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Copy</span>
-                </>
-              )}
-            </button>
-          </div>
+          {(() => {
+            const publishableKey = userInfo?.organization?.publishable_key || userInfo?.organizations?.publishable_key
+            const embedCode = publishableKey
+              ? `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js" data-key="${publishableKey}"></script>`
+              : `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js" data-key="YOUR_API_KEY"></script>`
+
+            return (
+              <div className="relative">
+                <pre className="bg-gray-950 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto border border-gray-700 text-xs sm:text-sm">
+                  <code>{embedCode}</code>
+                </pre>
+                <button
+                  onClick={() => copyToClipboard(embedCode, 'universal-embed')}
+                  className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 shadow-lg"
+                >
+                  {copiedId === 'universal-embed' ? (
+                    <>
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )
+          })()}
 
           <p className="text-xs sm:text-sm text-gray-400 mt-3 sm:mt-4">
             Place this code before the closing <code className="text-gray-300 bg-gray-700 px-1.5 py-0.5 rounded">&lt;/body&gt;</code> tag.
@@ -305,6 +319,33 @@ export default function PagesPage() {
                 <code className="block bg-gray-700 px-3 py-2 rounded text-xs mt-1 text-gray-300 break-all">
                   {userInfo.organizations.file_search_store_name || 'Not created'}
                 </code>
+              </div>
+              <div className="md:col-span-2">
+                <span className="text-gray-400 font-medium">API Key:</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <code className="flex-1 bg-gray-700 px-3 py-2 rounded text-xs text-gray-300 break-all font-mono">
+                    {userInfo.organization?.publishable_key || userInfo.organizations.publishable_key || 'Not generated'}
+                  </code>
+                  {(userInfo.organization?.publishable_key || userInfo.organizations.publishable_key) && (
+                    <button
+                      onClick={() => copyToClipboard(
+                        userInfo.organization?.publishable_key || userInfo.organizations.publishable_key || '',
+                        'api-key'
+                      )}
+                      className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors flex-shrink-0"
+                      title="Copy API key"
+                    >
+                      {copiedId === 'api-key' ? (
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Use this key in your widget embed code. Keep it safe but note it's designed to be public-facing.
+                </p>
               </div>
               <div className="md:col-span-2">
                 <div className="flex items-center justify-between py-2 px-3 bg-gray-700/50 rounded-lg">

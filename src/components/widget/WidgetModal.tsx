@@ -12,9 +12,10 @@ interface WidgetModalProps {
   showBranding?: boolean
   timezone?: string
   isDemo?: boolean
+  apiKey?: string
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -79,7 +80,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
           </button>
         </div>
 
-        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} />
+        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} />
       </motion.div>
     </motion.div>
   )
