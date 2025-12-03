@@ -398,6 +398,26 @@ Added API key authorization to prevent unauthorized widget usage. Previously, an
 - EasyAsk landing page and demo page updated with key
 - Precision Nutrition needs to update their embed code
 
+### ⚠️ GTM (Google Tag Manager) Limitation
+**Problem**: GTM strips `data-*` attributes from external `<script src="...">` tags in Custom HTML. The script loads but without the `data-key` attribute, causing widget to silently fail.
+
+**Why**: GTM processes external scripts and creates them programmatically (not raw HTML injection). This is visible in the DOM as scripts with empty `id=""`, `text=""`, `charset=""` attributes.
+
+**Solution**: Use inline script that explicitly sets attributes:
+```html
+<script>
+(function() {
+  var s = document.createElement('script');
+  s.src = 'https://www.easyask.io/widget.js';
+  s.setAttribute('data-key', 'pk_live_CUSTOMER_KEY_HERE');
+  s.setAttribute('data-position', 'bottom-left');
+  document.body.appendChild(s);
+})();
+</script>
+```
+
+**When to share**: If customer reports widget.js loads but widget doesn't appear, check if they're using GTM.
+
 ---
 
 ## 🔮 Upcoming Priorities
