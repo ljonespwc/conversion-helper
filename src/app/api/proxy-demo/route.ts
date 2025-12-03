@@ -83,6 +83,10 @@ export async function GET(request: NextRequest) {
     // Rewrite absolute and relative URLs to go through the proxy
     const origin = parsedUrl.origin
 
+    // Get our proxy origin (easyask.io) to use fully absolute proxy URLs
+    // This is needed because we inject a base tag pointing to the target origin
+    const proxyOrigin = request.nextUrl.origin
+
     // Rewrite href and src attributes
     html = html.replace(
       /(href|src)=["']([^"']+)["']/g,
@@ -95,14 +99,14 @@ export async function GET(request: NextRequest) {
         // Handle protocol-relative URLs
         if (url.startsWith('//')) {
           const absoluteUrl = `https:${url}`
-          return `${attr}="/api/proxy-demo?url=${encodeURIComponent(absoluteUrl)}"`
+          return `${attr}="${proxyOrigin}/api/proxy-demo?url=${encodeURIComponent(absoluteUrl)}"`
         }
 
         // Handle absolute URLs
         if (url.startsWith('http://') || url.startsWith('https://')) {
           // If same origin, proxy it
           if (url.startsWith(origin)) {
-            return `${attr}="/api/proxy-demo?url=${encodeURIComponent(url)}"`
+            return `${attr}="${proxyOrigin}/api/proxy-demo?url=${encodeURIComponent(url)}"`
           }
           // Different origin - leave as-is (external resources)
           return match
@@ -113,7 +117,7 @@ export async function GET(request: NextRequest) {
           ? `${origin}${url}`
           : `${origin}/${url}`
 
-        return `${attr}="/api/proxy-demo?url=${encodeURIComponent(absoluteUrl)}"`
+        return `${attr}="${proxyOrigin}/api/proxy-demo?url=${encodeURIComponent(absoluteUrl)}"`
       }
     )
 
