@@ -267,8 +267,8 @@ export default function PagesPage() {
           {(() => {
             const publishableKey = userInfo?.organization?.publishable_key || userInfo?.organizations?.publishable_key
             const embedCode = publishableKey
-              ? `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js" data-key="${publishableKey}"></script>`
-              : `<script src="${process.env.NEXT_PUBLIC_APP_URL || 'https://easyask.io'}/widget.js" data-key="YOUR_API_KEY"></script>`
+              ? `<script src="https://www.easyask.io/widget.js" data-key="${publishableKey}"></script>`
+              : `<script src="https://www.easyask.io/widget.js" data-key="YOUR_API_KEY"></script>`
 
             return (
               <div className="relative">
