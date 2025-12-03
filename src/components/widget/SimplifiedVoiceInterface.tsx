@@ -1112,7 +1112,6 @@ function VoiceSession({
                   >
                     <span className="text-xs italic text-gray-400">Was this helpful?</span>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500 mr-1">No</span>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
@@ -1138,7 +1137,6 @@ function VoiceSession({
                           />
                         </button>
                       ))}
-                      <span className="text-xs text-gray-500 ml-1">Yes</span>
                     </div>
                   </motion.div>
                 )}
