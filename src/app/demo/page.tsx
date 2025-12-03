@@ -20,6 +20,12 @@ const ALLOWED_DOMAINS = [
   'pilot.com'
 ]
 
+// API keys by domain (Precision Nutrition has its own org)
+const API_KEYS: Record<string, string> = {
+  'precisionnutrition.com': 'pk_live_ae8fe97e62e6f7dd97cb651b5a3ce9ac84482bfcf14f7a3c',
+  'default': 'pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab'
+}
+
 export default function DemoPage() {
   const searchParams = useSearchParams()
   const url = searchParams.get('url')
@@ -148,7 +154,12 @@ export default function DemoPage() {
             }
           `}</style>
           <div className="demo-widget-container">
-            <VoiceWidget pageUrl={actualPageUrl || validatedUrl} embedded={true} isDemo={true} apiKey="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab" />
+            <VoiceWidget
+              pageUrl={actualPageUrl || validatedUrl}
+              embedded={true}
+              isDemo={true}
+              apiKey={API_KEYS[domainName] || API_KEYS['default']}
+            />
           </div>
         </div>
       </div>

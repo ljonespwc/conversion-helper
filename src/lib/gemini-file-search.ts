@@ -175,6 +175,22 @@ export async function queryPageContent(
 }
 
 /**
+ * Normalize URL for consistent matching (add trailing slash for root URLs)
+ */
+function normalizePageUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    // Add trailing slash if it's a root URL (no path or just "/")
+    if (!parsed.pathname || parsed.pathname === '/') {
+      return url.endsWith('/') ? url : url + '/';
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+/**
  * Get widget page configuration
  */
 export async function getWidgetPage(pageUrl: string): Promise<{
@@ -185,10 +201,13 @@ export async function getWidgetPage(pageUrl: string): Promise<{
   organization_name: string;
 } | null> {
   try {
+    // Normalize URL for consistent matching
+    const normalizedUrl = normalizePageUrl(pageUrl);
+
     const { data, error } = await supabase
       .from('widget_pages')
       .select('organization_id, page_title, page_url, page_goal, organizations(name)')
-      .eq('page_url', pageUrl)
+      .eq('page_url', normalizedUrl)
       .single();
 
     if (error && error.code !== 'PGRST116') {
