@@ -66,10 +66,10 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
         {/* Text Content */}
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
           <span className="text-sm font-semibold text-white leading-tight">
-            Don't feel like reading? Just ask!
+            Got questions? Just ask
           </span>
           <span className="text-xs text-blue-100 leading-tight">
-            🎤 Voice answers • Instant help
+            🎤 Instant voice answers
           </span>
         </div>
       </div>
