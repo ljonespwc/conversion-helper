@@ -21,7 +21,9 @@ const ALLOWED_PROXY_DOMAINS = [
   'demandcurve.com',
   'www.demandcurve.com',
   'stripe.com',
-  'www.stripe.com'
+  'www.stripe.com',
+  'pilot.com',
+  'www.pilot.com'
 ]
 
 export async function GET(request: NextRequest) {

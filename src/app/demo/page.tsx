@@ -16,7 +16,8 @@ export const dynamic = 'force-dynamic'
 // Whitelist of allowed domains for demo
 const ALLOWED_DOMAINS = [
   'precisionnutrition.com',
-  'layercode.com'
+  'layercode.com',
+  'pilot.com'
 ]
 
 export default function DemoPage() {
