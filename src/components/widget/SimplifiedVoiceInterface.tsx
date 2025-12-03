@@ -829,7 +829,7 @@ function VoiceSession({
             >
               <button
                 onClick={handleRecovery}
-                className="text-xs text-gray-500 hover:text-blue-400 underline"
+                className="text-xs text-orange-400 hover:text-orange-300 underline"
               >
                 Didn't hear me? Tap to retry
               </button>
