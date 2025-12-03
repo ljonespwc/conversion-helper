@@ -39,7 +39,8 @@
     'border:none',
     'background:transparent',
     'z-index:' + Z_INDEX,
-    'transition:all .3s ease'
+    'transition:all .3s ease',
+    'display:none'  // Start hidden, show via easyask:show message
   ].join(';');
 
   // Handle messages from widget
