@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
+import { generatePublishableKey } from '@/lib/api-keys'
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
@@ -44,12 +45,14 @@ export async function completeOnboarding(formData: FormData) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Step 1: Create organization
+  // Step 1: Create organization with publishable API key
   const { data: orgData, error: orgError } = await supabaseAdmin
     .from('organizations')
     .insert({
       name: organizationName,
       website_url: websiteUrl,
+      publishable_key: generatePublishableKey(),
+      publishable_key_created_at: new Date().toISOString(),
     })
     .select()
     .single()
