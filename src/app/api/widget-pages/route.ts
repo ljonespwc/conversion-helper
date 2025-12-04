@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isValidKeyFormat } from '@/lib/api-keys'
+import { unstable_noStore as noStore } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,9 @@ const NO_CACHE_HEADERS = {
 // Public endpoint - requires valid API key
 // Used by the widget button to fetch page title
 export async function GET(request: NextRequest) {
+  // Disable Vercel Data Cache - must read fresh from DB every time
+  noStore()
+
   try {
     const { searchParams } = new URL(request.url)
     const pageUrl = searchParams.get('url')
