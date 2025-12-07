@@ -24,7 +24,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
       style={{
         width: 'auto',
         minWidth: '180px',
-        maxWidth: '340px',
+        maxWidth: '420px',
         borderRadius: '30px',
       }}
     >
@@ -66,10 +66,10 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
         {/* Text Content */}
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
           <span className="text-sm font-semibold text-white leading-tight">
-            Got questions? Just ask
+            Got questions about the certification? Just ask me!
           </span>
           <span className="text-xs text-blue-100 leading-tight">
-            🎤 Instant voice answers
+            🎤 Try PN's new AI voice assistant ✨
           </span>
         </div>
       </div>
