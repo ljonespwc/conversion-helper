@@ -24,7 +24,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
       style={{
         width: 'auto',
         minWidth: '180px',
-        maxWidth: '420px',
+        maxWidth: '440px',
         borderRadius: '30px',
       }}
     >
@@ -68,7 +68,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
           <span className="text-sm font-semibold text-white leading-tight">
             Got questions about the program? Just ask!
           </span>
-          <span className="text-xs text-blue-100 leading-tight">
+          <span className="text-xs text-blue-100 leading-tight text-center w-full">
             🎤 Try PN's new AI voice assistant ✨
           </span>
         </div>
