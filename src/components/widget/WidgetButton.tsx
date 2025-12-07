@@ -8,9 +8,15 @@ interface WidgetButtonProps {
   pageUrl?: string
   pageTitle?: string
   position?: 'bottom-left' | 'bottom-right'
+  line1?: string
+  line2?: string
 }
 
-export default function WidgetButton({ onClick, position = 'bottom-right' }: WidgetButtonProps) {
+// Default fallback copy
+const DEFAULT_LINE1 = "Got questions? Just ask!"
+const DEFAULT_LINE2 = "🎤 Instant voice answers"
+
+export default function WidgetButton({ onClick, position = 'bottom-right', line1, line2 }: WidgetButtonProps) {
   const isLeft = position === 'bottom-left'
   return (
     <motion.button
@@ -66,10 +72,10 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
         {/* Text Content */}
         <div className="flex flex-col items-center overflow-hidden whitespace-nowrap gap-1">
           <span className="text-sm font-semibold text-white leading-tight text-center">
-            Got questions about the program? Just ask!
+            {line1 || DEFAULT_LINE1}
           </span>
           <span className="text-xs text-blue-100 leading-tight text-center">
-            🎤 Try PN's new AI voice assistant ✨
+            {line2 || DEFAULT_LINE2}
           </span>
         </div>
       </div>

@@ -24,6 +24,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
   const [isActive, setIsActive] = useState<boolean | null>(null)
   const [showBranding, setShowBranding] = useState<boolean>(true)
+  const [widgetLine1, setWidgetLine1] = useState<string | undefined>(undefined)
+  const [widgetLine2, setWidgetLine2] = useState<string | undefined>(undefined)
 
   const isModalOpen = embedded ? internalOpen : isOpen
   const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
@@ -35,6 +37,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
       setIsActive(null)
       setPageTitle(undefined)
       setOrganizationName(undefined)
+      setWidgetLine1(undefined)
+      setWidgetLine2(undefined)
 
       // Try to fetch page info from widget pages API (with cache-busting)
       // Include API key for authorization
@@ -55,6 +59,9 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           setIsActive(pageIsActive)
           // Set branding visibility from organization setting
           setShowBranding(data?.page?.show_branding ?? true)
+          // Set widget button copy from organization settings
+          setWidgetLine1(data?.page?.widget_line1)
+          setWidgetLine2(data?.page?.widget_line2)
           // Notify parent iframe to show/hide widget
           if (window.parent !== window) {
             window.parent.postMessage({ type: pageIsActive ? 'easyask:show' : 'easyask:hide' }, '*')
@@ -99,6 +106,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           pageUrl={pageUrl}
           pageTitle={pageTitle}
           position={position}
+          line1={widgetLine1}
+          line2={widgetLine2}
         />
       )}
 
