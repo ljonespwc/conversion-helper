@@ -25,6 +25,7 @@ export default function TestPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [organizationName, setOrganizationName] = useState<string>('')
+  const [publishableKey, setPublishableKey] = useState<string>('')
 
   useEffect(() => {
     checkUser()
@@ -46,6 +47,9 @@ export default function TestPage() {
       const data = await response.json()
       if (data.organization?.name) {
         setOrganizationName(data.organization.name)
+      }
+      if (data.organization?.publishable_key) {
+        setPublishableKey(data.organization.publishable_key)
       }
     } catch (error) {
       console.error('Error fetching organization:', error)
@@ -168,6 +172,7 @@ export default function TestPage() {
           key={selectedPage?.page_url || 'no-page'}
           embedded={true}
           pageUrl={selectedPage?.page_url}
+          apiKey={publishableKey}
         />
       </div>
     </div>
