@@ -64,7 +64,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
         </div>
 
         {/* Text Content */}
-        <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
+        <div className="flex flex-col items-start overflow-hidden whitespace-nowrap gap-1">
           <span className="text-sm font-semibold text-white leading-tight">
             Got questions about the program? Just ask!
           </span>
