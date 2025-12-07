@@ -24,7 +24,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
       style={{
         width: 'auto',
         minWidth: '180px',
-        maxWidth: '440px',
+        maxWidth: '460px',
         borderRadius: '30px',
       }}
     >
