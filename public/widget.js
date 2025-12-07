@@ -22,7 +22,7 @@
   } catch (e) {}
 
   // Sizes: pill collapsed, full viewport when expanded
-  var PILL = { w: 360, h: 100 };
+  var PILL = { w: 480, h: 100 };
 
   // Create iframe
   var iframe = document.createElement('iframe');
