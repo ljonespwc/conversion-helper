@@ -66,7 +66,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
         {/* Text Content */}
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
           <span className="text-sm font-semibold text-white leading-tight">
-            Got questions about the certification? Just ask me!
+            Got questions about the program? Just ask!
           </span>
           <span className="text-xs text-blue-100 leading-tight">
             🎤 Try PN's new AI voice assistant ✨
