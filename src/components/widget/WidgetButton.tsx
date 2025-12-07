@@ -64,11 +64,11 @@ export default function WidgetButton({ onClick, position = 'bottom-right' }: Wid
         </div>
 
         {/* Text Content */}
-        <div className="flex flex-col items-start overflow-hidden whitespace-nowrap gap-1">
-          <span className="text-sm font-semibold text-white leading-tight">
+        <div className="flex flex-col items-center overflow-hidden whitespace-nowrap gap-1">
+          <span className="text-sm font-semibold text-white leading-tight text-center">
             Got questions about the program? Just ask!
           </span>
-          <span className="text-xs text-blue-100 leading-tight text-center w-full">
+          <span className="text-xs text-blue-100 leading-tight text-center">
             🎤 Try PN's new AI voice assistant ✨
           </span>
         </div>
