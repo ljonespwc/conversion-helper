@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const pageUrl = searchParams.get('page_url')
     const sort = searchParams.get('sort') || 'newest' // 'newest', 'oldest', 'most_flagged'
 
-    // Build query - filter by organization
+    // Build query - filter by organization, exclude archived
     let query = supabaseAdmin
       .from('conversation_sessions')
       .select(`
@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
       `)
       .not('user_email', 'is', null) // Only escalated sessions
       .eq('organization_id', userData.organization_id) // Filter by organization
+      .is('archived_at', null) // Exclude archived conversations
 
     // Apply status filter
     if (status === 'unresolved') {
@@ -88,11 +89,13 @@ export async function GET(request: NextRequest) {
 
     // Get all unique page URLs for this organization (for filter dropdown)
     // Do this BEFORE early return so dropdown always has options
+    // Only include non-archived escalations
     const { data: allPages } = await supabaseAdmin
       .from('conversation_sessions')
       .select('page_url')
       .not('user_email', 'is', null)
       .eq('organization_id', userData.organization_id)
+      .is('archived_at', null)
       .not('page_url', 'is', null)
 
     const availablePages = Array.from(new Set(allPages?.map(p => p.page_url).filter(Boolean) || []))

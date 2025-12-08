@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star, Archive } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -59,6 +59,9 @@ export default function AdminDashboard() {
   const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
   const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set())
+  const [isArchiving, setIsArchiving] = useState(false)
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -147,6 +150,55 @@ export default function AdminDashboard() {
       }
       return newSet
     })
+  }
+
+  const toggleSessionSelection = (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Don't expand/collapse on checkbox click
+    setSelectedSessions(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(sessionId)) {
+        newSet.delete(sessionId)
+      } else {
+        newSet.add(sessionId)
+      }
+      return newSet
+    })
+  }
+
+  const handleArchive = async () => {
+    if (selectedSessions.size === 0) return
+
+    setIsArchiving(true)
+    try {
+      const response = await fetch('/api/admin/conversations/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_ids: Array.from(selectedSessions) })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to archive conversations')
+      }
+
+      const result = await response.json()
+      console.log(`Archived ${result.archived} conversations, auto-resolved ${result.autoResolved} escalations`)
+
+      // Track archive action
+      posthog?.capture('conversations_archived', {
+        count: result.archived,
+        auto_resolved: result.autoResolved
+      })
+
+      // Clear selection and refresh
+      setSelectedSessions(new Set())
+      setShowArchiveConfirm(false)
+      fetchStats()
+    } catch (error) {
+      console.error('Error archiving conversations:', error)
+      alert('Failed to archive conversations. Please try again.')
+    } finally {
+      setIsArchiving(false)
+    }
   }
 
   return (
@@ -269,8 +321,17 @@ export default function AdminDashboard() {
 
         {/* Recent Conversations */}
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-700 bg-gray-900">
+          <div className="px-6 py-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">Recent Conversations</h2>
+            {selectedSessions.size > 0 && (
+              <button
+                onClick={() => setShowArchiveConfirm(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                <Archive className="w-4 h-4" />
+                Archive Selected ({selectedSessions.size})
+              </button>
+            )}
           </div>
 
           {loading ? (
@@ -366,6 +427,14 @@ export default function AdminDashboard() {
                       onClick={() => toggleSession(session.id)}
                     >
                       <div className="flex items-center space-x-3">
+                        {/* Selection checkbox */}
+                        <input
+                          type="checkbox"
+                          checked={selectedSessions.has(session.session_id)}
+                          onClick={(e) => toggleSessionSelection(session.session_id, e)}
+                          onChange={() => {}} // Controlled by onClick
+                          className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800 cursor-pointer"
+                        />
                         <button className="text-gray-500 hover:text-gray-300">
                           {isExpanded ? (
                             <ChevronDown className="w-5 h-5" />
@@ -474,6 +543,47 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Archive Confirmation Modal */}
+      {showArchiveConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-700">
+            <h3 className="text-lg font-bold text-white mb-2">Archive Conversations</h3>
+            <p className="text-gray-300 mb-4">
+              Archive {selectedSessions.size} conversation{selectedSessions.size !== 1 ? 's' : ''}?
+            </p>
+            <p className="text-sm text-gray-400 mb-6">
+              This will hide them from the dashboard. Any unresolved escalations will be automatically marked as resolved.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowArchiveConfirm(false)}
+                disabled={isArchiving}
+                className="px-4 py-2 text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleArchive}
+                disabled={isArchiving}
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isArchiving ? (
+                  <>
+                    <span className="animate-spin">⏳</span>
+                    Archiving...
+                  </>
+                ) : (
+                  <>
+                    <Archive className="w-4 h-4" />
+                    Archive
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
