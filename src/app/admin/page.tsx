@@ -394,8 +394,14 @@ export default function AdminDashboard() {
                             {hasRating && (
                               <>
                                 {' • '}
-                                <span className="text-orange-400" title={`User rating: ${session.user_rating}/5`}>
-                                  {'★'.repeat(session.user_rating || 0)}{'☆'.repeat(5 - (session.user_rating || 0))}
+                                <span className="inline-flex text-orange-400" title={`User rating: ${session.user_rating}/5`}>
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className="w-3 h-3"
+                                      fill={i < (session.user_rating || 0) ? 'currentColor' : 'none'}
+                                    />
+                                  ))}
                                 </span>
                               </>
                             )}
