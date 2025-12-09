@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useLayercodeVoice } from '@/hooks/useSimpleLayercodeVoice'
 import { usePostHog } from 'posthog-js/react'
+import { EXPERIMENTAL_SETTINGS } from '@/lib/experimental'
 
 // URL extraction types (inline)
 type ExtractedLink = {
@@ -33,6 +34,7 @@ interface SimplifiedVoiceInterfaceProps {
   timezone?: string
   isDemo?: boolean
   apiKey?: string
+  isExperimental?: boolean
 }
 
 // Inner component that contains the Layercode hook - only rendered after user tap
@@ -43,7 +45,8 @@ function VoiceSession({
   effectivePageUrl,
   timezone,
   isDemo,
-  apiKey
+  apiKey,
+  isExperimental
 }: {
   onClose: () => void
   pageUrl?: string
@@ -52,6 +55,7 @@ function VoiceSession({
   timezone?: string
   isDemo?: boolean
   apiKey?: string
+  isExperimental?: boolean
 }) {
   const posthog = usePostHog()
   const [hasStarted, setHasStarted] = useState(false)
@@ -770,13 +774,14 @@ function VoiceSession({
                   <div
                     id="response-content"
                     onScroll={handleScroll}
-                    className="relative bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl p-4 max-h-[200px] overflow-y-auto"
+                    className="relative bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl p-4 overflow-y-auto"
+                    style={{ maxHeight: isExperimental ? EXPERIMENTAL_SETTINGS.responseArea.maxHeight : '200px' }}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
                         <Sparkles className="w-4 h-4 text-blue-400" />
                       </div>
-                      <div className="flex-1 min-w-0 text-white text-sm leading-relaxed">
+                      <div className={`flex-1 min-w-0 text-white leading-relaxed ${isExperimental ? EXPERIMENTAL_SETTINGS.responseArea.textSize : 'text-sm'}`}>
                         <ReactMarkdown
                           components={{
                             // Custom styling for markdown elements
@@ -1222,7 +1227,7 @@ function VoiceSession({
 }
 
 // Main exported component - renders VoiceSession immediately when modal opens
-export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true, timezone, isDemo = false, apiKey }: SimplifiedVoiceInterfaceProps) {
+export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: SimplifiedVoiceInterfaceProps) {
   // Use provided pageUrl or capture from window if not provided
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
@@ -1236,6 +1241,7 @@ export default function SimplifiedVoiceInterface({ onClose, pageUrl, showBrandin
       timezone={timezone}
       isDemo={isDemo}
       apiKey={apiKey}
+      isExperimental={isExperimental}
     />
   )
 }

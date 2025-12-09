@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isValidKeyFormat } from '@/lib/api-keys'
+import { isExperimentalPage } from '@/lib/experimental'
 import { unstable_noStore as noStore } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
@@ -81,7 +82,8 @@ export async function GET(request: NextRequest) {
       is_active: page.is_active,
       show_branding: org.show_branding ?? true,
       widget_line1: org.widget_line1,
-      widget_line2: org.widget_line2
+      widget_line2: org.widget_line2,
+      is_experimental: isExperimentalPage(page.page_url)
     }
 
     return NextResponse.json({ page: response }, { headers: NO_CACHE_HEADERS })

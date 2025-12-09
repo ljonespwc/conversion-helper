@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-12-02
+**Last Updated**: 2025-12-09
 **Current Phase**: Production Ready - Multi-User Organizations + Security + Analytics
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -417,6 +417,38 @@ Added API key authorization to prevent unauthorized widget usage. Previously, an
 ```
 
 **When to share**: If customer reports widget.js loads but widget doesn't appear, check if they're using GTM.
+
+---
+
+## ✅ Experimental Widget Mode (2025-12-09)
+
+Page-specific experimental features for testing widget changes without affecting other pages.
+
+### What It Does
+- **Larger widget**: `max-w-xl` (vs `max-w-md`), `min-w-[500px]` (vs `400px`)
+- **Taller response area**: `350px` max-height (vs `200px`), `text-base` (vs `text-sm`)
+- **Detailed AI responses**: `maxOutputTokens: 2500` (vs `1500`), `temperature: 0.4` (vs `0.3`)
+- **Voice summary only**: TTS speaks "Here's some information I found for you" while full response displays as text
+
+### Active Experimental Pages
+- `https://www.precisionnutrition.com/become-a-nutrition-coach`
+
+### Files
+- `src/lib/experimental.ts` - Config file with page URLs and settings
+- `src/app/api/widget-pages/route.ts` - Returns `is_experimental` flag
+- `src/components/widget/VoiceWidget.tsx` - Threads flag to child components
+- `src/components/widget/WidgetModal.tsx` - Conditional modal sizing
+- `src/components/widget/SimplifiedVoiceInterface.tsx` - Conditional response area
+- `src/lib/gemini-file-search.ts` - Experimental AI settings
+- `src/app/api/layercode/webhook/route.ts` - Experimental prompt + voice summary
+
+### To Add a Page
+Edit `src/lib/experimental.ts` and add URL to `EXPERIMENTAL_PAGES` array.
+
+### To Remove Experiment
+1. Delete `src/lib/experimental.ts`
+2. Run `grep -r "isExperimental\|EXPERIMENTAL" src/` to find all usages
+3. Remove conditional logic, keep non-experimental defaults
 
 ---
 

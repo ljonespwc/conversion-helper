@@ -26,6 +26,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [showBranding, setShowBranding] = useState<boolean>(true)
   const [widgetLine1, setWidgetLine1] = useState<string | undefined>(undefined)
   const [widgetLine2, setWidgetLine2] = useState<string | undefined>(undefined)
+  const [isExperimental, setIsExperimental] = useState<boolean>(false)
 
   const isModalOpen = embedded ? internalOpen : isOpen
   const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
@@ -39,6 +40,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
       setOrganizationName(undefined)
       setWidgetLine1(undefined)
       setWidgetLine2(undefined)
+      setIsExperimental(false)
 
       // Try to fetch page info from widget pages API (with cache-busting)
       // Include API key for authorization
@@ -62,6 +64,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           // Set widget button copy from organization settings
           setWidgetLine1(data?.page?.widget_line1)
           setWidgetLine2(data?.page?.widget_line2)
+          // Set experimental mode flag
+          setIsExperimental(data?.page?.is_experimental ?? false)
           // Notify parent iframe to show/hide widget
           if (window.parent !== window) {
             window.parent.postMessage({ type: pageIsActive ? 'easyask:show' : 'easyask:hide' }, '*')
@@ -121,6 +125,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             timezone={timezone}
             isDemo={isDemo}
             apiKey={apiKey}
+            isExperimental={isExperimental}
           />
         )}
       </AnimatePresence>

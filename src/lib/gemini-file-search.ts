@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
+import { EXPERIMENTAL_SETTINGS } from './experimental';
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
@@ -50,7 +51,8 @@ export async function queryPageContent(
   question: string,
   pageUrl: string,
   conversationHistory?: Array<{ role: string; content: string }>,
-  systemPrompt?: string
+  systemPrompt?: string,
+  isExperimental?: boolean
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
     // Normalize page URL to ensure trailing slash for consistent matching
@@ -106,12 +108,16 @@ export async function queryPageContent(
     // Extract system prompt from conversation history or use provided one
     const systemInstruction = systemPrompt || conversationHistory?.find(m => m.role === 'system')?.content
 
+    // Use experimental AI settings if enabled
+    const temperature = isExperimental ? EXPERIMENTAL_SETTINGS.ai.temperature : 0.3
+    const maxOutputTokens = isExperimental ? EXPERIMENTAL_SETTINGS.ai.maxOutputTokens : 1500
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents,
       config: {
-        temperature: 0.3,
-        maxOutputTokens: 1500,
+        temperature,
+        maxOutputTokens,
         ...(systemInstruction && { systemInstruction }),
         tools: [
           {

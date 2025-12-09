@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X, Wifi, WifiOff } from 'lucide-react'
 import SimplifiedVoiceInterface from './SimplifiedVoiceInterface'
+import { EXPERIMENTAL_SETTINGS } from '@/lib/experimental'
 
 interface WidgetModalProps {
   onClose: () => void
@@ -13,9 +14,10 @@ interface WidgetModalProps {
   timezone?: string
   isDemo?: boolean
   apiKey?: string
+  isExperimental?: boolean
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: WidgetModalProps) {
   const [isConnected, setIsConnected] = useState(false)
 
   // Listen for connection status updates
@@ -50,7 +52,11 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full max-w-md min-w-[400px] overflow-hidden"
+        className={`relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full overflow-hidden ${
+          isExperimental
+            ? `${EXPERIMENTAL_SETTINGS.modal.maxWidth} ${EXPERIMENTAL_SETTINGS.modal.minWidth}`
+            : 'max-w-md min-w-[400px]'
+        }`}
         style={{ pointerEvents: 'auto' }} // Modal card itself remains interactive
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -80,7 +86,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
           </button>
         </div>
 
-        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} />
+        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} />
       </motion.div>
     </motion.div>
   )

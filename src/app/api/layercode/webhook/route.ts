@@ -5,6 +5,7 @@ import { getAIProvider, type AIMessage } from '@/lib/ai-provider'
 import { createClient } from '@supabase/supabase-js'
 import { rateLimits, getClientIP } from '@/lib/ratelimit'
 import { verifyLayercodeWebhook } from '@/lib/webhook-verification'
+import { isExperimentalPage } from '@/lib/experimental'
 
 export const dynamic = 'force-dynamic'
 
@@ -288,7 +289,9 @@ export async function POST(request: Request) {
     return streamResponse(requestBody, async ({ stream }) => {
       try {
         if (type === 'session.start') {
-          console.log('🎬 Session start - pageUrl:', pageUrl, 'Will use File Search:', !!pageUrl)
+          // Check if this is an experimental page
+          const isExperimental = isExperimentalPage(pageUrl)
+          console.log('🎬 Session start - pageUrl:', pageUrl, 'Will use File Search:', !!pageUrl, 'experimental:', isExperimental)
 
           // Get time-based greeting once for this session
           const greeting = getTimeGreeting(timezone)
@@ -303,7 +306,8 @@ export async function POST(request: Request) {
               const widgetPage = await getWidgetPage(pageUrl)
 
               if (widgetPage) {
-                systemPrompt = `You are a helpful expert on ${widgetPage.page_title || 'this page'}. When visitors ask questions, they're genuinely interested and looking for your help—give them clear, useful answers.
+                // Base system prompt
+                const basePrompt = `You are a helpful expert on ${widgetPage.page_title || 'this page'}. When visitors ask questions, they're genuinely interested and looking for your help—give them clear, useful answers.
 
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
@@ -312,11 +316,25 @@ CRITICAL RULES:
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
 5. NEVER mention sources, citations, or references - just provide the information naturally
 
-If you can't find the answer in the stored content, say so naturally.
+If you can't find the answer in the stored content, say so naturally.`
+
+                // Experimental mode: request more detailed responses (text-only display)
+                // Normal mode: concise for TTS
+                if (isExperimental) {
+                  systemPrompt = `${basePrompt}
+
+OUTPUT STYLE: Your response will be displayed as TEXT on screen (not spoken aloud). Provide thorough, detailed answers:
+- Include specific details, numbers, and examples from the content
+- Use paragraph breaks for readability
+- Don't worry about response length - be comprehensive
+- Answer based ONLY on stored content. Be helpful and ${getGoalInstruction(widgetPage.page_goal)}.`
+                } else {
+                  systemPrompt = `${basePrompt}
 
 Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.
 
 CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or certification names, rewrite them conversationally. Instead of listing abbreviations (like CPTN, ISSA, NASM), refer to them generically (e.g., "various certifying organizations"). If you must mention credentials, use full names. Never output lists of abbreviations.`
+                }
                 // Use "the EasyAsk Demo" for demo mode, otherwise use organization name
                 const displayName = isDemo ? 'the EasyAsk Demo' : widgetPage.organization_name
                 welcomeMsg = displayName
@@ -554,7 +572,9 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
           console.log('🔀 Routing decision - pageUrl:', pageUrl, 'usePage:', usePageSearch)
 
           if (usePageSearch) {
-            console.log('🔍 Using Page File Search for page:', pageUrl)
+            // Check if this is an experimental page
+            const isExperimental = isExperimentalPage(pageUrl)
+            console.log('🔍 Using Page File Search for page:', pageUrl, 'experimental:', isExperimental)
 
             try {
               // Get system prompt from conversation history
@@ -566,15 +586,24 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
                 text,
                 pageUrl,
                 conversationMessages[conversationKey],
-                systemPrompt
+                systemPrompt,
+                isExperimental
               )
               finalResponse = answer
               matched = true
 
               console.log('✅ Page File Search answered:', answer.substring(0, 100))
 
-              // Send the response via TTS
-              stream.tts(finalResponse)
+              // For experimental mode: speak brief summary, display full text
+              // For normal mode: speak full response
+              if (isExperimental) {
+                // Brief voice summary - let the user know info is displayed
+                const voiceSummary = "Here's some information I found for you. Take a look at the details on screen."
+                stream.tts(voiceSummary)
+              } else {
+                // Normal mode: speak the full response
+                stream.tts(finalResponse)
+              }
 
               stream.data({
                 type: 'page_search_match',
