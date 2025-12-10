@@ -848,7 +848,7 @@ function VoiceSession({
 
         {/* Conversation History - experimental mode only */}
         {isExperimental && conversationHistory.length > 0 && (
-          <div className="w-full max-w-md px-4 mt-4">
+          <div className={`w-full ${isExperimental ? 'max-w-2xl' : 'max-w-md'} px-4 mt-4`}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -984,8 +984,8 @@ function VoiceSession({
           </div>
         )}
 
-        {/* Email Escalation - Appears after first AI response */}
-        {conversationHistory.length > 0 && (
+        {/* Email Escalation - Appears after first AI response (hidden in experimental mode) */}
+        {!isExperimental && conversationHistory.length > 0 && (
           <div className="w-full max-w-md px-4 mt-3">
             <motion.div
               initial={{ opacity: 0 }}
