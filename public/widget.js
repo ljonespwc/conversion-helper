@@ -29,7 +29,7 @@
   iframe.id = 'easyask-widget';
   iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey);
   iframe.title = 'EasyAsk Assistant';
-  iframe.allow = 'microphone *; autoplay *';
+  iframe.allow = 'microphone *; autoplay *; clipboard-write *';
   iframe.style.cssText = [
     'position:fixed',
     'bottom:0',

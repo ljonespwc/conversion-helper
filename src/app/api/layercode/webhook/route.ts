@@ -640,7 +640,7 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
               // Short responses (greetings, thanks, simple answers) speak directly
               // For normal mode: speak full response
               if (isExperimental) {
-                const SHORT_RESPONSE_THRESHOLD = 150 // characters
+                const SHORT_RESPONSE_THRESHOLD = 250 // characters
 
                 if (finalResponse.length <= SHORT_RESPONSE_THRESHOLD) {
                   // Short response - speak it directly
