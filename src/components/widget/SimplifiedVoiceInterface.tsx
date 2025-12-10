@@ -846,8 +846,8 @@ function VoiceSession({
           )}
         </div>
 
-        {/* Conversation History - COMMENTED OUT */}
-        {false && conversationHistory.length > 0 && (
+        {/* Conversation History - experimental mode only */}
+        {isExperimental && conversationHistory.length > 0 && (
           <div className="w-full max-w-md px-4 mt-4">
             <motion.div
               initial={{ opacity: 0 }}
