@@ -636,13 +636,21 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
 
               console.log('✅ Page File Search answered:', answer.substring(0, 100))
 
-              // For experimental mode: speak brief LLM-generated summary, display full text
+              // For experimental mode: speak brief summary only for long responses
+              // Short responses (greetings, thanks, simple answers) speak directly
               // For normal mode: speak full response
               if (isExperimental) {
-                // Generate contextual voice summary using fast Gemini model
-                const voiceSummary = await generateVoiceSummary(text, finalResponse)
-                console.log('🎤 Voice summary:', voiceSummary)
-                stream.tts(voiceSummary)
+                const SHORT_RESPONSE_THRESHOLD = 150 // characters
+
+                if (finalResponse.length <= SHORT_RESPONSE_THRESHOLD) {
+                  // Short response - speak it directly
+                  stream.tts(finalResponse)
+                } else {
+                  // Long response - generate contextual voice summary
+                  const voiceSummary = await generateVoiceSummary(text, finalResponse)
+                  console.log('🎤 Voice summary:', voiceSummary)
+                  stream.tts(voiceSummary)
+                }
               } else {
                 // Normal mode: speak the full response
                 stream.tts(finalResponse)
