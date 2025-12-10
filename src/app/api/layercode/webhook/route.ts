@@ -6,6 +6,10 @@ import { createClient } from '@supabase/supabase-js'
 import { rateLimits, getClientIP } from '@/lib/ratelimit'
 import { verifyLayercodeWebhook } from '@/lib/webhook-verification'
 import { isExperimentalPage } from '@/lib/experimental'
+import { GoogleGenAI } from '@google/genai'
+
+// Gemini client for voice summary generation
+const geminiAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
 
 export const dynamic = 'force-dynamic'
 
@@ -53,6 +57,45 @@ CLOSING BEHAVIOR:
       return 'patient and thorough. Focus on solving their problem with no sales pressure'
     default:
       return 'encouraging' // Current behavior for pages without a goal
+  }
+}
+
+// Generate brief voice summary for experimental mode
+// Uses fast Gemini model to create a 1-2 sentence spoken intro
+async function generateVoiceSummary(question: string, fullAnswer: string): Promise<string> {
+  try {
+    const response = await geminiAI.models.generateContent({
+      model: 'gemini-2.0-flash-lite',
+      contents: [{
+        role: 'user',
+        parts: [{ text: `The user asked: "${question}"
+
+Here is the detailed answer (which will be displayed as text):
+${fullAnswer.substring(0, 500)}${fullAnswer.length > 500 ? '...' : ''}
+
+Generate a brief 1-2 sentence spoken intro that:
+1. Acknowledges their question naturally
+2. Hints at what the answer covers
+3. Directs them to read the details on screen
+
+Keep it conversational and under 20 words. Don't repeat the full answer - just tease it.
+Example: "Great question about pricing! I found the details you need - take a look at the breakdown on screen."` }]
+      }],
+      config: {
+        temperature: 0.7,
+        maxOutputTokens: 100
+      }
+    })
+
+    const summary = response.text?.trim()
+    if (summary && summary.length > 10 && summary.length < 200) {
+      return summary
+    }
+    // Fallback if response is weird
+    return "I found some helpful information for you. Check out the details on screen."
+  } catch (error) {
+    console.error('Voice summary generation error:', error)
+    return "Here's what I found. Take a look at the details on screen."
   }
 }
 
@@ -594,11 +637,12 @@ CRITICAL FOR TTS: When source material contains abbreviations, acronyms, or cert
 
               console.log('✅ Page File Search answered:', answer.substring(0, 100))
 
-              // For experimental mode: speak brief summary, display full text
+              // For experimental mode: speak brief LLM-generated summary, display full text
               // For normal mode: speak full response
               if (isExperimental) {
-                // Brief voice summary - let the user know info is displayed
-                const voiceSummary = "Here's some information I found for you. Take a look at the details on screen."
+                // Generate contextual voice summary using fast Gemini model
+                const voiceSummary = await generateVoiceSummary(text, finalResponse)
+                console.log('🎤 Voice summary:', voiceSummary)
                 stream.tts(voiceSummary)
               } else {
                 // Normal mode: speak the full response

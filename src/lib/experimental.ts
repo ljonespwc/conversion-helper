@@ -29,10 +29,13 @@ export function isExperimentalPage(pageUrl: string | undefined): boolean {
 
 // Experimental mode settings
 export const EXPERIMENTAL_SETTINGS = {
-  // Widget modal dimensions (wider than default)
+  // Widget modal dimensions (wider than default, responsive)
+  // Default is max-w-md (448px) min-w-[400px]
+  // Experimental: up to 800px, scales down on smaller screens
   modal: {
-    maxWidth: 'max-w-xl',
-    minWidth: 'min-w-[500px]',
+    maxWidth: 'max-w-[800px]',
+    // Responsive: 90vw on small screens, 500px minimum on larger screens
+    minWidth: 'sm:min-w-[500px]',
   },
 
   // Response text area (taller than default 200px)

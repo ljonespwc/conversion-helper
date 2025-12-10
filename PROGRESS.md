@@ -425,10 +425,10 @@ Added API key authorization to prevent unauthorized widget usage. Previously, an
 Page-specific experimental features for testing widget changes without affecting other pages.
 
 ### What It Does
-- **Larger widget**: `max-w-xl` (vs `max-w-md`), `min-w-[500px]` (vs `400px`)
+- **Larger widget**: `max-w-[800px]` responsive (vs `max-w-md`), scales down on mobile
 - **Taller response area**: `350px` max-height (vs `200px`), `text-base` (vs `text-sm`)
 - **Detailed AI responses**: `maxOutputTokens: 2500` (vs `1500`), `temperature: 0.4` (vs `0.3`)
-- **Voice summary only**: TTS speaks "Here's some information I found for you" while full response displays as text
+- **Voice summary only**: LLM generates brief contextual intro (via `gemini-2.0-flash-lite`) while full response displays as text
 
 ### Active Experimental Pages
 - `https://www.precisionnutrition.com/become-a-nutrition-coach`
