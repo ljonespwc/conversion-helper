@@ -74,12 +74,11 @@ Here is the detailed answer (which will be displayed as text):
 ${fullAnswer.substring(0, 500)}${fullAnswer.length > 500 ? '...' : ''}
 
 Generate a brief 1-2 sentence spoken intro that:
-1. Acknowledges their question naturally
+1. Acknowledges their question in a natural, concise way
 2. Hints at what the answer covers
-3. Directs them to read the details on screen
+3. Directs them to read the details provided
 
-Keep it conversational and under 20 words. Don't repeat the full answer - just tease it.
-Example: "Great question about pricing! I found the details you need - take a look at the breakdown on screen."` }]
+Keep it conversational and under 25 words. Don't repeat the full answer.` }]
       }],
       config: {
         temperature: 0.7,
