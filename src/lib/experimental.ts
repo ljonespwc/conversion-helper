@@ -10,7 +10,7 @@
 
 // Page URLs that use experimental mode
 export const EXPERIMENTAL_PAGES = [
-  'https://www.precisionnutrition.com/become-a-nutrition-coach',
+  'https://www.precisionnutrition.com/nutrition-certification-pharmacist',
 ]
 
 /**
