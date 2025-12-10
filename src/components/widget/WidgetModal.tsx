@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X, Wifi, WifiOff } from 'lucide-react'
 import SimplifiedVoiceInterface from './SimplifiedVoiceInterface'
-import { EXPERIMENTAL_SETTINGS } from '@/lib/experimental'
 
 interface WidgetModalProps {
   onClose: () => void
@@ -54,7 +53,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         onClick={(e) => e.stopPropagation()}
         className={`relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full overflow-hidden ${
           isExperimental
-            ? `${EXPERIMENTAL_SETTINGS.modal.maxWidth} ${EXPERIMENTAL_SETTINGS.modal.minWidth}`
+            ? 'max-w-[800px] sm:min-w-[500px]'
             : 'max-w-md min-w-[400px]'
         }`}
         style={{ pointerEvents: 'auto' }} // Modal card itself remains interactive
