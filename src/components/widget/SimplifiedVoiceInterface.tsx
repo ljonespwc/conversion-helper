@@ -758,7 +758,7 @@ function VoiceSession({
         </div>
 
         {/* AI Response Text Display */}
-        <div className="w-full max-w-md px-4">
+        <div className={`w-full px-4 ${isExperimental ? 'max-w-2xl' : 'max-w-md'}`}>
           <AnimatePresence>
             {currentResponse && (
               <motion.div
