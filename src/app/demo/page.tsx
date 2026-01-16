@@ -130,7 +130,7 @@ export default function DemoPage() {
         <div className="pointer-events-auto">
           <style jsx global>{`
             /* Override widget button position for demo page only */
-            .demo-widget-container button[aria-label="Open voice assistant"] {
+            .demo-widget-container button[aria-label="Open chat assistant"] {
               right: auto !important;
               left: 1.5rem !important;
             }

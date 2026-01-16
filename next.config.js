@@ -9,10 +9,14 @@ const nextConfig = {
       '@tensorflow/tfjs': false,
     };
 
-    // Ignore TensorFlow.js warnings
+    // Ignore warnings from third-party modules
     config.ignoreWarnings = [
       { module: /node_modules\/@tensorflow/ },
       { message: /CleanupUninitializedAndNodeArgs/ },
+      // Supabase imports realtime modules that reference Node.js APIs,
+      // but these code paths aren't executed in Edge Runtime middleware
+      { module: /node_modules\/@supabase\/realtime-js/ },
+      { module: /node_modules\/@supabase\/supabase-js/ },
     ];
 
     return config;

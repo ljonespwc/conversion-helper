@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Wifi, WifiOff } from 'lucide-react'
-import SimplifiedVoiceInterface from './SimplifiedVoiceInterface'
+import { X } from 'lucide-react'
+import ChatInterface from './ChatInterface'
 
 interface WidgetModalProps {
   onClose: () => void
@@ -17,15 +16,6 @@ interface WidgetModalProps {
 }
 
 export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: WidgetModalProps) {
-  const [isConnected, setIsConnected] = useState(false)
-
-  // Listen for connection status updates
-  useEffect(() => {
-    (window as any).updateConnectionStatus = setIsConnected
-    return () => {
-      delete (window as any).updateConnectionStatus
-    }
-  }, [])
 
   return (
     <motion.div
@@ -59,16 +49,8 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         style={{ pointerEvents: 'auto' }} // Modal card itself remains interactive
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {/* WiFi indicator on the left */}
-          <div className="w-8 flex items-center">
-            <div className="p-1.5 rounded-full border-2 border-gray-300 dark:border-gray-600">
-              {isConnected ? (
-                <Wifi className="w-4 h-4 text-green-500" />
-              ) : (
-                <WifiOff className="w-4 h-4 text-gray-400" />
-              )}
-            </div>
-          </div>
+          {/* Spacer for symmetry */}
+          <div className="w-8" />
 
           {/* Title in center */}
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -85,7 +67,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
           </button>
         </div>
 
-        <SimplifiedVoiceInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} />
+        <ChatInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} />
       </motion.div>
     </motion.div>
   )

@@ -14,24 +14,29 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 10 feedback submissions per IP per hour
     const clientIP = getClientIP(request)
-    const { success, limit, remaining, reset } = await rateLimits.feedback.limit(clientIP)
+    try {
+      const { success, limit, remaining, reset } = await rateLimits.feedback.limit(clientIP)
 
-    if (!success) {
-      const resetDate = new Date(reset)
-      console.warn(`Rate limit exceeded for feedback IP ${clientIP}. Limit: ${limit}, Remaining: ${remaining}, Reset: ${resetDate.toISOString()}`)
+      if (!success) {
+        const resetDate = new Date(reset)
+        console.warn(`Rate limit exceeded for feedback IP ${clientIP}. Limit: ${limit}, Remaining: ${remaining}, Reset: ${resetDate.toISOString()}`)
 
-      return NextResponse.json(
-        { error: 'Too many feedback submissions. Please try again later.' },
-        {
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': remaining.toString(),
-            'X-RateLimit-Reset': reset.toString(),
-            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString()
+        return NextResponse.json(
+          { error: 'Too many feedback submissions. Please try again later.' },
+          {
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': reset.toString(),
+              'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString()
+            }
           }
-        }
-      )
+        )
+      }
+    } catch (rateLimitError) {
+      // If rate limiting fails (Redis issue), allow the request to continue
+      console.error('Rate limiting error (allowing request):', rateLimitError)
     }
 
     const { session_id, rating } = await request.json()

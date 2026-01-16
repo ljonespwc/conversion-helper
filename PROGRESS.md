@@ -1,25 +1,24 @@
 # Development Progress Tracker
 
-**Last Updated**: 2025-12-09
-**Current Phase**: Production Ready - Multi-User Organizations + Security + Analytics
+**Last Updated**: 2026-01-10
+**Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
 ---
 
-## ⚠️ CRITICAL: Streaming Architecture, AI Prompting & Widget UI
+## ⚠️ CRITICAL: AI Prompting & Widget UI
 
-**DO NOT modify streaming architecture, AI prompting, or widget UI without explicit permission. NO EXCEPTIONS.**
+**DO NOT modify AI prompting or widget UI without explicit permission. NO EXCEPTIONS.**
 
 This includes:
-- **LLM streaming** (Gemini responses, model configurations)
-- **Layercode streaming** (WebSocket STT/TTS, voice processing)
+- **LLM configuration** (Gemini responses, model settings, temperature)
 - **File Search queries** (metadata filters, query structure)
 - **System prompts** (instructions passed to Gemini)
 - **Conversation history** (context passing to Gemini)
-- **Any changes to data flow** in the voice query pipeline
-- **Widget UI/UX** (SimplifiedVoiceInterface, VoiceWidget, animations, layouts, user interactions)
+- **Any changes to data flow** in the chat query pipeline
+- **Widget UI/UX** (ChatInterface, WidgetModal, WidgetButton, animations, layouts)
 
-**Reason:** These systems are highly sensitive to latency and reliability. Changes can introduce subtle issues that only appear in production under load.
+**Reason:** These systems are sensitive to user experience. Changes can introduce subtle issues that only appear in production.
 
 ---
 
@@ -28,8 +27,7 @@ This includes:
 ### Core Tech Stack
 - **Framework**: Next.js 14 App Router + TypeScript
 - **Database**: Supabase (Postgres + Storage + Auth)
-- **AI**: Gemini File Search (semantic RAG), Gemini 2.5 Flash (voice responses)
-- **Voice**: Layercode (WebSocket STT/TTS)
+- **AI**: Gemini 2.5 Flash + File Search (semantic RAG)
 - **Scraping**: Jina AI Reader (r.jina.ai) - FREE, fast markdown conversion
 - **Analytics**: PostHog (privacy-first, session replay)
 - **Deployment**: Vercel (https://easyask.io)
@@ -38,7 +36,7 @@ This includes:
 1. **Scraping**: URL → Jina AI Reader → Markdown → Supabase Storage
 2. **Upload**: Local files → Supabase Storage
 3. **Indexing**: Storage → Google File Search (embeddings)
-4. **Voice Query**: User → Layercode STT → Gemini + File Search → Layercode TTS
+4. **Chat Query**: User types question → `/api/chat` → Gemini + File Search → Text response
 
 ### Demo Page Architecture
 **Location**: `/src/app/demo/`
@@ -420,6 +418,47 @@ Added API key authorization to prevent unauthorized widget usage. Previously, an
 
 ---
 
+## ✅ Voice-to-Chat Migration (2026-01-10)
+
+Replaced Layercode voice interface with text-based chat. Simplifies architecture, reduces costs, and improves reliability.
+
+### What Changed
+- **Removed**: Layercode SDK, WebSocket STT/TTS, voice-specific UI
+- **Added**: Text input chat interface with markdown rendering
+- **Simplified**: No more mic permissions, audio processing, or voice timing issues
+
+### Deleted Files
+- `src/app/api/layercode/authorize/route.ts` - Layercode session authorization
+- `src/app/api/layercode/webhook/route.ts` - Voice conversation handler
+- `src/components/widget/SimplifiedVoiceInterface.tsx` - Voice UI with orb animation
+- `src/hooks/useSimpleLayercodeVoice.ts` - Layercode SDK hook
+- `src/lib/conversation-metadata.ts` - Voice session metadata
+- `src/lib/webhook-verification.ts` - Layercode webhook HMAC verification
+
+### New Files
+- `src/app/api/chat/route.ts` - Chat API endpoint (greeting + messages)
+- `src/components/widget/ChatInterface.tsx` - Full chat UI (input, responses, history, rating, escalation)
+- `src/hooks/useChat.ts` - Chat state management hook
+
+### Modified Files
+- `src/components/widget/WidgetButton.tsx` - Now shows chat icon instead of voice orb
+- `src/components/widget/WidgetModal.tsx` - Wraps ChatInterface instead of SimplifiedVoiceInterface
+
+### Architecture
+1. User opens widget → `startSession()` → `/api/chat` (is_greeting: true) → greeting message
+2. User types question → `sendMessage()` → `/api/chat` → Gemini File Search → response
+3. Conversation history stored in-memory on server (keyed by session_id)
+4. Messages tracked to `conversation_sessions` / `conversation_messages` tables
+
+### Benefits
+- No mic permission dialogs
+- No audio latency or iOS audio bugs
+- No Layercode dependency/costs
+- Simpler debugging (text logs vs audio)
+- Works in all browsers consistently
+
+---
+
 ## ✅ Experimental Widget Mode (2025-12-09)
 
 Page-specific experimental features for testing widget changes without affecting other pages.
@@ -428,7 +467,7 @@ Page-specific experimental features for testing widget changes without affecting
 - **Larger widget**: `max-w-[800px]` responsive (vs `max-w-md`), scales down on mobile
 - **Taller response area**: `350px` max-height (vs `200px`), `text-base` (vs `text-sm`)
 - **Detailed AI responses**: `maxOutputTokens: 2500` (vs `1500`), `temperature: 0.4` (vs `0.3`)
-- **Voice summary only**: LLM generates brief contextual intro (via `gemini-2.0-flash-lite`) while full response displays as text
+- **Conversation history**: Expandable history panel in experimental mode only
 
 ### Active Experimental Pages
 - `https://www.precisionnutrition.com/become-a-nutrition-coach`
@@ -438,9 +477,8 @@ Page-specific experimental features for testing widget changes without affecting
 - `src/app/api/widget-pages/route.ts` - Returns `is_experimental` flag
 - `src/components/widget/VoiceWidget.tsx` - Threads flag to child components
 - `src/components/widget/WidgetModal.tsx` - Conditional modal sizing
-- `src/components/widget/SimplifiedVoiceInterface.tsx` - Conditional response area
+- `src/components/widget/ChatInterface.tsx` - Conditional response area + history panel
 - `src/lib/gemini-file-search.ts` - Experimental AI settings
-- `src/app/api/layercode/webhook/route.ts` - Experimental prompt + voice summary
 
 ### To Add a Page
 Edit `src/lib/experimental.ts` and add URL to `EXPERIMENTAL_PAGES` array.
@@ -477,12 +515,12 @@ Edit `src/lib/experimental.ts` and add URL to `EXPERIMENTAL_PAGES` array.
 - `scripts/force-delete-with-sdk.mjs` - Delete documents with force flag
 
 ### Key Files
+- `src/app/api/chat/route.ts` - Chat conversation handler
 - `src/app/api/admin/scrape/route.ts` - Jina AI scraping
 - `src/app/api/admin/upload-to-file-search/route.ts` - Unified upload handler
-- `src/app/api/layercode/webhook/route.ts` - Voice conversation handler
 - `src/lib/gemini-file-search.ts` - File Search queries with conversation history
-- `src/components/widget/SimplifiedVoiceInterface.tsx` - Widget UI
-- `src/lib/conversation-analysis.ts` - AI-powered escalation analysis
+- `src/components/widget/ChatInterface.tsx` - Widget chat UI
+- `src/hooks/useChat.ts` - Chat state management
 
 ### Documentation
 - `MINDSET.md` - Architecture principles (SLC: Simple, Lovable, Complete)

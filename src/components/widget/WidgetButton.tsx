@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { MessageCircle } from 'lucide-react'
 
 interface WidgetButtonProps {
   onClick: () => void
@@ -14,7 +14,7 @@ interface WidgetButtonProps {
 
 // Default fallback copy
 const DEFAULT_LINE1 = "Got questions? Just ask!"
-const DEFAULT_LINE2 = "🎤 Instant voice answers"
+const DEFAULT_LINE2 = "💬 Instant answers"
 
 export default function WidgetButton({ onClick, position = 'bottom-right', line1, line2 }: WidgetButtonProps) {
   const isLeft = position === 'bottom-left'
@@ -26,7 +26,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
       whileHover={{ scale: 1.03 }}
       onClick={onClick}
       className={`group fixed bottom-4 ${isLeft ? 'left-4' : 'right-4'} z-40 shadow-xl h-[60px]`}
-      aria-label="Open voice assistant"
+      aria-label="Open chat assistant"
       style={{
         width: 'auto',
         minWidth: '180px',
@@ -39,13 +39,6 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
         className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600"
         style={{ borderRadius: '30px' }}
       />
-
-      {/* Animated Sound Wave Rings */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="sound-wave-ring sound-wave-ring-1" />
-        <div className="sound-wave-ring sound-wave-ring-2" />
-        <div className="sound-wave-ring sound-wave-ring-3" />
-      </div>
 
       {/* Breathing Pulse Effect */}
       <motion.div
@@ -64,9 +57,9 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
 
       {/* Content Container */}
       <div className="relative flex items-center justify-center h-full px-4 gap-2">
-        {/* Sparkle Icon */}
+        {/* Message Icon */}
         <div className="flex-shrink-0">
-          <Sparkles className="w-6 h-6 text-white" />
+          <MessageCircle className="w-6 h-6 text-white" />
         </div>
 
         {/* Text Content */}
@@ -79,68 +72,6 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
           </span>
         </div>
       </div>
-
-      {/* CSS for Sound Wave Rings */}
-      <style jsx>{`
-        .sound-wave-ring {
-          position: absolute;
-          border: 2px solid rgba(255, 255, 255, 0.4);
-          border-radius: 50%;
-          animation: soundWavePulse 2s ease-out infinite;
-        }
-
-        .sound-wave-ring-1 {
-          width: 60px;
-          height: 60px;
-          animation-delay: 0s;
-        }
-
-        .sound-wave-ring-2 {
-          width: 60px;
-          height: 60px;
-          animation-delay: 0.4s;
-        }
-
-        .sound-wave-ring-3 {
-          width: 60px;
-          height: 60px;
-          animation-delay: 0.8s;
-        }
-
-        .group:hover .sound-wave-ring {
-          animation: soundWavePulseFast 1s ease-out infinite;
-        }
-
-        @keyframes soundWavePulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.6;
-          }
-          50% {
-            transform: scale(1.3);
-            opacity: 0.2;
-          }
-          100% {
-            transform: scale(1.6);
-            opacity: 0;
-          }
-        }
-
-        @keyframes soundWavePulseFast {
-          0% {
-            transform: scale(1);
-            opacity: 0.7;
-          }
-          50% {
-            transform: scale(1.4);
-            opacity: 0.3;
-          }
-          100% {
-            transform: scale(1.8);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </motion.button>
   )
 }

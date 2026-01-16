@@ -1,34 +1,28 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
-// Initialize Redis client from environment variables
-// Required env vars: UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
-const redis = Redis.fromEnv()
+const isDev = process.env.NODE_ENV === 'development'
+
+// Mock rate limiter for development (no network calls)
+const mockRatelimit = {
+  limit: async () => ({
+    success: true,
+    limit: 100,
+    remaining: 99,
+    reset: Date.now() + 3600000,
+    pending: Promise.resolve(),
+  }),
+}
+
+// Initialize Redis client only in production
+const redis = isDev ? null : Redis.fromEnv()
 
 // Rate limit configurations for different endpoint types
 export const rateLimits = {
-  // Layercode session creation - prevent spam session generation
-  // 100 sessions per IP per hour
-  layercodeAuthorize: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(100, '1 h'),
-    analytics: true,
-    prefix: '@easyask/ratelimit/layercode-authorize',
-  }),
-
-  // Layercode webhook - prevent fake webhook spam
-  // 100 requests per IP per hour (covers normal conversation flow)
-  layercodeWebhook: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(100, '1 h'),
-    analytics: true,
-    prefix: '@easyask/ratelimit/layercode-webhook',
-  }),
-
   // Email escalation - prevent email spam
   // 3 escalations per IP per day
-  escalation: new Ratelimit({
-    redis,
+  escalation: isDev ? mockRatelimit : new Ratelimit({
+    redis: redis!,
     limiter: Ratelimit.slidingWindow(3, '1 d'),
     analytics: true,
     prefix: '@easyask/ratelimit/escalation',
@@ -36,18 +30,18 @@ export const rateLimits = {
 
   // Feedback submission - prevent feedback spam
   // 10 submissions per IP per hour
-  feedback: new Ratelimit({
-    redis,
+  feedback: isDev ? mockRatelimit : new Ratelimit({
+    redis: redis!,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     analytics: true,
     prefix: '@easyask/ratelimit/feedback',
   }),
 
-  // Page assistant queries - prevent query spam
-  // 30 requests per IP per hour
-  pageAssistant: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(30, '1 h'),
+  // Chat messages - prevent query spam
+  // 50 requests per IP per hour
+  pageAssistant: isDev ? mockRatelimit : new Ratelimit({
+    redis: redis!,
+    limiter: Ratelimit.slidingWindow(50, '1 h'),
     analytics: true,
     prefix: '@easyask/ratelimit/page-assistant',
   }),
