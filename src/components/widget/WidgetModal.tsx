@@ -54,7 +54,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
 
           {/* Title in center */}
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {isDemo ? 'EasyAsk Demo Assistant' : (organizationName ? `${organizationName} Assistant` : 'Page Assistant')}
+            {isDemo ? 'EasyAsk Demo Assistant' : (organizationName ? `${organizationName} Learning Assistant` : 'Page Assistant')}
           </h2>
 
           {/* Close button on the right */}
