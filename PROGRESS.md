@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-01-10
+**Last Updated**: 2026-01-15
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -456,6 +456,48 @@ Replaced Layercode voice interface with text-based chat. Simplifies architecture
 - No Layercode dependency/costs
 - Simpler debugging (text logs vs audio)
 - Works in all browsers consistently
+
+---
+
+## ✅ Conversation Persistence (2026-01-15)
+
+Users can now close and reopen the widget without losing their conversation. Messages persist per-domain and auto-restore on widget open.
+
+### Features
+- **Auto-restore**: Previous messages load automatically when widget reopens
+- **Per-domain sessions**: One conversation per API key (across all pages on same domain)
+- **"Start new conversation" link**: Appears for restored sessions, lets users begin fresh
+- **Server-side history rebuild**: LLM context restored from DB even after server restart
+
+### Files Added/Modified
+- `src/app/api/conversations/messages/route.ts` (NEW) - Fetch messages for session restoration
+- `src/app/api/chat/route.ts` - Rebuild conversationHistory from DB on restored sessions
+- `src/hooks/useChat.ts` - localStorage session tracking, `startFreshConversation()` function
+- `src/components/widget/ChatInterface.tsx` - "Start new conversation" link UI
+
+### ⚠️ Supabase JS Client Caching Bug
+**Problem**: The Supabase JS client (`@supabase/supabase-js`) caches query results internally, even with `cache: 'no-store'` and `{ count: 'exact' }`. New messages saved to DB weren't returned by subsequent queries.
+
+**Symptoms**: First restore worked, but messages added after restoration weren't visible on next reopen.
+
+**Root cause**: PostgREST query plan caching in the Supabase JS client. Adding `Cache-Control` headers and `.limit()` helped partially but didn't fully resolve it.
+
+**Solution**: Bypass the Supabase JS client entirely for the messages query. Use direct `fetch()` to the REST API:
+
+```typescript
+const messagesUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/conversation_messages?session_id=eq.${sessionId}&order=timestamp.asc&select=role,message,timestamp`
+const response = await fetch(messagesUrl, {
+  headers: {
+    'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+    'Cache-Control': 'no-cache, no-store',
+    'Pragma': 'no-cache'
+  },
+  cache: 'no-store'
+})
+```
+
+**Lesson**: When Supabase JS client returns stale data despite cache headers, use direct REST API calls with `fetch()`.
 
 ---
 
