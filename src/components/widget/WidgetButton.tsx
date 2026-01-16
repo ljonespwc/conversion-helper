@@ -63,11 +63,11 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
         </div>
 
         {/* Text Content */}
-        <div className="flex flex-col items-center overflow-hidden whitespace-nowrap gap-1">
-          <span className="text-sm font-semibold text-white leading-tight text-center">
+        <div className="flex flex-col items-start overflow-hidden whitespace-nowrap gap-1">
+          <span className="text-sm font-semibold text-white leading-tight text-left">
             {line1 || DEFAULT_LINE1}
           </span>
-          <span className="text-xs text-blue-100 leading-tight text-center">
+          <span className="text-xs text-blue-100 leading-tight text-left">
             {line2 || DEFAULT_LINE2}
           </span>
         </div>
