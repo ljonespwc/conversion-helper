@@ -18,11 +18,3 @@ export function isValidKeyFormat(key: string | null | undefined): boolean {
   return /^pk_live_[a-f0-9]{48}$/.test(key)
 }
 
-/**
- * Mask a key for display (show first 12 and last 4 chars)
- * Example: pk_live_a1b2...w3x4
- */
-export function maskKey(key: string): string {
-  if (key.length < 20) return key
-  return `${key.slice(0, 12)}...${key.slice(-4)}`
-}

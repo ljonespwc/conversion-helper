@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { ConsoleFilter } from '@/components/ConsoleFilter'
 import { PostHogProvider } from '@/components/PostHogProvider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -54,7 +53,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={inter.className}>
         <PostHogProvider>
-          <ConsoleFilter />
           {children}
         </PostHogProvider>
       </body>

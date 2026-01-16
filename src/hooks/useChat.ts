@@ -34,23 +34,6 @@ function generateId(): string {
   return crypto.randomUUID()
 }
 
-function getTimeGreeting(timezone?: string): string {
-  try {
-    const hour = new Date().toLocaleString('en-US', {
-      timeZone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-      hour: 'numeric',
-      hour12: false
-    })
-    const h = parseInt(hour, 10)
-    if (h >= 5 && h < 12) return 'Good morning'
-    if (h >= 12 && h < 17) return 'Good afternoon'
-    if (h >= 17 && h < 21) return 'Good evening'
-    return 'Hey there'
-  } catch {
-    return 'Hey there'
-  }
-}
-
 export function useChat(options: UseChatOptions): UseChatReturn {
   const { pageUrl, apiKey, timezone, onError, onResponse } = options
 

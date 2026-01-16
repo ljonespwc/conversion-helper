@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isValidKeyFormat } from '@/lib/api-keys'
 import { isExperimentalPage } from '@/lib/experimental'
+import { normalizePageUrl } from '@/lib/gemini-file-search'
 import { unstable_noStore as noStore } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
@@ -51,17 +52,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
     }
 
-    // Normalize URL to have trailing slash for consistent matching
-    let normalizedUrl = pageUrl
-    try {
-      const parsed = new URL(pageUrl)
-      // Add trailing slash if it's a root URL (no path or just "/")
-      if (!parsed.pathname || parsed.pathname === '/') {
-        normalizedUrl = pageUrl.endsWith('/') ? pageUrl : pageUrl + '/'
-      }
-    } catch (e) {
-      // Invalid URL - use as-is
-    }
+    // Normalize URL for consistent matching
+    const normalizedUrl = normalizePageUrl(pageUrl)
 
     // Fetch page - SCOPED TO THIS ORGANIZATION ONLY
     const { data: page, error } = await supabase

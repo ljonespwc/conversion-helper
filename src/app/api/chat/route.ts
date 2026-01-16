@@ -16,27 +16,6 @@ const supabase = createClient(
 // In-memory conversation history (consider Redis for production scale)
 const conversationHistory: Record<string, Array<{ role: string; content: string }>> = {}
 
-// Helper function to get time-based greeting using visitor's timezone
-function getTimeGreeting(timezone?: string): string {
-  if (!timezone) return 'Hey there'
-
-  try {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
-      hour: 'numeric',
-      hour12: false
-    })
-    const hour = parseInt(formatter.format(new Date()), 10)
-
-    if (hour >= 5 && hour < 12) return 'Good morning'
-    if (hour >= 12 && hour < 17) return 'Good afternoon'
-    if (hour >= 17 && hour < 21) return 'Good evening'
-    return 'Hey there'
-  } catch (e) {
-    return 'Hey there'
-  }
-}
-
 // Helper function to generate goal-specific instructions
 function getGoalInstruction(goal: string | null | undefined): string {
   switch(goal) {
@@ -169,15 +148,12 @@ interface ChatRequest {
   message: string
   page_url: string
   api_key: string
-  timezone?: string
-  is_greeting?: boolean // Request initial greeting without a message
 }
 
 interface ChatResponse {
   success: boolean
   response: string
   session_id: string
-  is_greeting?: boolean
   organization?: string
   error?: string
 }
@@ -185,7 +161,7 @@ interface ChatResponse {
 export async function POST(request: Request) {
   try {
     const body: ChatRequest = await request.json()
-    const { session_id, message, page_url, api_key, timezone, is_greeting } = body
+    const { session_id, message, page_url, api_key } = body
 
     // Validate required fields
     if (!session_id) {
@@ -196,7 +172,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'page_url is required' }, { status: 400 })
     }
 
-    if (!is_greeting && !message) {
+    if (!message) {
       return NextResponse.json({ error: 'message is required' }, { status: 400 })
     }
 
@@ -255,29 +231,6 @@ export async function POST(request: Request) {
       conversationHistory[session_id] = [
         { role: 'system', content: systemPrompt }
       ]
-    }
-
-    // Handle greeting request (initial session start)
-    if (is_greeting) {
-      const greeting = getTimeGreeting(timezone)
-      const displayName = widgetPage.organization_name || org.name
-      const welcomeMsg = displayName
-        ? `${greeting}! Welcome to ${displayName}'s assistant. What questions can I answer for you?`
-        : `${greeting}! What questions can I answer for you?`
-
-      // Add greeting to conversation history
-      conversationHistory[session_id].push({
-        role: 'assistant',
-        content: welcomeMsg
-      })
-
-      return NextResponse.json({
-        success: true,
-        response: welcomeMsg,
-        session_id,
-        is_greeting: true,
-        organization: displayName
-      })
     }
 
     // Check message limit (50 messages per session)

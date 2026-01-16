@@ -6,7 +6,7 @@ import { Globe, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 
-// Dynamically import VoiceWidget to prevent SSR issues with Layercode SDK
+// Dynamically import VoiceWidget (client-only component)
 const VoiceWidget = dynamic(() => import('@/components/widget/VoiceWidget'), {
   ssr: false
 })

@@ -55,19 +55,8 @@ export async function queryPageContent(
   isExperimental?: boolean
 ): Promise<{ answer: string; citations: any; organization?: string }> {
   try {
-    // Normalize page URL to ensure trailing slash for consistent matching
-    // Only add trailing slash to root URLs (e.g., "https://example.com" -> "https://example.com/")
-    // Path URLs like "https://example.com/page" stay as-is
-    let normalizedPageUrl = pageUrl
-    try {
-      const parsed = new URL(pageUrl)
-      // Add trailing slash if it's a root URL (no path or just "/")
-      if (!parsed.pathname || parsed.pathname === '/') {
-        normalizedPageUrl = pageUrl.endsWith('/') ? pageUrl : pageUrl + '/'
-      }
-    } catch (e) {
-      // Invalid URL - use as-is
-    }
+    // Normalize page URL for consistent matching
+    const normalizedPageUrl = normalizePageUrl(pageUrl)
 
     // Get the widget page to find the organization's store
     const { data: widgetPageData, error: widgetPageError } = await supabase
@@ -183,7 +172,7 @@ export async function queryPageContent(
 /**
  * Normalize URL for consistent matching (add trailing slash for root URLs)
  */
-function normalizePageUrl(url: string): string {
+export function normalizePageUrl(url: string): string {
   try {
     const parsed = new URL(url);
     // Add trailing slash if it's a root URL (no path or just "/")

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamicImport from 'next/dynamic'
 
-// Dynamically import VoiceWidget with no SSR (client-only)
+// Dynamically import VoiceWidget with no SSR (client-only component)
 const VoiceWidget = dynamicImport(() => import('@/components/widget/VoiceWidget'), {
   ssr: false,
   loading: () => <div className="text-white text-sm">Loading widget...</div>
@@ -16,7 +16,6 @@ export const dynamic = 'force-dynamic'
 // Whitelist of allowed domains for demo
 const ALLOWED_DOMAINS = [
   'precisionnutrition.com',
-  'layercode.com',
   'pilot.com'
 ]
 
@@ -122,7 +121,7 @@ export default function DemoPage() {
         className="absolute inset-0 w-full h-full border-0 bg-white"
         title={`${domainName} Demo`}
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-        allow="microphone *; autoplay *"
+        allow="autoplay *"
       />
 
       {/* Widget overlay - positioned absolutely on top */}

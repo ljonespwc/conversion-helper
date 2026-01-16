@@ -5,13 +5,6 @@ export interface ChatResponse {
   resources?: string[]
 }
 
-export interface VoiceConfig {
-  language?: string
-  voice?: string
-  pitch?: number
-  rate?: number
-}
-
 export interface WidgetConfig {
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
   theme?: 'light' | 'dark' | 'auto'

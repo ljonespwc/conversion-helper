@@ -16,8 +16,6 @@ const ALLOWED_PROXY_DOMAINS = [
   'hubermanlab.com',
   'www.hubermanlab.com',
   'ai.hubermanlab.com',
-  'layercode.com',
-  'www.layercode.com',
   'demandcurve.com',
   'www.demandcurve.com',
   'pilot.com',
