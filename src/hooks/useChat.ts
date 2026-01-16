@@ -77,11 +77,10 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     setError(null)
 
     // Generate greeting client-side (instant)
-    const greeting = getTimeGreeting(timezone)
     const greetingMessage: ChatMessage = {
       id: generateId(),
       role: 'assistant',
-      content: `${greeting}! What questions can I answer for you?`,
+      content: 'Hey there! What can I help you with?',
       timestamp: Date.now(),
       isGreeting: true
     }
