@@ -50,8 +50,10 @@ export default function ChatInterface({
     isLoading,
     error,
     organizationName,
+    isRestoredSession,
     sendMessage,
     startSession,
+    startFreshConversation,
     endSession,
     clearError
   } = useChat({
@@ -359,6 +361,19 @@ export default function ChatInterface({
           >
             {error}
           </motion.div>
+        )}
+
+        {/* Start fresh link - only show for restored sessions */}
+        {isRestoredSession && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={startFreshConversation}
+              className="text-xs text-gray-500 hover:text-gray-400 underline"
+            >
+              Start new conversation
+            </button>
+          </div>
         )}
       </form>
 

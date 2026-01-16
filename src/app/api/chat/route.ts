@@ -231,6 +231,24 @@ export async function POST(request: Request) {
       conversationHistory[session_id] = [
         { role: 'system', content: systemPrompt }
       ]
+
+      // Check if session has existing messages in DB (for restored sessions)
+      const { data: existingMessages } = await supabase
+        .from('conversation_messages')
+        .select('role, message')
+        .eq('session_id', session_id)
+        .order('timestamp', { ascending: true })
+
+      // Restore previous messages for LLM context
+      if (existingMessages && existingMessages.length > 0) {
+        for (const msg of existingMessages) {
+          conversationHistory[session_id].push({
+            role: msg.role,
+            content: msg.message
+          })
+        }
+        console.log(`Restored ${existingMessages.length} messages for session ${session_id}`)
+      }
     }
 
     // Check message limit (50 messages per session)

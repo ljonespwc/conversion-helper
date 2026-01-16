@@ -24,8 +24,10 @@ interface UseChatReturn {
   isLoading: boolean
   error: string | null
   organizationName: string | null
+  isRestoredSession: boolean
   sendMessage: (message: string) => Promise<void>
   startSession: () => void
+  startFreshConversation: () => void
   endSession: () => void
   clearError: () => void
 }
@@ -33,6 +35,11 @@ interface UseChatReturn {
 function generateId(): string {
   return crypto.randomUUID()
 }
+
+// localStorage helpers for session persistence (per-domain via apiKey)
+const STORAGE_KEY_PREFIX = 'easyask_session_'
+const getStorageKey = (apiKey: string) =>
+  `${STORAGE_KEY_PREFIX}${apiKey?.substring(0, 20) || 'default'}`
 
 export function useChat(options: UseChatOptions): UseChatReturn {
   const { pageUrl, apiKey, timezone, onError, onResponse } = options
@@ -42,6 +49,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [organizationName, setOrganizationName] = useState<string | null>(null)
+  const [isRestoredSession, setIsRestoredSession] = useState(false)
 
   // Track if session has started
   const sessionStarted = useRef(false)
@@ -50,14 +58,65 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     setError(null)
   }, [])
 
-  const startSession = useCallback(() => {
+  const startSession = useCallback(async () => {
     if (sessionStarted.current) return
 
-    // Generate session ID and greeting instantly - no API call needed
+    // Check localStorage for existing session
+    try {
+      const storageKey = getStorageKey(apiKey || '')
+      const stored = localStorage.getItem(storageKey)
+
+      if (stored && apiKey) {
+        const parsed = JSON.parse(stored)
+
+        if (parsed.apiKey === apiKey) {
+          // Try to restore session from server (cache-bust to get fresh data)
+          const response = await fetch(
+            `/api/conversations/messages?session_id=${parsed.sessionId}&api_key=${apiKey}&_t=${Date.now()}`,
+            { cache: 'no-store' }
+          )
+          const data = await response.json()
+
+          if (data.session_exists && data.messages?.length > 0) {
+            setSessionId(parsed.sessionId)
+            setMessages(data.messages.map((m: any) => ({
+              id: generateId(),
+              role: m.role,
+              content: m.content,
+              timestamp: m.timestamp || Date.now()
+            })))
+            sessionStarted.current = true
+            setIsRestoredSession(true)
+            setError(null)
+            return
+          }
+        }
+        // Invalid or empty session - clear localStorage
+        localStorage.removeItem(storageKey)
+      }
+    } catch (e) {
+      // Continue to create new session
+    }
+
+    // Start new session
     const newSessionId = generateId()
     setSessionId(newSessionId)
     sessionStarted.current = true
+    setIsRestoredSession(false)
     setError(null)
+
+    // Save to localStorage
+    if (apiKey) {
+      try {
+        localStorage.setItem(getStorageKey(apiKey), JSON.stringify({
+          sessionId: newSessionId,
+          apiKey: apiKey,
+          lastActivity: Date.now()
+        }))
+      } catch (e) {
+        console.error('Failed to save session to localStorage:', e)
+      }
+    }
 
     // Generate greeting client-side (instant)
     const greetingMessage: ChatMessage = {
@@ -68,7 +127,31 @@ export function useChat(options: UseChatOptions): UseChatReturn {
       isGreeting: true
     }
     setMessages([greetingMessage])
-  }, [timezone])
+  }, [apiKey])
+
+  const startFreshConversation = useCallback(() => {
+    // Clear localStorage
+    if (apiKey) {
+      try {
+        localStorage.removeItem(getStorageKey(apiKey))
+      } catch (e) {
+        console.error('Failed to clear localStorage:', e)
+      }
+    }
+
+    // Reset state
+    setMessages([])
+    setSessionId(null)
+    sessionStarted.current = false
+    setIsRestoredSession(false)
+    setError(null)
+
+    // Start fresh session (will create new ID and show greeting)
+    // Use setTimeout to ensure state is cleared first
+    setTimeout(() => {
+      startSession()
+    }, 0)
+  }, [apiKey, startSession])
 
   const sendMessage = useCallback(async (message: string) => {
     if (!message.trim()) return
@@ -116,6 +199,21 @@ export function useChat(options: UseChatOptions): UseChatReturn {
       }
       setMessages(prev => [...prev, assistantMessage])
 
+      // Update localStorage lastActivity
+      if (apiKey) {
+        try {
+          const storageKey = getStorageKey(apiKey)
+          const stored = localStorage.getItem(storageKey)
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            parsed.lastActivity = Date.now()
+            localStorage.setItem(storageKey, JSON.stringify(parsed))
+          }
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+      }
+
       onResponse?.(data.response)
 
     } catch (err: any) {
@@ -135,6 +233,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     setSessionId(null)
     setError(null)
     setOrganizationName(null)
+    setIsRestoredSession(false)
     sessionStarted.current = false
   }, [])
 
@@ -144,8 +243,10 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     isLoading,
     error,
     organizationName,
+    isRestoredSession,
     sendMessage,
     startSession,
+    startFreshConversation,
     endSession,
     clearError
   }
