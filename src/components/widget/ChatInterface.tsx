@@ -402,10 +402,10 @@ export default function ChatInterface({
           <AnimatePresence>
             {showLanguageDropdown && (
               <motion.div
-                initial={{ opacity: 0, y: -4 }}
+                initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10"
+                exit={{ opacity: 0, y: 4 }}
+                className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10"
                 onClick={(e) => e.stopPropagation()}
               >
                 {TRANSLATE_LANGUAGES.map(({ code, label }) => (
