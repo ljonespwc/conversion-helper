@@ -1,11 +1,21 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, Star, Send } from 'lucide-react'
+import { Loader2, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, Star, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useChat, ChatMessage } from '@/hooks/useChat'
 import { usePostHog } from 'posthog-js/react'
+
+// Quick action: Translate language options
+const TRANSLATE_LANGUAGES = [
+  { code: 'es', label: 'Spanish' },
+  { code: 'fr', label: 'French' },
+  { code: 'de', label: 'German' },
+  { code: 'zh', label: 'Chinese' },
+  { code: 'ja', label: 'Japanese' },
+  { code: 'pt', label: 'Portuguese' },
+]
 
 interface ChatInterfaceProps {
   onClose: () => void
@@ -27,7 +37,7 @@ export default function ChatInterface({
   isExperimental = false
 }: ChatInterfaceProps) {
   const posthog = usePostHog()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Use provided pageUrl or capture from window
@@ -62,6 +72,7 @@ export default function ChatInterface({
   const [showSparkleBurst, setShowSparkleBurst] = useState(false)
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
   const [isConversationCopied, setIsConversationCopied] = useState(false)
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
   // Email escalation state
   const [isEscalationExpanded, setIsEscalationExpanded] = useState(false)
@@ -122,6 +133,35 @@ export default function ChatInterface({
     if (!inputValue.trim() || isLoading) return
     sendMessage(inputValue.trim())
     setInputValue('')
+  }
+
+  // Auto-resize textarea (max ~4 lines = 120px)
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value)
+  }
+
+  // Resize textarea when content changes
+  useEffect(() => {
+    if (!inputRef.current) return
+    const textarea = inputRef.current
+    // Reset to auto to measure true scrollHeight
+    textarea.style.height = 'auto'
+    // Set height: empty = collapse, otherwise cap at 120px
+    if (!inputValue) {
+      textarea.style.height = 'auto'
+    } else {
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
+    }
+  }, [inputValue])
+
+  // Handle Enter key (submit) vs Shift+Enter (newline)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      if (inputValue.trim() && !isLoading) {
+        handleSubmit(e as any)
+      }
+    }
   }
 
   // Handle copy response
@@ -246,6 +286,32 @@ export default function ChatInterface({
     }
   }
 
+  // Handle quick action buttons (Translate, Explain, Summarize, Define)
+  const handleQuickAction = (action: string, language?: string) => {
+    if (!inputValue.trim()) return
+
+    const prefixes: Record<string, string> = {
+      translate: `Translate this to ${language}:`,
+      explain: 'Explain this simply:',
+      summarize: 'Summarize this:',
+      define: 'Define the key terms in this:'
+    }
+
+    const fullMessage = `${prefixes[action]} ${inputValue.trim()}`
+    sendMessage(fullMessage)
+    setInputValue('')
+    setShowLanguageDropdown(false)
+  }
+
+  // Close language dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = () => setShowLanguageDropdown(false)
+    if (showLanguageDropdown) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showLanguageDropdown])
+
   // Get last assistant response for display
   const lastResponse = messages.filter(m => m.role === 'assistant' && !m.isGreeting).slice(-1)[0]
   const greetingMessage = messages.find(m => m.isGreeting)
@@ -260,15 +326,16 @@ export default function ChatInterface({
 
       {/* Input Area - Always visible at top */}
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="relative flex items-center gap-2">
-          <input
+        <div className="relative flex items-end gap-2">
+          <textarea
             ref={inputRef}
-            type="text"
+            rows={1}
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={handleTextareaChange}
+            onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             disabled={isLoading || !sessionId}
-            className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+            className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 resize-none overflow-y-auto"
           />
           <button
             type="submit"
@@ -294,6 +361,73 @@ export default function ChatInterface({
           </motion.div>
         )}
       </form>
+
+      {/* Quick Action Buttons - Always visible */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Translate with dropdown */}
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              if (inputValue.trim()) setShowLanguageDropdown(!showLanguageDropdown)
+            }}
+            disabled={!inputValue.trim() || isLoading}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all ${
+              inputValue.trim() && !isLoading
+                ? 'bg-gray-800/50 hover:bg-gray-700/50 border-gray-600 text-gray-200 hover:text-white'
+                : 'bg-gray-800/20 border-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+            }`}
+          >
+            <Languages className="w-3.5 h-3.5" />
+            <span>Translate</span>
+            <ChevronDown className={`w-3 h-3 transition-transform ${showLanguageDropdown ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Language dropdown */}
+          <AnimatePresence>
+            {showLanguageDropdown && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {TRANSLATE_LANGUAGES.map(({ code, label }) => (
+                  <button
+                    key={code}
+                    onClick={() => handleQuickAction('translate', label)}
+                    className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-700 hover:text-white transition-colors"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Other action buttons */}
+        {[
+          { key: 'explain', label: 'Explain Simply', icon: Lightbulb },
+          { key: 'summarize', label: 'Summarize', icon: FileText },
+          { key: 'define', label: 'Define Terms', icon: BookOpen }
+        ].map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => handleQuickAction(key)}
+            disabled={!inputValue.trim() || isLoading}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all ${
+              inputValue.trim() && !isLoading
+                ? 'bg-gray-800/50 hover:bg-gray-700/50 border-gray-600 text-gray-200 hover:text-white'
+                : 'bg-gray-800/20 border-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+            }`}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
 
       {/* Loading State - Typing Dots */}
       <AnimatePresence>

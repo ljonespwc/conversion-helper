@@ -120,7 +120,7 @@ export default function DemoPage() {
         src={validatedUrl}
         className="absolute inset-0 w-full h-full border-0 bg-white"
         title={`${domainName} Demo`}
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-clipboard-read allow-clipboard-write"
         allow="autoplay *"
       />
 
