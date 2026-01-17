@@ -36,7 +36,7 @@
     'position:fixed',
     'bottom:0',
     isLeft ? 'left:0' : 'right:0',
-    'width:' + PILL.w + 'px',
+    'width:min(' + PILL.w + 'px, 100vw)',
     'height:' + PILL.h + 'px',
     'border:none',
     'background:transparent',
@@ -71,7 +71,7 @@
         iframe.style.right = isLeft ? 'auto' : '0';
         iframe.style.bottom = '0';
         iframe.style.transform = 'none';
-        iframe.style.width = PILL.w + 'px';
+        iframe.style.width = 'min(' + PILL.w + 'px, 100vw)';
         iframe.style.height = PILL.h + 'px';
       }
     }
@@ -99,7 +99,7 @@
       iframe.style.right = isLeft ? 'auto' : '0';
       iframe.style.bottom = '0';
       iframe.style.transform = 'none';
-      iframe.style.width = PILL.w + 'px';
+      iframe.style.width = 'min(' + PILL.w + 'px, 100vw)';
       iframe.style.height = PILL.h + 'px';
       iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(newUrl) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey);
     }
