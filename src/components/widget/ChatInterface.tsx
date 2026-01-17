@@ -754,73 +754,79 @@ export default function ChatInterface({
         </div>
       )}
 
-      {/* Rating - After first response */}
-      {hasConversation && (
-        <div className="w-full max-w-md mx-auto">
-          <div className="flex flex-col items-center gap-2">
-            <AnimatePresence mode="wait">
-              {showRatingCheck ? (
-                <motion.div
-                  key="checkmark"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  className="flex items-center gap-1 text-green-400 text-xs"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Thanks!</span>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="stars"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="flex flex-col items-center gap-1"
-                >
-                  <span className="text-xs italic text-gray-400">Was this helpful?</span>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => handleRating(star)}
-                        onMouseEnter={() => !userRating && setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(null)}
-                        disabled={userRating !== null}
-                        className={`p-0.5 transition-all ${
-                          userRating === null ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed opacity-50'
-                        }`}
-                      >
-                        <Star
-                          className={`w-6 h-6 transition-colors ${
-                            (hoverRating !== null ? star <= hoverRating : star <= (userRating || 0))
-                              ? 'text-orange-400 fill-orange-400'
-                              : 'text-gray-600'
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+      </div>
       )}
 
-        {/* Powered by EasyAsk Footer */}
-        {showBranding && (
-          <div className="flex items-center justify-center pt-4 pb-2">
-            <a
-              href="https://easyask.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
-            >
-              Powered by EasyAsk
-            </a>
-          </div>
-        )}
-      </div>
+      {/* Fixed bottom section: Rating + Branding */}
+      {(hasConversation || showBranding) && (
+        <div className="flex-shrink-0 p-4 pt-2 space-y-2 border-t border-gray-700/50">
+          {/* Rating - After first response */}
+          {hasConversation && (
+            <div className="w-full max-w-md mx-auto">
+              <div className="flex flex-col items-center gap-2">
+                <AnimatePresence mode="wait">
+                  {showRatingCheck ? (
+                    <motion.div
+                      key="checkmark"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      className="flex items-center gap-1 text-green-400 text-xs"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Thanks!</span>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="stars"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex flex-col items-center gap-1"
+                    >
+                      <span className="text-xs italic text-gray-400">Was this helpful?</span>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => handleRating(star)}
+                            onMouseEnter={() => !userRating && setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(null)}
+                            disabled={userRating !== null}
+                            className={`p-0.5 transition-all ${
+                              userRating === null ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed opacity-50'
+                            }`}
+                          >
+                            <Star
+                              className={`w-6 h-6 transition-colors ${
+                                (hoverRating !== null ? star <= hoverRating : star <= (userRating || 0))
+                                  ? 'text-orange-400 fill-orange-400'
+                                  : 'text-gray-600'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          )}
+
+          {/* Powered by EasyAsk Footer */}
+          {showBranding && (
+            <div className="flex items-center justify-center">
+              <a
+                href="https://easyask.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
+              >
+                Powered by EasyAsk
+              </a>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
