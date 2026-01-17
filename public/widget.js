@@ -23,6 +23,7 @@
 
   // Sizes
   var PILL = { w: 480, h: 100 };
+  var expanded = false;
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -53,6 +54,7 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
+        expanded = true;
         // Start large so modal renders unconstrained
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
@@ -63,6 +65,7 @@
         iframe.style.width = (window.innerWidth - 32) + 'px';
         iframe.style.height = (window.innerHeight - 32) + 'px';
       } else {
+        expanded = false;
         iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
         iframe.style.left = isLeft ? '0' : 'auto';
@@ -73,7 +76,7 @@
         iframe.style.height = PILL.h + 'px';
       }
     }
-    if (d.type === 'easyask:modalsize') {
+    if (d.type === 'easyask:modalsize' && expanded) {
       // Shrink iframe to match actual modal size
       iframe.style.width = Math.min(d.width, window.innerWidth - 32) + 'px';
       iframe.style.height = Math.min(d.height, window.innerHeight - 32) + 'px';
