@@ -23,8 +23,6 @@
 
   // Sizes
   var PILL = { w: 480, h: 100 };
-  var MODAL = { w: 500, h: 1000 };
-  var MODAL_EXP = { w: 870, h: 1100 };
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -55,15 +53,15 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        var size = d.experimental ? MODAL_EXP : MODAL;
+        // Start large so modal renders unconstrained
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
         iframe.style.left = '50%';
         iframe.style.right = 'auto';
         iframe.style.bottom = 'auto';
         iframe.style.transform = 'translate(-50%, -50%)';
-        iframe.style.width = Math.min(size.w, window.innerWidth - 32) + 'px';
-        iframe.style.height = Math.min(size.h, window.innerHeight - 32) + 'px';
+        iframe.style.width = (window.innerWidth - 32) + 'px';
+        iframe.style.height = (window.innerHeight - 32) + 'px';
       } else {
         iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
@@ -74,6 +72,11 @@
         iframe.style.width = PILL.w + 'px';
         iframe.style.height = PILL.h + 'px';
       }
+    }
+    if (d.type === 'easyask:modalsize') {
+      // Shrink iframe to match actual modal size
+      iframe.style.width = Math.min(d.width, window.innerWidth - 32) + 'px';
+      iframe.style.height = Math.min(d.height, window.innerHeight - 32) + 'px';
     }
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';
