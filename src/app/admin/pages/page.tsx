@@ -92,9 +92,25 @@ export default function PagesPage() {
     setError(null)
 
     try {
-      // Validate URL format
+      // Validate URL format (allow * for patterns)
       if (!formData.page_url.match(/^https?:\/\//)) {
         throw new Error('Page URL must start with http:// or https://')
+      }
+
+      // Validate pattern syntax: * only allowed in path, not domain
+      if (formData.page_url.includes('*')) {
+        const testUrl = formData.page_url.replace(/\*/g, 'placeholder')
+        try {
+          const parsed = new URL(testUrl)
+          if (parsed.hostname.includes('placeholder')) {
+            throw new Error('Wildcards (*) can only be used in the URL path, not in the domain')
+          }
+        } catch (urlError) {
+          if (urlError instanceof Error && urlError.message.includes('Wildcards')) {
+            throw urlError
+          }
+          throw new Error('Invalid URL format')
+        }
       }
 
       const response = await fetch('/api/admin/widget-pages', {
@@ -399,19 +415,23 @@ export default function PagesPage() {
             <form onSubmit={handleAddPage} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Page URL *
+                  Page URL or Pattern *
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={formData.page_url}
                   onChange={(e) => setFormData({ ...formData, page_url: e.target.value })}
-                  placeholder="https://example.com/pricing"
+                  placeholder="https://example.com/pricing or https://example.com/blog/*"
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   required
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Full URL of the page where you want to add the assistant
-                </p>
+                <div className="text-xs text-gray-400 mt-1 space-y-1">
+                  <p>Full URL of the page, or use <code className="bg-gray-600 px-1 rounded">*</code> for patterns:</p>
+                  <ul className="list-disc list-inside ml-2 text-gray-500">
+                    <li><code className="bg-gray-600 px-1 rounded">https://example.com/blog/*</code> - matches all blog posts</li>
+                    <li><code className="bg-gray-600 px-1 rounded">https://example.com/*/pricing</code> - matches pricing pages in any section</li>
+                  </ul>
+                </div>
               </div>
 
               <div>
@@ -541,6 +561,11 @@ export default function PagesPage() {
                             <Edit2 className="w-4 h-4" />
                           </button>
                         </>
+                      )}
+                      {page.page_url.includes('*') && (
+                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-amber-900/40 text-amber-300 border border-amber-700">
+                          Pattern
+                        </span>
                       )}
                       {!page.is_active && (
                         <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-700 text-gray-400 border border-gray-600">

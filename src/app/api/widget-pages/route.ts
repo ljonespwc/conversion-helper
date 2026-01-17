@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isValidKeyFormat } from '@/lib/api-keys'
 import { isExperimentalPage } from '@/lib/experimental'
-import { normalizePageUrl } from '@/lib/gemini-file-search'
+import { findMatchingPattern, isWildcardPattern } from '@/lib/url-matching'
 import { unstable_noStore as noStore } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
@@ -52,30 +52,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
     }
 
-    // Normalize URL for consistent matching
-    const normalizedUrl = normalizePageUrl(pageUrl)
-
-    // Fetch page - SCOPED TO THIS ORGANIZATION ONLY
-    const { data: page, error } = await supabase
+    // Fetch ALL widget pages for this organization to enable pattern matching
+    const { data: pages, error } = await supabase
       .from('widget_pages')
       .select('page_title, page_url, is_active')
-      .eq('page_url', normalizedUrl)
       .eq('organization_id', org.id)
-      .single()
 
-    if (error || !page) {
+    if (error || !pages || pages.length === 0) {
+      return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+    }
+
+    // Build array of all page URLs for pattern matching
+    const pageUrls = pages.map(p => p.page_url)
+
+    // Find matching pattern (exact matches take priority over wildcard patterns)
+    const matchedPattern = findMatchingPattern(pageUrl, pageUrls)
+
+    if (!matchedPattern) {
+      return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+    }
+
+    // Find the page that corresponds to the matched pattern
+    const page = pages.find(p => p.page_url === matchedPattern)
+
+    if (!page) {
       return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
     }
 
     const response = {
       page_title: page.page_title,
-      page_url: page.page_url,
+      page_url: page.page_url, // Return the pattern URL (canonical identifier)
+      visitor_url: pageUrl, // Also return the original visitor URL for reference
       organization_name: org.name,
       is_active: page.is_active,
       show_branding: org.show_branding ?? true,
       widget_line1: org.widget_line1,
       widget_line2: org.widget_line2,
-      is_experimental: isExperimentalPage(page.page_url)
+      is_experimental: isExperimentalPage(page.page_url),
+      is_pattern: isWildcardPattern(page.page_url) // Indicate if this was a pattern match
     }
 
     return NextResponse.json({ page: response }, { headers: NO_CACHE_HEADERS })

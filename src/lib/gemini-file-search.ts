@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
 import { EXPERIMENTAL_SETTINGS } from './experimental';
+import { findMatchingPattern } from './url-matching';
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!
@@ -186,17 +187,64 @@ export function normalizePageUrl(url: string): string {
 }
 
 /**
- * Get widget page configuration
+ * Get widget page configuration with URL pattern matching support
+ *
+ * @param pageUrl - The visitor's actual URL
+ * @param organizationId - Optional org ID to enable pattern matching (recommended)
+ * @returns Widget page config with the matched pattern URL, or null if no match
  */
-export async function getWidgetPage(pageUrl: string): Promise<{
+export async function getWidgetPage(pageUrl: string, organizationId?: string): Promise<{
   organization_id: string;
   page_title: string;
-  page_url: string;
+  page_url: string; // The matched pattern URL (canonical identifier)
   page_goal: string | null;
   organization_name: string;
 } | null> {
   try {
-    // Normalize URL for consistent matching
+    // If organization ID is provided, use pattern matching
+    if (organizationId) {
+      // Fetch all widget pages for this organization
+      const { data: pages, error } = await supabase
+        .from('widget_pages')
+        .select('organization_id, page_title, page_url, page_goal, organizations(name)')
+        .eq('organization_id', organizationId);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!pages || pages.length === 0) {
+        return null;
+      }
+
+      // Build array of page URLs for pattern matching
+      const pageUrls = pages.map(p => p.page_url);
+
+      // Find matching pattern (exact matches take priority over wildcards)
+      const matchedPattern = findMatchingPattern(pageUrl, pageUrls);
+
+      if (!matchedPattern) {
+        return null;
+      }
+
+      // Find the page data for the matched pattern
+      const matchedPage = pages.find(p => p.page_url === matchedPattern);
+
+      if (!matchedPage) {
+        return null;
+      }
+
+      const organizations = matchedPage.organizations as any;
+      return {
+        organization_id: matchedPage.organization_id,
+        page_title: matchedPage.page_title,
+        page_url: matchedPage.page_url, // Return the pattern URL
+        page_goal: matchedPage.page_goal,
+        organization_name: organizations?.name || ''
+      };
+    }
+
+    // Fallback: exact match only (legacy behavior when org ID not provided)
     const normalizedUrl = normalizePageUrl(pageUrl);
 
     const { data, error } = await supabase

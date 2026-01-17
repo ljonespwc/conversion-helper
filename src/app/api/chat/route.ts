@@ -216,11 +216,16 @@ export async function POST(request: Request) {
       console.error('Rate limiting error (allowing request):', rateLimitError)
     }
 
-    // Get widget page configuration
-    const widgetPage = await getWidgetPage(page_url)
+    // Get widget page configuration with pattern matching support
+    // Pass org.id to enable URL pattern matching (e.g., https://example.com/blog/*)
+    const widgetPage = await getWidgetPage(page_url, org.id)
     if (!widgetPage) {
       return NextResponse.json({ error: 'Page not configured' }, { status: 404 })
     }
+
+    // Use the matched pattern URL (canonical identifier) for content queries
+    // This ensures content assigned to a pattern like "blog/*" is used for "blog/my-post"
+    const contentPageUrl = widgetPage.page_url
 
     // Check if experimental mode
     const isExperimental = isExperimentalPage(page_url)
@@ -279,10 +284,11 @@ export async function POST(request: Request) {
     })
 
     // Query content with conversation history
+    // Use contentPageUrl (the matched pattern URL) for File Search metadata filtering
     const systemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content
     const { answer, citations, organization } = await queryPageContent(
       message,
-      page_url,
+      contentPageUrl, // Use pattern URL for content filtering, not visitor's URL
       conversationHistory[session_id],
       systemPrompt,
       isExperimental

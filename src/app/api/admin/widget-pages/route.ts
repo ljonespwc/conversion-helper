@@ -90,10 +90,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate URL format
+    // Validate URL format (allow * in path for patterns)
     if (!page_url.match(/^https?:\/\//)) {
       return NextResponse.json(
         { error: 'page_url must start with http:// or https://' },
+        { status: 400 }
+      )
+    }
+
+    // Validate pattern syntax: * is only allowed in the path, not protocol/domain
+    try {
+      // Replace * temporarily for URL parsing
+      const testUrl = page_url.replace(/\*/g, 'WILDCARD_PLACEHOLDER')
+      const parsed = new URL(testUrl)
+
+      // Check if wildcards were in protocol or hostname
+      if (parsed.protocol.includes('WILDCARD_PLACEHOLDER') ||
+          parsed.hostname.includes('WILDCARD_PLACEHOLDER')) {
+        return NextResponse.json(
+          { error: 'Wildcards (*) can only be used in the URL path, not in the domain' },
+          { status: 400 }
+        )
+      }
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid URL format' },
         { status: 400 }
       )
     }
