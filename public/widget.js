@@ -23,8 +23,8 @@
 
   // Sizes
   var PILL = { w: 480, h: 100 };
-  var MODAL = { w: 500, h: 850 };
-  var MODAL_EXP = { w: 870, h: 900 };
+  var MODAL = { w: 500, h: 1000 };
+  var MODAL_EXP = { w: 870, h: 1100 };
 
   // Create iframe
   var iframe = document.createElement('iframe');
