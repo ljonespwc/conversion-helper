@@ -30,7 +30,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
       style={{
         width: 'auto',
         minWidth: '180px',
-        maxWidth: '460px',
+        maxWidth: 'calc(100vw - 32px)',
         borderRadius: '30px',
       }}
     >
