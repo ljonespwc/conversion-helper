@@ -21,9 +21,10 @@
     tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
   } catch (e) {}
 
-  // Sizes
+  // Sizes (fixed - modal scrolls internally)
   var PILL = { w: 480, h: 100 };
-  var expanded = false;
+  var MODAL = { w: 452, h: 600 };
+  var MODAL_EXP = { w: 732, h: 650 };
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -54,18 +55,16 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        expanded = true;
-        // Start large so modal renders unconstrained
+        var size = d.experimental ? MODAL_EXP : MODAL;
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
         iframe.style.left = '50%';
         iframe.style.right = 'auto';
         iframe.style.bottom = 'auto';
         iframe.style.transform = 'translate(-50%, -50%)';
-        iframe.style.width = (window.innerWidth - 32) + 'px';
-        iframe.style.height = (window.innerHeight - 32) + 'px';
+        iframe.style.width = Math.min(size.w, window.innerWidth - 32) + 'px';
+        iframe.style.height = Math.min(size.h, window.innerHeight - 32) + 'px';
       } else {
-        expanded = false;
         iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
         iframe.style.left = isLeft ? '0' : 'auto';
@@ -75,11 +74,6 @@
         iframe.style.width = PILL.w + 'px';
         iframe.style.height = PILL.h + 'px';
       }
-    }
-    if (d.type === 'easyask:modalsize' && expanded) {
-      // Shrink iframe to match actual modal size
-      iframe.style.width = Math.min(d.width, window.innerWidth - 32) + 'px';
-      iframe.style.height = Math.min(d.height, window.innerHeight - 32) + 'px';
     }
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';

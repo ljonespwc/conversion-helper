@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import ChatInterface from './ChatInterface'
@@ -17,28 +16,6 @@ interface WidgetModalProps {
 }
 
 export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: WidgetModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (isDemo || typeof window === 'undefined' || window.parent === window) return
-
-    const modal = modalRef.current
-    if (!modal) return
-
-    const sendSize = () => {
-      const rect = modal.getBoundingClientRect()
-      const width = Math.ceil(rect.width) + 32
-      const height = Math.ceil(rect.height) + 32
-      window.parent.postMessage({ type: 'easyask:modalsize', width, height }, '*')
-    }
-
-    sendSize()
-    const observer = new ResizeObserver(sendSize)
-    observer.observe(modal)
-
-    return () => observer.disconnect()
-  }, [isDemo])
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -51,15 +28,14 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
       {/* No backdrop - iframe is sized to modal, clicks pass through to page */}
 
       <motion.div
-        ref={modalRef}
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
         className={`relative bg-white dark:bg-easyask-dark rounded-2xl overflow-hidden flex flex-col ${
           isExperimental
-            ? 'w-full max-w-[800px] sm:min-w-[500px]'
-            : 'w-full max-w-md min-w-[400px]'
+            ? 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
+            : 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
         }`}
         style={{ pointerEvents: 'auto' }}
       >
