@@ -29,7 +29,13 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [isExperimental, setIsExperimental] = useState<boolean>(false)
 
   const isModalOpen = embedded ? internalOpen : isOpen
-  const handleClose = embedded ? () => setInternalOpen(false) : onClose || (() => {})
+  const handleClose = embedded ? () => {
+    // Send resize message BEFORE state change so iframe shrinks before modal unmounts
+    if (typeof (window as any).onWidgetStateChange === 'function') {
+      (window as any).onWidgetStateChange(false, isExperimental)
+    }
+    setInternalOpen(false)
+  } : onClose || (() => {})
 
   // Fetch page title and organization name if pageUrl is provided
   useEffect(() => {
@@ -81,12 +87,6 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     }
   }, [pageUrl, embedded, apiKey])
 
-  // Notify parent of modal state changes (for iframe resize)
-  useEffect(() => {
-    if (embedded && typeof (window as any).onWidgetStateChange === 'function') {
-      (window as any).onWidgetStateChange(internalOpen, isExperimental)
-    }
-  }, [internalOpen, embedded, isExperimental])
 
 
   // Don't render widget until we confirm page is active
@@ -99,6 +99,10 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
       {embedded && !isModalOpen && (
         <WidgetButton
           onClick={() => {
+            // Send resize message BEFORE state change so iframe expands before modal renders
+            if (typeof (window as any).onWidgetStateChange === 'function') {
+              (window as any).onWidgetStateChange(true, isExperimental)
+            }
             setInternalOpen(true)
             // Track widget opened
             posthog?.capture('widget_opened', {
