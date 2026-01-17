@@ -67,7 +67,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
           <span className="text-sm font-semibold text-white leading-tight text-left">
             {line1 || DEFAULT_LINE1}
           </span>
-          <span className="text-xs text-blue-100 leading-tight text-left">
+          <span className="text-[10px] sm:text-xs text-blue-100 leading-tight text-left">
             {line2 || DEFAULT_LINE2}
           </span>
         </div>
