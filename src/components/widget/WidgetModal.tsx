@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import ChatInterface from './ChatInterface'
@@ -16,36 +17,56 @@ interface WidgetModalProps {
 }
 
 export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: WidgetModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null)
 
-  // In demo mode, the widget is rendered directly (not in widget.js iframe)
-  // so we need padding and max-width constraints
-  // In production, the iframe is sized to the modal, so we fill it completely
-  const isInIframe = typeof window !== 'undefined' && window.parent !== window && !isDemo
+  // In production (iframe), observe modal size changes and tell parent to resize iframe
+  useEffect(() => {
+    if (isDemo || typeof window === 'undefined' || window.parent === window) return
+
+    const modal = modalRef.current
+    if (!modal) return
+
+    const sendSize = () => {
+      const rect = modal.getBoundingClientRect()
+      // Add padding for shadow (16px each side)
+      const width = Math.ceil(rect.width) + 32
+      const height = Math.ceil(rect.height) + 32
+      window.parent.postMessage({ type: 'easyask:modalsize', width, height }, '*')
+    }
+
+    // Send initial size
+    sendSize()
+
+    // Observe size changes
+    const observer = new ResizeObserver(sendSize)
+    observer.observe(modal)
+
+    return () => observer.disconnect()
+  }, [isDemo])
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`fixed inset-0 z-50 flex items-center justify-center ${isDemo ? 'p-4' : ''}`}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
-      style={isDemo ? { pointerEvents: 'none' } : undefined}
+      style={{ pointerEvents: 'none' }}
     >
-      {/* No backdrop - in production iframe is sized to modal, in demo we use pointer-events */}
+      {/* No backdrop - iframe is sized to modal, clicks pass through to page */}
 
       <motion.div
+        ref={modalRef}
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
         className={`relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
-          isInIframe
-            ? 'w-full h-full'
-            : isExperimental
-              ? 'w-full max-w-[800px] sm:min-w-[500px]'
-              : 'w-full max-w-md min-w-[400px]'
+          isExperimental
+            ? 'w-full max-w-[800px] sm:min-w-[500px]'
+            : 'w-full max-w-md min-w-[400px]'
         }`}
-        style={isDemo ? { pointerEvents: 'auto' } : undefined}
+        style={{ pointerEvents: 'auto' }}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           {/* Spacer for symmetry */}

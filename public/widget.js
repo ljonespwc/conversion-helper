@@ -21,10 +21,8 @@
     tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
   } catch (e) {}
 
-  // Sizes: pill collapsed, modal size when expanded
+  // Sizes: pill collapsed (modal size is dynamic based on content)
   var PILL = { w: 480, h: 100 };
-  var MODAL = { w: 450, h: 600 }; // Normal modal (max-w-md)
-  var MODAL_EXPERIMENTAL = { w: 820, h: 700 }; // Experimental modal (max-w-[800px])
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -55,17 +53,13 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        // Expand to modal size, centered on screen
-        // This allows users to interact with the page behind the modal
-        var size = d.experimental ? MODAL_EXPERIMENTAL : MODAL;
+        // Prepare for modal mode - center iframe, initial size will come from modalsize message
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
         iframe.style.left = '50%';
         iframe.style.right = 'auto';
         iframe.style.bottom = 'auto';
         iframe.style.transform = 'translate(-50%, -50%)';
-        iframe.style.width = Math.min(size.w, window.innerWidth - 32) + 'px';
-        iframe.style.height = Math.min(size.h, window.innerHeight - 32) + 'px';
       } else {
         // Collapse to pill with smooth transition
         iframe.style.transition = 'all .3s ease';
@@ -77,6 +71,13 @@
         iframe.style.width = PILL.w + 'px';
         iframe.style.height = PILL.h + 'px';
       }
+    }
+    if (d.type === 'easyask:modalsize') {
+      // Dynamically resize iframe to match modal content size
+      var w = Math.min(d.width, window.innerWidth - 32);
+      var h = Math.min(d.height, window.innerHeight - 32);
+      iframe.style.width = w + 'px';
+      iframe.style.height = h + 'px';
     }
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';
