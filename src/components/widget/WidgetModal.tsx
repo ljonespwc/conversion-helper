@@ -34,14 +34,18 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
       window.parent.postMessage({ type: 'easyask:modalsize', width, height }, '*')
     }
 
-    // Send initial size
-    sendSize()
+    // Delay starting observation to let iframe expand first
+    let observer: ResizeObserver | null = null
+    const timeout = setTimeout(() => {
+      sendSize()
+      observer = new ResizeObserver(sendSize)
+      observer.observe(modal)
+    }, 150)
 
-    // Observe size changes
-    const observer = new ResizeObserver(sendSize)
-    observer.observe(modal)
-
-    return () => observer.disconnect()
+    return () => {
+      clearTimeout(timeout)
+      observer?.disconnect()
+    }
   }, [isDemo])
 
   return (
