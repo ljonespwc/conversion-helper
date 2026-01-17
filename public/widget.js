@@ -23,6 +23,7 @@
 
   // Sizes: pill collapsed (modal size is dynamic based on content)
   var PILL = { w: 480, h: 100 };
+  var isExpanded = false;
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -53,14 +54,21 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        // Prepare for modal mode - center iframe, initial size will come from modalsize message
+        isExpanded = true;
+        // Set initial large size first so modal can expand naturally
+        // ResizeObserver will then adjust to actual content size
+        var maxW = d.experimental ? 832 : 480;  // 800 + 32 padding, or 448 + 32
+        var maxH = 700;  // Reasonable max height
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
         iframe.style.left = '50%';
         iframe.style.right = 'auto';
         iframe.style.bottom = 'auto';
         iframe.style.transform = 'translate(-50%, -50%)';
+        iframe.style.width = Math.min(maxW, window.innerWidth - 32) + 'px';
+        iframe.style.height = Math.min(maxH, window.innerHeight - 32) + 'px';
       } else {
+        isExpanded = false;
         // Collapse to pill with smooth transition
         iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
@@ -72,8 +80,8 @@
         iframe.style.height = PILL.h + 'px';
       }
     }
-    if (d.type === 'easyask:modalsize') {
-      // Dynamically resize iframe to match modal content size
+    if (d.type === 'easyask:modalsize' && isExpanded) {
+      // Dynamically resize iframe to match modal content size (only when expanded)
       var w = Math.min(d.width, window.innerWidth - 32);
       var h = Math.min(d.height, window.innerHeight - 32);
       iframe.style.width = w + 'px';
@@ -95,6 +103,7 @@
     var newUrl = window.location.href;
     if (newUrl !== currentUrl) {
       currentUrl = newUrl;
+      isExpanded = false;
       // Hide immediately, then update iframe src - widget will show itself if page is configured
       iframe.style.display = 'none';
       iframe.style.transition = 'none';
@@ -102,6 +111,7 @@
       iframe.style.left = isLeft ? '0' : 'auto';
       iframe.style.right = isLeft ? 'auto' : '0';
       iframe.style.bottom = '0';
+      iframe.style.transform = 'none';
       iframe.style.width = PILL.w + 'px';
       iframe.style.height = PILL.h + 'px';
       iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(newUrl) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey);
