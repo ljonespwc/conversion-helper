@@ -21,9 +21,10 @@
     tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
   } catch (e) {}
 
-  // Sizes: pill collapsed (modal size is dynamic based on content)
+  // Sizes
   var PILL = { w: 480, h: 100 };
-  var isExpanded = false;
+  var MODAL = { w: 480, h: 650 };
+  var MODAL_EXP = { w: 850, h: 700 };
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -54,22 +55,16 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        isExpanded = true;
-        // Set initial large size first so modal can expand naturally
-        // ResizeObserver will then adjust to actual content size
-        var maxW = d.experimental ? 832 : 480;  // 800 + 32 padding, or 448 + 32
-        var maxH = 700;  // Reasonable max height
+        var size = d.experimental ? MODAL_EXP : MODAL;
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
         iframe.style.left = '50%';
         iframe.style.right = 'auto';
         iframe.style.bottom = 'auto';
         iframe.style.transform = 'translate(-50%, -50%)';
-        iframe.style.width = Math.min(maxW, window.innerWidth - 32) + 'px';
-        iframe.style.height = Math.min(maxH, window.innerHeight - 32) + 'px';
+        iframe.style.width = Math.min(size.w, window.innerWidth - 32) + 'px';
+        iframe.style.height = Math.min(size.h, window.innerHeight - 32) + 'px';
       } else {
-        isExpanded = false;
-        // Collapse to pill with smooth transition
         iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
         iframe.style.left = isLeft ? '0' : 'auto';
@@ -79,13 +74,6 @@
         iframe.style.width = PILL.w + 'px';
         iframe.style.height = PILL.h + 'px';
       }
-    }
-    if (d.type === 'easyask:modalsize' && isExpanded) {
-      // Dynamically resize iframe to match modal content size (only when expanded)
-      var w = Math.min(d.width, window.innerWidth - 32);
-      var h = Math.min(d.height, window.innerHeight - 32);
-      iframe.style.width = w + 'px';
-      iframe.style.height = h + 'px';
     }
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';
@@ -103,7 +91,6 @@
     var newUrl = window.location.href;
     if (newUrl !== currentUrl) {
       currentUrl = newUrl;
-      isExpanded = false;
       // Hide immediately, then update iframe src - widget will show itself if page is configured
       iframe.style.display = 'none';
       iframe.style.transition = 'none';
