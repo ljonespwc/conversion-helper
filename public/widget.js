@@ -21,8 +21,9 @@
     tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
   } catch (e) {}
 
-  // Sizes: pill collapsed, full viewport when expanded
+  // Sizes: pill collapsed, modal size when expanded
   var PILL = { w: 480, h: 100 };
+  var MODAL = { w: 450, h: 600 }; // Modal card size (matches WidgetModal max-w-md)
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -53,14 +54,16 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        // Expand to full viewport instantly (no transition)
+        // Expand to modal size, centered on screen
+        // This allows users to interact with the page behind the modal
         iframe.style.transition = 'none';
-        iframe.style.top = '0';
-        iframe.style.left = '0';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
+        iframe.style.top = '50%';
+        iframe.style.left = '50%';
+        iframe.style.right = 'auto';
+        iframe.style.bottom = 'auto';
+        iframe.style.transform = 'translate(-50%, -50%)';
+        iframe.style.width = Math.min(MODAL.w, window.innerWidth - 32) + 'px';
+        iframe.style.height = Math.min(MODAL.h, window.innerHeight - 32) + 'px';
       } else {
         // Collapse to pill with smooth transition
         iframe.style.transition = 'all .3s ease';
@@ -68,6 +71,7 @@
         iframe.style.left = isLeft ? '0' : 'auto';
         iframe.style.right = isLeft ? 'auto' : '0';
         iframe.style.bottom = '0';
+        iframe.style.transform = 'none';
         iframe.style.width = PILL.w + 'px';
         iframe.style.height = PILL.h + 'px';
       }

@@ -320,7 +320,7 @@ export default function ChatInterface({
   const hasConversation = messages.filter(m => !m.isGreeting).length > 0
 
   return (
-    <div className="relative p-6 space-y-4">
+    <div className="relative p-6 space-y-4 h-full overflow-y-auto">
       {/* Greeting - shown before any conversation */}
       {greetingMessage && !hasConversation && (
         <p className="text-center text-gray-400 text-sm">{greetingMessage.content}</p>

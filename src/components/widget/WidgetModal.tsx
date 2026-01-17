@@ -17,38 +17,37 @@ interface WidgetModalProps {
 
 export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: WidgetModalProps) {
 
+  // In demo mode, the widget is rendered directly (not in widget.js iframe)
+  // so we need padding and max-width constraints
+  // In production, the iframe is sized to the modal, so we fill it completely
+  const isInIframe = typeof window !== 'undefined' && window.parent !== window && !isDemo
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      className={`fixed inset-0 z-50 flex items-center justify-center ${isDemo ? 'p-4' : ''}`}
       onClick={onClose}
-      style={{ pointerEvents: 'none' }} // Allow clicks through to page content
+      style={isDemo ? { pointerEvents: 'none' } : undefined}
     >
-      {/*
-        BACKDROP REMOVED: Allows users to scroll and interact with page while modal is open
-
-        TO REVERT TO ORIGINAL BEHAVIOR (blurred backdrop, no scrolling):
-        1. Uncomment the backdrop div below
-        2. Remove the `style={{ pointerEvents: 'none' }}` from this container (line above)
-        3. Remove the `style={{ pointerEvents: 'auto' }}` from the modal card below
-      */}
-      {/* <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" /> */}
+      {/* No backdrop - in production iframe is sized to modal, in demo we use pointer-events */}
 
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl w-full overflow-hidden ${
-          isExperimental
-            ? 'max-w-[800px] sm:min-w-[500px]'
-            : 'max-w-md min-w-[400px]'
+        className={`relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
+          isInIframe
+            ? 'w-full h-full'
+            : isExperimental
+              ? 'w-full max-w-[800px] sm:min-w-[500px]'
+              : 'w-full max-w-md min-w-[400px]'
         }`}
-        style={{ pointerEvents: 'auto' }} // Modal card itself remains interactive
+        style={isDemo ? { pointerEvents: 'auto' } : undefined}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           {/* Spacer for symmetry */}
           <div className="w-8" />
 
@@ -67,7 +66,9 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
           </button>
         </div>
 
-        <ChatInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} />
+        <div className="flex-1 overflow-hidden">
+          <ChatInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} />
+        </div>
       </motion.div>
     </motion.div>
   )
