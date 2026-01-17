@@ -32,7 +32,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative bg-white dark:bg-easyask-dark rounded-2xl shadow-2xl overflow-hidden flex flex-col ${
+        className={`relative bg-white dark:bg-easyask-dark rounded-2xl overflow-hidden flex flex-col ${
           isExperimental
             ? 'w-full max-w-[800px] sm:min-w-[500px]'
             : 'w-full max-w-md min-w-[400px]'
