@@ -505,8 +505,7 @@ export default function ChatInterface({
 
               <div className="relative rounded-lg shadow-lg overflow-hidden">
                 <div
-                  className="relative bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl p-4 overflow-y-auto"
-                  style={{ maxHeight: isExperimental ? '350px' : '200px' }}
+                  className="relative bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl p-4"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-0.5">
@@ -589,7 +588,7 @@ export default function ChatInterface({
                   className="overflow-hidden"
                 >
                   <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-gray-700/50 p-4 space-y-3">
-                    <div className="max-h-[250px] overflow-y-auto space-y-3 pr-2">
+                    <div className="space-y-3">
                       {messages.filter(m => !m.isGreeting).map((message, idx) => (
                         <motion.div
                           key={message.id}
