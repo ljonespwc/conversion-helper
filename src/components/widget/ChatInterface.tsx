@@ -320,14 +320,16 @@ export default function ChatInterface({
   const hasConversation = messages.filter(m => !m.isGreeting).length > 0
 
   return (
-    <div className="relative p-6 space-y-4 h-full overflow-y-auto">
-      {/* Greeting - shown before any conversation */}
-      {greetingMessage && !hasConversation && (
-        <p className="text-center text-gray-400 text-sm">{greetingMessage.content}</p>
-      )}
+    <div className="relative h-full flex flex-col">
+      {/* Fixed top section: Input + Quick Actions */}
+      <div className="flex-shrink-0 p-6 pb-4 space-y-4 border-b border-gray-700/50">
+        {/* Greeting - shown before any conversation */}
+        {greetingMessage && !hasConversation && (
+          <p className="text-center text-gray-400 text-sm">{greetingMessage.content}</p>
+        )}
 
-      {/* Input Area - Always visible at top */}
-      <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Input Area */}
+        <form onSubmit={handleSubmit} className="space-y-3">
         <div className="relative flex items-end gap-2">
           <textarea
             ref={inputRef}
@@ -442,9 +444,12 @@ export default function ChatInterface({
             <span>{label}</span>
           </button>
         ))}
+        </div>
       </div>
 
-      {/* Loading State - Typing Dots */}
+      {/* Scrollable content section */}
+      <div className="flex-1 overflow-y-auto p-6 pt-4 space-y-4">
+        {/* Loading State - Typing Dots */}
       <AnimatePresence>
         {isLoading && (
           <motion.div
@@ -801,19 +806,20 @@ export default function ChatInterface({
         </div>
       )}
 
-      {/* Powered by EasyAsk Footer */}
-      {showBranding && (
-        <div className="flex items-center justify-center pt-4 pb-2">
-          <a
-            href="https://easyask.io"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
-          >
-            Powered by EasyAsk
-          </a>
-        </div>
-      )}
+        {/* Powered by EasyAsk Footer */}
+        {showBranding && (
+          <div className="flex items-center justify-center pt-4 pb-2">
+            <a
+              href="https://easyask.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
+            >
+              Powered by EasyAsk
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
