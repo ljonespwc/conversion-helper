@@ -84,9 +84,9 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   // Notify parent of modal state changes (for iframe resize)
   useEffect(() => {
     if (embedded && typeof (window as any).onWidgetStateChange === 'function') {
-      (window as any).onWidgetStateChange(internalOpen)
+      (window as any).onWidgetStateChange(internalOpen, isExperimental)
     }
-  }, [internalOpen, embedded])
+  }, [internalOpen, embedded, isExperimental])
 
 
   // Don't render widget until we confirm page is active

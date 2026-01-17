@@ -23,7 +23,8 @@
 
   // Sizes: pill collapsed, modal size when expanded
   var PILL = { w: 480, h: 100 };
-  var MODAL = { w: 450, h: 600 }; // Modal card size (matches WidgetModal max-w-md)
+  var MODAL = { w: 450, h: 600 }; // Normal modal (max-w-md)
+  var MODAL_EXPERIMENTAL = { w: 820, h: 700 }; // Experimental modal (max-w-[800px])
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -56,14 +57,15 @@
       if (d.expanded) {
         // Expand to modal size, centered on screen
         // This allows users to interact with the page behind the modal
+        var size = d.experimental ? MODAL_EXPERIMENTAL : MODAL;
         iframe.style.transition = 'none';
         iframe.style.top = '50%';
         iframe.style.left = '50%';
         iframe.style.right = 'auto';
         iframe.style.bottom = 'auto';
         iframe.style.transform = 'translate(-50%, -50%)';
-        iframe.style.width = Math.min(MODAL.w, window.innerWidth - 32) + 'px';
-        iframe.style.height = Math.min(MODAL.h, window.innerHeight - 32) + 'px';
+        iframe.style.width = Math.min(size.w, window.innerWidth - 32) + 'px';
+        iframe.style.height = Math.min(size.h, window.innerHeight - 32) + 'px';
       } else {
         // Collapse to pill with smooth transition
         iframe.style.transition = 'all .3s ease';

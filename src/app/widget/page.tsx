@@ -30,9 +30,9 @@ function WidgetContent() {
     document.head.appendChild(style)
 
     // Set up callback for widget state changes
-    ;(window as any).onWidgetStateChange = (expanded: boolean) => {
+    ;(window as any).onWidgetStateChange = (expanded: boolean, experimental?: boolean) => {
       if (window.parent !== window) {
-        window.parent.postMessage({ type: 'easyask:resize', expanded }, '*')
+        window.parent.postMessage({ type: 'easyask:resize', expanded, experimental }, '*')
       }
     }
 
