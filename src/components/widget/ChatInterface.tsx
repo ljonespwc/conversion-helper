@@ -320,9 +320,9 @@ export default function ChatInterface({
   const hasConversation = messages.filter(m => !m.isGreeting).length > 0
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className={`relative h-full flex flex-col ${!hasConversation && !isLoading ? 'justify-center' : ''}`}>
       {/* Fixed top section: Input + Quick Actions */}
-      <div className="flex-shrink-0 p-6 pb-4 space-y-4 border-b border-gray-700/50">
+      <div className={`flex-shrink-0 p-6 pb-4 space-y-4 ${hasConversation || isLoading ? 'border-b border-gray-700/50' : ''}`}>
         {/* Greeting - shown before any conversation */}
         {greetingMessage && !hasConversation && (
           <p className="text-center text-gray-400 text-sm">{greetingMessage.content}</p>
@@ -447,8 +447,9 @@ export default function ChatInterface({
         </div>
       </div>
 
-      {/* Scrollable content section */}
-      <div className="flex-1 overflow-y-auto p-6 pt-4 space-y-4">
+      {/* Scrollable content section - only show when there's content */}
+      {(isLoading || hasConversation || showBranding) && (
+      <div className={`overflow-y-auto p-6 pt-4 space-y-4 ${hasConversation ? 'flex-1' : ''}`}>
         {/* Loading State - Typing Dots */}
       <AnimatePresence>
         {isLoading && (
@@ -820,6 +821,7 @@ export default function ChatInterface({
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }
