@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star, Archive } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -499,9 +500,25 @@ export default function AdminDashboard() {
                                         {message.role === 'user' ? '👤 User' : '🤖 Assistant'}
                                       </span>
                                     </div>
-                                    <p className="text-sm text-gray-200">
-                                      {message.message}
-                                    </p>
+                                    <div className="text-sm text-gray-200">
+                                      {message.role === 'assistant' ? (
+                                        <ReactMarkdown
+                                          components={{
+                                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                            strong: ({ children }) => <strong className="font-semibold text-purple-300">{children}</strong>,
+                                            em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                                            ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                                            ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                                            li: ({ children }) => <li>{children}</li>,
+                                            code: ({ children }) => <code className="bg-gray-700 px-1.5 py-0.5 rounded text-purple-300 text-xs">{children}</code>,
+                                          }}
+                                        >
+                                          {message.message}
+                                        </ReactMarkdown>
+                                      ) : (
+                                        message.message
+                                      )}
+                                    </div>
                                     <p className="text-xs text-gray-500 mt-1">
                                       {message.timestamp
                                         ? new Date(message.timestamp).toLocaleTimeString('en-US', {
