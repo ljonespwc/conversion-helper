@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       // Page-level widget text overrides org-level (fallback to org if page value is null)
       widget_line1: page.widget_line1 ?? org.widget_line1,
       widget_line2: page.widget_line2 ?? org.widget_line2,
-      is_experimental: isExperimentalPage(page.page_url),
+      is_experimental: isExperimentalPage(page.page_url, org.name),
       is_pattern: isWildcardPattern(page.page_url) // Indicate if this was a pattern match
     }
 

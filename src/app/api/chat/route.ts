@@ -230,8 +230,8 @@ export async function POST(request: Request) {
     // For group_id matching, this will be the group_id value itself
     const contentPageUrl = widgetPage.page_url
 
-    // Check if experimental mode - use contentPageUrl to support both URL and group_id matching
-    const isExperimental = isExperimentalPage(contentPageUrl)
+    // Check if experimental mode - use org name first, then contentPageUrl as fallback
+    const isExperimental = isExperimentalPage(contentPageUrl, org.name)
 
     // Initialize conversation history if needed
     if (!conversationHistory[session_id]) {
