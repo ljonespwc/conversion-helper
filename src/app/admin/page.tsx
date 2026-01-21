@@ -6,6 +6,7 @@ import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, 
 import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
+import { findMatchingPattern } from '@/lib/url-matching'
 import StatsCard from '@/components/admin/StatsCard'
 import { usePostHog } from 'posthog-js/react'
 
@@ -361,8 +362,10 @@ export default function AdminDashboard() {
                 })
 
                 return sortedGroups.map(([pageUrl, sessions]) => {
-                  // Find page title from widgetPages
-                  const page = pageUrl ? widgetPages.find(p => p.page_url === pageUrl) : null
+                  // Find page title from widgetPages (handles query params and wildcard patterns)
+                  const pagePatterns = widgetPages.map(p => p.page_url)
+                  const matchedPattern = pageUrl ? findMatchingPattern(pageUrl, pagePatterns) : null
+                  const page = matchedPattern ? widgetPages.find(p => p.page_url === matchedPattern) : null
                   const pageTitle = page?.page_title || (pageUrl ? 'Unknown Page' : 'Demo/Test Sessions')
                   const pageKey = pageUrl || 'unknown'
                   const isPageExpanded = expandedPageGroups.has(pageKey)
