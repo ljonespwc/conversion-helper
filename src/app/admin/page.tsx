@@ -481,15 +481,23 @@ export default function AdminDashboard() {
                   ? stats.recentSessions.filter(s => s.is_bookmarked)
                   : stats.recentSessions
 
-                // Group sessions by page_url
+                // Get page patterns for matching
+                const pagePatterns = widgetPages.map(p => p.page_url)
+
+                // Group sessions by MATCHED PATTERN (not raw URL) to consolidate URLs with different query params
                 const sessionsByPage = new Map<string | null, ConversationSession[]>()
 
                 filteredSessions.forEach(session => {
                   const pageUrl = session.page_url || null
-                  if (!sessionsByPage.has(pageUrl)) {
-                    sessionsByPage.set(pageUrl, [])
+                  // Find the matching pattern for this URL (strips query params, handles wildcards)
+                  const matchedPattern = pageUrl ? findMatchingPattern(pageUrl, pagePatterns) : null
+                  // Use matched pattern as the group key, or fall back to raw URL if no match
+                  const groupKey = matchedPattern || pageUrl
+
+                  if (!sessionsByPage.has(groupKey)) {
+                    sessionsByPage.set(groupKey, [])
                   }
-                  sessionsByPage.get(pageUrl)!.push(session)
+                  sessionsByPage.get(groupKey)!.push(session)
                 })
 
                 // Convert to array and sort: known pages first (alphabetically), then unknown
@@ -508,13 +516,12 @@ export default function AdminDashboard() {
                   )
                 }
 
-                return sortedGroups.map(([pageUrl, sessions]) => {
-                  // Find page title from widgetPages (handles query params and wildcard patterns)
-                  const pagePatterns = widgetPages.map(p => p.page_url)
-                  const matchedPattern = pageUrl ? findMatchingPattern(pageUrl, pagePatterns) : null
-                  const page = matchedPattern ? widgetPages.find(p => p.page_url === matchedPattern) : null
-                  const pageTitle = page?.page_title || (pageUrl ? 'Unknown Page' : 'Demo/Test Sessions')
-                  const pageKey = pageUrl || 'unknown'
+                return sortedGroups.map(([groupKey, sessions]) => {
+                  // groupKey is either a matched pattern or a raw URL (for unmatched sessions)
+                  const page = widgetPages.find(p => p.page_url === groupKey)
+                  const pageTitle = page?.page_title || (groupKey ? 'Unknown Page' : 'Demo/Test Sessions')
+                  const displayUrl = page?.page_url || groupKey
+                  const pageKey = groupKey || 'unknown'
                   const isPageExpanded = expandedPageGroups.has(pageKey)
 
                   // Count unread sessions in this group
@@ -542,8 +549,8 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </div>
-                        {pageUrl && (
-                          <p className="text-xs text-gray-500 mt-0.5 ml-6 truncate">{pageUrl}</p>
+                        {displayUrl && (
+                          <p className="text-xs text-gray-500 mt-0.5 ml-6 truncate">{displayUrl}</p>
                         )}
                       </div>
 
