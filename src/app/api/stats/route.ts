@@ -204,11 +204,30 @@ export async function GET(request: NextRequest) {
       return acc
     }, {} as Record<string, any[]>)
 
-    // Combine sessions with their messages
-    const formattedSessions = recentSessions?.map(session => ({
-      ...session,
-      messages: messagesBySession[session.session_id] || []
-    })) || []
+    // Combine sessions with their messages and compute is_unread
+    const formattedSessions = recentSessions?.map(session => {
+      const messages = messagesBySession[session.session_id] || []
+
+      // Compute is_unread: true if never viewed OR has messages newer than last_viewed_at
+      let isUnread = false
+      if (!session.last_viewed_at) {
+        // Never been viewed = unread
+        isUnread = true
+      } else {
+        // Check if any message is newer than last_viewed_at
+        const lastViewedTime = new Date(session.last_viewed_at).getTime()
+        isUnread = messages.some((msg: { created_at: string }) => {
+          const msgTime = new Date(msg.created_at).getTime()
+          return msgTime > lastViewedTime
+        })
+      }
+
+      return {
+        ...session,
+        messages,
+        is_unread: isUnread
+      }
+    }) || []
 
     return NextResponse.json({
       total: total || 0,

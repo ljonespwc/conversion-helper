@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star, Archive } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star, Archive, Bookmark, Circle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
@@ -33,6 +33,10 @@ interface ConversationSession {
   page_url: string | null
   user_rating: number | null
   messages: ConversationMessage[]
+  is_bookmarked: boolean
+  bookmarked_at: string | null
+  last_viewed_at: string | null
+  is_unread: boolean
 }
 
 interface Stats {
@@ -64,6 +68,7 @@ export default function AdminDashboard() {
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set())
   const [isArchiving, setIsArchiving] = useState(false)
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -126,7 +131,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const toggleSession = (sessionId: string) => {
+  const toggleSession = (sessionId: string, session?: ConversationSession) => {
     setExpandedSessions(prev => {
       const newSet = new Set(prev)
       if (newSet.has(sessionId)) {
@@ -137,6 +142,10 @@ export default function AdminDashboard() {
         posthog?.capture('conversation_expanded', {
           session_id: sessionId
         })
+        // Auto-mark as read when expanding
+        if (session?.is_unread) {
+          markAsRead(session.session_id)
+        }
       }
       return newSet
     })
@@ -200,6 +209,116 @@ export default function AdminDashboard() {
       alert('Failed to archive conversations. Please try again.')
     } finally {
       setIsArchiving(false)
+    }
+  }
+
+  const toggleBookmark = async (sessionId: string, currentValue: boolean, e: React.MouseEvent) => {
+    e.stopPropagation() // Don't expand/collapse on bookmark click
+
+    // Optimistically update the UI
+    setStats(prevStats => {
+      if (!prevStats) return prevStats
+      return {
+        ...prevStats,
+        recentSessions: prevStats.recentSessions.map(session =>
+          session.session_id === sessionId
+            ? { ...session, is_bookmarked: !currentValue, bookmarked_at: !currentValue ? new Date().toISOString() : null }
+            : session
+        )
+      }
+    })
+
+    try {
+      const response = await fetch(`/api/admin/conversations/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_bookmarked: !currentValue })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update bookmark')
+      }
+
+      // Track bookmark action
+      posthog?.capture('conversation_bookmark_toggled', {
+        session_id: sessionId,
+        is_bookmarked: !currentValue
+      })
+    } catch (error) {
+      console.error('Error toggling bookmark:', error)
+      // Revert on error
+      setStats(prevStats => {
+        if (!prevStats) return prevStats
+        return {
+          ...prevStats,
+          recentSessions: prevStats.recentSessions.map(session =>
+            session.session_id === sessionId
+              ? { ...session, is_bookmarked: currentValue, bookmarked_at: currentValue ? session.bookmarked_at : null }
+              : session
+          )
+        }
+      })
+    }
+  }
+
+  const markAsRead = async (sessionId: string) => {
+    const now = new Date().toISOString()
+
+    // Optimistically update the UI
+    setStats(prevStats => {
+      if (!prevStats) return prevStats
+      return {
+        ...prevStats,
+        recentSessions: prevStats.recentSessions.map(session =>
+          session.session_id === sessionId
+            ? { ...session, is_unread: false, last_viewed_at: now }
+            : session
+        )
+      }
+    })
+
+    try {
+      await fetch(`/api/admin/conversations/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ last_viewed_at: now })
+      })
+    } catch (error) {
+      console.error('Error marking as read:', error)
+    }
+  }
+
+  const toggleUnread = async (sessionId: string, currentlyUnread: boolean, e: React.MouseEvent) => {
+    e.stopPropagation() // Don't expand/collapse
+
+    if (currentlyUnread) {
+      // Mark as read
+      await markAsRead(sessionId)
+    } else {
+      // Mark as unread by setting last_viewed_at to a past date
+      const pastDate = new Date(0).toISOString()
+
+      setStats(prevStats => {
+        if (!prevStats) return prevStats
+        return {
+          ...prevStats,
+          recentSessions: prevStats.recentSessions.map(session =>
+            session.session_id === sessionId
+              ? { ...session, is_unread: true, last_viewed_at: pastDate }
+              : session
+          )
+        }
+      })
+
+      try {
+        await fetch(`/api/admin/conversations/${sessionId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ last_viewed_at: pastDate })
+        })
+      } catch (error) {
+        console.error('Error marking as unread:', error)
+      }
     }
   }
 
@@ -325,15 +444,29 @@ export default function AdminDashboard() {
         <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">Recent Conversations</h2>
-            {selectedSessions.size > 0 && (
+            <div className="flex items-center gap-3">
+              {/* Bookmark Filter Toggle */}
               <button
-                onClick={() => setShowArchiveConfirm(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+                onClick={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  showBookmarkedOnly
+                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                }`}
               >
-                <Archive className="w-4 h-4" />
-                Archive Selected ({selectedSessions.size})
+                <Bookmark className={`w-4 h-4 ${showBookmarkedOnly ? 'fill-current' : ''}`} />
+                {showBookmarkedOnly ? 'Bookmarked' : 'Show Bookmarked'}
               </button>
-            )}
+              {selectedSessions.size > 0 && (
+                <button
+                  onClick={() => setShowArchiveConfirm(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <Archive className="w-4 h-4" />
+                  Archive Selected ({selectedSessions.size})
+                </button>
+              )}
+            </div>
           </div>
 
           {loading ? (
@@ -343,10 +476,15 @@ export default function AdminDashboard() {
           ) : stats?.recentSessions?.length ? (
             <div>
               {(() => {
+                // Filter sessions if bookmark filter is active
+                const filteredSessions = showBookmarkedOnly
+                  ? stats.recentSessions.filter(s => s.is_bookmarked)
+                  : stats.recentSessions
+
                 // Group sessions by page_url
                 const sessionsByPage = new Map<string | null, ConversationSession[]>()
 
-                stats.recentSessions.forEach(session => {
+                filteredSessions.forEach(session => {
                   const pageUrl = session.page_url || null
                   if (!sessionsByPage.has(pageUrl)) {
                     sessionsByPage.set(pageUrl, [])
@@ -361,6 +499,15 @@ export default function AdminDashboard() {
                   return urlA.localeCompare(urlB)
                 })
 
+                // Show message if no sessions after filtering
+                if (sortedGroups.length === 0 && showBookmarkedOnly) {
+                  return (
+                    <div className="px-6 py-8 text-center text-gray-400">
+                      No bookmarked conversations. Click the bookmark icon on a conversation to save it for later.
+                    </div>
+                  )
+                }
+
                 return sortedGroups.map(([pageUrl, sessions]) => {
                   // Find page title from widgetPages (handles query params and wildcard patterns)
                   const pagePatterns = widgetPages.map(p => p.page_url)
@@ -369,6 +516,9 @@ export default function AdminDashboard() {
                   const pageTitle = page?.page_title || (pageUrl ? 'Unknown Page' : 'Demo/Test Sessions')
                   const pageKey = pageUrl || 'unknown'
                   const isPageExpanded = expandedPageGroups.has(pageKey)
+
+                  // Count unread sessions in this group
+                  const unreadCount = sessions.filter(s => s.is_unread).length
 
                   return (
                     <div key={pageKey} className="border-b border-gray-700 last:border-b-0">
@@ -386,6 +536,11 @@ export default function AdminDashboard() {
                           <Globe className="w-4 h-4 text-blue-400" />
                           <h3 className="text-sm font-semibold text-white">{pageTitle}</h3>
                           <span className="text-xs text-gray-500">({sessions.length})</span>
+                          {unreadCount > 0 && (
+                            <span className="text-xs text-blue-400 font-medium">
+                              {unreadCount} unread
+                            </span>
+                          )}
                         </div>
                         {pageUrl && (
                           <p className="text-xs text-gray-500 mt-0.5 ml-6 truncate">{pageUrl}</p>
@@ -428,9 +583,33 @@ export default function AdminDashboard() {
                     {/* Session Header */}
                     <div
                       className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-700/50 transition-colors"
-                      onClick={() => toggleSession(session.id)}
+                      onClick={() => toggleSession(session.id, session)}
                     >
                       <div className="flex items-center space-x-3">
+                        {/* Bookmark icon */}
+                        <button
+                          onClick={(e) => toggleBookmark(session.session_id, session.is_bookmarked, e)}
+                          className={`p-1 rounded transition-colors ${
+                            session.is_bookmarked
+                              ? 'text-yellow-400 hover:text-yellow-300'
+                              : 'text-gray-500 hover:text-gray-300'
+                          }`}
+                          title={session.is_bookmarked ? 'Remove bookmark' : 'Add bookmark'}
+                        >
+                          <Bookmark className={`w-4 h-4 ${session.is_bookmarked ? 'fill-current' : ''}`} />
+                        </button>
+                        {/* Unread indicator */}
+                        <button
+                          onClick={(e) => toggleUnread(session.session_id, session.is_unread, e)}
+                          className={`p-0.5 rounded transition-colors ${
+                            session.is_unread
+                              ? 'text-blue-400'
+                              : 'text-gray-600 hover:text-gray-400'
+                          }`}
+                          title={session.is_unread ? 'Mark as read' : 'Mark as unread'}
+                        >
+                          <Circle className={`w-2.5 h-2.5 ${session.is_unread ? 'fill-current' : ''}`} />
+                        </button>
                         {/* Selection checkbox */}
                         <input
                           type="checkbox"
@@ -447,7 +626,7 @@ export default function AdminDashboard() {
                           )}
                         </button>
                         <div>
-                          <div className="text-sm font-medium text-white">
+                          <div className={`text-sm font-medium ${session.is_unread ? 'text-white' : 'text-gray-300'}`}>
                             {new Date(session.started_at).toLocaleTimeString('en-US', {
                               hour: 'numeric',
                               minute: '2-digit',
