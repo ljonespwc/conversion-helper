@@ -25,6 +25,7 @@ interface ChatInterfaceProps {
   isDemo?: boolean
   apiKey?: string
   isExperimental?: boolean
+  groupId?: string
 }
 
 export default function ChatInterface({
@@ -34,7 +35,8 @@ export default function ChatInterface({
   timezone,
   isDemo = false,
   apiKey,
-  isExperimental = false
+  isExperimental = false,
+  groupId
 }: ChatInterfaceProps) {
   const posthog = usePostHog()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -60,6 +62,7 @@ export default function ChatInterface({
     pageUrl: effectivePageUrl,
     apiKey,
     timezone,
+    groupId,
     onError: (err) => console.error('Chat error:', err),
     onResponse: () => {
       // Trigger sparkle burst on response

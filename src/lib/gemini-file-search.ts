@@ -191,9 +191,10 @@ export function normalizePageUrl(url: string): string {
  *
  * @param pageUrl - The visitor's actual URL
  * @param organizationId - Optional org ID to enable pattern matching (recommended)
+ * @param groupId - Optional group ID for direct matching (bypasses URL pattern matching)
  * @returns Widget page config with the matched pattern URL, or null if no match
  */
-export async function getWidgetPage(pageUrl: string, organizationId?: string): Promise<{
+export async function getWidgetPage(pageUrl: string, organizationId?: string, groupId?: string): Promise<{
   organization_id: string;
   page_title: string;
   page_url: string; // The matched pattern URL (canonical identifier)
@@ -201,7 +202,7 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string): P
   organization_name: string;
 } | null> {
   try {
-    // If organization ID is provided, use pattern matching
+    // If organization ID is provided, use pattern matching (or group ID direct matching)
     if (organizationId) {
       // Fetch all widget pages for this organization
       const { data: pages, error } = await supabase
@@ -217,28 +218,41 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string): P
         return null;
       }
 
-      // Build array of page URLs for pattern matching
-      const pageUrls = pages.map(p => p.page_url);
+      let matchedPage;
 
-      // Find matching pattern (exact matches take priority over wildcards)
-      const matchedPattern = findMatchingPattern(pageUrl, pageUrls);
+      if (groupId) {
+        // Group ID provided: direct match against page_url
+        // This bypasses URL pattern matching entirely
+        matchedPage = pages.find(p => p.page_url === groupId);
 
-      if (!matchedPattern) {
-        return null;
-      }
+        if (!matchedPage) {
+          return null;
+        }
+      } else {
+        // No group ID: use URL pattern matching
+        // Build array of page URLs for pattern matching
+        const pageUrls = pages.map(p => p.page_url);
 
-      // Find the page data for the matched pattern
-      const matchedPage = pages.find(p => p.page_url === matchedPattern);
+        // Find matching pattern (exact matches take priority over wildcards)
+        const matchedPattern = findMatchingPattern(pageUrl, pageUrls);
 
-      if (!matchedPage) {
-        return null;
+        if (!matchedPattern) {
+          return null;
+        }
+
+        // Find the page data for the matched pattern
+        matchedPage = pages.find(p => p.page_url === matchedPattern);
+
+        if (!matchedPage) {
+          return null;
+        }
       }
 
       const organizations = matchedPage.organizations as any;
       return {
         organization_id: matchedPage.organization_id,
         page_title: matchedPage.page_title,
-        page_url: matchedPage.page_url, // Return the pattern URL
+        page_url: matchedPage.page_url, // Return the pattern URL or group ID
         page_goal: matchedPage.page_goal,
         organization_name: organizations?.name || ''
       };

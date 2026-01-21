@@ -15,9 +15,10 @@ interface VoiceWidgetProps {
   timezone?: string
   isDemo?: boolean
   apiKey?: string
+  groupId?: string
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
@@ -49,9 +50,10 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
       setIsExperimental(false)
 
       // Try to fetch page info from widget pages API (with cache-busting)
-      // Include API key for authorization
+      // Include API key for authorization and optional group_id for direct matching
       const keyParam = apiKey ? `&key=${encodeURIComponent(apiKey)}` : ''
-      fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}${keyParam}&_t=${Date.now()}`, {
+      const groupParam = groupId ? `&group_id=${encodeURIComponent(groupId)}` : ''
+      fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}${keyParam}${groupParam}&_t=${Date.now()}`, {
         cache: 'no-store'
       })
         .then(res => res.json())
@@ -85,7 +87,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           }
         })
     }
-  }, [pageUrl, embedded, apiKey])
+  }, [pageUrl, embedded, apiKey, groupId])
 
 
 
@@ -130,6 +132,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             isDemo={isDemo}
             apiKey={apiKey}
             isExperimental={isExperimental}
+            groupId={groupId}
           />
         )}
       </AnimatePresence>

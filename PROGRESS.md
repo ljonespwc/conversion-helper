@@ -532,6 +532,35 @@ Edit `src/lib/experimental.ts` and add URL to `EXPERIMENTAL_PAGES` array.
 
 ---
 
+## ✅ Group ID Widget Targeting (2026-01-20)
+
+Alternative to URL-based page matching. Use when the visitor's URL can't reliably identify the content context (e.g., SPAs, dynamic pages).
+
+### Embed Code
+```html
+<script src="https://easyask.io/widget.js"
+        data-key="pk_live_..."
+        data-group-id="coaching-program">
+</script>
+```
+
+### How It Works
+- `data-group-id` bypasses URL pattern matching entirely
+- Directly matches `widget_pages.page_url` against the group ID value
+- Content assigned to `page_url = "coaching-program"` is used for File Search filtering
+- Experimental mode works with group IDs (add to `EXPERIMENTAL_PAGES` array)
+
+### Setup
+1. Create widget_page in admin with `page_url` = your group ID (e.g., `"coaching-program"`)
+2. Assign content to that page
+3. Add `data-group-id="coaching-program"` to embed code
+
+### Notes
+- Group ID can be any string (including numeric values like `"123"`)
+- Backwards compatible: omit `data-group-id` for standard URL-based matching
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)

@@ -13,9 +13,10 @@ interface WidgetModalProps {
   isDemo?: boolean
   apiKey?: string
   isExperimental?: boolean
+  groupId?: string
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId }: WidgetModalProps) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -59,7 +60,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         </div>
 
         <div className="flex-1 overflow-hidden">
-          <ChatInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} />
+          <ChatInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} groupId={groupId} />
         </div>
       </motion.div>
     </motion.div>

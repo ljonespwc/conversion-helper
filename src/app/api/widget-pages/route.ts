@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const pageUrl = searchParams.get('url')
     const apiKey = searchParams.get('key')
+    const groupId = searchParams.get('group_id')
 
     if (!pageUrl) {
       return NextResponse.json({ error: 'URL parameter required' }, { status: 400 })
@@ -62,21 +63,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
     }
 
-    // Build array of all page URLs for pattern matching
-    const pageUrls = pages.map(p => p.page_url)
+    let page
+    let matchedPattern: string | null
 
-    // Find matching pattern (exact matches take priority over wildcard patterns)
-    const matchedPattern = findMatchingPattern(pageUrl, pageUrls)
+    if (groupId) {
+      // Group ID provided: direct match against page_url
+      // This bypasses URL pattern matching entirely
+      page = pages.find(p => p.page_url === groupId)
+      matchedPattern = groupId
 
-    if (!matchedPattern) {
-      return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
-    }
+      if (!page) {
+        return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+      }
+    } else {
+      // No group ID: use URL pattern matching
+      // Build array of all page URLs for pattern matching
+      const pageUrls = pages.map(p => p.page_url)
 
-    // Find the page that corresponds to the matched pattern
-    const page = pages.find(p => p.page_url === matchedPattern)
+      // Find matching pattern (exact matches take priority over wildcard patterns)
+      matchedPattern = findMatchingPattern(pageUrl, pageUrls)
 
-    if (!page) {
-      return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+      if (!matchedPattern) {
+        return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+      }
+
+      // Find the page that corresponds to the matched pattern
+      page = pages.find(p => p.page_url === matchedPattern)
+
+      if (!page) {
+        return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+      }
     }
 
     const response = {

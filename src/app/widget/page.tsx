@@ -16,6 +16,7 @@ function WidgetContent() {
   const position: 'bottom-left' | 'bottom-right' = positionParam === 'bottom-left' ? 'bottom-left' : 'bottom-right'
   const timezone = searchParams.get('tz') || undefined
   const apiKey = searchParams.get('key') || undefined
+  const groupId = searchParams.get('group_id') || undefined
 
   useEffect(() => {
     // Inject style tag to force transparent background (overrides Tailwind's bg-background)
@@ -45,7 +46,7 @@ function WidgetContent() {
 
   return (
     <div className="w-full h-screen bg-transparent">
-      <VoiceWidget embedded={true} pageUrl={pageUrl || undefined} position={position} timezone={timezone} apiKey={apiKey} />
+      <VoiceWidget embedded={true} pageUrl={pageUrl || undefined} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} />
     </div>
   )
 }

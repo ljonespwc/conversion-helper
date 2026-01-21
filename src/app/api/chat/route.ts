@@ -148,6 +148,7 @@ interface ChatRequest {
   message: string
   page_url: string
   api_key: string
+  group_id?: string
 }
 
 interface ChatResponse {
@@ -161,7 +162,7 @@ interface ChatResponse {
 export async function POST(request: Request) {
   try {
     const body: ChatRequest = await request.json()
-    const { session_id, message, page_url, api_key } = body
+    const { session_id, message, page_url, api_key, group_id } = body
 
     // Validate required fields
     if (!session_id) {
@@ -218,17 +219,19 @@ export async function POST(request: Request) {
 
     // Get widget page configuration with pattern matching support
     // Pass org.id to enable URL pattern matching (e.g., https://example.com/blog/*)
-    const widgetPage = await getWidgetPage(page_url, org.id)
+    // Pass group_id to use direct matching (bypasses URL pattern matching)
+    const widgetPage = await getWidgetPage(page_url, org.id, group_id)
     if (!widgetPage) {
       return NextResponse.json({ error: 'Page not configured' }, { status: 404 })
     }
 
     // Use the matched pattern URL (canonical identifier) for content queries
     // This ensures content assigned to a pattern like "blog/*" is used for "blog/my-post"
+    // For group_id matching, this will be the group_id value itself
     const contentPageUrl = widgetPage.page_url
 
-    // Check if experimental mode
-    const isExperimental = isExperimentalPage(page_url)
+    // Check if experimental mode - use contentPageUrl to support both URL and group_id matching
+    const isExperimental = isExperimentalPage(contentPageUrl)
 
     // Initialize conversation history if needed
     if (!conversationHistory[session_id]) {

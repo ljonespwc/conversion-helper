@@ -14,6 +14,7 @@ interface UseChatOptions {
   pageUrl: string
   apiKey?: string
   timezone?: string
+  groupId?: string
   onError?: (error: Error) => void
   onResponse?: (response: string) => void
 }
@@ -42,7 +43,7 @@ const getStorageKey = (apiKey: string) =>
   `${STORAGE_KEY_PREFIX}${apiKey?.substring(0, 20) || 'default'}`
 
 export function useChat(options: UseChatOptions): UseChatReturn {
-  const { pageUrl, apiKey, timezone, onError, onResponse } = options
+  const { pageUrl, apiKey, timezone, groupId, onError, onResponse } = options
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -180,7 +181,8 @@ export function useChat(options: UseChatOptions): UseChatReturn {
           message: message.trim(),
           page_url: pageUrl,
           api_key: apiKey,
-          timezone
+          timezone,
+          group_id: groupId
         })
       })
 
@@ -226,7 +228,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [sessionId, pageUrl, apiKey, timezone, onError, onResponse])
+  }, [sessionId, pageUrl, apiKey, timezone, groupId, onError, onResponse])
 
   const endSession = useCallback(() => {
     setMessages([])
