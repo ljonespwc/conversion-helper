@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-01-15
+**Last Updated**: 2026-01-21
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -44,12 +44,11 @@ This includes:
 **Structure**:
 - **URL**: `/demo?url=https://example.com/[page]`
 - **Architecture**: Target page loads in iframe with widget overlay
-- **Validation**: Whitelist of allowed domains (precisionnutrition.com, layercode.com)
+- **Validation**: Whitelist of allowed domains (precisionnutrition.com)
 - **Note**: Some sites block iframe embedding with X-Frame-Options or CSP headers
 - **Widget positioning**: Bottom-left (CSS override)
 - **Customizations**:
   - No backdrop blur (allows page scrolling/interaction)
-  - Voice button 50% smaller (`p-4` instead of `p-8`)
   - Demo badge in top-left corner
 
 **Files**:
@@ -180,25 +179,31 @@ const markdown = await response.text()
 ### Middleware
 - Auto-refreshes tokens on every request
 - Redirects unauthenticated → `/login`
-- Excludes: static assets, Layercode webhook
+- Excludes: static assets, public API routes
 
 ---
 
 ## 🔧 Database Schema
 
-### Core Tables
-- **organizations** - Companies using widget (file_search_store_name, website_url)
-- **users** - Team members (organization_id, role: owner/admin/editor/analyst)
-- **widget_pages** - Pages where widget appears (page_url, page_title, page_goal)
-- **indexed_pages** - Documents in File Search (page_urls array for filtering)
-- **scraping_jobs** / **file_uploads** - Content management with dual status tracking
-- **conversation_sessions** / **conversation_messages** - Analytics + escalations
+### Core Tables (9 total, all RLS-enabled)
+
+| Table | Rows | Purpose |
+|-------|------|---------|
+| **organizations** | 2 | Companies using widget (publishable_key, file_search_store_name, show_branding) |
+| **users** | 2 | Team members (organization_id, role: owner/admin/editor/analyst) |
+| **widget_pages** | 3 | Pages where widget appears (page_url, page_title, page_goal, widget_line1/2) |
+| **indexed_pages** | 25 | Documents in File Search (page_urls array, document_id, source_type) |
+| **scraping_jobs** | 4 | URL scraping jobs (scraping_status + indexing_status for retry) |
+| **file_uploads** | 22 | Uploaded files (file_path in Supabase Storage) |
+| **conversation_sessions** | 62 | Chat sessions (user_rating, user_email, is_bookmarked, last_viewed_at) |
+| **conversation_messages** | 306 | Messages (role, message, timestamp, needs_followup) |
+| **early_access_signups** | 2 | Landing page email signups |
 
 ### Key Patterns
 - **Organization-centric**: All data scoped by `organization_id` (not user_id)
-- **Page-based filtering**: Documents tagged with `page_urls` array
-- **Dual status tracking**: `scraping_status` + `indexing_status` (allows retry)
-- **RLS**: All tables filter by organization_id
+- **Page-based filtering**: Documents tagged with `page_urls` array for File Search filtering
+- **Dual status tracking**: `scraping_status` + `indexing_status` (allows retry on failure)
+- **Admin tracking**: `is_bookmarked`, `last_viewed_at` for conversation management
 
 ---
 
@@ -212,9 +217,6 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
 GEMINI_API_KEY
-LAYERCODE_API_KEY
-NEXT_PUBLIC_LAYERCODE_PIPELINE_ID
-LAYERCODE_WEBHOOK_SECRET
 UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
 NEXT_PUBLIC_APP_URL=https://easyask.io
@@ -224,86 +226,31 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 
 ## 📋 Completed Features
 
-### ✅ Phase 1-6: Core Platform (2025-11-10 to 11-12)
+### ✅ Core Platform (2025-11-10 to 11-18)
 - Gemini File Search integration for semantic RAG
 - Supabase SSR authentication (email/password + magic link)
 - Drag & drop file upload with unified Storage architecture
-- Jina AI Reader scraping (2-4x faster than Firecrawl, FREE)
+- Jina AI Reader scraping (FREE, 500-800ms)
 - Page-based architecture: 1 Organization = 1 Website = 1 File Search Store
-- Cascade deletion with confirmation modals
-
-### ✅ Conversation Tracking Simplification (2025-11-14)
-- Raw transcript storage from Layercode session.end events
-- Removed complex metadata matching (~100 lines of code)
-- Added "Avg Session Duration" metric (removed "Content Match Rate")
-- `conversation_messages`: role, message, timestamp, needs_followup, followup_reason
-- `conversation_sessions`: total_questions, started_at, ended_at, user_email, escalation fields
-
-### ✅ Gemini Context & Prompting Fix (2025-11-15)
-**Critical improvement - now part of protected system**
-- Pass full conversation history to Gemini (not just current question)
-- System instructions properly sent via `systemInstruction` config
-- Strong sales-focused prompts with CRITICAL RULES:
-  - ❌ NEVER ask users to clarify ("What's the price?" → direct answer)
-  - ✅ Use conversation context for pronouns ("that", "it")
-- Files: `src/lib/gemini-file-search.ts`, `src/app/api/layercode/webhook/route.ts`
-
-### ✅ Performance Optimization (2025-11-15)
-- In-memory cache (5min TTL) for widget page/user lookups
-- Gemini config: temperature: 0.3, maxOutputTokens: 1500
-- DB query optimization (select only needed columns)
-- Conversation context caching in memory
-- Result: Cache hit = ~0ms vs ~50-100ms DB query
-
-### ✅ Widget UI/UX (2025-11-16)
-- Text response display with markdown formatting, sparkle icon, copy button
-- Sparkle burst animation (8 sparkles) when AI answer arrives
-- Collapsible conversation history with copy function
-- Animated orb button with sound waves, blue-purple gradient
-- Mobile two-tap flow (expand pill → open modal)
-- Files: `SimplifiedVoiceInterface.tsx`, `WidgetButton.tsx`
-
-### ✅ Security Validation (2025-11-16)
-- **File Upload**: MIME type validation (magic numbers), UTF-8 validation, 10MB/50MB limits
-- **Scraping**: SSRF protection, private IP blocking, protocol restriction, 45s timeout + 3 retries, 5MB limit
-- Package: `file-type` for magic number detection
-
-### ✅ Email Escalation & AI Analysis (2025-11-16)
-- Email capture UI appears after first AI response
-- Gemini 2.5-flash-lite analyzes conversations (~$0.000075 per analysis)
-- Conservative flagging: incomplete responses, unhelpful answers
-- Fire-and-forget analysis trigger in webhook (non-blocking)
-- Admin dashboard: filters, expandable transcripts, flagged message badges
-- Files: `conversation-analysis.ts`, `/api/conversations/escalate`, `/admin/escalations`
-
-### ✅ Abuse Prevention & Rate Limiting (2025-11-17)
-- **IP-based limits** (Upstash Redis): 5 sessions/hr, 100 webhooks/hr, 3 emails/day
-- **Session limits**: 50 messages max, 5-min idle timeout
-- **Webhook verification**: HMAC-SHA256 signatures, replay attack prevention
-- Result: Cost reduced from $500-2000/day → ~$20-50/day (95% reduction)
-- Files: `src/lib/ratelimit.ts`, `src/lib/webhook-verification.ts`
-
-### ✅ Multi-User Organization Migration (2025-11-18)
-- **Architecture change**: user-centric → organization-centric data model
-- Multiple users can now collaborate within same organization
-- Updated 16 admin API endpoints to filter by organization_id
-- Fixed cross-org data leakage (critical security fix in escalations)
+- Multi-user organizations with role-based access (owner/admin/editor/analyst)
 - See: `docs/MULTI_USER_ORG_MIGRATION.md`
 
-### ✅ PostHog Analytics (2025-11-20)
-- **Widget events**: opened, started, response_copied, feedback_submitted, escalation_submitted
-- **Admin events**: dashboard_viewed, page_filtered, conversation_expanded
-- Privacy-first: no conversation content, inputs masked in session replay
-- Anonymous visitor tracking, identified admin tracking
-- Files: `PostHogProvider.tsx`, widget/admin components
+### ✅ AI & Conversation (2025-11-14 to 11-16)
+- Full conversation history passed to Gemini (not just current question)
+- Sales-focused prompts: never ask for clarification, use context for pronouns
+- In-memory caching for widget page lookups (~0ms vs ~50-100ms)
+- Email escalation with AI analysis of incomplete responses
 
-### ✅ Layercode SDK Upgrade to 2.8.2 (2025-11-27)
-- **Upgraded**: `@layercode/react-sdk` from 2.1.3 → 2.8.2
-- **Breaking change**: SDK no longer auto-connects; requires explicit `connect()` call
-- **New flow**: User taps "Start" → `connect()` → on `connected` status → `setAudioInput(true)`
-- **Key config**: `audioInput: false` defers mic permission until after connection
-- **Hook**: `useSimpleLayercodeVoice.ts` with `startVoiceSession()` / `endSession()` actions
-- **Mobile note**: Greeting may be missed if permission dialog is slow (minor UX issue)
+### ✅ Security & Rate Limiting (2025-11-16 to 11-17)
+- **File Upload**: MIME type validation (magic numbers), UTF-8 validation, 10MB limit
+- **Scraping**: SSRF protection, private IP blocking, 45s timeout, 5MB limit
+- **Rate limits** (Upstash Redis): 50 messages/session, 5 sessions/hr per IP, 3 emails/day
+- Package: `file-type` for magic number detection
+
+### ✅ PostHog Analytics (2025-11-20)
+- Widget events: opened, response_copied, feedback_submitted, escalation_submitted
+- Admin events: dashboard_viewed, page_filtered, conversation_expanded
+- Privacy-first: no conversation content, inputs masked in session replay
 
 ---
 
@@ -327,27 +274,6 @@ When ready to accept new users again:
 2. Uncomment signup UI toggle in login page
 3. Restore onboarding redirect in OAuth callback
 4. Change `shouldCreateUser` back to `true`
-
----
-
-## ✅ iOS Audio Permission Fix (2025-12-02)
-
-Fixed race condition where iOS Safari blocks greeting TTS if mic permission isn't granted fast enough.
-
-### Root Cause
-Layercode backend sends `stream.tts(greeting)` immediately on `session.start`, but iOS gates audio output behind mic permission. If user is slow to tap "Allow", greeting displays but doesn't speak, and subsequent interactions hang.
-
-### Solution: Permission-First Flow + Proactive Recovery
-1. **Permission-first**: Request mic via `getUserMedia()` BEFORE calling Layercode `connect()`. iOS audio system is initialized when greeting arrives.
-2. **Recovery handler**: `handleRecovery()` disconnects broken connection and reconnects fresh
-3. **Proactive retry**: "Didn't hear me? Tap to retry" link appears 2s after greeting (no 10s timeout wait)
-4. **Safety net**: 10-second thinking timeout still exists as final fallback
-
-### Files Modified
-- `src/components/widget/SimplifiedVoiceInterface.tsx` - All changes in this single file
-
-### Limitations
-Cannot fully fix root cause without Layercode backend changes (greeting TTS timing). This is a graceful workaround.
 
 ---
 
@@ -375,26 +301,20 @@ Added API key authorization to prevent unauthorized widget usage. Previously, an
 ```
 
 ### Security Model
-- **Defense in depth**: Key validated at 3 points (widget-pages API, layercode authorize, webhook)
+- **Defense in depth**: Key validated at widget-pages API and chat API
 - **Silent failure**: Invalid keys return empty data, no error messages exposed
-- **Organization scoping**: Page queries filtered by org ID from key lookup
+- **Organization scoping**: All queries filtered by org ID from key lookup
 
 ### Admin Experience
 - Embed code in admin dashboard now auto-populates with customer's key
 - API key displayed in Organization Details with copy button
 
 ### Files Modified
-- `src/lib/api-keys.ts` (NEW) - Key generation, validation, masking utilities
+- `src/lib/api-keys.ts` - Key generation, validation, masking utilities
 - `public/widget.js` - Reads `data-key` attribute, passes to iframe
 - `src/app/api/widget-pages/route.ts` - Validates key, scopes queries to org
-- `src/app/api/layercode/authorize/route.ts` - Validates key before Layercode session
-- `src/app/api/layercode/webhook/route.ts` - Uses key for org lookup
+- `src/app/api/chat/route.ts` - Validates key for chat requests
 - `src/app/admin/pages/page.tsx` - Shows personalized embed code + API key display
-
-### Migration
-- Existing orgs (EasyAsk, Precision Nutrition) have keys auto-generated
-- EasyAsk landing page and demo page updated with key
-- Precision Nutrition needs to update their embed code
 
 ### ⚠️ GTM (Google Tag Manager) Limitation
 **Problem**: GTM strips `data-*` attributes from external `<script src="...">` tags in Custom HTML. The script loads but without the `data-key` attribute, causing widget to silently fail.
@@ -415,47 +335,6 @@ Added API key authorization to prevent unauthorized widget usage. Previously, an
 ```
 
 **When to share**: If customer reports widget.js loads but widget doesn't appear, check if they're using GTM.
-
----
-
-## ✅ Voice-to-Chat Migration (2026-01-10)
-
-Replaced Layercode voice interface with text-based chat. Simplifies architecture, reduces costs, and improves reliability.
-
-### What Changed
-- **Removed**: Layercode SDK, WebSocket STT/TTS, voice-specific UI
-- **Added**: Text input chat interface with markdown rendering
-- **Simplified**: No more mic permissions, audio processing, or voice timing issues
-
-### Deleted Files
-- `src/app/api/layercode/authorize/route.ts` - Layercode session authorization
-- `src/app/api/layercode/webhook/route.ts` - Voice conversation handler
-- `src/components/widget/SimplifiedVoiceInterface.tsx` - Voice UI with orb animation
-- `src/hooks/useSimpleLayercodeVoice.ts` - Layercode SDK hook
-- `src/lib/conversation-metadata.ts` - Voice session metadata
-- `src/lib/webhook-verification.ts` - Layercode webhook HMAC verification
-
-### New Files
-- `src/app/api/chat/route.ts` - Chat API endpoint (greeting + messages)
-- `src/components/widget/ChatInterface.tsx` - Full chat UI (input, responses, history, rating, escalation)
-- `src/hooks/useChat.ts` - Chat state management hook
-
-### Modified Files
-- `src/components/widget/WidgetButton.tsx` - Now shows chat icon instead of voice orb
-- `src/components/widget/WidgetModal.tsx` - Wraps ChatInterface instead of SimplifiedVoiceInterface
-
-### Architecture
-1. User opens widget → `startSession()` → `/api/chat` (is_greeting: true) → greeting message
-2. User types question → `sendMessage()` → `/api/chat` → Gemini File Search → response
-3. Conversation history stored in-memory on server (keyed by session_id)
-4. Messages tracked to `conversation_sessions` / `conversation_messages` tables
-
-### Benefits
-- No mic permission dialogs
-- No audio latency or iOS audio bugs
-- No Layercode dependency/costs
-- Simpler debugging (text logs vs audio)
-- Works in all browsers consistently
 
 ---
 
@@ -594,6 +473,6 @@ Alternative to URL-based page matching. Use when the visitor's URL can't reliabl
 - `src/hooks/useChat.ts` - Chat state management
 
 ### Documentation
-- `MINDSET.md` - Architecture principles (SLC: Simple, Lovable, Complete)
-- `CLAUDE.md` - Project context for AI assistance
+- `docs/MINDSET.md` - Architecture principles (SLC: Simple, Lovable, Complete)
+- `CLAUDE.md` - Project context and value proposition
 - `docs/MULTI_USER_ORG_MIGRATION.md` - Schema migration details

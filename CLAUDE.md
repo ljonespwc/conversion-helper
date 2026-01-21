@@ -1,7 +1,9 @@
-# Conversion Helper - Voice Assistant Project
+# EasyAsk - Conversational AI Widget
 
 ## Project Overview
-Building a voice-enabled AI assistant widget that helps visitors find answers to frequently asked questions through natural conversation. The widget appears as a small button on the page that opens a modal with voice interaction capabilities.
+Building a text-based AI chat widget that helps website visitors find answers through natural conversation. The widget appears as a small button on the page that opens a modal with a chat interface. Answers are grounded in the customer's own content (scraped pages + uploaded files) via Gemini File Search.
+
+**For technical details and project history, see `docs/PROGRESS.md`.**
 
 ## Supabase Configuration
 **Project ID**: `fwimhxkkszdaogugslar` (conversionhelper project)
@@ -38,11 +40,11 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 
 ### Primary Features & Benefits
 
-#### 1. **Voice + Text Conversation**
-**Feature:** Natural voice interaction with real-time text streaming
-**Benefit:** Visitors choose how they engage - speak naturally or read along as the AI responds. Lower friction = higher engagement.
+#### 1. **Conversational Chat Interface**
+**Feature:** Natural text chat with instant AI responses
+**Benefit:** Visitors type questions and get immediate, contextual answers. Lower friction than forms or searching through pages.
 
-*"Talk to your website like you'd talk to sales."*
+*"Get answers instantly, right where you're browsing."*
 
 #### 2. **Page-Specific Intelligence**
 **Feature:** Different AI knowledge per page (pricing, features, support, etc.)
@@ -94,7 +96,7 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 **The Problem:** Complex feature sets, multiple pricing tiers, technical requirements. Prospects bounce because they can't find answers fast enough.
 
 **EasyAsk Solution:**
-✓ Voice-first interface makes complex info digestible
+✓ Conversational chat makes complex info digestible
 ✓ Page-specific AI delivers relevant answers (features page = feature deep-dive, pricing page = pricing details)
 ✓ Captures purchase intent signals ("How likely are you to buy?") to prioritize hot leads
 ✓ Routes unanswered questions to sales with email capture
@@ -124,7 +126,7 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 **The Problem:** 87 FAQ entries. Zero engagement. Tickets pile up with the same questions.
 
 **EasyAsk Solution:**
-✓ Voice + text makes support conversational, not transactional
+✓ Chat interface makes support conversational, not transactional
 ✓ Upload support docs, policies, troubleshooting guides - AI answers from your knowledge base
 ✓ Can't answer? Captures email + question, escalates to support automatically
 ✓ Feedback ratings show where documentation needs improvement
@@ -135,7 +137,7 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 
 ### Key Differentiators
 
-1. **Voice-first, not chat-first** → Lower barrier to engagement
+1. **Instant conversational answers** → Lower barrier than forms, search, or reading docs
 2. **Page-specific filtering** → Contextually relevant, not generic
 3. **Built for conversion** → Purchase intent + satisfaction scoring built-in
 4. **Smart escalation** → Email capture when AI can't answer (no leads lost)
@@ -143,23 +145,14 @@ EasyAsk replaces static content with intelligent conversation - meeting prospect
 
 ---
 
-### Tagline Options
-
-- **"Turn browsing into buying."**
-- **"Every question answered. Every lead captured."**
-- **"Your website's voice. Your sales team's best closer."**
-- **"AI that sells while you sleep."**
-
----
-
-### Core Value Drivers (from Lance)
+### Core Value Drivers
 
 These are the fundamental reasons why businesses choose EasyAsk, as articulated by the founder:
 
 1. **People DON'T read**
    - Especially helpful for long sales pages visited on mobile devices
-   - Voice conversation makes dense information digestible
-   - Visitors can absorb complex details without scrolling through walls of text
+   - Conversational Q&A makes dense information digestible
+   - Visitors can ask specific questions instead of scrolling through walls of text
 
 2. **Real-time objection handling**
    - Strike while the iron's hot
@@ -171,11 +164,11 @@ These are the fundamental reasons why businesses choose EasyAsk, as articulated 
    - If AI can't answer → captures email + question → routes to sales/support
    - Convert "maybe later" into actionable leads
 
-4. **Voice-first engagement**
-   - Much lower friction than typing
+4. **Low-friction chat engagement**
+   - Much lower friction than forms or searching docs
    - Keeps visitors on-site longer
-   - More natural than chatbots
-   - Accessibility advantage for mobile users
+   - More natural than FAQ pages or knowledge bases
+   - Works seamlessly on mobile
 
 5. **Only our content, not hallucinations**
    - Grounded 100% in our docs, sales decks, policies
@@ -191,63 +184,3 @@ These are the fundamental reasons why businesses choose EasyAsk, as articulated 
    - Cut down on "what's the price?"-type support questions
    - Free up human team for complex issues and relationship building
    - Scale support without scaling headcount
-
----
-
-## Monitoring Production Logs
-
-When the user asks you to review Vercel logs or monitor production traffic, follow this process:
-
-### Start Background Log Monitoring
-
-```bash
-# Create logs directory if it doesn't exist
-mkdir -p /Users/lancejones/projects/conversion-help/logs
-
-# Start vercel logs in background, writing to timestamped file
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-vercel logs https://easyask.io > /Users/lancejones/projects/conversion-help/logs/runtime-${TIMESTAMP}.log 2>&1
-```
-
-**Run this command with `run_in_background: true`** - it will continuously append new logs to the file.
-
-### Review Logs
-
-```bash
-# View the most recent log file
-cat /Users/lancejones/projects/conversion-help/logs/runtime-*.log | tail -100
-
-# Search for specific patterns
-grep "system:" /Users/lancejones/projects/conversion-help/logs/runtime-*.log
-grep "ERROR\|WARN" /Users/lancejones/projects/conversion-help/logs/runtime-*.log
-
-# Watch logs in real-time
-tail -f /Users/lancejones/projects/conversion-help/logs/runtime-*.log
-```
-
-### Stop Log Monitoring
-
-```bash
-# Find and kill the vercel logs process
-pkill -f "vercel logs"
-
-# Or use the background shell ID if known
-# KillShell tool with the shell_id
-```
-
-### Important Notes
-
-- **Vercel CLI logs are LIVE-TAIL only** - they only show logs from the moment you start the command forward
-- **No historical logs via CLI** - use Vercel Dashboard for past logs
-- **Background process runs until killed** - remember to stop it when done monitoring
-- **Log files are timestamped** - each monitoring session creates a new file
-- **Add `logs/` to `.gitignore`** - these files can get large and shouldn't be committed
-
-### When to Use This
-
-- Before user starts testing a new feature (so you capture all logs)
-- When debugging production issues
-- When analyzing conversation flow or system prompt behavior
-- When user asks "check the logs" or "what do the logs show"
-
----
