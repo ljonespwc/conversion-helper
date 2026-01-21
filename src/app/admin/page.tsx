@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, Star, Archive, Bookmark, Circle } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Archive, Bookmark, Circle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
@@ -46,6 +46,8 @@ interface Stats {
   activeNow: number
   avgRating: number
   totalRatings: number
+  positiveRatings: number
+  negativeRatings: number
   recentSessions: ConversationSession[]
 }
 
@@ -424,19 +426,25 @@ export default function AdminDashboard() {
             icon={<Users className="w-5 h-5" />}
           />
           <StatsCard
-            title="User Ratings"
+            title="User Feedback"
             value={
               loading ? '...' : (
                 <div className="flex flex-col items-center leading-tight">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-orange-400 fill-orange-400" />
-                    <span>{stats?.avgRating?.toFixed(1) || '0.0'}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 text-green-400">
+                      <ThumbsUp className="w-4 h-4" />
+                      <span>{stats?.positiveRatings || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-red-400">
+                      <ThumbsDown className="w-4 h-4" />
+                      <span>{stats?.negativeRatings || 0}</span>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">{stats?.totalRatings || 0} ratings</div>
+                  <div className="text-xs text-gray-400">{stats?.totalRatings || 0} total</div>
                 </div>
               )
             }
-            icon={<Star className="w-5 h-5" />}
+            icon={<ThumbsUp className="w-5 h-5" />}
           />
         </div>
 
@@ -653,15 +661,19 @@ export default function AdminDashboard() {
                             {hasRating && (
                               <>
                                 {' • '}
-                                <span className="inline-flex text-orange-400" title={`User rating: ${session.user_rating}/5`}>
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className="w-3 h-3"
-                                      fill={i < (session.user_rating || 0) ? 'currentColor' : 'none'}
-                                    />
-                                  ))}
-                                </span>
+                                {session.user_rating === 5 ? (
+                                  <span className="inline-flex items-center gap-1 text-green-400" title="Helpful">
+                                    <ThumbsUp className="w-3 h-3" />
+                                  </span>
+                                ) : session.user_rating === 1 ? (
+                                  <span className="inline-flex items-center gap-1 text-red-400" title="Not helpful">
+                                    <ThumbsDown className="w-3 h-3" />
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-orange-400" title={`Legacy rating: ${session.user_rating}/5`}>
+                                    {session.user_rating}★
+                                  </span>
+                                )}
                               </>
                             )}
                           </div>

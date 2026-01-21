@@ -191,6 +191,10 @@ export async function GET(request: NextRequest) {
 
     const ratings = ratingsData?.map(r => r.user_rating).filter(Boolean) || []
     const totalRatings = ratings.length
+    // Count positive (5) and negative (1) ratings for thumbs up/down display
+    const positiveRatings = ratings.filter(r => r === 5).length
+    const negativeRatings = ratings.filter(r => r === 1).length
+    // Calculate average for backwards compatibility (also includes legacy 2-4 ratings)
     const avgRating = totalRatings > 0
       ? Math.round((ratings.reduce((sum, r) => sum + r, 0) / totalRatings) * 10) / 10
       : 0
@@ -236,6 +240,8 @@ export async function GET(request: NextRequest) {
       activeNow: activeNow || 0,
       avgRating,
       totalRatings,
+      positiveRatings,
+      negativeRatings,
       recentSessions: formattedSessions
     }, {
       headers: {

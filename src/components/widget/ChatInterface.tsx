@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, Star, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
+import { Loader2, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, ThumbsUp, ThumbsDown, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useChat, ChatMessage } from '@/hooks/useChat'
@@ -68,6 +68,8 @@ export default function ChatInterface({
       // Trigger sparkle burst on response
       setShowSparkleBurst(true)
       setTimeout(() => setShowSparkleBurst(false), 800)
+      // Mark that we've received first response (for feedback brightening)
+      setHasFirstResponse(true)
     }
   })
 
@@ -88,8 +90,8 @@ export default function ChatInterface({
 
   // Rating state
   const [userRating, setUserRating] = useState<number | null>(null)
-  const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [showRatingCheck, setShowRatingCheck] = useState(false)
+  const [hasFirstResponse, setHasFirstResponse] = useState(false)
 
   // Track close data for analytics
   const closeDataRef = useRef({ sessionId: '', messageCount: 0, pageUrl: effectivePageUrl })
@@ -781,33 +783,61 @@ export default function ChatInterface({
                     </motion.div>
                   ) : (
                     <motion.div
-                      key="stars"
+                      key="thumbs"
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="flex flex-col items-center gap-1"
+                      className="flex flex-col items-center gap-2"
                     >
-                      <span className="text-xs italic text-gray-400">Was this helpful?</span>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            onClick={() => handleRating(star)}
-                            onMouseEnter={() => !userRating && setHoverRating(star)}
-                            onMouseLeave={() => setHoverRating(null)}
-                            disabled={userRating !== null}
-                            className={`p-0.5 transition-all ${
-                              userRating === null ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed opacity-50'
+                      <span className={`text-xs transition-colors duration-500 ${
+                        hasFirstResponse ? 'text-gray-300' : 'text-gray-500'
+                      }`}>
+                        Did this help?
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleRating(1)}
+                          disabled={userRating !== null}
+                          className={`p-2 rounded-full transition-all duration-300 ${
+                            userRating === null
+                              ? hasFirstResponse
+                                ? 'cursor-pointer hover:scale-110 hover:bg-red-500/20'
+                                : 'cursor-pointer hover:scale-110 hover:bg-gray-700/50'
+                              : 'cursor-not-allowed opacity-50'
+                          }`}
+                          title="Not helpful"
+                        >
+                          <ThumbsDown
+                            className={`w-5 h-5 transition-colors duration-500 ${
+                              userRating === 1
+                                ? 'text-red-400 fill-red-400'
+                                : hasFirstResponse
+                                  ? 'text-gray-400 hover:text-red-400'
+                                  : 'text-gray-600 hover:text-gray-400'
                             }`}
-                          >
-                            <Star
-                              className={`w-6 h-6 transition-colors ${
-                                (hoverRating !== null ? star <= hoverRating : star <= (userRating || 0))
-                                  ? 'text-orange-400 fill-orange-400'
-                                  : 'text-gray-600'
-                              }`}
-                            />
-                          </button>
-                        ))}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleRating(5)}
+                          disabled={userRating !== null}
+                          className={`p-2 rounded-full transition-all duration-300 ${
+                            userRating === null
+                              ? hasFirstResponse
+                                ? 'cursor-pointer hover:scale-110 hover:bg-green-500/20'
+                                : 'cursor-pointer hover:scale-110 hover:bg-gray-700/50'
+                              : 'cursor-not-allowed opacity-50'
+                          }`}
+                          title="Helpful"
+                        >
+                          <ThumbsUp
+                            className={`w-5 h-5 transition-colors duration-500 ${
+                              userRating === 5
+                                ? 'text-green-400 fill-green-400'
+                                : hasFirstResponse
+                                  ? 'text-gray-400 hover:text-green-400'
+                                  : 'text-gray-600 hover:text-gray-400'
+                            }`}
+                          />
+                        </button>
                       </div>
                     </motion.div>
                   )}
