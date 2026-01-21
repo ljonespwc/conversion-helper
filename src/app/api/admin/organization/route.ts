@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
 
     // Parse request body
     const body = await request.json()
-    const { show_branding } = body
+    const { show_branding, widget_line1, widget_line2 } = body
 
     // Build updates object
     const updates: any = {}
@@ -59,6 +59,28 @@ export async function PATCH(request: Request) {
         )
       }
       updates.show_branding = show_branding
+    }
+
+    // Validate and add widget_line1 if provided
+    if (widget_line1 !== undefined) {
+      if (widget_line1 !== null && typeof widget_line1 !== 'string') {
+        return NextResponse.json(
+          { error: 'widget_line1 must be a string or null' },
+          { status: 400 }
+        )
+      }
+      updates.widget_line1 = widget_line1 && widget_line1.trim() ? widget_line1.trim() : null
+    }
+
+    // Validate and add widget_line2 if provided
+    if (widget_line2 !== undefined) {
+      if (widget_line2 !== null && typeof widget_line2 !== 'string') {
+        return NextResponse.json(
+          { error: 'widget_line2 must be a string or null' },
+          { status: 400 }
+        )
+      }
+      updates.widget_line2 = widget_line2 && widget_line2.trim() ? widget_line2.trim() : null
     }
 
     // Check if there are any updates to apply

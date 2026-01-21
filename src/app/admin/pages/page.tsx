@@ -66,6 +66,9 @@ export default function PagesPage() {
     widget_line2: string
   } | null>(null)
   const [savingWidgetText, setSavingWidgetText] = useState(false)
+  const [editingOrgWidgetText, setEditingOrgWidgetText] = useState(false)
+  const [orgWidgetText, setOrgWidgetText] = useState({ widget_line1: '', widget_line2: '' })
+  const [savingOrgWidgetText, setSavingOrgWidgetText] = useState(false)
 
   useEffect(() => {
     fetchUserInfo()
@@ -325,6 +328,42 @@ export default function PagesPage() {
     }
   }
 
+  const handleStartEditOrgWidgetText = () => {
+    setOrgWidgetText({
+      widget_line1: userInfo?.organizations?.widget_line1 || '',
+      widget_line2: userInfo?.organizations?.widget_line2 || ''
+    })
+    setEditingOrgWidgetText(true)
+  }
+
+  const handleSaveOrgWidgetText = async () => {
+    setSavingOrgWidgetText(true)
+    try {
+      const response = await fetch('/api/admin/organization', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          widget_line1: orgWidgetText.widget_line1 || null,
+          widget_line2: orgWidgetText.widget_line2 || null
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update widget text')
+      }
+
+      // Refresh user info to get updated values
+      await fetchUserInfo()
+      setEditingOrgWidgetText(false)
+    } catch (error) {
+      console.error('Error updating org widget text:', error)
+      alert(error instanceof Error ? error.message : 'Failed to update widget text')
+    } finally {
+      setSavingOrgWidgetText(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
       <Header user={userInfo ? { id: userInfo.id, email: userInfo.email } : null} />
@@ -450,6 +489,86 @@ export default function PagesPage() {
                       }`}
                     />
                   </button>
+                </div>
+              </div>
+
+              {/* Widget Button Text Defaults */}
+              <div className="md:col-span-2 mt-2">
+                <div className="py-3 px-4 bg-gray-700/50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-300 font-medium">Widget Button Text (Default for all pages)</span>
+                    {!editingOrgWidgetText && (
+                      <button
+                        onClick={handleStartEditOrgWidgetText}
+                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {editingOrgWidgetText ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-400 mb-1">
+                          Line 1 (Primary text)
+                        </label>
+                        <input
+                          type="text"
+                          value={orgWidgetText.widget_line1}
+                          onChange={(e) => setOrgWidgetText({ ...orgWidgetText, widget_line1: e.target.value })}
+                          placeholder="e.g., Questions?"
+                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-400 mb-1">
+                          Line 2 (Secondary text)
+                        </label>
+                        <input
+                          type="text"
+                          value={orgWidgetText.widget_line2}
+                          onChange={(e) => setOrgWidgetText({ ...orgWidgetText, widget_line2: e.target.value })}
+                          placeholder="e.g., Ask our AI assistant"
+                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <button
+                          onClick={handleSaveOrgWidgetText}
+                          disabled={savingOrgWidgetText}
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          {savingOrgWidgetText ? 'Saving...' : (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Save
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setEditingOrgWidgetText(false)}
+                          disabled={savingOrgWidgetText}
+                          className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-gray-300 text-sm rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 text-sm">
+                      <p className="text-white">
+                        <span className="text-gray-400">Line 1:</span> {userInfo.organizations.widget_line1 || <span className="text-gray-500 italic">Not set</span>}
+                      </p>
+                      <p className="text-white">
+                        <span className="text-gray-400">Line 2:</span> {userInfo.organizations.widget_line2 || <span className="text-gray-500 italic">Not set</span>}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Individual pages can override these defaults.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
