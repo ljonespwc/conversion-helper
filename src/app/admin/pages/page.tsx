@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Header } from '@/components/Header'
-import { Plus, Trash2, Copy, CheckCircle, Edit2, Check, X } from 'lucide-react'
+import { Plus, Trash2, Copy, CheckCircle, Edit2, Check, X, ChevronDown, ChevronUp } from 'lucide-react'
 
 // Force dynamic rendering - prevent page caching
 export const dynamic = 'force-dynamic'
@@ -14,6 +14,8 @@ interface WidgetPage {
   page_title: string
   page_goal: string | null
   is_active: boolean
+  widget_line1: string | null
+  widget_line2: string | null
   created_at: string
   updated_at: string
 }
@@ -28,6 +30,8 @@ interface UserInfo {
     file_search_store_name: string | null
     show_branding: boolean
     publishable_key: string | null
+    widget_line1: string | null
+    widget_line2: string | null
   }
   organizations: {
     name: string
@@ -35,6 +39,8 @@ interface UserInfo {
     file_search_store_name: string | null
     show_branding: boolean
     publishable_key?: string | null
+    widget_line1?: string | null
+    widget_line2?: string | null
   }
 }
 
@@ -54,6 +60,12 @@ export default function PagesPage() {
   const [editingPageId, setEditingPageId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [savingTitle, setSavingTitle] = useState(false)
+  const [expandedPageId, setExpandedPageId] = useState<string | null>(null)
+  const [editingWidgetText, setEditingWidgetText] = useState<{
+    widget_line1: string
+    widget_line2: string
+  } | null>(null)
+  const [savingWidgetText, setSavingWidgetText] = useState(false)
 
   useEffect(() => {
     fetchUserInfo()
@@ -256,6 +268,60 @@ export default function PagesPage() {
       alert(error instanceof Error ? error.message : 'Failed to update page title')
     } finally {
       setSavingTitle(false)
+    }
+  }
+
+  const handleToggleExpand = (page: WidgetPage) => {
+    if (expandedPageId === page.id) {
+      // Collapse
+      setExpandedPageId(null)
+      setEditingWidgetText(null)
+    } else {
+      // Expand and populate editing state
+      setExpandedPageId(page.id)
+      setEditingWidgetText({
+        widget_line1: page.widget_line1 || '',
+        widget_line2: page.widget_line2 || ''
+      })
+    }
+  }
+
+  const handleSaveWidgetText = async (pageId: string) => {
+    if (!editingWidgetText) return
+
+    setSavingWidgetText(true)
+    try {
+      const response = await fetch(`/api/admin/widget-pages/${pageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          widget_line1: editingWidgetText.widget_line1 || null,
+          widget_line2: editingWidgetText.widget_line2 || null
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update widget text')
+      }
+
+      // Update local state
+      setPages(prevPages =>
+        prevPages.map(p => p.id === pageId ? {
+          ...p,
+          widget_line1: editingWidgetText.widget_line1 || null,
+          widget_line2: editingWidgetText.widget_line2 || null
+        } : p)
+      )
+
+      // Collapse after saving
+      setExpandedPageId(null)
+      setEditingWidgetText(null)
+    } catch (error) {
+      console.error('Error updating widget text:', error)
+      alert(error instanceof Error ? error.message : 'Failed to update widget text')
+    } finally {
+      setSavingWidgetText(false)
     }
   }
 
@@ -614,9 +680,103 @@ export default function PagesPage() {
                   </div>
                 </div>
 
-                <div className="text-xs text-gray-500 mt-3">
-                  Added: {new Date(page.created_at).toLocaleDateString()}
+                <div className="flex items-center justify-between mt-3">
+                  <div className="text-xs text-gray-500">
+                    Added: {new Date(page.created_at).toLocaleDateString()}
+                  </div>
+                  <button
+                    onClick={() => handleToggleExpand(page)}
+                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-400 transition-colors"
+                  >
+                    {expandedPageId === page.id ? (
+                      <>
+                        <ChevronUp className="w-4 h-4" />
+                        <span>Hide widget text settings</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-4 h-4" />
+                        <span>Customize widget button text</span>
+                      </>
+                    )}
+                  </button>
                 </div>
+
+                {/* Expanded Widget Text Settings */}
+                {expandedPageId === page.id && editingWidgetText && (
+                  <div className="mt-4 pt-4 border-t border-gray-700">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3">Widget Button Text</h4>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Customize the text shown on the widget button for this page. Leave blank to use your organization defaults.
+                    </p>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-400 mb-1">
+                          Line 1 (Primary text)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingWidgetText.widget_line1}
+                          onChange={(e) => setEditingWidgetText({
+                            ...editingWidgetText,
+                            widget_line1: e.target.value
+                          })}
+                          placeholder={userInfo?.organizations?.widget_line1 || 'e.g., Questions?'}
+                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-gray-400 mb-1">
+                          Line 2 (Secondary text)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingWidgetText.widget_line2}
+                          onChange={(e) => setEditingWidgetText({
+                            ...editingWidgetText,
+                            widget_line2: e.target.value
+                          })}
+                          placeholder={userInfo?.organizations?.widget_line2 || 'e.g., Ask our AI assistant'}
+                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-4">
+                      <button
+                        onClick={() => handleSaveWidgetText(page.id)}
+                        disabled={savingWidgetText}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        {savingWidgetText ? (
+                          'Saving...'
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            Save
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setExpandedPageId(null)
+                          setEditingWidgetText(null)
+                        }}
+                        disabled={savingWidgetText}
+                        className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      {(page.widget_line1 || page.widget_line2) && (
+                        <span className="text-xs text-amber-400 ml-auto">
+                          Custom text active
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

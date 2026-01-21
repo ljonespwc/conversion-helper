@@ -98,10 +98,15 @@ export async function PATCH(
 
     const { id } = params
     const body = await request.json()
-    const { is_active, page_title } = body
+    const { is_active, page_title, widget_line1, widget_line2 } = body
 
     // Build update object based on what fields are provided
-    const updates: { is_active?: boolean; page_title?: string } = {}
+    const updates: {
+      is_active?: boolean
+      page_title?: string
+      widget_line1?: string | null
+      widget_line2?: string | null
+    } = {}
 
     // Validate and add is_active if provided
     if (is_active !== undefined) {
@@ -123,6 +128,31 @@ export async function PATCH(
         )
       }
       updates.page_title = page_title.trim()
+    }
+
+    // Validate and add widget_line1 if provided
+    // Allow empty string to clear (will be stored as null)
+    if (widget_line1 !== undefined) {
+      if (widget_line1 !== null && typeof widget_line1 !== 'string') {
+        return NextResponse.json(
+          { error: 'widget_line1 must be a string or null' },
+          { status: 400 }
+        )
+      }
+      // Store empty strings as null (to trigger fallback to org-level)
+      updates.widget_line1 = widget_line1 && widget_line1.trim() ? widget_line1.trim() : null
+    }
+
+    // Validate and add widget_line2 if provided
+    if (widget_line2 !== undefined) {
+      if (widget_line2 !== null && typeof widget_line2 !== 'string') {
+        return NextResponse.json(
+          { error: 'widget_line2 must be a string or null' },
+          { status: 400 }
+        )
+      }
+      // Store empty strings as null (to trigger fallback to org-level)
+      updates.widget_line2 = widget_line2 && widget_line2.trim() ? widget_line2.trim() : null
     }
 
     // Ensure at least one field is being updated
