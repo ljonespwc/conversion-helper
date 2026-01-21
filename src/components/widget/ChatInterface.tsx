@@ -478,7 +478,7 @@ export default function ChatInterface({
       </AnimatePresence>
 
       {/* Response Display */}
-      <div className={`w-full ${isExperimental ? 'max-w-2xl mx-auto' : ''}`}>
+      <div className={`w-full ${isExperimental ? '' : 'max-w-2xl mx-auto'}`}>
         <AnimatePresence>
           {lastResponse && !isLoading && (
             <motion.div
@@ -520,7 +520,7 @@ export default function ChatInterface({
                     <div className="flex-shrink-0 mt-0.5">
                       <Sparkles className="w-4 h-4 text-blue-400" />
                     </div>
-                    <div className={`flex-1 min-w-0 text-white leading-relaxed ${isExperimental ? 'text-base' : 'text-sm'}`}>
+                    <div className={`flex-1 min-w-0 text-white leading-relaxed ${isExperimental ? 'text-sm' : 'text-base'}`}>
                       <ReactMarkdown
                         components={{
                           p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -563,8 +563,8 @@ export default function ChatInterface({
         </AnimatePresence>
       </div>
 
-      {/* Conversation History - Experimental mode only */}
-      {isExperimental && hasConversation && (
+      {/* Conversation History - Default mode (non-experimental hides it) */}
+      {!isExperimental && hasConversation && (
         <div className="w-full max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
             <button
@@ -676,8 +676,8 @@ export default function ChatInterface({
         </div>
       )}
 
-      {/* Email Escalation - Non-experimental only */}
-      {!isExperimental && hasConversation && (
+      {/* Email Escalation - Experimental only (old/concise mode) */}
+      {isExperimental && hasConversation && (
         <div className="w-full max-w-md mx-auto">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
             <button

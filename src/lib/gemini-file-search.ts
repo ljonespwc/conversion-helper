@@ -98,9 +98,9 @@ export async function queryPageContent(
     // Extract system prompt from conversation history or use provided one
     const systemInstruction = systemPrompt || conversationHistory?.find(m => m.role === 'system')?.content
 
-    // Use experimental AI settings if enabled
-    const temperature = isExperimental ? EXPERIMENTAL_SETTINGS.ai.temperature : 0.3
-    const maxOutputTokens = isExperimental ? EXPERIMENTAL_SETTINGS.ai.maxOutputTokens : 1500
+    // Use experimental AI settings if enabled (experimental = concise, default = detailed)
+    const temperature = isExperimental ? EXPERIMENTAL_SETTINGS.ai.temperature : 0.4
+    const maxOutputTokens = isExperimental ? EXPERIMENTAL_SETTINGS.ai.maxOutputTokens : 2500
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',

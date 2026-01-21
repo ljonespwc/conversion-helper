@@ -24,8 +24,8 @@
 
   // Sizes (fixed - modal scrolls internally)
   var PILL = { w: 480, h: 100 };
-  var MODAL = { w: 452, h: 600 };
-  var MODAL_EXP = { w: 732, h: 650 };
+  var MODAL = { w: 732, h: 650 };      // Default: larger modal
+  var MODAL_EXP = { w: 452, h: 600 };  // Experimental: smaller modal
 
   // Create iframe
   var iframe = document.createElement('iframe');

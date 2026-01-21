@@ -35,8 +35,8 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         onClick={(e) => e.stopPropagation()}
         className={`relative bg-white dark:bg-easyask-dark rounded-2xl overflow-hidden flex flex-col ${
           isExperimental
-            ? 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
-            : 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
+            ? 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
+            : 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
         }`}
         style={{ pointerEvents: 'auto' }}
       >

@@ -10,8 +10,8 @@
  */
 
 // Organization names that use experimental mode (all their pages)
-export const EXPERIMENTAL_ORGS = [
-  'PN',
+export const EXPERIMENTAL_ORGS: string[] = [
+  // Empty - experimental features are now the default
 ]
 
 // Page URLs that use experimental mode (for specific pages regardless of org)
@@ -41,26 +41,23 @@ export function isExperimentalPage(pageUrl: string | undefined, orgName?: string
   )
 }
 
-// Experimental mode settings
+// Experimental mode settings (now contains the OLD defaults - smaller/concise)
 export const EXPERIMENTAL_SETTINGS = {
-  // Widget modal dimensions (wider than default, responsive)
-  // Default is max-w-md (448px) min-w-[400px]
-  // Experimental: up to 800px, scales down on smaller screens
+  // Widget modal dimensions (smaller, original design)
   modal: {
-    maxWidth: 'max-w-[800px]',
-    // Responsive: 90vw on small screens, 500px minimum on larger screens
-    minWidth: 'sm:min-w-[500px]',
+    maxWidth: 'max-w-md',
+    minWidth: 'min-w-[400px]',
   },
 
-  // Response text area (taller than default 200px)
+  // Response text area (smaller text)
   responseArea: {
-    maxHeight: '350px',
-    textSize: 'text-base',
+    maxHeight: '200px',
+    textSize: 'text-sm',
   },
 
-  // AI response settings (more detailed)
+  // AI response settings (concise)
   ai: {
-    maxOutputTokens: 2500, // Default: 1500
-    temperature: 0.4, // Default: 0.3
+    maxOutputTokens: 1500,
+    temperature: 0.3,
   },
 }

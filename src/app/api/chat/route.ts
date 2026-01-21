@@ -52,15 +52,15 @@ If you can't find the answer in the stored content, say so naturally.`
   if (isExperimental) {
     return `${basePrompt}
 
+Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.`
+  } else {
+    return `${basePrompt}
+
 OUTPUT STYLE: Provide thorough, detailed answers:
 - Include specific details, numbers, and examples from the content
 - Use paragraph breaks for readability
 - Don't worry about response length - be comprehensive
 - Answer based ONLY on stored content. Be helpful and ${getGoalInstruction(widgetPage.page_goal)}.`
-  } else {
-    return `${basePrompt}
-
-Answer based ONLY on stored content. Be concise, natural, and ${getGoalInstruction(widgetPage.page_goal)}.`
   }
 }
 
