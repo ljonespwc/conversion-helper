@@ -93,7 +93,7 @@ export default async function OnboardingPage({
               className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
               placeholder="https://example.com"
             />
-            <p className="text-xs text-gray-500 mt-2">Where your voice assistant will be deployed</p>
+            <p className="text-xs text-gray-500 mt-2">Where your chat assistant will be deployed</p>
           </div>
 
           {/* Submit Button */}

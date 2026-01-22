@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 
 export const metadata = {
   title: 'EasyAsk Demo',
-  description: 'Demo of EasyAsk voice widget',
+  description: 'Demo of EasyAsk chat widget',
 }
 
 export default function DemoLayout({

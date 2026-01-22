@@ -50,20 +50,14 @@ interface DifferentiatorData {
 
 const DIFFERENTIATORS: DifferentiatorData[] = [
   {
-    heading: 'Don\'t make them type. Let them talk.',
-    subhead: 'Speaking is 3x faster than typing. Lower friction = higher engagement.',
+    heading: 'Lower friction than forms. Smarter than search.',
+    subhead: 'Visitors ask in natural language. No digging through FAQs or filling out contact forms.',
     features: [
-      <><strong>Interruptible.</strong> Talk to it like a human. Interrupt, redirect, follow up.</>,
+      <><strong>Conversational.</strong> Ask follow-ups, get clarifications, have a real back-and-forth.</>,
       <><strong>Instant.</strong> No queue. No "an agent will be with you shortly."</>,
-      <><strong>Mobile-native.</strong> Thumbs-free. Because nobody types paragraphs on their phone.</>,
+      <><strong>Mobile-friendly.</strong> Works great on any device. No tiny form fields.</>,
     ],
-    image: {
-      src: '/images/voice-first.png',
-      alt: 'Voice-first interface with sound waves emanating from a glowing microphone',
-      width: 400,
-      height: 298,
-      caption: 'Just talk. It listens.',
-    },
+    textOnly: true,
   },
   {
     heading: 'AI that sells with YOUR words. Not generic fluff.',
@@ -170,7 +164,7 @@ const VISITOR_BENEFITS = [
   'Instant, accurate answers',
   'No scrolling or searching',
   'A conversation, not a monologue',
-  'Voice-first, no typing',
+  'Ask naturally, get answers',
   'Help when they need it',
 ]
 
@@ -186,7 +180,7 @@ const USE_CASES: UseCaseData[] = [
     iconSrc: '/images/persona1.png',
     iconAlt: 'Complex product icon',
     heading: 'Your product takes 4 pages to explain. Your prospects have 2 minutes.',
-    body: 'Voice makes dense info digestible. Page-specific AI delivers relevant answers and shortens sales cycles.',
+    body: 'Chat makes dense info digestible. Page-specific AI delivers relevant answers and shortens sales cycles.',
   },
   {
     iconSrc: '/images/persona2.png',
@@ -198,7 +192,7 @@ const USE_CASES: UseCaseData[] = [
     iconSrc: '/images/persona3.png',
     iconAlt: 'Mobile traffic icon',
     heading: '60% of your traffic is mobile. Nobody reads your 1,200-word page on a phone.',
-    body: 'Voice eliminates scroll fatigue. Visitors ask instead of hunt. Higher mobile conversion.',
+    body: 'Chat eliminates scroll fatigue. Visitors ask instead of hunt. Higher mobile conversion.',
   },
   {
     iconSrc: '/images/persona4.png',
@@ -238,7 +232,7 @@ const STEPS: StepData[] = [
     iconSrc: '/images/step4.png',
     iconAlt: 'Launch icon',
     heading: 'Step 4: Launch',
-    body: 'Paste one embed code. Your voice assistant is live. Visitors can start asking questions immediately.',
+    body: 'Paste one embed code. Your chat assistant is live. Visitors can start asking questions immediately.',
   },
 ]
 
@@ -249,8 +243,8 @@ interface FinalCtaData {
 
 const FINAL_CTA_ITEMS: FinalCtaData[] = [
   {
-    heading: 'Voice-first',
-    body: 'Way easier than typing. Especially on mobile. Visitors ask out loud and get answers in seconds.',
+    heading: 'Instant answers',
+    body: 'No scrolling, no searching. Visitors ask and get answers in seconds.',
   },
   {
     heading: 'Grounded in YOUR content',
@@ -282,7 +276,7 @@ export default async function Home(): Promise<JSX.Element> {
             <div className="landing-hero-grid">
               <div className="landing-hero-content">
                 <h1 className="landing-h1">
-                  Give your site the persuasive power of voice.
+                  Give your site the power of conversation.
                 </h1>
                 <h2 className="landing-h2">
                   Don't make visitors scroll. Give them instant, 100% accurate answers—at the perfect moment—and get the <RotatingWord />
@@ -297,13 +291,13 @@ export default async function Home(): Promise<JSX.Element> {
                 <div className="landing-image-wrapper-small">
                   <img
                     src="/images/hero.png"
-                    alt="EasyAsk voice assistant widget speaking an answer with sound waves emanating"
+                    alt="EasyAsk chat widget showing an AI-generated answer"
                     width={500}
                     height={403}
                     className="landing-differentiator-img"
                   />
                   <p className="landing-image-caption">
-                    Your site speaks now. Visitors love it. No more scrolling.
+                    Your site answers now. Visitors love it. No more scrolling.
                   </p>
                 </div>
               </div>
@@ -330,7 +324,7 @@ export default async function Home(): Promise<JSX.Element> {
               </p>
 
               <p>
-                What if every visitor could just <em>ask</em>—out loud—and get an instant, accurate answer? Not a chatbot. Not live chat with a 4-minute wait. Not generic AI that hallucinates.
+                What if every visitor could just <em>ask</em>—and get an instant, accurate answer? Not a chatbot. Not live chat with a 4-minute wait. Not generic AI that hallucinates.
               </p>
 
               <p className="landing-callout landing-callout-purple">
@@ -344,7 +338,7 @@ export default async function Home(): Promise<JSX.Element> {
         <section className="landing-section landing-section-product">
           <div className="landing-container-narrow">
             <h2 className="landing-section-heading">
-              EasyAsk gives your site a voice.
+              EasyAsk turns your site into a conversation.
             </h2>
 
             <div className="landing-widget-demo-centered">
@@ -491,7 +485,7 @@ export default async function Home(): Promise<JSX.Element> {
             <div className="landing-text-block landing-manifesto-text landing-manifesto-with-image">
               <img
                 src="/images/library-as-voice.png"
-                alt="A glowing microphone pulling threads of information from a massive library of floating documents"
+                alt="AI assistant pulling threads of information from a massive library of floating documents"
                 width={140}
                 height={140}
                 className="landing-manifesto-img"

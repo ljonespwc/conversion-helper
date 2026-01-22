@@ -110,7 +110,7 @@ export default function WidgetButtonDemo() {
               Don't feel like reading? Just ask!
             </span>
             <span className="text-xs text-blue-100 leading-tight">
-              🎤 Voice answers • Instant help
+              💬 Instant answers • Always helpful
             </span>
           </div>
         </div>

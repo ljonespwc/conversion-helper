@@ -8,7 +8,7 @@ const faqItems = [
     question: 'How is this different from live chat?',
     answer: [
       'Live chat requires someone to answer. Your visitor types a question, sees "An agent will be with you shortly," and waits. If it\'s after hours, they get a form. If your team is busy, they wait longer. Most leave before anyone responds.',
-      'EasyAsk answers instantly—24/7—using voice or text. No staffing required. No queue. And because it only knows your content, the answers are accurate and consistent every time. It\'s also built for sales conversations, not support tickets. It captures purchase intent and escalates to your team when needed, instead of just deflecting to a help article.',
+      'EasyAsk answers instantly—24/7. No staffing required. No queue. And because it only knows your content, the answers are accurate and consistent every time. It\'s also built for sales conversations, not support tickets. It captures purchase intent and escalates to your team when needed, instead of just deflecting to a help article.',
     ],
   },
   {
@@ -19,9 +19,9 @@ const faqItems = [
     ],
   },
   {
-    question: 'Will visitors actually talk to my website?',
+    question: 'Will visitors actually use a chat widget?',
     answer: [
-      'They don\'t have to talk—they can read the AI\'s response as text while it speaks. But voice removes a lot of friction, especially on mobile. People say more than they type. They ask follow-up questions. They stay engaged longer.',
+      'Yes—when it gives them what they want faster than scrolling. Most visitors have one or two specific questions. A chat widget lets them ask directly instead of hunting through your pages.',
       'What matters most is that visitors get answers instantly. And you see every question they ask. That\'s intent data you\'d never get from a static page or a form they didn\'t fill out.',
     ],
   },

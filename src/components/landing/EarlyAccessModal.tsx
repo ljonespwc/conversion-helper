@@ -122,7 +122,7 @@ export function EarlyAccessModal({ isOpen, onClose }: EarlyAccessModalProps) {
           <>
             <h2 id="modal-title" className="early-access-title">Get Early Access</h2>
             <p className="early-access-description">
-              Be among the first to make your website voice-powered.
+              Be among the first to make your website conversational.
             </p>
 
             <ul className="early-access-perks">

@@ -32,7 +32,7 @@ export function Header({ user, loading = false }: HeaderProps) {
                 EasyAsk
               </h1>
               <p className="text-white/90 text-xs sm:text-sm mt-0.5 hidden sm:block">
-                AI-powered voice assistant for your website. No hallucinations.
+                AI-powered chat assistant for your website. No hallucinations.
               </p>
             </Link>
           </div>

@@ -6,8 +6,8 @@ import { PostHogProvider } from '@/components/PostHogProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'EasyAsk - Voice-First AI Assistant for Your Website',
-  description: 'Give your site the persuasive power of voice. Instant, accurate answers for your visitors—no scrolling, no waiting. Voice-first sales assistant for B2B websites.',
+  title: 'EasyAsk - AI Chat Assistant for Your Website',
+  description: 'Give your site the power of conversation. Instant, accurate answers for your visitors—no scrolling, no waiting. AI chat assistant for B2B websites.',
   metadataBase: new URL('https://easyask.io'),
   icons: {
     icon: [
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'EasyAsk - Voice-First AI Assistant for Your Website',
-    description: 'Give your site the persuasive power of voice. Instant, accurate answers for your visitors—no scrolling, no waiting.',
+    title: 'EasyAsk - AI Chat Assistant for Your Website',
+    description: 'Give your site the power of conversation. Instant, accurate answers for your visitors—no scrolling, no waiting.',
     url: 'https://easyask.io',
     siteName: 'EasyAsk',
     images: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         url: '/images/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'EasyAsk - Your site speaks now. No more scrolling.',
+        alt: 'EasyAsk - Your site answers now. No more scrolling.',
       },
     ],
     locale: 'en_US',
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EasyAsk - Voice-First AI Assistant for Your Website',
-    description: 'Give your site the persuasive power of voice. Instant, accurate answers—no scrolling, no waiting.',
+    title: 'EasyAsk - AI Chat Assistant for Your Website',
+    description: 'Give your site the power of conversation. Instant, accurate answers—no scrolling, no waiting.',
     images: ['/images/twitter-image.png'],
   },
 }
