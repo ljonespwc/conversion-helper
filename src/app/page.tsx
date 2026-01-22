@@ -1,13 +1,272 @@
+import type { ReactNode } from 'react'
+
 import { createClient } from '@/lib/supabase/server'
 import Script from 'next/script'
 import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
-import WidgetButtonDemo from '@/components/landing/WidgetButtonDemo'
-import { RotatingWord } from '@/components/landing/RotatingWord'
-import { EarlyAccessButton } from '@/components/landing/EarlyAccessButton'
+import {
+  ComparisonColumn,
+  DifferentiatorCard,
+  EarlyAccessButton,
+  FinalCtaItem,
+  RotatingWord,
+  StatCard,
+  StepCard,
+  UseCaseCard,
+  WidgetButtonDemo,
+} from '@/components/landing'
 import './landing.css'
 
-export default async function Home() {
+// =============================================================================
+// Data Constants
+// =============================================================================
+
+interface StatData {
+  number: string
+  label: string
+}
+
+const STATS: StatData[] = [
+  { number: '24/7', label: 'available when your sales team isn\'t' },
+  { number: '60%', label: 'of traffic is mobile (TL;DR)' },
+  { number: '0', label: 'visibility into visitor intent' },
+]
+
+interface DifferentiatorData {
+  heading: string
+  subhead: string
+  features: ReactNode[]
+  image?: {
+    src: string
+    alt: string
+    width: number
+    height: number
+    caption: string
+  }
+  reverse?: boolean
+  textOnly?: boolean
+  children?: ReactNode
+}
+
+const DIFFERENTIATORS: DifferentiatorData[] = [
+  {
+    heading: 'Don\'t make them type. Let them talk.',
+    subhead: 'Speaking is 3x faster than typing. Lower friction = higher engagement.',
+    features: [
+      <><strong>Interruptible.</strong> Talk to it like a human. Interrupt, redirect, follow up.</>,
+      <><strong>Instant.</strong> No queue. No "an agent will be with you shortly."</>,
+      <><strong>Mobile-native.</strong> Thumbs-free. Because nobody types paragraphs on their phone.</>,
+    ],
+    image: {
+      src: '/images/voice-first.png',
+      alt: 'Voice-first interface with sound waves emanating from a glowing microphone',
+      width: 400,
+      height: 298,
+      caption: 'Just talk. It listens.',
+    },
+  },
+  {
+    heading: 'AI that sells with YOUR words. Not generic fluff.',
+    subhead: 'Every answer comes from your actual content. Nothing invented. Nothing off-brand.',
+    features: [
+      <><strong>Grounded.</strong> Scrape pages in seconds. Upload any doc. The AI only references what you give it.</>,
+      <><strong>Always current.</strong> Change your pricing Monday, the AI knows Tuesday.</>,
+      <><strong>Beyond the fold.</strong> Give the AI more content than the page can show—pricing edge cases, role-specific explainers, niche use cases. It pulls the right answer on demand.</>,
+    ],
+    image: {
+      src: '/images/differentiator-2.png',
+      alt: 'Documents and web pages flowing into a central AI knowledge hub',
+      width: 400,
+      height: 267,
+      caption: 'Feed it your content. It becomes your expert.',
+    },
+    reverse: true,
+  },
+  {
+    heading: 'It knows what matters on every page.',
+    subhead: 'Different pages = different visitor intent. EasyAsk adapts.',
+    features: [
+      <><strong>Contextual.</strong> Pricing page talks pricing. Features page demonstrates value. No generic answers.</>,
+      <><strong>Configurable.</strong> You control which content the AI can access on each page.</>,
+      <><strong>Intent-matched.</strong> Every response matches where the visitor is in their journey.</>,
+    ],
+    image: {
+      src: '/images/contextual-brain.png',
+      alt: 'AI brain with multiple web pages orbiting around it, showing selective knowledge routing',
+      width: 400,
+      height: 299,
+      caption: 'Different pages, different context. Always relevant.',
+    },
+  },
+  {
+    heading: 'Didn\'t get their answer? Got their email.',
+    subhead: 'If AI can\'t fully answer, it captures the question AND the contact.',
+    features: [
+      <><strong>Graceful fallback.</strong> AI hits a limit? It captures their email and the exact question.</>,
+      <><strong>Full context handoffs.</strong> Sales sees the whole conversation, not just "someone wants to talk."</>,
+      <><strong>Strike while hot.</strong> Your team follows up while the question—and the intent—is still fresh.</>,
+    ],
+    image: {
+      src: '/images/assistant-handoff.png',
+      alt: 'AI assistant gracefully handing off a lead with full conversation context to a human sales rep',
+      width: 400,
+      height: 299,
+      caption: 'No lead left behind. Every question becomes an opportunity.',
+    },
+    reverse: true,
+  },
+  {
+    heading: 'See what visitors care about before they fill out a form.',
+    subhead: 'Every conversation is captured. Every question is a signal.',
+    features: [
+      <><strong>Content intelligence.</strong> See what visitors ask, which pages spark engagement, and where your answers fall short.</>,
+      <><strong>Real market research.</strong> Patterns from actual conversations. Not surveys people lie on.</>,
+    ],
+    image: {
+      src: '/images/differentiator-5.png',
+      alt: 'Analytics dashboard with conversation data and insights',
+      width: 400,
+      height: 268,
+      caption: 'Every question is a signal. Every pattern is an insight.',
+    },
+  },
+  {
+    heading: 'Live in 10 minutes. Not 10 weeks.',
+    subhead: 'No developers. No integrations. No enterprise sales cycle.',
+    features: [
+      <><strong>Self-serve setup.</strong> Scrape your site, upload docs, assign content to pages, paste one embed code.</>,
+      <><strong>No training required.</strong> No flows. No chatbot builder. Point it at your content and go.</>,
+      <><strong>Works on any site.</strong> No redesign. No migration. Add it without touching your codebase.</>,
+    ],
+    textOnly: true,
+    children: (
+      <div className="landing-image-centered" style={{ marginTop: '2em' }}>
+        <div className="landing-image-wrapper-large" style={{ margin: '0 auto' }}>
+          <img
+            src="/images/four-steps.png"
+            alt="Four-step setup process: Scrape, Upload, Assign, Launch"
+            width={800}
+            height={300}
+            className="landing-differentiator-img"
+          />
+          <p className="landing-image-caption">
+            Scrape &rarr; Upload &rarr; Assign &rarr; Launch
+          </p>
+        </div>
+      </div>
+    ),
+  },
+]
+
+const TEAM_BENEFITS = [
+  '24/7 sales coverage',
+  'Qualified leads with context',
+  'Insight into visitor questions',
+  'Content that converts',
+  'Live in minutes',
+]
+
+const VISITOR_BENEFITS = [
+  'Instant, accurate answers',
+  'No scrolling or searching',
+  'A conversation, not a monologue',
+  'Voice-first, no typing',
+  'Help when they need it',
+]
+
+interface UseCaseData {
+  iconSrc: string
+  iconAlt: string
+  heading: string
+  body: string
+}
+
+const USE_CASES: UseCaseData[] = [
+  {
+    iconSrc: '/images/persona1.png',
+    iconAlt: 'Complex product icon',
+    heading: 'Your product takes 4 pages to explain. Your prospects have 2 minutes.',
+    body: 'Voice makes dense info digestible. Page-specific AI delivers relevant answers and shortens sales cycles.',
+  },
+  {
+    iconSrc: '/images/persona2.png',
+    iconAlt: 'Comparison shopping icon',
+    heading: 'Prospects are comparing 2+ options. Small unanswered questions become deal-breakers.',
+    body: 'Instant answers to "Does it integrate with X?" keep them on your site instead of bouncing.',
+  },
+  {
+    iconSrc: '/images/persona3.png',
+    iconAlt: 'Mobile traffic icon',
+    heading: '60% of your traffic is mobile. Nobody reads your 1,200-word page on a phone.',
+    body: 'Voice eliminates scroll fatigue. Visitors ask instead of hunt. Higher mobile conversion.',
+  },
+  {
+    iconSrc: '/images/persona4.png',
+    iconAlt: 'Sales team efficiency icon',
+    heading: 'Your reps spend 40% of their time on "What\'s the price?" questions.',
+    body: 'AI handles the basics. Your team focuses on conversations that close deals.',
+  },
+]
+
+interface StepData {
+  iconSrc: string
+  iconAlt: string
+  heading: string
+  body: string
+}
+
+const STEPS: StepData[] = [
+  {
+    iconSrc: '/images/step1.png',
+    iconAlt: 'Scrape icon',
+    heading: 'Step 1: Scrape',
+    body: 'Enter your URLs. EasyAsk reads your pages and learns your content in seconds. Pricing page, features page, product docs—whatever you point it at.',
+  },
+  {
+    iconSrc: '/images/step2.png',
+    iconAlt: 'Upload icon',
+    heading: 'Step 2: Upload',
+    body: 'Add anything else the AI should know. Sales decks, case studies, battle cards, pricing sheets, FAQ docs. Drag, drop, done.',
+  },
+  {
+    iconSrc: '/images/step3.png',
+    iconAlt: 'Assign icon',
+    heading: 'Step 3: Assign',
+    body: 'Choose which content the AI can access on which pages. Pricing page gets pricing docs. Features page gets product specs. You control the context.',
+  },
+  {
+    iconSrc: '/images/step4.png',
+    iconAlt: 'Launch icon',
+    heading: 'Step 4: Launch',
+    body: 'Paste one embed code. Your voice assistant is live. Visitors can start asking questions immediately.',
+  },
+]
+
+interface FinalCtaData {
+  heading: string
+  body: string
+}
+
+const FINAL_CTA_ITEMS: FinalCtaData[] = [
+  {
+    heading: 'Voice-first',
+    body: 'Way easier than typing. Especially on mobile. Visitors ask out loud and get answers in seconds.',
+  },
+  {
+    heading: 'Grounded in YOUR content',
+    body: 'No hallucinations. No off-brand answers. Every response comes from pages you scraped and docs you uploaded.',
+  },
+  {
+    heading: 'Built for sales, not support',
+    body: 'Capture purchase intent. Handle objections in real-time. Escalate to your sales team, not a ticket queue.',
+  },
+]
+
+// =============================================================================
+// Page Component
+// =============================================================================
+
+export default async function Home(): Promise<JSX.Element> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -30,7 +289,7 @@ export default async function Home() {
                 </h2>
                 <div className="landing-cta-wrapper">
                   <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
-                    Get Early Access →
+                    Get Early Access &rarr;
                   </EarlyAccessButton>
                 </div>
               </div>
@@ -59,20 +318,10 @@ export default async function Home() {
               Your website is a monologue. Visitors want a conversation.
             </h2>
 
-            {/* Stat Callouts */}
             <div className="landing-stat-callouts">
-              <div className="landing-stat">
-                <span className="landing-stat-number">24/7</span>
-                <span className="landing-stat-label">available when your sales team isn't</span>
-              </div>
-              <div className="landing-stat">
-                <span className="landing-stat-number">60%</span>
-                <span className="landing-stat-label">of traffic is mobile (TL;DR)</span>
-              </div>
-              <div className="landing-stat">
-                <span className="landing-stat-number">0</span>
-                <span className="landing-stat-label">visibility into visitor intent</span>
-              </div>
+              {STATS.map((stat) => (
+                <StatCard key={stat.number} number={stat.number} label={stat.label} />
+              ))}
             </div>
 
             <div className="landing-text-block">
@@ -105,15 +354,15 @@ export default async function Home() {
             <div className="landing-text-block">
               <ul className="landing-icon-list">
                 <li>
-                  <span className="icon">›</span>
+                  <span className="icon">&rsaquo;</span>
                   <span>Feed it your pages, sales decks, pricing sheets. It learns your product in minutes.</span>
                 </li>
                 <li>
-                  <span className="icon">›</span>
+                  <span className="icon">&rsaquo;</span>
                   <span>Answers in <em>your</em> words—never inventing, never hallucinating.</span>
                 </li>
                 <li>
-                  <span className="icon">›</span>
+                  <span className="icon">&rsaquo;</span>
                   <span>Can't answer? Captures their email and flags it for sales.</span>
                 </li>
               </ul>
@@ -134,202 +383,19 @@ export default async function Home() {
               </h2>
             </div>
 
-            {/* Differentiator 1: Voice-First */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator">
-                <div className="landing-differentiator-content">
-                  <h3 className="landing-differentiator-heading">
-                    Don't make them type. Let them talk.
-                  </h3>
-                  <p className="landing-differentiator-subhead">
-                    Speaking is 3x faster than typing. Lower friction = higher engagement.
-                  </p>
-                  <ul className="landing-sub-diff-list">
-                    <li><strong>Interruptible.</strong> Talk to it like a human. Interrupt, redirect, follow up.</li>
-                    <li><strong>Instant.</strong> No queue. No "an agent will be with you shortly."</li>
-                    <li><strong>Mobile-native.</strong> Thumbs-free. Because nobody types paragraphs on their phone.</li>
-                  </ul>
-                </div>
-                <div className="landing-differentiator-image">
-                  <div className="landing-image-wrapper-small">
-                    <img
-                      src="/images/voice-first.png"
-                      alt="Voice-first interface with sound waves emanating from a glowing microphone"
-                      width={400}
-                      height={298}
-                      className="landing-differentiator-img"
-                    />
-                    <p className="landing-image-caption">
-                      Just talk. It listens.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Differentiator 2: Your Content */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator landing-differentiator-reverse">
-              <div className="landing-differentiator-content">
-                <h3 className="landing-differentiator-heading">
-                  AI that sells with YOUR words. Not generic fluff.
-                </h3>
-                <p className="landing-differentiator-subhead">
-                  Every answer comes from your actual content. Nothing invented. Nothing off-brand.
-                </p>
-                <ul className="landing-sub-diff-list">
-                  <li><strong>Grounded.</strong> Scrape pages in seconds. Upload any doc. The AI only references what you give it.</li>
-                  <li><strong>Always current.</strong> Change your pricing Monday, the AI knows Tuesday.</li>
-                  <li><strong>Beyond the fold.</strong> Give the AI more content than the page can show—pricing edge cases, role-specific explainers, niche use cases. It pulls the right answer on demand.</li>
-                </ul>
-              </div>
-              <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-small">
-                  <img
-                    src="/images/differentiator-2.png"
-                    alt="Documents and web pages flowing into a central AI knowledge hub"
-                    width={400}
-                    height={267}
-                    className="landing-differentiator-img"
-                  />
-                  <p className="landing-image-caption">
-                    Feed it your content. It becomes your expert.
-                  </p>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            {/* Differentiator 3: Page-Specific */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator">
-              <div className="landing-differentiator-content">
-                <h3 className="landing-differentiator-heading">
-                  It knows what matters on every page.
-                </h3>
-                <p className="landing-differentiator-subhead">
-                  Different pages = different visitor intent. EasyAsk adapts.
-                </p>
-                <ul className="landing-sub-diff-list">
-                  <li><strong>Contextual.</strong> Pricing page talks pricing. Features page demonstrates value. No generic answers.</li>
-                  <li><strong>Configurable.</strong> You control which content the AI can access on each page.</li>
-                  <li><strong>Intent-matched.</strong> Every response matches where the visitor is in their journey.</li>
-                </ul>
-              </div>
-              <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-small">
-                  <img
-                    src="/images/contextual-brain.png"
-                    alt="AI brain with multiple web pages orbiting around it, showing selective knowledge routing"
-                    width={400}
-                    height={299}
-                    className="landing-differentiator-img"
-                  />
-                  <p className="landing-image-caption">
-                    Different pages, different context. Always relevant.
-                  </p>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            {/* Differentiator 4: Smart Lead Capture */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator landing-differentiator-reverse">
-              <div className="landing-differentiator-content">
-                <h3 className="landing-differentiator-heading">
-                  Didn't get their answer? Got their email.
-                </h3>
-                <p className="landing-differentiator-subhead">
-                  If AI can't fully answer, it captures the question AND the contact.
-                </p>
-                <ul className="landing-sub-diff-list">
-                  <li><strong>Graceful fallback.</strong> AI hits a limit? It captures their email and the exact question.</li>
-                  <li><strong>Full context handoffs.</strong> Sales sees the whole conversation, not just "someone wants to talk."</li>
-                  <li><strong>Strike while hot.</strong> Your team follows up while the question—and the intent—is still fresh.</li>
-                </ul>
-              </div>
-              <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-small">
-                  <img
-                    src="/images/assistant-handoff.png"
-                    alt="AI assistant gracefully handing off a lead with full conversation context to a human sales rep"
-                    width={400}
-                    height={299}
-                    className="landing-differentiator-img"
-                  />
-                  <p className="landing-image-caption">
-                    No lead left behind. Every question becomes an opportunity.
-                  </p>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            {/* Differentiator 5: Conversation Intelligence */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator">
-              <div className="landing-differentiator-content">
-                <h3 className="landing-differentiator-heading">
-                  See what visitors care about before they fill out a form.
-                </h3>
-                <p className="landing-differentiator-subhead">
-                  Every conversation is captured. Every question is a signal.
-                </p>
-                <ul className="landing-sub-diff-list">
-                  <li><strong>Content intelligence.</strong> See what visitors ask, which pages spark engagement, and where your answers fall short.</li>
-                  <li><strong>Real market research.</strong> Patterns from actual conversations. Not surveys people lie on.</li>
-                </ul>
-              </div>
-              <div className="landing-differentiator-image">
-                <div className="landing-image-wrapper-small">
-                  <img
-                    src="/images/differentiator-5.png"
-                    alt="Analytics dashboard with conversation data and insights"
-                    width={400}
-                    height={268}
-                    className="landing-differentiator-img"
-                  />
-                  <p className="landing-image-caption">
-                    Every question is a signal. Every pattern is an insight.
-                  </p>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            {/* Differentiator 6: Self-Serve Setup */}
-            <div className="differentiator-card">
-              <div className="landing-differentiator landing-differentiator-text-only">
-              <div className="landing-differentiator-content-full">
-                <h3 className="landing-differentiator-heading">
-                  Live in 10 minutes. Not 10 weeks.
-                </h3>
-                <p className="landing-differentiator-subhead">
-                  No developers. No integrations. No enterprise sales cycle.
-                </p>
-                <ul className="landing-sub-diff-list">
-                  <li><strong>Self-serve setup.</strong> Scrape your site, upload docs, assign content to pages, paste one embed code.</li>
-                  <li><strong>No training required.</strong> No flows. No chatbot builder. Point it at your content and go.</li>
-                  <li><strong>Works on any site.</strong> No redesign. No migration. Add it without touching your codebase.</li>
-                </ul>
-                <div className="landing-image-centered" style={{ marginTop: '2em' }}>
-                  <div className="landing-image-wrapper-large" style={{ margin: '0 auto' }}>
-                    <img
-                      src="/images/four-steps.png"
-                      alt="Four-step setup process: Scrape, Upload, Assign, Launch"
-                      width={800}
-                      height={300}
-                      className="landing-differentiator-img"
-                    />
-                    <p className="landing-image-caption">
-                      Scrape → Upload → Assign → Launch
-                    </p>
-                  </div>
-                </div>
-              </div>
-              </div>
-            </div>
+            {DIFFERENTIATORS.map((diff, index) => (
+              <DifferentiatorCard
+                key={index}
+                heading={diff.heading}
+                subhead={diff.subhead}
+                features={diff.features}
+                image={diff.image}
+                reverse={diff.reverse}
+                textOnly={diff.textOnly}
+              >
+                {diff.children}
+              </DifferentiatorCard>
+            ))}
           </div>
         </section>
 
@@ -341,26 +407,16 @@ export default async function Home() {
             </h2>
 
             <div className="landing-comparison-table">
-              <div className="landing-comparison-column landing-comparison-owners">
-                <h3 className="landing-comparison-header">Your Team Gets</h3>
-                <ul className="landing-comparison-list">
-                  <li>24/7 sales coverage</li>
-                  <li>Qualified leads with context</li>
-                  <li>Insight into visitor questions</li>
-                  <li>Content that converts</li>
-                  <li>Live in minutes</li>
-                </ul>
-              </div>
-              <div className="landing-comparison-column landing-comparison-visitors">
-                <h3 className="landing-comparison-header">Your Visitors Get</h3>
-                <ul className="landing-comparison-list">
-                  <li>Instant, accurate answers</li>
-                  <li>No scrolling or searching</li>
-                  <li>A conversation, not a monologue</li>
-                  <li>Voice-first, no typing</li>
-                  <li>Help when they need it</li>
-                </ul>
-              </div>
+              <ComparisonColumn
+                header="Your Team Gets"
+                items={TEAM_BENEFITS}
+                variant="owners"
+              />
+              <ComparisonColumn
+                header="Your Visitors Get"
+                items={VISITOR_BENEFITS}
+                variant="visitors"
+              />
             </div>
           </div>
         </section>
@@ -373,89 +429,15 @@ export default async function Home() {
             </h2>
 
             <div className="landing-use-case-grid">
-              {/* Card 1 */}
-              <div className="landing-use-case-card">
-                <div className="landing-use-case-header">
-                  <div className="landing-use-case-icon">
-                    <img
-                      src="/images/persona1.png"
-                      alt="Complex product icon"
-                      width={64}
-                      height={64}
-                      className="landing-persona-icon-img"
-                    />
-                  </div>
-                  <h3 className="landing-use-case-heading">
-                    Your product takes 4 pages to explain. Your prospects have 2 minutes.
-                  </h3>
-                </div>
-                <p className="landing-use-case-body">
-                  Voice makes dense info digestible. Page-specific AI delivers relevant answers and shortens sales cycles.
-                </p>
-              </div>
-
-              {/* Card 2 */}
-              <div className="landing-use-case-card">
-                <div className="landing-use-case-header">
-                  <div className="landing-use-case-icon">
-                    <img
-                      src="/images/persona2.png"
-                      alt="Comparison shopping icon"
-                      width={64}
-                      height={64}
-                      className="landing-persona-icon-img"
-                    />
-                  </div>
-                  <h3 className="landing-use-case-heading">
-                    Prospects are comparing 2+ options. Small unanswered questions become deal-breakers.
-                  </h3>
-                </div>
-                <p className="landing-use-case-body">
-                  Instant answers to "Does it integrate with X?" keep them on your site instead of bouncing.
-                </p>
-              </div>
-
-              {/* Card 3 */}
-              <div className="landing-use-case-card">
-                <div className="landing-use-case-header">
-                  <div className="landing-use-case-icon">
-                    <img
-                      src="/images/persona3.png"
-                      alt="Mobile traffic icon"
-                      width={64}
-                      height={64}
-                      className="landing-persona-icon-img"
-                    />
-                  </div>
-                  <h3 className="landing-use-case-heading">
-                    60% of your traffic is mobile. Nobody reads your 1,200-word page on a phone.
-                  </h3>
-                </div>
-                <p className="landing-use-case-body">
-                  Voice eliminates scroll fatigue. Visitors ask instead of hunt. Higher mobile conversion.
-                </p>
-              </div>
-
-              {/* Card 4 */}
-              <div className="landing-use-case-card">
-                <div className="landing-use-case-header">
-                  <div className="landing-use-case-icon">
-                    <img
-                      src="/images/persona4.png"
-                      alt="Sales team efficiency icon"
-                      width={64}
-                      height={64}
-                      className="landing-persona-icon-img"
-                    />
-                  </div>
-                  <h3 className="landing-use-case-heading">
-                    Your reps spend 40% of their time on "What's the price?" questions.
-                  </h3>
-                </div>
-                <p className="landing-use-case-body">
-                  AI handles the basics. Your team focuses on conversations that close deals.
-                </p>
-              </div>
+              {USE_CASES.map((useCase, index) => (
+                <UseCaseCard
+                  key={index}
+                  iconSrc={useCase.iconSrc}
+                  iconAlt={useCase.iconAlt}
+                  heading={useCase.heading}
+                  body={useCase.body}
+                />
+              ))}
             </div>
           </div>
         </section>
@@ -471,77 +453,15 @@ export default async function Home() {
             </p>
 
             <div className="landing-steps">
-              <div className="landing-step">
-                <div className="landing-step-icon">
-                  <img
-                    src="/images/step1.png"
-                    alt="Scrape icon"
-                    width={64}
-                    height={64}
-                    className="landing-step-icon-img"
-                  />
-                </div>
-                <div className="landing-step-content">
-                  <h3 className="landing-step-heading">Step 1: Scrape</h3>
-                  <p className="landing-step-body">
-                    Enter your URLs. EasyAsk reads your pages and learns your content in seconds. Pricing page, features page, product docs—whatever you point it at.
-                  </p>
-                </div>
-              </div>
-
-              <div className="landing-step">
-                <div className="landing-step-icon">
-                  <img
-                    src="/images/step2.png"
-                    alt="Upload icon"
-                    width={64}
-                    height={64}
-                    className="landing-step-icon-img"
-                  />
-                </div>
-                <div className="landing-step-content">
-                  <h3 className="landing-step-heading">Step 2: Upload</h3>
-                  <p className="landing-step-body">
-                    Add anything else the AI should know. Sales decks, case studies, battle cards, pricing sheets, FAQ docs. Drag, drop, done.
-                  </p>
-                </div>
-              </div>
-
-              <div className="landing-step">
-                <div className="landing-step-icon">
-                  <img
-                    src="/images/step3.png"
-                    alt="Assign icon"
-                    width={64}
-                    height={64}
-                    className="landing-step-icon-img"
-                  />
-                </div>
-                <div className="landing-step-content">
-                  <h3 className="landing-step-heading">Step 3: Assign</h3>
-                  <p className="landing-step-body">
-                    Choose which content the AI can access on which pages. Pricing page gets pricing docs. Features page gets product specs. You control the context.
-                  </p>
-                </div>
-              </div>
-
-              <div className="landing-step">
-                <div className="landing-step-icon">
-                  <img
-                    src="/images/step4.png"
-                    alt="Launch icon"
-                    width={64}
-                    height={64}
-                    className="landing-step-icon-img"
-                  />
-                </div>
-                <div className="landing-step-content">
-                  <h3 className="landing-step-heading">Step 4: Launch</h3>
-                  <p className="landing-step-body">
-                    Paste one embed code. Your voice assistant is live. Visitors can start asking questions immediately.
-                  </p>
-                </div>
-              </div>
+              {STEPS.map((step, index) => (
+                <StepCard
+                  key={index}
+                  iconSrc={step.iconSrc}
+                  iconAlt={step.iconAlt}
+                  heading={step.heading}
+                  body={step.body}
+                />
+              ))}
             </div>
 
             <p className="landing-callout landing-callout-purple" style={{ marginTop: '3em' }}>
@@ -603,26 +523,9 @@ export default async function Home() {
             </h2>
 
             <div className="landing-final-cta-grid">
-              <div className="landing-final-cta-item">
-                <h3 className="landing-final-cta-heading">Voice-first</h3>
-                <p className="landing-final-cta-body">
-                  Way easier than typing. Especially on mobile. Visitors ask out loud and get answers in seconds.
-                </p>
-              </div>
-
-              <div className="landing-final-cta-item">
-                <h3 className="landing-final-cta-heading">Grounded in YOUR content</h3>
-                <p className="landing-final-cta-body">
-                  No hallucinations. No off-brand answers. Every response comes from pages you scraped and docs you uploaded.
-                </p>
-              </div>
-
-              <div className="landing-final-cta-item">
-                <h3 className="landing-final-cta-heading">Built for sales, not support</h3>
-                <p className="landing-final-cta-body">
-                  Capture purchase intent. Handle objections in real-time. Escalate to your sales team, not a ticket queue.
-                </p>
-              </div>
+              {FINAL_CTA_ITEMS.map((item, index) => (
+                <FinalCtaItem key={index} heading={item.heading} body={item.body} />
+              ))}
             </div>
 
             <p className="landing-callout landing-callout-purple">
@@ -635,7 +538,7 @@ export default async function Home() {
 
             <div className="landing-final-cta-button-wrapper">
               <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
-                Get Early Access →
+                Get Early Access &rarr;
               </EarlyAccessButton>
             </div>
           </div>

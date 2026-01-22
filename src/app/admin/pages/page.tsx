@@ -7,6 +7,10 @@ import { Plus, Trash2, Copy, CheckCircle, Edit2, Check, X, ChevronDown, ChevronU
 // Force dynamic rendering - prevent page caching
 export const dynamic = 'force-dynamic'
 
+// =============================================================================
+// Types
+// =============================================================================
+
 interface WidgetPage {
   id: string
   user_id: string
@@ -20,54 +24,234 @@ interface WidgetPage {
   updated_at: string
 }
 
+interface Organization {
+  name: string
+  website_url: string | null
+  file_search_store_name: string | null
+  show_branding: boolean
+  publishable_key?: string | null
+  widget_line1?: string | null
+  widget_line2?: string | null
+}
+
 interface UserInfo {
   id: string
   email: string | null
   organization_id: string
-  organization?: {
-    name: string
-    website_url: string | null
-    file_search_store_name: string | null
-    show_branding: boolean
-    publishable_key: string | null
-    widget_line1: string | null
-    widget_line2: string | null
-  }
-  organizations: {
-    name: string
-    website_url: string | null
-    file_search_store_name: string | null
-    show_branding: boolean
-    publishable_key?: string | null
-    widget_line1?: string | null
-    widget_line2?: string | null
+  organization?: Organization
+  organizations: Organization
+}
+
+interface WidgetTextState {
+  widget_line1: string
+  widget_line2: string
+}
+
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+function getPageGoalStyle(goal: string): string {
+  switch (goal) {
+    case 'sell':
+      return 'bg-green-900/40 text-green-300 border border-green-700'
+    case 'lead':
+      return 'bg-blue-900/40 text-blue-300 border border-blue-700'
+    case 'support':
+      return 'bg-purple-900/40 text-purple-300 border border-purple-700'
+    default:
+      return 'bg-gray-700 text-gray-300'
   }
 }
 
-export default function PagesPage() {
+function getPageGoalLabel(goal: string): string {
+  switch (goal) {
+    case 'sell':
+      return 'Sell'
+    case 'lead':
+      return 'Lead'
+    case 'support':
+      return 'Support'
+    default:
+      return goal
+  }
+}
+
+// =============================================================================
+// Reusable Sub-Components
+// =============================================================================
+
+interface ToggleSwitchProps {
+  enabled: boolean
+  onToggle: () => void
+  title?: string
+}
+
+function ToggleSwitch({ enabled, onToggle, title }: ToggleSwitchProps): JSX.Element {
+  return (
+    <button
+      onClick={onToggle}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+        enabled ? 'bg-blue-600' : 'bg-gray-600'
+      }`}
+      title={title}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          enabled ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+  )
+}
+
+interface CopyButtonProps {
+  text: string
+  id: string
+  copiedId: string | null
+  onCopy: (text: string, id: string) => void
+  className?: string
+  showLabel?: boolean
+}
+
+function CopyButton({ text, id, copiedId, onCopy, className, showLabel = true }: CopyButtonProps): JSX.Element {
+  const isCopied = copiedId === id
+  return (
+    <button
+      onClick={() => onCopy(text, id)}
+      className={className || 'p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors flex-shrink-0'}
+      title="Copy"
+    >
+      {isCopied ? (
+        <>
+          <CheckCircle className="w-4 h-4 text-green-400" />
+          {showLabel && <span className="hidden sm:inline ml-1">Copied!</span>}
+        </>
+      ) : (
+        <>
+          <Copy className="w-4 h-4" />
+          {showLabel && <span className="hidden sm:inline ml-1">Copy</span>}
+        </>
+      )}
+    </button>
+  )
+}
+
+interface BadgeProps {
+  children: React.ReactNode
+  className?: string
+}
+
+function Badge({ children, className = '' }: BadgeProps): JSX.Element {
+  return (
+    <span className={`text-xs px-2 py-1 rounded-full font-medium ${className}`}>
+      {children}
+    </span>
+  )
+}
+
+interface WidgetTextEditorProps {
+  widgetText: WidgetTextState
+  onChange: (text: WidgetTextState) => void
+  onSave: () => void
+  onCancel: () => void
+  saving: boolean
+  line1Placeholder?: string
+  line2Placeholder?: string
+}
+
+function WidgetTextEditor({
+  widgetText,
+  onChange,
+  onSave,
+  onCancel,
+  saving,
+  line1Placeholder = 'e.g., Questions?',
+  line2Placeholder = 'e.g., Ask our AI assistant'
+}: WidgetTextEditorProps): JSX.Element {
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="block text-xs font-medium text-gray-400 mb-1">
+          Line 1 (Primary text)
+        </label>
+        <input
+          type="text"
+          value={widgetText.widget_line1}
+          onChange={(e) => onChange({ ...widgetText, widget_line1: e.target.value })}
+          placeholder={line1Placeholder}
+          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-400 mb-1">
+          Line 2 (Secondary text)
+        </label>
+        <input
+          type="text"
+          value={widgetText.widget_line2}
+          onChange={(e) => onChange({ ...widgetText, widget_line2: e.target.value })}
+          placeholder={line2Placeholder}
+          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+        />
+      </div>
+      <div className="flex items-center gap-2 mt-3">
+        <button
+          onClick={onSave}
+          disabled={saving}
+          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+        >
+          {saving ? 'Saving...' : (
+            <>
+              <Check className="w-4 h-4" />
+              Save
+            </>
+          )}
+        </button>
+        <button
+          onClick={onCancel}
+          disabled={saving}
+          className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-gray-300 text-sm rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// =============================================================================
+// Main Component
+// =============================================================================
+
+export default function PagesPage(): JSX.Element {
+  // Core data state
   const [pages, setPages] = useState<WidgetPage[]>([])
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [formData, setFormData] = useState({
-    page_url: '',
-    page_title: '',
-    page_goal: ''
-  })
-  const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // UI state
+  const [showAddForm, setShowAddForm] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [expandedPageId, setExpandedPageId] = useState<string | null>(null)
+
+  // Form state
+  const [formData, setFormData] = useState({ page_url: '', page_title: '', page_goal: '' })
+  const [adding, setAdding] = useState(false)
+
+  // Title editing state
   const [editingPageId, setEditingPageId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [savingTitle, setSavingTitle] = useState(false)
-  const [expandedPageId, setExpandedPageId] = useState<string | null>(null)
-  const [editingWidgetText, setEditingWidgetText] = useState<{
-    widget_line1: string
-    widget_line2: string
-  } | null>(null)
+
+  // Widget text editing state
+  const [editingWidgetText, setEditingWidgetText] = useState<WidgetTextState | null>(null)
   const [savingWidgetText, setSavingWidgetText] = useState(false)
+
+  // Organization widget text state
   const [editingOrgWidgetText, setEditingOrgWidgetText] = useState(false)
-  const [orgWidgetText, setOrgWidgetText] = useState({ widget_line1: '', widget_line2: '' })
+  const [orgWidgetText, setOrgWidgetText] = useState<WidgetTextState>({ widget_line1: '', widget_line2: '' })
   const [savingOrgWidgetText, setSavingOrgWidgetText] = useState(false)
 
   useEffect(() => {
@@ -75,39 +259,46 @@ export default function PagesPage() {
     fetchPages()
   }, [])
 
-  const fetchUserInfo = async () => {
+  // ===========================================================================
+  // API Functions
+  // ===========================================================================
+
+  async function fetchUserInfo(): Promise<void> {
     try {
       const response = await fetch('/api/admin/user-info')
       const data = await response.json()
-
       if (data.user) {
         setUserInfo(data.user as UserInfo)
       }
-    } catch (error) {
-      console.error('Error fetching user info:', error)
+    } catch (err) {
+      console.error('Error fetching user info:', err)
     }
   }
 
-  const fetchPages = async () => {
+  async function fetchPages(): Promise<void> {
     try {
       setLoading(true)
       const response = await fetch('/api/admin/widget-pages')
       const data = await response.json()
       setPages(data.pages || [])
-    } catch (error) {
-      console.error('Error fetching pages:', error)
+    } catch (err) {
+      console.error('Error fetching pages:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleAddPage = async (e: React.FormEvent) => {
+  // ===========================================================================
+  // Event Handlers
+  // ===========================================================================
+
+  async function handleAddPage(e: React.FormEvent): Promise<void> {
     e.preventDefault()
     setAdding(true)
     setError(null)
 
     try {
-      // Validate URL format (allow * for patterns)
+      // Validate URL format
       if (!formData.page_url.match(/^https?:\/\//)) {
         throw new Error('Page URL must start with http:// or https://')
       }
@@ -139,19 +330,18 @@ export default function PagesPage() {
         throw new Error(errorData.error || 'Failed to add page')
       }
 
-      // Reset form and refresh list
       setFormData({ page_url: '', page_title: '', page_goal: '' })
       setShowAddForm(false)
       await fetchPages()
-    } catch (error) {
-      console.error('Error adding page:', error)
-      setError(error instanceof Error ? error.message : 'Failed to add page')
+    } catch (err) {
+      console.error('Error adding page:', err)
+      setError(err instanceof Error ? err.message : 'Failed to add page')
     } finally {
       setAdding(false)
     }
   }
 
-  const handleToggleActive = async (id: string, currentStatus: boolean) => {
+  async function handleToggleActive(id: string, currentStatus: boolean): Promise<void> {
     try {
       // Optimistic update
       setPages(prevPages =>
@@ -168,17 +358,15 @@ export default function PagesPage() {
         throw new Error('Failed to toggle page status')
       }
 
-      // Refresh to ensure consistency
       await fetchPages()
-    } catch (error) {
-      console.error('Error toggling page status:', error)
+    } catch (err) {
+      console.error('Error toggling page status:', err)
       alert('Failed to toggle page status')
-      // Revert optimistic update
       await fetchPages()
     }
   }
 
-  const handleDeletePage = async (id: string) => {
+  async function handleDeletePage(id: string): Promise<void> {
     if (!confirm('Are you sure you want to remove this page? The widget will no longer work on this page.')) {
       return
     }
@@ -193,13 +381,13 @@ export default function PagesPage() {
       }
 
       await fetchPages()
-    } catch (error) {
-      console.error('Error deleting page:', error)
+    } catch (err) {
+      console.error('Error deleting page:', err)
       alert('Failed to delete page')
     }
   }
 
-  const handleToggleBranding = async (currentStatus: boolean) => {
+  async function handleToggleBranding(currentStatus: boolean): Promise<void> {
     try {
       const response = await fetch('/api/admin/organization', {
         method: 'PATCH',
@@ -211,35 +399,34 @@ export default function PagesPage() {
         throw new Error('Failed to toggle branding visibility')
       }
 
-      // Refresh user info to get updated branding setting
       await fetchUserInfo()
-    } catch (error) {
-      console.error('Error toggling branding:', error)
+    } catch (err) {
+      console.error('Error toggling branding:', err)
       alert('Failed to toggle branding visibility')
     }
   }
 
-  const copyToClipboard = async (text: string, id: string) => {
+  async function copyToClipboard(text: string, id: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(text)
       setCopiedId(id)
       setTimeout(() => setCopiedId(null), 2000)
-    } catch (error) {
-      console.error('Failed to copy:', error)
+    } catch (err) {
+      console.error('Failed to copy:', err)
     }
   }
 
-  const handleStartEditTitle = (page: WidgetPage) => {
+  function handleStartEditTitle(page: WidgetPage): void {
     setEditingPageId(page.id)
     setEditingTitle(page.page_title)
   }
 
-  const handleCancelEditTitle = () => {
+  function handleCancelEditTitle(): void {
     setEditingPageId(null)
     setEditingTitle('')
   }
 
-  const handleSaveTitle = async (pageId: string) => {
+  async function handleSaveTitle(pageId: string): Promise<void> {
     if (editingTitle.trim().length < 2) {
       alert('Page title must be at least 2 characters')
       return
@@ -258,29 +445,24 @@ export default function PagesPage() {
         throw new Error(errorData.error || 'Failed to update page title')
       }
 
-      // Update local state
       setPages(prevPages =>
         prevPages.map(p => p.id === pageId ? { ...p, page_title: editingTitle.trim() } : p)
       )
-
-      // Clear editing state
       setEditingPageId(null)
       setEditingTitle('')
-    } catch (error) {
-      console.error('Error updating page title:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update page title')
+    } catch (err) {
+      console.error('Error updating page title:', err)
+      alert(err instanceof Error ? err.message : 'Failed to update page title')
     } finally {
       setSavingTitle(false)
     }
   }
 
-  const handleToggleExpand = (page: WidgetPage) => {
+  function handleToggleExpand(page: WidgetPage): void {
     if (expandedPageId === page.id) {
-      // Collapse
       setExpandedPageId(null)
       setEditingWidgetText(null)
     } else {
-      // Expand and populate editing state
       setExpandedPageId(page.id)
       setEditingWidgetText({
         widget_line1: page.widget_line1 || '',
@@ -289,7 +471,7 @@ export default function PagesPage() {
     }
   }
 
-  const handleSaveWidgetText = async (pageId: string) => {
+  async function handleSaveWidgetText(pageId: string): Promise<void> {
     if (!editingWidgetText) return
 
     setSavingWidgetText(true)
@@ -308,7 +490,6 @@ export default function PagesPage() {
         throw new Error(errorData.error || 'Failed to update widget text')
       }
 
-      // Update local state
       setPages(prevPages =>
         prevPages.map(p => p.id === pageId ? {
           ...p,
@@ -316,19 +497,17 @@ export default function PagesPage() {
           widget_line2: editingWidgetText.widget_line2 || null
         } : p)
       )
-
-      // Collapse after saving
       setExpandedPageId(null)
       setEditingWidgetText(null)
-    } catch (error) {
-      console.error('Error updating widget text:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update widget text')
+    } catch (err) {
+      console.error('Error updating widget text:', err)
+      alert(err instanceof Error ? err.message : 'Failed to update widget text')
     } finally {
       setSavingWidgetText(false)
     }
   }
 
-  const handleStartEditOrgWidgetText = () => {
+  function handleStartEditOrgWidgetText(): void {
     setOrgWidgetText({
       widget_line1: userInfo?.organizations?.widget_line1 || '',
       widget_line2: userInfo?.organizations?.widget_line2 || ''
@@ -336,7 +515,7 @@ export default function PagesPage() {
     setEditingOrgWidgetText(true)
   }
 
-  const handleSaveOrgWidgetText = async () => {
+  async function handleSaveOrgWidgetText(): Promise<void> {
     setSavingOrgWidgetText(true)
     try {
       const response = await fetch('/api/admin/organization', {
@@ -353,16 +532,28 @@ export default function PagesPage() {
         throw new Error(errorData.error || 'Failed to update widget text')
       }
 
-      // Refresh user info to get updated values
       await fetchUserInfo()
       setEditingOrgWidgetText(false)
-    } catch (error) {
-      console.error('Error updating org widget text:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update widget text')
+    } catch (err) {
+      console.error('Error updating org widget text:', err)
+      alert(err instanceof Error ? err.message : 'Failed to update widget text')
     } finally {
       setSavingOrgWidgetText(false)
     }
   }
+
+  // ===========================================================================
+  // Derived Values
+  // ===========================================================================
+
+  const publishableKey = userInfo?.organization?.publishable_key || userInfo?.organizations?.publishable_key
+  const embedCode = publishableKey
+    ? `<script src="https://www.easyask.io/widget.js" data-key="${publishableKey}"></script>`
+    : `<script src="https://www.easyask.io/widget.js" data-key="YOUR_API_KEY"></script>`
+
+  // ===========================================================================
+  // Render
+  // ===========================================================================
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
@@ -385,36 +576,27 @@ export default function PagesPage() {
             The assistant automatically detects which page it's on and shows the right content.
           </p>
 
-          {(() => {
-            const publishableKey = userInfo?.organization?.publishable_key || userInfo?.organizations?.publishable_key
-            const embedCode = publishableKey
-              ? `<script src="https://www.easyask.io/widget.js" data-key="${publishableKey}"></script>`
-              : `<script src="https://www.easyask.io/widget.js" data-key="YOUR_API_KEY"></script>`
-
-            return (
-              <div className="relative">
-                <pre className="bg-gray-950 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto border border-gray-700 text-xs sm:text-sm">
-                  <code>{embedCode}</code>
-                </pre>
-                <button
-                  onClick={() => copyToClipboard(embedCode, 'universal-embed')}
-                  className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 shadow-lg"
-                >
-                  {copiedId === 'universal-embed' ? (
-                    <>
-                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )
-          })()}
+          <div className="relative">
+            <pre className="bg-gray-950 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto border border-gray-700 text-xs sm:text-sm">
+              <code>{embedCode}</code>
+            </pre>
+            <button
+              onClick={() => copyToClipboard(embedCode, 'universal-embed')}
+              className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 shadow-lg"
+            >
+              {copiedId === 'universal-embed' ? (
+                <>
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Copy</span>
+                </>
+              )}
+            </button>
+          </div>
 
           <p className="text-xs sm:text-sm text-gray-400 mt-3 sm:mt-4">
             Place this code before the closing <code className="text-gray-300 bg-gray-700 px-1.5 py-0.5 rounded">&lt;/body&gt;</code> tag.
@@ -445,23 +627,16 @@ export default function PagesPage() {
                 <span className="text-gray-400 font-medium">API Key:</span>
                 <div className="flex items-center gap-2 mt-1">
                   <code className="flex-1 bg-gray-700 px-3 py-2 rounded text-xs text-gray-300 break-all font-mono">
-                    {userInfo.organization?.publishable_key || userInfo.organizations.publishable_key || 'Not generated'}
+                    {publishableKey || 'Not generated'}
                   </code>
-                  {(userInfo.organization?.publishable_key || userInfo.organizations.publishable_key) && (
-                    <button
-                      onClick={() => copyToClipboard(
-                        userInfo.organization?.publishable_key || userInfo.organizations.publishable_key || '',
-                        'api-key'
-                      )}
-                      className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors flex-shrink-0"
-                      title="Copy API key"
-                    >
-                      {copiedId === 'api-key' ? (
-                        <CheckCircle className="w-4 h-4 text-green-400" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
+                  {publishableKey && (
+                    <CopyButton
+                      text={publishableKey}
+                      id="api-key"
+                      copiedId={copiedId}
+                      onCopy={copyToClipboard}
+                      showLabel={false}
+                    />
                   )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -476,19 +651,11 @@ export default function PagesPage() {
                       ({userInfo.organizations.show_branding ? 'Footer visible on all widgets' : 'Footer hidden on all widgets'})
                     </span>
                   </div>
-                  <button
-                    onClick={() => handleToggleBranding(userInfo.organizations.show_branding)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      userInfo.organizations.show_branding ? 'bg-blue-600' : 'bg-gray-600'
-                    }`}
+                  <ToggleSwitch
+                    enabled={userInfo.organizations.show_branding}
+                    onToggle={() => handleToggleBranding(userInfo.organizations.show_branding)}
                     title={userInfo.organizations.show_branding ? 'Hide "Powered by EasyAsk" footer' : 'Show "Powered by EasyAsk" footer'}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        userInfo.organizations.show_branding ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
+                  />
                 </div>
               </div>
 
@@ -509,53 +676,13 @@ export default function PagesPage() {
                   </div>
 
                   {editingOrgWidgetText ? (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-400 mb-1">
-                          Line 1 (Primary text)
-                        </label>
-                        <input
-                          type="text"
-                          value={orgWidgetText.widget_line1}
-                          onChange={(e) => setOrgWidgetText({ ...orgWidgetText, widget_line1: e.target.value })}
-                          placeholder="e.g., Questions?"
-                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-400 mb-1">
-                          Line 2 (Secondary text)
-                        </label>
-                        <input
-                          type="text"
-                          value={orgWidgetText.widget_line2}
-                          onChange={(e) => setOrgWidgetText({ ...orgWidgetText, widget_line2: e.target.value })}
-                          placeholder="e.g., Ask our AI assistant"
-                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 mt-3">
-                        <button
-                          onClick={handleSaveOrgWidgetText}
-                          disabled={savingOrgWidgetText}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
-                        >
-                          {savingOrgWidgetText ? 'Saving...' : (
-                            <>
-                              <Check className="w-4 h-4" />
-                              Save
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => setEditingOrgWidgetText(false)}
-                          disabled={savingOrgWidgetText}
-                          className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-gray-300 text-sm rounded-lg transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
+                    <WidgetTextEditor
+                      widgetText={orgWidgetText}
+                      onChange={setOrgWidgetText}
+                      onSave={handleSaveOrgWidgetText}
+                      onCancel={() => setEditingOrgWidgetText(false)}
+                      saving={savingOrgWidgetText}
+                    />
                   ) : (
                     <div className="space-y-1 text-sm">
                       <p className="text-white">
@@ -702,7 +829,6 @@ export default function PagesPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       {editingPageId === page.id ? (
-                        // Edit mode
                         <div className="flex items-center gap-2 flex-1">
                           <input
                             type="text"
@@ -733,7 +859,6 @@ export default function PagesPage() {
                           </button>
                         </div>
                       ) : (
-                        // Display mode
                         <>
                           <h3 className={`text-xl font-semibold ${page.is_active ? 'text-white' : 'text-gray-400'}`}>
                             {page.page_title}
@@ -748,26 +873,19 @@ export default function PagesPage() {
                         </>
                       )}
                       {page.page_url.includes('*') && (
-                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-amber-900/40 text-amber-300 border border-amber-700">
+                        <Badge className="bg-amber-900/40 text-amber-300 border border-amber-700">
                           Pattern
-                        </span>
+                        </Badge>
                       )}
                       {!page.is_active && (
-                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-700 text-gray-400 border border-gray-600">
+                        <Badge className="bg-gray-700 text-gray-400 border border-gray-600">
                           Inactive
-                        </span>
+                        </Badge>
                       )}
                       {page.page_goal && (
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          page.page_goal === 'sell' ? 'bg-green-900/40 text-green-300 border border-green-700' :
-                          page.page_goal === 'lead' ? 'bg-blue-900/40 text-blue-300 border border-blue-700' :
-                          page.page_goal === 'support' ? 'bg-purple-900/40 text-purple-300 border border-purple-700' :
-                          'bg-gray-700 text-gray-300'
-                        }`}>
-                          {page.page_goal === 'sell' ? 'Sell' :
-                           page.page_goal === 'lead' ? 'Lead' :
-                           page.page_goal === 'support' ? 'Support' : page.page_goal}
-                        </span>
+                        <Badge className={getPageGoalStyle(page.page_goal)}>
+                          {getPageGoalLabel(page.page_goal)}
+                        </Badge>
                       )}
                     </div>
                     <p className={`text-sm break-all ${page.is_active ? 'text-blue-400' : 'text-gray-500'}`}>
@@ -775,20 +893,11 @@ export default function PagesPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Toggle Switch */}
-                    <button
-                      onClick={() => handleToggleActive(page.id, page.is_active)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        page.is_active ? 'bg-blue-600' : 'bg-gray-600'
-                      }`}
+                    <ToggleSwitch
+                      enabled={page.is_active}
+                      onToggle={() => handleToggleActive(page.id, page.is_active)}
                       title={page.is_active ? 'Click to disable widget' : 'Click to enable widget'}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          page.is_active ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
+                    />
                     <button
                       onClick={() => handleDeletePage(page.id)}
                       className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
@@ -829,71 +938,24 @@ export default function PagesPage() {
                       Customize the text shown on the widget button for this page. Leave blank to use your organization defaults.
                     </p>
 
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-400 mb-1">
-                          Line 1 (Primary text)
-                        </label>
-                        <input
-                          type="text"
-                          value={editingWidgetText.widget_line1}
-                          onChange={(e) => setEditingWidgetText({
-                            ...editingWidgetText,
-                            widget_line1: e.target.value
-                          })}
-                          placeholder={userInfo?.organizations?.widget_line1 || 'e.g., Questions?'}
-                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
-                        />
-                      </div>
+                    <WidgetTextEditor
+                      widgetText={editingWidgetText}
+                      onChange={setEditingWidgetText}
+                      onSave={() => handleSaveWidgetText(page.id)}
+                      onCancel={() => {
+                        setExpandedPageId(null)
+                        setEditingWidgetText(null)
+                      }}
+                      saving={savingWidgetText}
+                      line1Placeholder={userInfo?.organizations?.widget_line1 || 'e.g., Questions?'}
+                      line2Placeholder={userInfo?.organizations?.widget_line2 || 'e.g., Ask our AI assistant'}
+                    />
 
-                      <div>
-                        <label className="block text-xs font-medium text-gray-400 mb-1">
-                          Line 2 (Secondary text)
-                        </label>
-                        <input
-                          type="text"
-                          value={editingWidgetText.widget_line2}
-                          onChange={(e) => setEditingWidgetText({
-                            ...editingWidgetText,
-                            widget_line2: e.target.value
-                          })}
-                          placeholder={userInfo?.organizations?.widget_line2 || 'e.g., Ask our AI assistant'}
-                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-4">
-                      <button
-                        onClick={() => handleSaveWidgetText(page.id)}
-                        disabled={savingWidgetText}
-                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        {savingWidgetText ? (
-                          'Saving...'
-                        ) : (
-                          <>
-                            <Check className="w-4 h-4" />
-                            Save
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setExpandedPageId(null)
-                          setEditingWidgetText(null)
-                        }}
-                        disabled={savingWidgetText}
-                        className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      {(page.widget_line1 || page.widget_line2) && (
-                        <span className="text-xs text-amber-400 ml-auto">
-                          Custom text active
-                        </span>
-                      )}
-                    </div>
+                    {(page.widget_line1 || page.widget_line2) && (
+                      <span className="text-xs text-amber-400 mt-3 block">
+                        Custom text active
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

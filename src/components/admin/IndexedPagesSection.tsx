@@ -1,0 +1,277 @@
+'use client'
+
+import { useState } from 'react'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2, Globe } from 'lucide-react'
+import { cn, formatDate } from '@/lib/utils'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
+import type { IndexedPage, IndexedPageSyncStatus } from './types'
+
+interface IndexedPagesSectionProps {
+  pages: IndexedPage[]
+  loading: boolean
+  widgetPagesMap: Record<string, string>
+  onRefresh: () => void
+}
+
+const SYNC_STATUS_STYLES: Record<IndexedPageSyncStatus, { bg: string; text: string; border: string; label: string }> = {
+  synced: { bg: 'bg-green-900/30', text: 'text-green-400', border: 'border-green-700/50', label: 'Synced' },
+  orphaned: { bg: 'bg-orange-900/30', text: 'text-orange-400', border: 'border-orange-700/50', label: 'Orphaned' },
+  missing_from_google: { bg: 'bg-red-900/30', text: 'text-red-400', border: 'border-red-700/50', label: 'Missing' },
+  id_mismatch: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', border: 'border-yellow-700/50', label: 'ID Mismatch' }
+}
+
+export default function IndexedPagesSection({
+  pages,
+  loading,
+  widgetPagesMap,
+  onRefresh
+}: IndexedPagesSectionProps): React.ReactElement {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [selectedPages, setSelectedPages] = useState<string[]>([])
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  function handleTogglePage(pageId: string): void {
+    setSelectedPages(prev =>
+      prev.includes(pageId)
+        ? prev.filter(id => id !== pageId)
+        : [...prev, pageId]
+    )
+  }
+
+  function handleSelectAll(): void {
+    if (selectedPages.length === pages.length && pages.length > 0) {
+      setSelectedPages([])
+    } else {
+      setSelectedPages(pages.map(p => p.id))
+    }
+  }
+
+  async function handleDelete(): Promise<void> {
+    setIsDeleting(true)
+
+    try {
+      const response = await fetch('/api/admin/indexed-pages', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageIds: selectedPages })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete indexed pages')
+      }
+
+      setSelectedPages([])
+      onRefresh()
+      setIsDeleteModalOpen(false)
+    } catch (err) {
+      console.error('Delete failed:', err)
+      setIsDeleteModalOpen(false)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  function getPageDisplayUrl(url: string): string {
+    try {
+      return new URL(url).pathname || '/'
+    } catch {
+      return url
+    }
+  }
+
+  return (
+    <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden mb-8">
+      <div className="p-6 border-b border-gray-700 bg-gray-900">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex-1 hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  Current Knowledgebase Documents
+                  {!loading && (
+                    <span className="text-sm font-normal text-gray-400">
+                      ({pages.length} in registry)
+                    </span>
+                  )}
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">
+                  These are all the files the AI Assistant has access to
+                </p>
+              </div>
+              <div className="flex-shrink-0 ml-4">
+                {isExpanded ? (
+                  <ChevronUp className="w-6 h-6 text-gray-400" />
+                ) : (
+                  <ChevronDown className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {isExpanded && pages.length > 0 && (
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={handleSelectAll}
+              className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+            >
+              {selectedPages.length === pages.length ? 'Deselect All' : 'Select All'}
+            </button>
+            {selectedPages.length > 0 && (
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-4 py-2 font-medium transition-all shadow-lg flex items-center gap-2 text-sm"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Selected ({selectedPages.length})
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {isExpanded && (
+        <>
+          {loading ? (
+            <div className="px-6 py-12 text-center text-gray-400">
+              Loading indexed documents...
+            </div>
+          ) : pages.length > 0 ? (
+            <div className="divide-y divide-gray-700">
+              {pages.map((page) => {
+                const isSelected = selectedPages.includes(page.id)
+                const statusStyle = SYNC_STATUS_STYLES[page.sync_status]
+
+                return (
+                  <div
+                    key={page.id}
+                    className={cn(
+                      'px-6 py-5 transition-colors',
+                      isSelected
+                        ? 'bg-blue-900/20 border-l-4 border-blue-700'
+                        : 'hover:bg-gray-700/50'
+                    )}
+                  >
+                    <div className="flex items-start gap-4">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleTogglePage(page.id)}
+                        className="mt-1 w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                      />
+
+                      <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                            <span className="truncate">{page.page_title || 'Untitled'}</span>
+                          </h3>
+
+                          {page.source_type === 'uploaded' ? (
+                            <div className="mb-3">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-purple-900/30 text-purple-400 border border-purple-700/50">
+                                <FileText className="w-3 h-3" />
+                                Uploaded File
+                              </span>
+                            </div>
+                          ) : (
+                            <a
+                              href={page.page_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
+                            >
+                              <span className="truncate">{page.page_url}</span>
+                              <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                            </a>
+                          )}
+
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              {(page.scraped_at || page.created_at) && (
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>Added {formatDate(page.scraped_at || page.created_at!)}</span>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1">
+                                <span className={cn(
+                                  'inline-flex px-2 py-0.5 text-xs font-semibold rounded-md border',
+                                  statusStyle.bg,
+                                  statusStyle.text,
+                                  statusStyle.border
+                                )}>
+                                  {statusStyle.label}
+                                </span>
+                              </div>
+                            </div>
+
+                            {page.page_urls && page.page_urls.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <Globe className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1">
+                                  <p className="text-xs text-gray-500 mb-1">Available on:</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {page.page_urls.map((url, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-blue-900/30 text-blue-400 border border-blue-700/50"
+                                      >
+                                        {widgetPagesMap[url] || getPageDisplayUrl(url)}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex-shrink-0">
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500 mb-1">Document ID</p>
+                            <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
+                              {page.document_id.split('/').pop()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="px-6 py-16 text-center">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+              <h3 className="text-lg font-semibold text-white mb-2">No documents indexed yet</h3>
+              <p className="text-gray-400 text-sm max-w-md mx-auto">
+                Documents selected from below will appear here.
+              </p>
+            </div>
+          )}
+        </>
+      )}
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        items={selectedPages.map(id => {
+          const page = pages.find(p => p.id === id)
+          return {
+            id,
+            title: page?.page_title || 'Unknown'
+          }
+        })}
+        type="indexed"
+        loading={isDeleting}
+      />
+    </div>
+  )
+}
