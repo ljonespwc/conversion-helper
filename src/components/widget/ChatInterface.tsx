@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Loader2, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, ThumbsUp, ThumbsDown, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
+import { Loader2, Copy, Check, Sparkles, MessageCircle, ChevronDown, ChevronUp, Mail, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { useChat, ChatMessage } from '@/hooks/useChat'
@@ -793,50 +793,42 @@ export default function ChatInterface({
                       }`}>
                         Did this help?
                       </span>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         <button
                           onClick={() => handleRating(1)}
                           disabled={userRating !== null}
-                          className={`p-2 rounded-full transition-all duration-300 ${
-                            userRating === null
-                              ? hasFirstResponse
-                                ? 'cursor-pointer hover:scale-110 hover:bg-red-500/20'
-                                : 'cursor-pointer hover:scale-110 hover:bg-gray-700/50'
-                              : 'cursor-not-allowed opacity-50'
+                          className={`text-xl transition-all duration-300 ${
+                            userRating === null ? 'cursor-pointer hover:scale-110' : ''
                           }`}
+                          style={{
+                            filter: userRating === 5
+                              ? 'grayscale(100%) opacity(0.4)'
+                              : hasFirstResponse
+                                ? 'none'
+                                : 'grayscale(100%) opacity(0.5)',
+                            transition: 'filter 0.5s, transform 0.2s'
+                          }}
                           title="Not helpful"
                         >
-                          <ThumbsDown
-                            className={`w-5 h-5 transition-colors duration-500 ${
-                              userRating === 1
-                                ? 'text-red-400 fill-red-400'
-                                : hasFirstResponse
-                                  ? 'text-gray-400 hover:text-red-400'
-                                  : 'text-gray-600 hover:text-gray-400'
-                            }`}
-                          />
+                          👎
                         </button>
                         <button
                           onClick={() => handleRating(5)}
                           disabled={userRating !== null}
-                          className={`p-2 rounded-full transition-all duration-300 ${
-                            userRating === null
-                              ? hasFirstResponse
-                                ? 'cursor-pointer hover:scale-110 hover:bg-green-500/20'
-                                : 'cursor-pointer hover:scale-110 hover:bg-gray-700/50'
-                              : 'cursor-not-allowed opacity-50'
+                          className={`text-xl transition-all duration-300 ${
+                            userRating === null ? 'cursor-pointer hover:scale-110' : ''
                           }`}
+                          style={{
+                            filter: userRating === 1
+                              ? 'grayscale(100%) opacity(0.4)'
+                              : hasFirstResponse
+                                ? 'none'
+                                : 'grayscale(100%) opacity(0.5)',
+                            transition: 'filter 0.5s, transform 0.2s'
+                          }}
                           title="Helpful"
                         >
-                          <ThumbsUp
-                            className={`w-5 h-5 transition-colors duration-500 ${
-                              userRating === 5
-                                ? 'text-green-400 fill-green-400'
-                                : hasFirstResponse
-                                  ? 'text-gray-400 hover:text-green-400'
-                                  : 'text-gray-600 hover:text-gray-400'
-                            }`}
-                          />
+                          👍
                         </button>
                       </div>
                     </motion.div>
