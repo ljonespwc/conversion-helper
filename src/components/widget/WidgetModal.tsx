@@ -33,29 +33,44 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative bg-white dark:bg-easyask-dark rounded-2xl overflow-hidden flex flex-col ${
+        className={`relative rounded-3xl overflow-hidden flex flex-col backdrop-blur-md ${
           isExperimental
             ? 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
             : 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
         }`}
-        style={{ pointerEvents: 'auto' }}
+        style={{
+          pointerEvents: 'auto',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
+        }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        {/* Gradient border ring */}
+        <div
+          className="absolute inset-0 rounded-3xl pointer-events-none"
+          style={{
+            padding: '2px',
+            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            maskComposite: 'exclude',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor'
+          }}
+        />
+        <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
           {/* Spacer for symmetry */}
           <div className="w-8" />
 
           {/* Title in center */}
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-semibold text-white">
             {isDemo ? 'EasyAsk Demo Assistant' : (organizationName ? `${organizationName} Answers` : 'Page Assistant')}
           </h2>
 
           {/* Close button on the right */}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-full border border-white/30 hover:bg-white/20 transition-colors"
             aria-label="Close modal"
           >
-            <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <X className="w-4 h-4 text-white" />
           </button>
         </div>
 

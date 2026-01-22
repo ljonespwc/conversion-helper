@@ -326,11 +326,35 @@ export default function ChatInterface({
 
   return (
     <div className={`relative h-full flex flex-col ${!hasConversation && !isLoading ? 'justify-center' : ''}`}>
+      {/* Sparkle Burst - at top level to avoid overflow clipping */}
+      <AnimatePresence>
+        {showSparkleBurst && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50">
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute"
+                initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.5, 1],
+                  x: Math.cos((i / 8) * Math.PI * 2) * 80,
+                  y: Math.sin((i / 8) * Math.PI * 2) * 80,
+                }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              >
+                <Sparkles className="w-8 h-8 text-yellow-400" />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Fixed top section: Input + Quick Actions */}
-      <div className={`flex-shrink-0 p-6 pb-4 space-y-4 ${hasConversation || isLoading ? 'border-b border-gray-700/50' : ''}`}>
+      <div className={`flex-shrink-0 p-6 pb-4 space-y-4 ${hasConversation || isLoading ? 'border-b border-gray-200/30' : ''}`}>
         {/* Greeting - shown before any conversation */}
         {greetingMessage && !hasConversation && (
-          <p className="text-center text-gray-400 text-sm">{greetingMessage.content}</p>
+          <p className="text-center text-gray-500 text-sm">{greetingMessage.content}</p>
         )}
 
         {/* Input Area */}
@@ -344,12 +368,12 @@ export default function ChatInterface({
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             disabled={isLoading || !sessionId}
-            className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 resize-none overflow-y-auto"
+            className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 disabled:opacity-50 resize-none overflow-y-auto shadow-sm"
           />
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim() || !sessionId}
-            className="p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors"
+            className="p-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-xl transition-colors shadow-sm"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 text-white animate-spin" />
@@ -376,7 +400,7 @@ export default function ChatInterface({
             <button
               type="button"
               onClick={startFreshConversation}
-              className="text-xs text-gray-500 hover:text-gray-400 underline"
+              className="text-xs text-gray-400 hover:text-gray-600 underline"
             >
               Start new conversation
             </button>
@@ -396,8 +420,8 @@ export default function ChatInterface({
             disabled={!inputValue.trim() || isLoading}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all ${
               inputValue.trim() && !isLoading
-                ? 'bg-gray-800/50 hover:bg-gray-700/50 border-gray-600 text-gray-200 hover:text-white'
-                : 'bg-gray-800/20 border-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+                ? 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:text-gray-800 shadow-sm'
+                : 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed'
             }`}
           >
             <Languages className="w-3.5 h-3.5" />
@@ -412,14 +436,14 @@ export default function ChatInterface({
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10"
+                className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-10"
                 onClick={(e) => e.stopPropagation()}
               >
                 {TRANSLATE_LANGUAGES.map(({ code, label }) => (
                   <button
                     key={code}
                     onClick={() => handleQuickAction('translate', label)}
-                    className="w-full px-4 py-2 text-xs text-left text-gray-200 hover:bg-gray-700 hover:text-white transition-colors"
+                    className="w-full px-4 py-2 text-xs text-left text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
                   >
                     {label}
                   </button>
@@ -441,8 +465,8 @@ export default function ChatInterface({
             disabled={!inputValue.trim() || isLoading}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all ${
               inputValue.trim() && !isLoading
-                ? 'bg-gray-800/50 hover:bg-gray-700/50 border-gray-600 text-gray-200 hover:text-white'
-                : 'bg-gray-800/20 border-gray-700 text-gray-500 cursor-not-allowed opacity-50'
+                ? 'bg-white hover:bg-gray-50 border-gray-200 text-gray-600 hover:text-gray-800 shadow-sm'
+                : 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed'
             }`}
           >
             <Icon className="w-3.5 h-3.5" />
@@ -468,13 +492,13 @@ export default function ChatInterface({
               {[0, 1, 2].map((i) => (
                 <motion.div
                   key={i}
-                  className="w-2 h-2 bg-blue-400 rounded-full"
+                  className="w-2 h-2 bg-blue-500 rounded-full"
                   animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
                 />
               ))}
             </div>
-            <span className="text-sm text-gray-400">Thinking...</span>
+            <span className="text-sm text-gray-500">Thinking...</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -488,50 +512,24 @@ export default function ChatInterface({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="relative overflow-hidden"
+              className="overflow-hidden"
             >
-              {/* Sparkle Burst */}
-              <AnimatePresence>
-                {showSparkleBurst && (
-                  <div className="absolute top-4 left-4 pointer-events-none">
-                    {[...Array(8)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute"
-                        initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
-                        animate={{
-                          opacity: [0, 1, 0],
-                          scale: [0, 1, 0.8],
-                          x: Math.cos((i / 8) * Math.PI * 2) * 40,
-                          y: Math.sin((i / 8) * Math.PI * 2) * 40,
-                        }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                      >
-                        <Sparkles className="w-4 h-4 text-yellow-400" />
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </AnimatePresence>
-
-              <div className="relative rounded-lg shadow-lg overflow-hidden">
-                <div
-                  className="relative bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl p-4"
-                >
+              <div className="rounded-xl shadow-sm overflow-hidden border border-gray-200">
+                <div className="bg-white p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-0.5">
-                      <Sparkles className="w-4 h-4 text-blue-400" />
+                      <Sparkles className="w-4 h-4 text-blue-500" />
                     </div>
-                    <div className={`flex-1 min-w-0 text-white leading-relaxed ${isExperimental ? 'text-sm' : 'text-base'}`}>
+                    <div className={`flex-1 min-w-0 text-gray-700 leading-relaxed ${isExperimental ? 'text-sm' : 'text-base'}`}>
                       <ReactMarkdown
                         components={{
                           p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                          strong: ({ children }) => <strong className="font-semibold text-blue-300">{children}</strong>,
-                          em: ({ children }) => <em className="italic text-gray-300">{children}</em>,
+                          strong: ({ children }) => <strong className="font-semibold text-blue-600">{children}</strong>,
+                          em: ({ children }) => <em className="italic text-gray-600">{children}</em>,
                           ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
                           ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                          li: ({ children }) => <li className="text-white">{children}</li>,
-                          code: ({ children }) => <code className="bg-gray-800 px-1.5 py-0.5 rounded text-blue-300 text-xs">{children}</code>,
+                          li: ({ children }) => <li className="text-gray-700">{children}</li>,
+                          code: ({ children }) => <code className="bg-gray-100 px-1.5 py-0.5 rounded text-blue-600 text-xs">{children}</code>,
                         }}
                       >
                         {lastResponse.content}
@@ -543,7 +541,7 @@ export default function ChatInterface({
                   <div className="mt-3 flex items-center justify-end">
                     <button
                       onClick={() => handleCopyResponse(lastResponse.content)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-colors"
                     >
                       {isCopied ? (
                         <>
@@ -581,7 +579,7 @@ export default function ChatInterface({
                   })
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 rounded-lg transition-colors text-sm text-gray-400 hover:text-white"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors text-sm text-gray-500 hover:text-gray-700 shadow-sm"
             >
               <MessageCircle className="w-4 h-4" />
               <span>
@@ -598,7 +596,7 @@ export default function ChatInterface({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-gray-700/50 p-4 space-y-3">
+                  <div className="bg-gray-100 rounded-lg border border-gray-200 p-4 space-y-3">
                     <div className="space-y-3">
                       {messages.filter(m => !m.isGreeting).map((message, idx) => (
                         <motion.div
@@ -610,21 +608,21 @@ export default function ChatInterface({
                         >
                           <div className="flex-shrink-0 mt-0.5">
                             {message.role === 'user' ? (
-                              <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                <span className="text-xs">You</span>
+                              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span className="text-xs text-blue-600">You</span>
                               </div>
                             ) : (
-                              <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
-                                <Sparkles className="w-3 h-3 text-purple-400" />
+                              <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
+                                <Sparkles className="w-3 h-3 text-purple-500" />
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-xs font-medium ${message.role === 'user' ? 'text-blue-400' : 'text-purple-400'}`}>
+                              <span className={`text-xs font-medium ${message.role === 'user' ? 'text-blue-600' : 'text-purple-600'}`}>
                                 {message.role === 'user' ? 'You' : 'Assistant'}
                               </span>
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-gray-400">
                                 {new Date(message.timestamp).toLocaleTimeString('en-US', {
                                   hour: 'numeric',
                                   minute: '2-digit',
@@ -632,12 +630,12 @@ export default function ChatInterface({
                                 })}
                               </span>
                             </div>
-                            <div className="text-sm text-gray-200 leading-relaxed">
+                            <div className="text-sm text-gray-600 leading-relaxed">
                               {message.role === 'assistant' ? (
                                 <ReactMarkdown
                                   components={{
                                     p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                                    strong: ({ children }) => <strong className="font-semibold text-purple-300">{children}</strong>,
+                                    strong: ({ children }) => <strong className="font-semibold text-purple-600">{children}</strong>,
                                   }}
                                 >
                                   {message.content}
@@ -652,10 +650,10 @@ export default function ChatInterface({
                       <div ref={messagesEndRef} />
                     </div>
 
-                    <div className="pt-2 border-t border-gray-700/50 flex justify-end">
+                    <div className="pt-2 border-t border-gray-300 flex justify-end">
                       <button
                         onClick={handleCopyConversation}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-700/50 rounded-md transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md transition-colors shadow-sm"
                       >
                         {isConversationCopied ? (
                           <>
@@ -694,7 +692,7 @@ export default function ChatInterface({
                   })
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800/50 to-purple-800/50 hover:from-blue-700/50 hover:to-purple-700/50 border border-blue-700/50 rounded-lg transition-colors text-sm text-gray-200 hover:text-white"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border border-gray-200 rounded-lg transition-colors text-sm text-gray-600 hover:text-gray-800 shadow-sm"
             >
               <Mail className="w-4 h-4" />
               <span>{escalationSuccess ? "We'll follow up soon!" : 'Need more help? Get a human response'}</span>
@@ -709,16 +707,16 @@ export default function ChatInterface({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-slate-900/40 backdrop-blur-xl rounded-lg border border-blue-700/50 p-4 space-y-3">
+                  <div className="bg-gray-100 rounded-lg border border-gray-200 p-4 space-y-3">
                     {escalationSuccess ? (
                       <div className="text-center py-2">
-                        <div className="text-green-400 text-sm font-medium mb-1">Email submitted!</div>
-                        <div className="text-gray-400 text-xs">We'll review and follow up soon.</div>
+                        <div className="text-green-600 text-sm font-medium mb-1">Email submitted!</div>
+                        <div className="text-gray-500 text-xs">We'll review and follow up soon.</div>
                       </div>
                     ) : (
                       <form onSubmit={handleEmailSubmit} className="space-y-3">
                         <div>
-                          <label htmlFor="escalation-email" className="block text-xs text-gray-400 mb-2">
+                          <label htmlFor="escalation-email" className="block text-xs text-gray-500 mb-2">
                             We'll analyze the responses and get back to you:
                           </label>
                           <input
@@ -728,14 +726,14 @@ export default function ChatInterface({
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="your@email.com"
                             disabled={isSubmittingEmail}
-                            className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-md text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 disabled:opacity-50"
                           />
                         </div>
-                        {escalationError && <div className="text-red-400 text-xs">{escalationError}</div>}
+                        {escalationError && <div className="text-red-500 text-xs">{escalationError}</div>}
                         <button
                           type="submit"
                           disabled={isSubmittingEmail || !email.trim()}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
                         >
                           {isSubmittingEmail ? (
                             <>
@@ -764,7 +762,7 @@ export default function ChatInterface({
 
       {/* Fixed bottom section: Rating + Branding */}
       {(hasConversation || showBranding) && (
-        <div className="flex-shrink-0 p-4 pt-2 space-y-2 border-t border-gray-700/50">
+        <div className="flex-shrink-0 p-4 pt-2 space-y-2 bg-gradient-to-r from-blue-500 to-purple-500">
           {/* Rating - After first response */}
           {hasConversation && (
             <div className="w-full max-w-md mx-auto">
@@ -776,7 +774,7 @@ export default function ChatInterface({
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
-                      className="flex items-center gap-1 text-green-400 text-xs"
+                      className="flex items-center gap-1 text-white text-xs"
                     >
                       <Check className="w-4 h-4" />
                       <span>Thanks!</span>
@@ -789,7 +787,7 @@ export default function ChatInterface({
                       className="flex flex-col items-center gap-2"
                     >
                       <span className={`text-xs transition-colors duration-500 ${
-                        hasFirstResponse ? 'text-gray-300' : 'text-gray-500'
+                        hasFirstResponse ? 'text-white' : 'text-white/60'
                       }`}>
                         Did this help?
                       </span>
@@ -845,7 +843,7 @@ export default function ChatInterface({
                 href="https://easyask.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 transition-colors"
+                className="text-xs text-white/70 hover:text-white transition-colors"
               >
                 Powered by EasyAsk
               </a>
