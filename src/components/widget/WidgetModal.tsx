@@ -33,25 +33,13 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative rounded-3xl overflow-hidden flex flex-col backdrop-blur-md ${
+        className={`relative rounded-3xl overflow-hidden flex flex-col bg-white/90 backdrop-blur-md border-2 border-blue-400/50 ${
           isExperimental
             ? 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
             : 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
         }`}
         style={{ pointerEvents: 'auto' }}
       >
-        {/* Gradient border ring */}
-        <div
-          className="absolute inset-0 rounded-3xl pointer-events-none z-[-1]"
-          style={{
-            padding: '2px',
-            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            maskComposite: 'exclude',
-            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            WebkitMaskComposite: 'xor'
-          }}
-        />
         <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
           {/* Spacer for symmetry */}
           <div className="w-8" />
