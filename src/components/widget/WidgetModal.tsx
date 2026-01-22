@@ -33,7 +33,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative rounded-3xl overflow-hidden flex flex-col backdrop-blur-md ${
+        className={`relative rounded-3xl overflow-hidden flex flex-col bg-white/80 backdrop-blur-md ${
           isExperimental
             ? 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
             : 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
