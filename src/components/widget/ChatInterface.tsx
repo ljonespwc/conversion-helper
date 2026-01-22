@@ -385,7 +385,11 @@ export default function ChatInterface({
   // Expandable Sections State
   // --------------------------------------------------------------------------
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
-  const [isEscalationExpanded, setIsEscalationExpanded] = useState(false)
+
+  // --------------------------------------------------------------------------
+  // Escalation State
+  // --------------------------------------------------------------------------
+  const [escalationState, setEscalationState] = useState<'hidden' | 'form' | 'success'>('hidden')
 
   // --------------------------------------------------------------------------
   // Email Escalation State
@@ -537,9 +541,6 @@ export default function ChatInterface({
   function handleRating(rating: number): void {
     if (!sessionId || userRating !== null) return
 
-    // Update UI immediately (optimistic)
-    setShowRatingCheck(true)
-    setTimeout(() => setShowRatingCheck(false), 1000)
     setUserRating(rating)
 
     // Fire API in background
@@ -548,6 +549,23 @@ export default function ChatInterface({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: sessionId, rating })
     }).catch(error => console.error('Failed to submit rating:', error))
+
+    if (rating === 1) {
+      // Thumbs down: show "Thanks!" briefly, then escalation form
+      setShowRatingCheck(true)
+      setTimeout(() => {
+        setShowRatingCheck(false)
+        setEscalationState('form')
+        posthog?.capture('negative_feedback_escalation_shown', {
+          session_id: sessionId,
+          page_url: effectivePageUrl
+        })
+      }, 800)
+    } else {
+      // Thumbs up: just show thanks
+      setShowRatingCheck(true)
+      setTimeout(() => setShowRatingCheck(false), 1500)
+    }
 
     posthog?.capture('feedback_submitted', {
       rating,
@@ -592,13 +610,12 @@ export default function ChatInterface({
 
       setEscalationSuccess(true)
       setEmail('')
+      setEscalationState('success')
       posthog?.capture('escalation_submitted', {
         session_id: sessionId,
         page_url: effectivePageUrl,
         message_count: messages.length
       })
-
-      setTimeout(() => setIsEscalationExpanded(false), 3000)
     } catch (error) {
       setEscalationError(error instanceof Error ? error.message : 'Failed to submit email')
     } finally {
@@ -631,17 +648,6 @@ export default function ChatInterface({
     }
   }
 
-  function handleEscalationToggle(): void {
-    const newExpanded = !isEscalationExpanded
-    setIsEscalationExpanded(newExpanded)
-    if (newExpanded) {
-      posthog?.capture('escalation_form_opened', {
-        page_url: effectivePageUrl,
-        conversation_id: sessionId,
-        message_count: messages.length
-      })
-    }
-  }
 
   // --------------------------------------------------------------------------
   // Render
@@ -866,133 +872,140 @@ export default function ChatInterface({
             </div>
           )}
 
-          {/* Email Escalation - Experimental only (old/concise mode) */}
-          {isExperimental && hasConversation && (
-            <div className="w-full max-w-md mx-auto">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-                <ExpandableButton
-                  isExpanded={isEscalationExpanded}
-                  onClick={handleEscalationToggle}
-                  icon={Mail}
-                  label={escalationSuccess ? "We'll follow up soon!" : 'Need more help? Get a human response'}
-                  className="bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border border-gray-200 rounded-lg text-gray-600 hover:text-gray-800"
-                />
-
-                <AnimatePresence>
-                  {isEscalationExpanded && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="bg-gray-100 rounded-lg border border-gray-200 p-4 space-y-3">
-                        {escalationSuccess ? (
-                          <div className="text-center py-2">
-                            <div className="text-green-600 text-sm font-medium mb-1">Email submitted!</div>
-                            <div className="text-gray-500 text-xs">We'll review and follow up soon.</div>
-                          </div>
-                        ) : (
-                          <form onSubmit={handleEmailSubmit} className="space-y-3">
-                            <div>
-                              <label htmlFor="escalation-email" className="block text-xs text-gray-500 mb-2">
-                                We'll analyze the responses and get back to you:
-                              </label>
-                              <input
-                                id="escalation-email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="your@email.com"
-                                disabled={isSubmittingEmail}
-                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 disabled:opacity-50"
-                              />
-                            </div>
-                            {escalationError && <div className="text-red-500 text-xs">{escalationError}</div>}
-                            <button
-                              type="submit"
-                              disabled={isSubmittingEmail || !email.trim()}
-                              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
-                            >
-                              {isSubmittingEmail ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  <span>Submitting...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Mail className="w-4 h-4" />
-                                  <span>Submit email</span>
-                                </>
-                              )}
-                            </button>
-                          </form>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Fixed bottom section: Rating + Branding */}
+      {/* Fixed bottom section: Rating/Escalation + Branding */}
       {(hasConversation || showBranding) && (
         <div className="flex-shrink-0 p-4 pt-2 space-y-2 bg-gradient-to-r from-blue-500 to-purple-500">
-          {/* Rating - After first response */}
+          {/* Rating / Escalation - Unified component */}
           {hasConversation && (
             <div className="w-full max-w-md mx-auto">
-              <div className="flex flex-col items-center gap-2">
-                <AnimatePresence mode="wait">
-                  {showRatingCheck ? (
-                    <motion.div
-                      key="checkmark"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="flex items-center gap-1 text-white text-xs"
-                    >
-                      <Check className="w-4 h-4" />
-                      <span>Thanks!</span>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="thumbs"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="flex flex-col items-center gap-2"
-                    >
-                      <span className={`text-xs transition-colors duration-500 ${
-                        hasFirstResponse ? 'text-white' : 'text-white/60'
-                      }`}>
-                        Did this help?
-                      </span>
-                      <div className="flex items-center gap-4">
-                        <ThumbButton
-                          emoji="👎"
-                          rating={1}
-                          currentRating={userRating}
-                          otherRating={5}
-                          hasFirstResponse={hasFirstResponse}
-                          onRate={handleRating}
-                          title="Not helpful"
-                        />
-                        <ThumbButton
-                          emoji="👍"
-                          rating={5}
-                          currentRating={userRating}
-                          otherRating={1}
-                          hasFirstResponse={hasFirstResponse}
-                          onRate={handleRating}
-                          title="Helpful"
-                        />
+              <AnimatePresence mode="wait">
+                {/* Rating UI - shown when escalation is hidden */}
+                {escalationState === 'hidden' && (
+                  <motion.div
+                    key="rating"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    <AnimatePresence mode="wait">
+                      {showRatingCheck ? (
+                        <motion.div
+                          key="checkmark"
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          className="flex items-center gap-1 text-white text-xs"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>Thanks!</span>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="thumbs"
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <span className={`text-xs transition-colors duration-500 ${
+                            hasFirstResponse ? 'text-white' : 'text-white/60'
+                          }`}>
+                            Did this help?
+                          </span>
+                          <div className="flex items-center gap-4">
+                            <ThumbButton
+                              emoji="👎"
+                              rating={1}
+                              currentRating={userRating}
+                              otherRating={5}
+                              hasFirstResponse={hasFirstResponse}
+                              onRate={handleRating}
+                              title="Not helpful"
+                            />
+                            <ThumbButton
+                              emoji="👍"
+                              rating={5}
+                              currentRating={userRating}
+                              otherRating={1}
+                              hasFirstResponse={hasFirstResponse}
+                              onRate={handleRating}
+                              title="Helpful"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+
+                {/* Email Form UI - shown after thumbs down */}
+                {escalationState === 'form' && (
+                  <motion.div
+                    key="escalation-form"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-white/10 backdrop-blur-sm rounded-lg p-4 space-y-3"
+                  >
+                    <p className="text-white text-sm text-center">
+                      Sorry that wasn&apos;t helpful. Want us to follow up?
+                    </p>
+                    <form onSubmit={handleEmailSubmit} className="space-y-2">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        disabled={isSubmittingEmail}
+                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 disabled:opacity-50"
+                      />
+                      {escalationError && (
+                        <div className="text-red-200 text-xs text-center">{escalationError}</div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="submit"
+                          disabled={isSubmittingEmail || !email.trim()}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-100 disabled:bg-white/50 disabled:cursor-not-allowed text-blue-600 text-sm font-medium rounded-md transition-colors"
+                        >
+                          {isSubmittingEmail ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
+                          <span>{isSubmittingEmail ? 'Sending...' : 'Send'}</span>
+                        </button>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                    </form>
+                    <button
+                      onClick={() => setEscalationState('hidden')}
+                      className="w-full text-white/70 hover:text-white text-xs transition-colors"
+                    >
+                      No thanks
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Success message - shown after email submitted */}
+                {escalationState === 'success' && (
+                  <motion.div
+                    key="escalation-success"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center justify-center gap-2 text-white text-sm py-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>We&apos;ll be in touch!</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 

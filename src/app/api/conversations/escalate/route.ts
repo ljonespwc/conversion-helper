@@ -13,6 +13,36 @@ const supabase = createClient(
 // Email validation regex (basic but effective)
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+// Internal secret for analysis endpoint (optional security layer)
+const ANALYSIS_SECRET = process.env.ANALYSIS_ENDPOINT_SECRET || 'internal-only'
+
+/**
+ * Trigger conversation analysis in the background (fire-and-forget)
+ * Analyzes the conversation to identify messages that need human follow-up
+ */
+function triggerAnalysis(sessionId: string, baseUrl: string): void {
+  const analyzeUrl = `${baseUrl}/api/conversations/analyze-escalation`
+
+  fetch(analyzeUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-analysis-secret': ANALYSIS_SECRET
+    },
+    body: JSON.stringify({ session_id: sessionId })
+  })
+    .then(response => {
+      if (response.ok) {
+        console.log(`📊 Analysis triggered for session ${sessionId}`)
+      } else {
+        console.error(`📊 Analysis request failed for session ${sessionId}: ${response.status}`)
+      }
+    })
+    .catch(error => {
+      console.error(`📊 Failed to trigger analysis for session ${sessionId}:`, error)
+    })
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limit: 3 email escalations per IP per day
@@ -133,6 +163,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`✉️ Email escalation captured: ${email} for session ${session_id}`)
+
+    // Trigger conversation analysis in background (fire-and-forget)
+    const baseUrl = new URL(request.url).origin
+    triggerAnalysis(session_id, baseUrl)
 
     return NextResponse.json(
       {
