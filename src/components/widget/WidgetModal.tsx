@@ -38,10 +38,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
             ? 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
             : 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
         }`}
-        style={{
-          pointerEvents: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
-        }}
+        style={{ pointerEvents: 'auto' }}
       >
         {/* Gradient border ring */}
         <div
