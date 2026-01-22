@@ -42,16 +42,14 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
       >
         {/* Gradient border ring */}
         <div
-          className="absolute inset-0 rounded-3xl pointer-events-none"
+          className="absolute inset-0 rounded-3xl pointer-events-none z-[-1]"
           style={{
             padding: '2px',
             background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
             mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
             maskComposite: 'exclude',
             WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            WebkitMaskComposite: 'xor',
-            // @ts-expect-error Firefox uses 'subtract' for mask-composite
-            MozMaskComposite: 'subtract'
+            WebkitMaskComposite: 'xor'
           }}
         />
         <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
