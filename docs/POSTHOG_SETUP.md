@@ -10,8 +10,8 @@
 | `widget_closed` | `page_url`, `conversation_id`, `message_count` |
 | `response_copied` | `page_url`, `conversation_id`, `response_length` |
 | `conversation_copied` | `page_url`, `conversation_id`, `message_count` |
-| `feedback_submitted` | `feedback_type` (positive/negative), `session_id`, `page_url`, `message_count` |
-| `escalation_form_opened` | `page_url`, `conversation_id`, `message_count` |
+| `feedback_submitted` | `rating` (1=thumbs down, 5=thumbs up), `session_id`, `page_url`, `message_count` |
+| `negative_feedback_escalation_shown` | `session_id`, `page_url` |
 | `escalation_submitted` | `session_id`, `page_url`, `message_count` |
 
 ### Admin Events
@@ -49,9 +49,9 @@
 ### Insight 3: Feedback Distribution
 - **Type**: Trends
 - **Event**: `feedback_submitted`
-- **Breakdown by**: `feedback_type`
+- **Breakdown by**: `rating`
 - **Display**: Bar chart or Pie chart
-- Shows: positive vs negative thumbs
+- Shows: thumbs up (5) vs thumbs down (1)
 
 ### Insight 4: Escalation Rate
 - **Type**: Funnels
@@ -90,8 +90,9 @@
 - **Type**: Funnels
 - **Steps**:
   1. `conversation_started`
-  2. `escalation_form_opened` - Clicked "Need more help?"
-  3. `escalation_submitted` - Submitted email
+  2. `feedback_submitted` (filter: `rating` = 1) - Clicked thumbs down
+  3. `negative_feedback_escalation_shown` - Escalation form appeared
+  4. `escalation_submitted` - Submitted email
 - **Conversion window**: 30 minutes
 
 ### Funnel 3: Engagement Depth
@@ -107,16 +108,16 @@
 - **Steps**:
   1. `widget_opened`
   2. `conversation_started`
-  3. `feedback_submitted` (filter: `feedback_type` = `positive`)
+  3. `feedback_submitted` (filter: `rating` = 5)
 - Shows: % of widget opens that result in happy visitors
 
 ### Funnel 5: Negative Feedback to Escalation
 - **Type**: Funnels
 - **Steps**:
-  1. `feedback_submitted` (filter: `feedback_type` = `negative`)
-  2. `escalation_form_opened`
+  1. `feedback_submitted` (filter: `rating` = 1)
+  2. `negative_feedback_escalation_shown`
   3. `escalation_submitted`
-- Shows: Do unhappy users escalate?
+- Shows: Do unhappy users submit email for follow-up?
 
 ---
 
@@ -159,7 +160,7 @@
 5. **Frequency**: Daily
 
 ### Alert 3: Negative Feedback Spike
-1. Create Trends insight for `feedback_submitted` where `feedback_type` = `negative`
+1. Create Trends insight for `feedback_submitted` where `rating` = 1
 2. Subscribe with alert: "Increases by more than 100%"
 3. **Compare to**: Previous 7 days
 
@@ -176,7 +177,7 @@
 - **Why**: See exactly what led users to need human help
 
 ### Filter 2: Negative Feedback Sessions
-- **Filter**: Events → `feedback_submitted` → where `feedback_type` = `negative`
+- **Filter**: Events → `feedback_submitted` → where `rating` = 1
 - **Why**: Watch what went wrong
 
 ### Filter 3: Highly Engaged Users (2+ minutes)
