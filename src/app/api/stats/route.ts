@@ -6,6 +6,34 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+/**
+ * Strip query params from a URL to get the base URL
+ * Used for matching sessions regardless of UTM/tracking params
+ */
+function getBaseUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    return `${parsed.origin}${parsed.pathname}`
+  } catch {
+    return url
+  }
+}
+
+/**
+ * Apply page URL filter that matches base URL with or without query params
+ * e.g., filtering by "https://example.com/page" matches:
+ *   - "https://example.com/page"
+ *   - "https://example.com/page?utm_source=..."
+ */
+function applyPageUrlFilter<T extends { or: (filter: string) => T }>(
+  query: T,
+  pageUrl: string
+): T {
+  const baseUrl = getBaseUrl(pageUrl)
+  // Match exact URL or URL with query params (starts with baseUrl?)
+  return query.or(`page_url.eq.${baseUrl},page_url.like.${baseUrl}?*`)
+}
+
 // Create Supabase client with service role key
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,7 +79,7 @@ export async function GET(request: NextRequest) {
       .is('archived_at', null)
 
     if (pageUrl) {
-      totalQuery = totalQuery.eq('page_url', pageUrl)
+      totalQuery = applyPageUrlFilter(totalQuery, pageUrl)
     }
 
     // Get total sessions (filtered by organization, excluding archived)
@@ -69,7 +97,7 @@ export async function GET(request: NextRequest) {
       .gte('created_at', today.toISOString())
 
     if (pageUrl) {
-      todayQuery = todayQuery.eq('page_url', pageUrl)
+      todayQuery = applyPageUrlFilter(todayQuery, pageUrl)
     }
 
     const { count: todayCount } = await todayQuery
@@ -83,7 +111,7 @@ export async function GET(request: NextRequest) {
       .not('ended_at', 'is', null)
 
     if (pageUrl) {
-      completedQuery = completedQuery.eq('page_url', pageUrl)
+      completedQuery = applyPageUrlFilter(completedQuery, pageUrl)
     }
 
     const { data: completedSessions } = await completedQuery
@@ -143,7 +171,7 @@ export async function GET(request: NextRequest) {
       .gte('ended_at', fiveMinutesAgo.toISOString())
 
     if (pageUrl) {
-      activeQuery = activeQuery.eq('page_url', pageUrl)
+      activeQuery = applyPageUrlFilter(activeQuery, pageUrl)
     }
 
     const { count: activeNow } = await activeQuery
@@ -157,7 +185,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (pageUrl) {
-      recentQuery = recentQuery.eq('page_url', pageUrl)
+      recentQuery = applyPageUrlFilter(recentQuery, pageUrl)
     }
 
     const { data: recentSessions, error: sessionsError } = await recentQuery
@@ -184,7 +212,7 @@ export async function GET(request: NextRequest) {
       .not('user_rating', 'is', null)
 
     if (pageUrl) {
-      ratingsQuery = ratingsQuery.eq('page_url', pageUrl)
+      ratingsQuery = applyPageUrlFilter(ratingsQuery, pageUrl)
     }
 
     const { data: ratingsData } = await ratingsQuery
