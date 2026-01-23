@@ -198,7 +198,17 @@ export async function POST(request: Request) {
     // a domain that matches the organization's website_url
     if (group_id) {
       const requestOrigin = getRequestOrigin(request)
-      if (!isAllowedDomain(requestOrigin, org.website_url)) {
+
+      // Debug logging
+      console.log('[chat] group_id validation:', {
+        group_id,
+        requestOrigin,
+        websiteUrl: org.website_url
+      })
+
+      // Only enforce domain validation if we can detect the origin
+      if (requestOrigin && !isAllowedDomain(requestOrigin, org.website_url)) {
+        console.log('[chat] Domain validation FAILED for group_id:', group_id)
         return NextResponse.json({ error: 'Domain not authorized' }, { status: 403 })
       }
     }

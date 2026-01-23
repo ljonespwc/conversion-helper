@@ -74,7 +74,20 @@ export async function GET(request: NextRequest) {
       // Security: When using group_id, validate that the request comes from
       // a domain that matches the organization's website_url
       const requestOrigin = getRequestOrigin(request)
-      if (!isAllowedDomain(requestOrigin, org.website_url)) {
+
+      // Debug logging to understand header availability
+      console.log('[widget-pages] group_id validation:', {
+        groupId,
+        requestOrigin,
+        websiteUrl: org.website_url,
+        originHeader: request.headers.get('origin'),
+        refererHeader: request.headers.get('referer')
+      })
+
+      // Only enforce domain validation if we can detect the origin
+      // If no origin/referer available, allow for now (browser may not send in all contexts)
+      if (requestOrigin && !isAllowedDomain(requestOrigin, org.website_url)) {
+        console.log('[widget-pages] Domain validation FAILED for group_id:', groupId)
         // Domain mismatch - don't expose that group_id exists, just return null
         return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
       }
