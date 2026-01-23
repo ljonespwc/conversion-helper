@@ -298,13 +298,16 @@ export default function PagesPage(): JSX.Element {
     setError(null)
 
     try {
-      // Validate URL format
-      if (!formData.page_url.match(/^https?:\/\//)) {
-        throw new Error('Page URL must start with http:// or https://')
+      // Validate: must be either a URL (http/https) or a group ID (no ://)
+      const isUrl = formData.page_url.match(/^https?:\/\//)
+      const isGroupId = !formData.page_url.includes('://')
+
+      if (!isUrl && !isGroupId) {
+        throw new Error('Enter a full URL (https://...) or a group ID (e.g., "93")')
       }
 
-      // Validate pattern syntax: * only allowed in path, not domain
-      if (formData.page_url.includes('*')) {
+      // URL-specific validation: wildcards only in path
+      if (isUrl && formData.page_url.includes('*')) {
         const testUrl = formData.page_url.replace(/\*/g, 'placeholder')
         try {
           const parsed = new URL(testUrl)
@@ -727,13 +730,13 @@ export default function PagesPage(): JSX.Element {
             <form onSubmit={handleAddPage} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Page URL or Pattern *
+                  Page URL, Pattern, or Group ID *
                 </label>
                 <input
                   type="text"
                   value={formData.page_url}
                   onChange={(e) => setFormData({ ...formData, page_url: e.target.value })}
-                  placeholder="https://example.com/pricing or https://example.com/blog/*"
+                  placeholder="https://example.com/pricing, https://example.com/blog/*, or 93"
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                   required
                 />
