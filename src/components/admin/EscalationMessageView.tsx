@@ -1,6 +1,7 @@
 'use client'
 
 import { AlertCircle } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import type { EscalationMessage } from './types'
 
 interface EscalationMessageViewProps {
@@ -35,7 +36,45 @@ export default function EscalationMessageView({
           </span>
         )}
       </div>
-      <p className="text-white text-sm">{message.message}</p>
+      <div className="text-white text-sm">
+        {isUser ? (
+          message.message
+        ) : (
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => (
+                <p className="mb-2 last:mb-0">{children}</p>
+              ),
+              strong: ({ children }) => (
+                <strong className="font-semibold text-purple-300">
+                  {children}
+                </strong>
+              ),
+              em: ({ children }) => (
+                <em className="italic text-gray-300">{children}</em>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-disc list-inside mb-2 space-y-1">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal list-inside mb-2 space-y-1">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => <li>{children}</li>,
+              code: ({ children }) => (
+                <code className="bg-gray-700 px-1.5 py-0.5 rounded text-purple-300 text-xs">
+                  {children}
+                </code>
+              ),
+            }}
+          >
+            {message.message}
+          </ReactMarkdown>
+        )}
+      </div>
       {isFlagged && message.followup_reason && (
         <div className="mt-2 flex items-center gap-2 text-xs text-red-400">
           <AlertCircle className="w-3 h-3" />
