@@ -32,6 +32,7 @@ interface Organization {
   publishable_key?: string | null
   widget_line1?: string | null
   widget_line2?: string | null
+  notification_email?: string | null
 }
 
 interface UserInfo {
@@ -253,6 +254,11 @@ export default function PagesPage(): JSX.Element {
   const [editingOrgWidgetText, setEditingOrgWidgetText] = useState(false)
   const [orgWidgetText, setOrgWidgetText] = useState<WidgetTextState>({ widget_line1: '', widget_line2: '' })
   const [savingOrgWidgetText, setSavingOrgWidgetText] = useState(false)
+
+  // Notification email state
+  const [editingNotificationEmail, setEditingNotificationEmail] = useState(false)
+  const [notificationEmail, setNotificationEmail] = useState('')
+  const [savingNotificationEmail, setSavingNotificationEmail] = useState(false)
 
   useEffect(() => {
     fetchUserInfo()
@@ -545,6 +551,37 @@ export default function PagesPage(): JSX.Element {
     }
   }
 
+  function handleStartEditNotificationEmail(): void {
+    setNotificationEmail(userInfo?.organizations?.notification_email || '')
+    setEditingNotificationEmail(true)
+  }
+
+  async function handleSaveNotificationEmail(): Promise<void> {
+    setSavingNotificationEmail(true)
+    try {
+      const response = await fetch('/api/admin/organization', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notification_email: notificationEmail.trim() || null
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update notification email')
+      }
+
+      await fetchUserInfo()
+      setEditingNotificationEmail(false)
+    } catch (err) {
+      console.error('Error updating notification email:', err)
+      alert(err instanceof Error ? err.message : 'Failed to update notification email')
+    } finally {
+      setSavingNotificationEmail(false)
+    }
+  }
+
   // ===========================================================================
   // Derived Values
   // ===========================================================================
@@ -696,6 +733,66 @@ export default function PagesPage(): JSX.Element {
                       </p>
                       <p className="text-xs text-gray-500 mt-2">
                         Individual pages can override these defaults.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Escalation Notification Email */}
+              <div className="md:col-span-2 mt-2">
+                <div className="py-3 px-4 bg-gray-700/50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-300 font-medium">Escalation Notification Email</span>
+                    {!editingNotificationEmail && (
+                      <button
+                        onClick={handleStartEditNotificationEmail}
+                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {editingNotificationEmail ? (
+                    <div className="space-y-3">
+                      <input
+                        type="email"
+                        value={notificationEmail}
+                        onChange={(e) => setNotificationEmail(e.target.value)}
+                        placeholder="support@yourcompany.com"
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm placeholder-gray-500"
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleSaveNotificationEmail}
+                          disabled={savingNotificationEmail}
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          {savingNotificationEmail ? 'Saving...' : (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Save
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setEditingNotificationEmail(false)}
+                          disabled={savingNotificationEmail}
+                          className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-gray-300 text-sm rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 text-sm">
+                      <p className="text-white">
+                        {userInfo.organizations.notification_email || <span className="text-gray-500 italic">Not set</span>}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        When a visitor submits their email for follow-up, you'll receive the conversation transcript at this address.
                       </p>
                     </div>
                   )}

@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
 
     // Parse request body
     const body = await request.json()
-    const { show_branding, widget_line1, widget_line2 } = body
+    const { show_branding, widget_line1, widget_line2, notification_email } = body
 
     // Build updates object
     const updates: any = {}
@@ -81,6 +81,30 @@ export async function PATCH(request: Request) {
         )
       }
       updates.widget_line2 = widget_line2 && widget_line2.trim() ? widget_line2.trim() : null
+    }
+
+    // Validate and add notification_email if provided
+    if (notification_email !== undefined) {
+      if (notification_email !== null && typeof notification_email !== 'string') {
+        return NextResponse.json(
+          { error: 'notification_email must be a string or null' },
+          { status: 400 }
+        )
+      }
+      if (notification_email) {
+        const trimmed = notification_email.trim().toLowerCase()
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(trimmed)) {
+          return NextResponse.json(
+            { error: 'notification_email must be a valid email address' },
+            { status: 400 }
+          )
+        }
+        updates.notification_email = trimmed
+      } else {
+        updates.notification_email = null
+      }
     }
 
     // Check if there are any updates to apply

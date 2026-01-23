@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 import { analyzeSessionById } from '@/lib/conversation-analysis'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // Allow up to 60 seconds for analysis
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Check if session exists and needs analysis
     const { data: session, error: sessionError } = await supabase
       .from('conversation_sessions')
-      .select('id, user_email, escalation_processed')
+      .select('id, user_email, escalation_processed, organization_id, page_url')
       .eq('session_id', session_id)
       .single()
 
@@ -97,6 +100,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Analysis complete for session ${session_id}`)
 
+    // Send email notification if configured
+    await sendEscalationNotification(session, session_id)
+
     return NextResponse.json(
       {
         success: true,
@@ -115,5 +121,79 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
+  }
+}
+
+async function sendEscalationNotification(
+  session: { organization_id: string | null; user_email: string; page_url: string | null },
+  session_id: string
+) {
+  if (!session.organization_id) return
+
+  try {
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('notification_email')
+      .eq('id', session.organization_id)
+      .single()
+
+    if (!org?.notification_email) return
+
+    const { data: messages } = await supabase
+      .from('conversation_messages')
+      .select('role, message, needs_followup, followup_reason')
+      .eq('session_id', session_id)
+      .order('timestamp', { ascending: true })
+
+    if (!messages?.length) return
+
+    // Get page title for clearer emails (especially for group IDs and wildcards)
+    let pageDisplay = session.page_url || 'Unknown'
+    if (session.page_url) {
+      const { data: page } = await supabase
+        .from('widget_pages')
+        .select('page_title')
+        .eq('page_url', session.page_url)
+        .single()
+      if (page?.page_title) {
+        pageDisplay = `${page.page_title} (${session.page_url})`
+      }
+    }
+
+    const transcript = messages
+      .map(m => `${m.role.toUpperCase()}: ${m.message}`)
+      .join('\n\n')
+
+    const flagged = messages.filter(m => m.needs_followup)
+    const flaggedSection = flagged.length > 0
+      ? `\n\n--- FLAGGED MESSAGES (${flagged.length}) ---\n\n` +
+        flagged.map(m => `• "${m.message}"\n  Reason: ${m.followup_reason || 'Unknown'}`).join('\n\n')
+      : ''
+
+    await resend.emails.send({
+      from: 'EasyAsk <noreply@easyask.io>',
+      to: org.notification_email,
+      subject: `New escalation from ${session.user_email}`,
+      text: `A visitor submitted an escalation request.
+
+VISITOR EMAIL: ${session.user_email}
+
+PAGE: ${pageDisplay}
+
+--- FULL TRANSCRIPT ---
+
+${transcript}${flaggedSection}
+`
+    })
+
+    // Mark as resolved since email was sent successfully
+    await supabase
+      .from('conversation_sessions')
+      .update({ resolved: true, resolved_at: new Date().toISOString() })
+      .eq('session_id', session_id)
+
+    console.log(`📧 Escalation notification sent to ${org.notification_email}`)
+  } catch (err) {
+    console.error('Failed to send escalation notification:', err)
   }
 }
