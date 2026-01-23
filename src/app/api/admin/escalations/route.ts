@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
       total: escalations.length,
       unresolved: escalations.filter(e => !e.resolved).length,
       resolved: escalations.filter(e => e.resolved).length,
-      total_flagged_messages: escalations.reduce((sum, e) => sum + e.flagged_count, 0)
+      total_flagged_messages: escalations.filter(e => !e.resolved).reduce((sum, e) => sum + e.flagged_count, 0)
     }
 
     return NextResponse.json({ escalations, stats, availablePages }, {
