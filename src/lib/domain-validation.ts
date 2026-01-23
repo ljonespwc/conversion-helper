@@ -76,22 +76,38 @@ export function isAllowedDomain(requestOrigin: string | null, allowedWebsiteUrl:
 
 /**
  * Get the origin from request headers (tries Origin first, then Referer)
+ *
+ * Special handling: If the request comes from the EasyAsk widget iframe
+ * (easyask.io/widget), extract the customer's actual URL from the 'url' query param
  */
 export function getRequestOrigin(request: Request): string | null {
+  const referer = request.headers.get('referer')
+
+  // Special case: requests from the widget iframe include the customer URL as a param
+  if (referer) {
+    try {
+      const parsed = new URL(referer)
+
+      // If this is from our widget iframe, extract the actual customer URL
+      if (parsed.hostname.endsWith('easyask.io') && parsed.pathname === '/widget') {
+        const customerUrl = parsed.searchParams.get('url')
+        if (customerUrl) {
+          // Return the customer's origin (protocol + host)
+          const customerParsed = new URL(customerUrl)
+          return `${customerParsed.protocol}//${customerParsed.host}`
+        }
+      }
+
+      // Otherwise return the referer's origin
+      return `${parsed.protocol}//${parsed.host}`
+    } catch {
+      // Fall through to try origin header
+    }
+  }
+
   const origin = request.headers.get('origin')
   if (origin) {
     return origin
-  }
-
-  const referer = request.headers.get('referer')
-  if (referer) {
-    // Extract origin from referer (protocol + host)
-    try {
-      const parsed = new URL(referer)
-      return `${parsed.protocol}//${parsed.host}`
-    } catch {
-      return null
-    }
   }
 
   return null
