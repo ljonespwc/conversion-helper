@@ -3,6 +3,7 @@ import { queryPageContent, getWidgetPage } from '@/lib/gemini-file-search'
 import { rateLimits, getClientIP } from '@/lib/ratelimit'
 import { isValidKeyFormat } from '@/lib/api-keys'
 import { isExperimentalPage } from '@/lib/experimental'
+import { getRequestOrigin, isAllowedDomain } from '@/lib/domain-validation'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -185,12 +186,21 @@ export async function POST(request: Request) {
     // Verify key exists in database
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select('id, name')
+      .select('id, name, website_url')
       .eq('publishable_key', api_key)
       .single()
 
     if (orgError || !org) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401 })
+    }
+
+    // Security: When using group_id, validate that the request comes from
+    // a domain that matches the organization's website_url
+    if (group_id) {
+      const requestOrigin = getRequestOrigin(request)
+      if (!isAllowedDomain(requestOrigin, org.website_url)) {
+        return NextResponse.json({ error: 'Domain not authorized' }, { status: 403 })
+      }
     }
 
     // Rate limit: 50 requests per IP per hour

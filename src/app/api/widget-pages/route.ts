@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { isValidKeyFormat } from '@/lib/api-keys'
 import { isExperimentalPage } from '@/lib/experimental'
 import { findMatchingPattern, isWildcardPattern } from '@/lib/url-matching'
+import { getRequestOrigin, isAllowedDomain } from '@/lib/domain-validation'
 import { unstable_noStore as noStore } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Look up organization by API key
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select('id, name, show_branding, widget_line1, widget_line2')
+      .select('id, name, show_branding, widget_line1, widget_line2, website_url')
       .eq('publishable_key', apiKey)
       .single()
 
@@ -69,6 +70,15 @@ export async function GET(request: NextRequest) {
     if (groupId) {
       // Group ID provided: direct match against page_url
       // This bypasses URL pattern matching entirely
+
+      // Security: When using group_id, validate that the request comes from
+      // a domain that matches the organization's website_url
+      const requestOrigin = getRequestOrigin(request)
+      if (!isAllowedDomain(requestOrigin, org.website_url)) {
+        // Domain mismatch - don't expose that group_id exists, just return null
+        return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })
+      }
+
       page = pages.find(p => p.page_url === groupId)
       matchedPattern = groupId
 
