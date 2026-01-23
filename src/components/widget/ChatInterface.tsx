@@ -676,7 +676,7 @@ export default function ChatInterface({
               value={inputValue}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
+              placeholder="Ask a question or paste text..."
               disabled={isInputDisabled}
               className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 disabled:opacity-50 resize-none overflow-y-auto shadow-sm"
             />
