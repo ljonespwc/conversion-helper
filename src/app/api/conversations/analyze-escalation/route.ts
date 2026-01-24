@@ -165,10 +165,21 @@ async function sendEscalationNotification(
       .join('\n\n')
 
     const flagged = messages.filter(m => m.needs_followup)
-    const flaggedSection = flagged.length > 0
-      ? `\n\n--- FLAGGED MESSAGES (${flagged.length}) ---\n\n` +
-        flagged.map(m => `• "${m.message}"\n  Reason: ${m.followup_reason || 'Unknown'}`).join('\n\n')
-      : ''
+
+    // Mark as resolved regardless of whether we send email
+    await supabase
+      .from('conversation_sessions')
+      .update({ resolved: true, resolved_at: new Date().toISOString() })
+      .eq('session_id', session_id)
+
+    // Only send email if there are flagged messages
+    if (flagged.length === 0) {
+      console.log(`✅ No flagged messages for session ${session_id}, marked resolved without email`)
+      return
+    }
+
+    const flaggedSection = `\n\n--- FLAGGED MESSAGES (${flagged.length}) ---\n\n` +
+      flagged.map(m => `• "${m.message}"\n  Reason: ${m.followup_reason || 'Unknown'}`).join('\n\n')
 
     await resend.emails.send({
       from: 'EasyAsk <noreply@easyask.io>',
@@ -185,12 +196,6 @@ PAGE: ${pageDisplay}
 ${transcript}${flaggedSection}
 `
     })
-
-    // Mark as resolved since email was sent successfully
-    await supabase
-      .from('conversation_sessions')
-      .update({ resolved: true, resolved_at: new Date().toISOString() })
-      .eq('session_id', session_id)
 
     console.log(`📧 Escalation notification sent to ${org.notification_email}`)
   } catch (err) {
