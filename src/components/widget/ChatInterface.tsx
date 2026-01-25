@@ -597,7 +597,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   // --------------------------------------------------------------------------
 
   return (
-    <div className="relative h-full flex flex-col bg-white/40 backdrop-blur-sm">
+    <div className="relative h-full flex flex-col bg-white/60 backdrop-blur-sm">
       {/* Sparkle Burst - at top level to avoid overflow clipping */}
       <AnimatePresence>
         {showSparkleBurst && <SparkleBurst />}
