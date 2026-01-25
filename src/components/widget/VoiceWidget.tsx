@@ -133,6 +133,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             apiKey={apiKey}
             isExperimental={isExperimental}
             groupId={groupId}
+            position={position}
           />
         )}
       </AnimatePresence>

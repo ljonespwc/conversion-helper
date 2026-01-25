@@ -1,8 +1,9 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
-import ChatInterface from './ChatInterface'
+import { X, Download, RefreshCw } from 'lucide-react'
+import ChatInterface, { ChatInterfaceHandle } from './ChatInterface'
 
 interface WidgetModalProps {
   onClose: () => void
@@ -14,35 +15,70 @@ interface WidgetModalProps {
   apiKey?: string
   isExperimental?: boolean
   groupId?: string
+  position?: 'bottom-left' | 'bottom-right'
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId, position = 'bottom-right' }: WidgetModalProps) {
+  const isLeft = position === 'bottom-left'
+  const chatRef = useRef<ChatInterfaceHandle>(null)
+  const [canDownload, setCanDownload] = useState(false)
+  const [showRefresh, setShowRefresh] = useState(false)
+
+  const handleDownload = () => {
+    chatRef.current?.downloadTranscript()
+  }
+
+  const handleRefresh = () => {
+    chatRef.current?.startFreshConversation()
+    setShowRefresh(false)
+    setCanDownload(false)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50"
       onClick={onClose}
       style={{ pointerEvents: 'none' }}
     >
       {/* No backdrop - iframe is sized to modal, clicks pass through to page */}
 
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative rounded-3xl overflow-hidden flex flex-col bg-white/70 backdrop-blur-md border-2 border-blue-400/50 ${
-          isExperimental
-            ? 'w-[420px] h-[568px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
-            : 'w-[700px] h-[618px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]'
-        }`}
+        className={`fixed bottom-0 ${isLeft ? 'left-0' : 'right-0'} w-full sm:w-[460px] h-[600px] max-h-[85vh] sm:max-h-[calc(100vh-32px)] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col border-2 border-blue-400/50`}
         style={{ pointerEvents: 'auto' }}
       >
         <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
-          {/* Spacer for symmetry */}
-          <div className="w-8" />
+          {/* Left side: Download and/or Refresh buttons */}
+          <div className="flex items-center gap-1">
+            {canDownload && (
+              <button
+                onClick={handleDownload}
+                className="p-1.5 rounded-full border border-white/30 hover:bg-white/20 transition-colors"
+                aria-label="Save transcript"
+                title="Save transcript"
+              >
+                <Download className="w-4 h-4 text-white" />
+              </button>
+            )}
+            {showRefresh && (
+              <button
+                onClick={handleRefresh}
+                className="p-1.5 rounded-full border border-white/30 hover:bg-white/20 transition-colors"
+                aria-label="Start new conversation"
+                title="Start new conversation"
+              >
+                <RefreshCw className="w-4 h-4 text-white" />
+              </button>
+            )}
+            {!canDownload && !showRefresh && <div className="w-8" />}
+          </div>
 
           {/* Title in center */}
           <h2 className="text-lg font-semibold text-white">
@@ -60,7 +96,19 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         </div>
 
         <div className="flex-1 overflow-hidden">
-          <ChatInterface onClose={onClose} pageUrl={pageUrl} showBranding={showBranding} timezone={timezone} isDemo={isDemo} apiKey={apiKey} isExperimental={isExperimental} groupId={groupId} />
+          <ChatInterface
+            ref={chatRef}
+            onClose={onClose}
+            pageUrl={pageUrl}
+            showBranding={showBranding}
+            timezone={timezone}
+            isDemo={isDemo}
+            apiKey={apiKey}
+            isExperimental={isExperimental}
+            groupId={groupId}
+            onConversationStart={() => setCanDownload(true)}
+            onSessionRestored={() => setShowRefresh(true)}
+          />
         </div>
       </motion.div>
     </motion.div>

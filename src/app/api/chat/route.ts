@@ -5,6 +5,12 @@ import { isValidKeyFormat } from '@/lib/api-keys'
 import { isExperimentalPage } from '@/lib/experimental'
 import { getRequestOrigin, isAllowedDomain } from '@/lib/domain-validation'
 import { createClient } from '@supabase/supabase-js'
+import {
+  classifyMessage,
+  buildSellPrompt,
+  type Classification,
+  type ConversationStage
+} from '@/lib/consultative-selling'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,6 +71,33 @@ OUTPUT STYLE: Provide thorough, detailed answers:
   }
 }
 
+// Get current session stage from database
+async function getSessionStage(session_id: string): Promise<ConversationStage> {
+  try {
+    const { data } = await supabase
+      .from('conversation_sessions')
+      .select('conversation_stage')
+      .eq('session_id', session_id)
+      .single()
+
+    return (data?.conversation_stage as ConversationStage) || 'discovering'
+  } catch {
+    return 'discovering'
+  }
+}
+
+// Update session stage in database
+async function updateSessionStage(session_id: string, stage: ConversationStage): Promise<void> {
+  try {
+    await supabase
+      .from('conversation_sessions')
+      .update({ conversation_stage: stage })
+      .eq('session_id', session_id)
+  } catch (error) {
+    console.error('Failed to update session stage:', error)
+  }
+}
+
 // Track conversation to database
 async function trackConversation(params: {
   session_id: string
@@ -73,6 +106,8 @@ async function trackConversation(params: {
   timestamp?: number
   page_url: string | null
   organization_id?: string | null
+  intent_category?: string | null
+  buying_signal?: boolean | null
 }) {
   try {
     // First, ensure the session exists
@@ -132,7 +167,9 @@ async function trackConversation(params: {
         message: params.message || '',
         timestamp: params.timestamp ?? Date.now(),
         matched: params.role === 'assistant',
-        category: null
+        category: null,
+        intent_category: params.intent_category ?? null,
+        buying_signal: params.buying_signal ?? null
       })
 
     if (messageError) {
@@ -287,25 +324,86 @@ export async function POST(request: Request) {
       content: message
     })
 
-    // Track user message to database
-    await trackConversation({
-      session_id,
-      role: 'user',
-      message,
-      page_url,
-      organization_id: org.id
-    })
+    let answer: string
+    let organization: string | undefined
+    let classification: Classification | null = null
 
-    // Query content with conversation history
-    // Use contentPageUrl (the matched pattern URL) for File Search metadata filtering
-    const systemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content
-    const { answer, citations, organization } = await queryPageContent(
-      message,
-      contentPageUrl, // Use pattern URL for content filtering, not visitor's URL
-      conversationHistory[session_id],
-      systemPrompt,
-      isExperimental
-    )
+    // Sell page: use consultative selling with classification
+    if (widgetPage.page_goal === 'sell') {
+      // 1. Classification call (fast, no File Search)
+      classification = await classifyMessage(
+        message,
+        conversationHistory[session_id],
+        widgetPage.page_title
+      )
+
+      console.log('🎯 Classification:', {
+        stage: classification.stage,
+        intent: classification.intent_category,
+        buyingSignal: classification.buying_signal
+      })
+
+      // 2. Update session stage if changed
+      const currentStage = await getSessionStage(session_id)
+      if (classification.stage !== currentStage) {
+        await updateSessionStage(session_id, classification.stage)
+      }
+
+      // 3. Track user message with classification
+      await trackConversation({
+        session_id,
+        role: 'user',
+        message,
+        page_url,
+        organization_id: org.id,
+        intent_category: classification.intent_category,
+        buying_signal: classification.buying_signal
+      })
+
+      // 4. Build stage-aware prompt
+      const sellPrompt = buildSellPrompt(
+        classification.stage,
+        classification.intent_category,
+        classification.buying_signal
+      )
+
+      // 5. Generate response with File Search
+      // Combine base system prompt with sell guidance
+      const baseSystemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content || ''
+      const enhancedSystemPrompt = `${baseSystemPrompt}\n\n${sellPrompt}`
+
+      const result = await queryPageContent(
+        message,
+        contentPageUrl,
+        conversationHistory[session_id],
+        enhancedSystemPrompt,
+        isExperimental
+      )
+
+      answer = result.answer
+      organization = result.organization
+    } else {
+      // Lead/support pages: existing logic (no classification)
+      await trackConversation({
+        session_id,
+        role: 'user',
+        message,
+        page_url,
+        organization_id: org.id
+      })
+
+      const systemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content
+      const result = await queryPageContent(
+        message,
+        contentPageUrl,
+        conversationHistory[session_id],
+        systemPrompt,
+        isExperimental
+      )
+
+      answer = result.answer
+      organization = result.organization
+    }
 
     // Add assistant response to history
     conversationHistory[session_id].push({

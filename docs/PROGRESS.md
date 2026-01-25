@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-01-21
+**Last Updated**: 2026-01-23
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -437,6 +437,74 @@ Alternative to URL-based page matching. Use when the visitor's URL can't reliabl
 ### Notes
 - Group ID can be any string (including numeric values like `"123"`)
 - Backwards compatible: omit `data-group-id` for standard URL-based matching
+
+---
+
+## ✅ Consultative Selling for Sell Pages (2026-01-23)
+
+AI-powered stage-aware conversation behavior for pages with `page_goal = 'sell'`. Uses two-call LLM architecture to classify visitor intent and adapt response style.
+
+### Architecture
+```
+User Message
+     ↓
+┌─────────────────────────────────────┐
+│  1. CLASSIFICATION CALL             │
+│  Gemini 2.5 Flash REST API          │
+│  - responseJsonSchema for structure │
+│  - thinkingBudget: 0 (save tokens)  │
+│  Output: stage, intent, signal      │
+└─────────────────────────────────────┘
+     ↓
+  Store in DB
+     ↓
+┌─────────────────────────────────────┐
+│  2. RESPONSE CALL                   │
+│  Gemini 2.5 Flash + File Search     │
+│  Stage-aware prompts guide response │
+└─────────────────────────────────────┘
+```
+
+### Classification API Details
+Uses direct REST API (not SDK) for reliable JSON output:
+- `responseMimeType: 'application/json'` - enforces JSON output
+- `responseJsonSchema` - defines exact structure with enums
+- `thinkingBudget: 0` - disables Gemini 2.5's thinking feature (otherwise consumes output tokens)
+- Prompt provides semantic context, not format instructions (per Google's recommendation)
+
+### Conversation Stages
+| Stage | Behavior |
+|-------|----------|
+| `discovering` | Focus on understanding visitor. Ask about situation/goals. Don't push purchase. |
+| `evaluating` | Go deeper on concerns. Ask what matters most. |
+| `ready_to_buy` | Be direct about next steps. Offer to help them get started. |
+| `handoff_needed` | Helpful without sales pressure. Reassure human will follow up. |
+
+### Intent Categories
+`pricing`, `fit`, `trust`, `features`, `comparison`, `objection`, `logistics`, `general`
+
+Each intent gets specific guidance (e.g., pricing → include specific numbers, objection → acknowledge directly).
+
+### Database Schema Changes
+```sql
+-- conversation_sessions
+conversation_stage text DEFAULT 'discovering'
+  CHECK (stage IN ('discovering', 'evaluating', 'ready_to_buy', 'handoff_needed'))
+
+-- conversation_messages (user messages only)
+intent_category text
+buying_signal boolean
+```
+
+### Files Added/Modified
+- `src/lib/consultative-selling.ts` (NEW) - Classification, prompt builder, types
+- `src/app/api/chat/route.ts` - Sell-page branch with classification flow
+
+### Notes
+- Only activates for `page_goal === 'sell'` - zero impact on lead/support pages
+- Classification adds ~200-400ms to response time
+- Follow-up questions come from actual content, not templates
+- `buying_signal: true` triggers more direct response style
 
 ---
 

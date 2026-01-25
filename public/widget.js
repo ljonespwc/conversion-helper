@@ -24,8 +24,7 @@
 
   // Sizes (fixed - modal scrolls internally)
   var PILL = { w: 480, h: 100 };
-  var MODAL = { w: 732, h: 650 };      // Default: larger modal
-  var MODAL_EXP = { w: 452, h: 600 };  // Experimental: smaller modal
+  var MODAL = { w: 460, h: 600 };  // Corner-anchored modal
 
   // Create iframe
   var iframe = document.createElement('iframe');
@@ -56,15 +55,17 @@
 
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
-        var size = d.experimental ? MODAL_EXP : MODAL;
-        iframe.style.transition = 'none';
-        iframe.style.top = '50%';
-        iframe.style.left = '50%';
-        iframe.style.right = 'auto';
-        iframe.style.bottom = 'auto';
-        iframe.style.transform = 'translate(-50%, -50%)';
-        iframe.style.width = Math.min(size.w, window.innerWidth - 32) + 'px';
-        iframe.style.height = Math.min(size.h, window.innerHeight - 32) + 'px';
+        // Corner-anchored modal: stays in same corner as button, expands upward
+        // Max 85% of viewport height on mobile, leaving space to see page behind
+        var maxHeight = Math.min(MODAL.h, window.innerHeight * 0.85);
+        iframe.style.transition = 'all .25s ease-out';
+        iframe.style.top = 'auto';
+        iframe.style.left = isLeft ? '0' : 'auto';
+        iframe.style.right = isLeft ? 'auto' : '0';
+        iframe.style.bottom = '0';
+        iframe.style.transform = 'none';
+        iframe.style.width = Math.min(MODAL.w, window.innerWidth) + 'px';
+        iframe.style.height = maxHeight + 'px';
       } else {
         iframe.style.transition = 'all .3s ease';
         iframe.style.top = 'auto';
