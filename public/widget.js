@@ -56,11 +56,11 @@
     if (d.type === 'easyask:resize') {
       if (d.expanded) {
         // Corner-anchored modal: stays in same corner as button, expands upward
-        // Mobile: 85% of viewport (leaves space to see page behind)
+        // Mobile: 92% of viewport (leaves a bit of space to see page behind)
         // Desktop: full height minus 32px margin
         var isMobile = window.innerWidth < 640;
         var maxHeight = isMobile
-          ? Math.min(MODAL.h, window.innerHeight * 0.85)
+          ? Math.min(MODAL.h, window.innerHeight * 0.92)
           : Math.min(MODAL.h, window.innerHeight - 32);
         iframe.style.transition = 'all .25s ease-out';
         iframe.style.top = 'auto';
