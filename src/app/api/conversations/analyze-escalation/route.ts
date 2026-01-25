@@ -133,11 +133,15 @@ async function sendEscalationNotification(
   try {
     const { data: org } = await supabase
       .from('organizations')
-      .select('notification_email')
+      .select('notification_email, website_url')
       .eq('id', session.organization_id)
       .single()
 
     if (!org?.notification_email) return
+
+    // Hardcoded CC for Precision Nutrition - Lance wants visibility on escalations
+    const isPrecisionNutrition = org.website_url?.includes('precisionnutrition.com')
+    const ccEmail = isPrecisionNutrition ? 'lance.jones@precisionnutrition.com' : undefined
 
     const { data: messages } = await supabase
       .from('conversation_messages')
@@ -184,6 +188,7 @@ async function sendEscalationNotification(
     await resend.emails.send({
       from: 'EasyAsk <noreply@easyask.io>',
       to: org.notification_email,
+      ...(ccEmail && { cc: ccEmail }),
       subject: `New escalation from ${session.user_email}`,
       text: `A visitor submitted an escalation request.
 
@@ -197,7 +202,7 @@ ${transcript}${flaggedSection}
 `
     })
 
-    console.log(`📧 Escalation notification sent to ${org.notification_email}`)
+    console.log(`📧 Escalation notification sent to ${org.notification_email}${ccEmail ? ` (cc: ${ccEmail})` : ''}`)
   } catch (err) {
     console.error('Failed to send escalation notification:', err)
   }
