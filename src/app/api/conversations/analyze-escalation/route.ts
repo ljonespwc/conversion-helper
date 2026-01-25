@@ -186,7 +186,7 @@ async function sendEscalationNotification(
       flagged.map(m => `• "${m.message}"\n  Reason: ${m.followup_reason || 'Unknown'}`).join('\n\n')
 
     await resend.emails.send({
-      from: 'EasyAsk <noreply@easyask.io>',
+      from: 'EasyAsk <support@easyask.io>',
       to: org.notification_email,
       ...(ccEmail && { cc: ccEmail }),
       subject: `New escalation from ${session.user_email}`,
