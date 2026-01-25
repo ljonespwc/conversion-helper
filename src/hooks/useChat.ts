@@ -26,6 +26,7 @@ interface UseChatReturn {
   error: string | null
   organizationName: string | null
   isRestoredSession: boolean
+  hasExistingRating: boolean
   sendMessage: (message: string) => Promise<void>
   startSession: () => void
   startFreshConversation: () => void
@@ -51,6 +52,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
   const [error, setError] = useState<string | null>(null)
   const [organizationName, setOrganizationName] = useState<string | null>(null)
   const [isRestoredSession, setIsRestoredSession] = useState(false)
+  const [hasExistingRating, setHasExistingRating] = useState(false)
 
   // Track if session has started
   const sessionStarted = useRef(false)
@@ -88,6 +90,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
             })))
             sessionStarted.current = true
             setIsRestoredSession(true)
+            setHasExistingRating(data.has_rating === true)
             setError(null)
             return
           }
@@ -145,6 +148,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     setSessionId(null)
     sessionStarted.current = false
     setIsRestoredSession(false)
+    setHasExistingRating(false)
     setError(null)
 
     // Start fresh session (will create new ID and show greeting)
@@ -236,6 +240,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     setError(null)
     setOrganizationName(null)
     setIsRestoredSession(false)
+    setHasExistingRating(false)
     sessionStarted.current = false
   }, [])
 
@@ -246,6 +251,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     error,
     organizationName,
     isRestoredSession,
+    hasExistingRating,
     sendMessage,
     startSession,
     startFreshConversation,

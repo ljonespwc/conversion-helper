@@ -72,10 +72,18 @@ export async function GET(request: NextRequest) {
     })
     const messages = await messagesResponse.json()
 
+    // Check if user has already rated this session
+    const { data: feedback } = await supabase
+      .from('conversation_feedback')
+      .select('rating')
+      .eq('session_id', sessionId)
+      .maybeSingle()
+
     return NextResponse.json(
       {
         success: true,
         session_exists: true,
+        has_rating: feedback !== null,
         messages: (messages || []).map((m: { role: string; message: string; timestamp: number }) => ({
           role: m.role,
           content: m.message,

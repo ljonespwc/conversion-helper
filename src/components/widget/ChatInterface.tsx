@@ -64,15 +64,6 @@ interface QuickActionButtonProps {
   onClick: () => void
 }
 
-interface ThumbButtonProps {
-  emoji: string
-  rating: number
-  currentRating: number | null
-  otherRating: number
-  hasFirstResponse: boolean
-  onRate: (rating: number) => void
-  title: string
-}
 
 // ============================================================================
 // Markdown Rendering Configuration
@@ -96,21 +87,6 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 }
 
-function getThumbButtonFilter(
-  userRating: number | null,
-  thisRating: number,
-  otherRating: number,
-  hasFirstResponse: boolean
-): string {
-  if (userRating === otherRating) {
-    return 'grayscale(100%) opacity(0.4)'
-  }
-  if (hasFirstResponse) {
-    return 'none'
-  }
-  return 'grayscale(100%) opacity(0.5)'
-}
-
 // ============================================================================
 // Sub-Components
 // ============================================================================
@@ -128,26 +104,6 @@ function QuickActionButton({ icon: Icon, label, disabled, onClick }: QuickAction
     >
       <Icon className="w-3.5 h-3.5" />
       <span>{label}</span>
-    </button>
-  )
-}
-
-function ThumbButton({ emoji, rating, currentRating, otherRating, hasFirstResponse, onRate, title }: ThumbButtonProps): JSX.Element {
-  const isDisabled = currentRating !== null
-  const filter = getThumbButtonFilter(currentRating, rating, otherRating, hasFirstResponse)
-
-  return (
-    <button
-      onClick={() => onRate(rating)}
-      disabled={isDisabled}
-      className={`text-xl transition-all duration-300 ${!isDisabled ? 'cursor-pointer hover:scale-110' : ''}`}
-      style={{
-        filter,
-        transition: 'filter 0.5s, transform 0.2s'
-      }}
-      title={title}
-    >
-      {emoji}
     </button>
   )
 }
@@ -214,7 +170,17 @@ function splitTrailingQuestion(content: string): { main: string; question: strin
   return { main: content, question: null }
 }
 
-function ChatBubble({ message, isNew = false }: { message: ChatMessage; isNew?: boolean }): JSX.Element {
+interface ChatBubbleProps {
+  message: ChatMessage
+  isNew?: boolean
+  showRating?: boolean
+  userRating: number | null
+  hasFirstResponse: boolean
+  showRatingCheck: boolean
+  onRate: (rating: number) => void
+}
+
+function ChatBubble({ message, isNew = false, showRating = false, userRating, hasFirstResponse, showRatingCheck, onRate }: ChatBubbleProps): JSX.Element {
   const isUser = message.role === 'user'
 
   // For AI messages, check for trailing question
@@ -250,6 +216,57 @@ function ChatBubble({ message, isNew = false }: { message: ChatMessage; isNew?: 
           </div>
         )}
       </div>
+      {/* Rating thumbs - shown on last AI message */}
+      {showRating && !isUser && (
+        <div className="flex items-center justify-end mt-1.5 gap-1 group">
+          <AnimatePresence mode="wait">
+            {showRatingCheck ? (
+              <motion.div
+                key="checkmark"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="flex items-center gap-1 text-gray-500 text-xs"
+              >
+                <Check className="w-3 h-3" />
+                <span>Thanks!</span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="thumbs"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center gap-2"
+              >
+                <button
+                  onClick={() => onRate(1)}
+                  disabled={userRating !== null}
+                  className={`text-sm transition-all duration-200 ${
+                    userRating === null
+                      ? 'opacity-40 group-hover:opacity-100 hover:scale-110 cursor-pointer'
+                      : userRating === 1 ? 'opacity-100' : 'opacity-20'
+                  }`}
+                  title="Not helpful"
+                >
+                  👎
+                </button>
+                <button
+                  onClick={() => onRate(5)}
+                  disabled={userRating !== null}
+                  className={`text-sm transition-all duration-200 ${
+                    userRating === null
+                      ? 'opacity-40 group-hover:opacity-100 hover:scale-110 cursor-pointer'
+                      : userRating === 5 ? 'opacity-100' : 'opacity-20'
+                  }`}
+                  title="Helpful"
+                >
+                  👍
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </motion.div>
   )
 }
@@ -287,6 +304,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     error,
     organizationName,
     isRestoredSession,
+    hasExistingRating,
     sendMessage,
     startSession,
     startFreshConversation,
@@ -350,6 +368,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   const hasInputText = inputValue.trim().length > 0
   const isInputDisabled = isLoading || !sessionId
 
+  // Rating UI: only show if user hasn't rated yet (check both local state AND DB)
+  const hasRated = userRating !== null || hasExistingRating
+  const canShowRating = hasFirstResponse && (!hasRated || showRatingCheck)
+  const lastAIMessageIndex = nonGreetingMessages.map(m => m.role).lastIndexOf('assistant')
+
   // --------------------------------------------------------------------------
   // Download Transcript
   // --------------------------------------------------------------------------
@@ -388,12 +411,25 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     URL.revokeObjectURL(url)
   }
 
+  // Wrapper to reset local state when starting fresh conversation
+  const handleStartFreshConversation = () => {
+    // Reset local rating state
+    setUserRating(null)
+    setShowRatingCheck(false)
+    setHasFirstResponse(false)
+    setEscalationState('hidden')
+    setEmail('')
+    setEscalationError('')
+    // Then start fresh in useChat
+    startFreshConversation()
+  }
+
   // Expose capabilities to parent via ref
   useImperativeHandle(ref, () => ({
     canDownload: hasConversation,
     downloadTranscript,
     isRestoredSession,
-    startFreshConversation
+    startFreshConversation: handleStartFreshConversation
   }), [hasConversation, messages, isRestoredSession, startFreshConversation])
 
   // --------------------------------------------------------------------------
@@ -609,7 +645,14 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {/* Greeting - shown as AI chat bubble */}
         {greetingMessage && (
-          <ChatBubble message={greetingMessage} isNew={false} />
+          <ChatBubble
+            message={greetingMessage}
+            isNew={false}
+            userRating={userRating}
+            hasFirstResponse={hasFirstResponse}
+            showRatingCheck={showRatingCheck}
+            onRate={handleRating}
+          />
         )}
 
         {/* Conversation Messages - inline, standard chat layout */}
@@ -618,6 +661,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
             key={message.id}
             message={message}
             isNew={idx === nonGreetingMessages.length - 1}
+            showRating={idx === lastAIMessageIndex && canShowRating}
+            userRating={userRating}
+            hasFirstResponse={hasFirstResponse}
+            showRatingCheck={showRatingCheck}
+            onRate={handleRating}
           />
         ))}
 
@@ -735,74 +783,16 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
       </div>
 
       {/* ====================================================================
-          FIXED FOOTER: Rating/Escalation + Branding (Very Bottom)
+          FIXED FOOTER: Escalation Form + Branding (Very Bottom)
           ==================================================================== */}
-      {(hasConversation || showBranding) && (
-        <div className="flex-shrink-0 p-3 space-y-2 bg-gradient-to-r from-blue-500 to-purple-500">
-          {/* Rating / Escalation */}
-          {hasConversation && (
+      {(escalationState !== 'hidden' || showBranding) && (
+        <div className={`flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 ${
+          escalationState !== 'hidden' ? 'p-3 space-y-2' : 'py-1.5 px-3'
+        }`}>
+          {/* Escalation Form/Success - shown after thumbs down */}
+          {hasConversation && escalationState !== 'hidden' && (
             <div className="w-full max-w-md mx-auto">
               <AnimatePresence mode="wait">
-                {/* Rating UI - shown when escalation is hidden */}
-                {escalationState === 'hidden' && (
-                  <motion.div
-                    key="rating"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center justify-center gap-4"
-                  >
-                    <AnimatePresence mode="wait">
-                      {showRatingCheck ? (
-                        <motion.div
-                          key="checkmark"
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="flex items-center gap-1 text-white text-xs"
-                        >
-                          <Check className="w-4 h-4" />
-                          <span>Thanks!</span>
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="thumbs"
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          className="flex items-center gap-3"
-                        >
-                          <span className={`text-xs transition-colors duration-500 ${
-                            hasFirstResponse ? 'text-white' : 'text-white/60'
-                          }`}>
-                            Did this help?
-                          </span>
-                          <div className="flex items-center gap-3">
-                            <ThumbButton
-                              emoji="👎"
-                              rating={1}
-                              currentRating={userRating}
-                              otherRating={5}
-                              hasFirstResponse={hasFirstResponse}
-                              onRate={handleRating}
-                              title="Not helpful"
-                            />
-                            <ThumbButton
-                              emoji="👍"
-                              rating={5}
-                              currentRating={userRating}
-                              otherRating={1}
-                              hasFirstResponse={hasFirstResponse}
-                              onRate={handleRating}
-                              title="Helpful"
-                            />
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                )}
-
                 {/* Email Form UI - shown after thumbs down */}
                 {escalationState === 'form' && (
                   <motion.div
