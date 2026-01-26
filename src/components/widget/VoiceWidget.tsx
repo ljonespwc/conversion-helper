@@ -16,11 +16,13 @@ interface VoiceWidgetProps {
   isDemo?: boolean
   apiKey?: string
   groupId?: string
+  viewportWidth?: number
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0 }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
+  const [isWidened, setIsWidened] = useState(false)
   const [pageTitle, setPageTitle] = useState<string | undefined>(undefined)
   const [organizationName, setOrganizationName] = useState<string | undefined>(undefined)
   const [isActive, setIsActive] = useState<boolean | null>(null)
@@ -34,9 +36,10 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const handleClose = embedded ? () => {
     // Send resize message BEFORE state change so iframe shrinks before modal unmounts
     if (typeof (window as any).onWidgetStateChange === 'function') {
-      (window as any).onWidgetStateChange(false, isExperimental)
+      (window as any).onWidgetStateChange(false, { experimental: isExperimental })
     }
     setInternalOpen(false)
+    setIsWidened(false)
   } : onClose || (() => {})
 
   // Fetch page config when pageUrl changes
@@ -91,6 +94,14 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
 
 
 
+  const handleToggleWidth = () => {
+    const newWidened = !isWidened
+    setIsWidened(newWidened)
+    if (typeof (window as any).onWidgetStateChange === 'function') {
+      (window as any).onWidgetStateChange(true, { widened: newWidened, experimental: isExperimental })
+    }
+  }
+
   // Don't render widget until we confirm page is active
   if (!isActive) {
     return null
@@ -103,7 +114,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           onClick={() => {
             // Send resize message BEFORE state change so iframe expands before modal renders
             if (typeof (window as any).onWidgetStateChange === 'function') {
-              (window as any).onWidgetStateChange(true, isExperimental)
+              (window as any).onWidgetStateChange(true, { experimental: isExperimental })
             }
             setInternalOpen(true)
             // Track widget opened
@@ -134,6 +145,9 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             isExperimental={isExperimental}
             groupId={groupId}
             position={position}
+            isWidened={isWidened}
+            onToggleWidth={handleToggleWidth}
+            viewportWidth={viewportWidth}
           />
         )}
       </AnimatePresence>

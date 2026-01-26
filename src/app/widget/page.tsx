@@ -17,12 +17,16 @@ function WidgetContent() {
   const timezone = searchParams.get('tz') || undefined
   const apiKey = searchParams.get('key') || undefined
   const groupId = searchParams.get('group_id') || undefined
+  const [viewportWidth, setViewportWidth] = useState<number>(Number(searchParams.get('vw')) || 0)
 
-  // Listen for URL change messages from parent (SPA navigation)
+  // Listen for messages from parent (SPA navigation + viewport width updates)
   useEffect(() => {
     function handleMessage(e: MessageEvent) {
       if (e.data?.type === 'easyask:urlchange' && typeof e.data.url === 'string') {
         setPageUrl(e.data.url)
+      }
+      if (e.data?.type === 'easyask:vw' && typeof e.data.vw === 'number') {
+        setViewportWidth(e.data.vw)
       }
     }
     window.addEventListener('message', handleMessage)
@@ -42,9 +46,9 @@ function WidgetContent() {
     document.head.appendChild(style)
 
     // Set up callback for widget state changes
-    ;(window as any).onWidgetStateChange = (expanded: boolean, experimental?: boolean) => {
+    ;(window as any).onWidgetStateChange = (expanded: boolean, options?: { widened?: boolean; experimental?: boolean }) => {
       if (window.parent !== window) {
-        window.parent.postMessage({ type: 'easyask:resize', expanded, experimental }, '*')
+        window.parent.postMessage({ type: 'easyask:resize', expanded, widened: options?.widened, experimental: options?.experimental }, '*')
       }
     }
 
@@ -57,7 +61,7 @@ function WidgetContent() {
 
   return (
     <div className="w-full h-screen bg-transparent">
-      <VoiceWidget embedded={true} pageUrl={pageUrl} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} />
+      <VoiceWidget embedded={true} pageUrl={pageUrl} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} viewportWidth={viewportWidth} />
     </div>
   )
 }

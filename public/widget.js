@@ -25,11 +25,12 @@
   // Sizes (fixed - modal scrolls internally)
   var PILL = { w: 480, h: 100 };
   var MODAL = { w: 460, h: 600 };  // Corner-anchored modal
+  var EXPANDED_MODAL = { w: 800 };  // Widened modal max width
 
   // Create iframe
   var iframe = document.createElement('iframe');
   iframe.id = 'easyask-widget';
-  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '');
+  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '') + '&vw=' + window.innerWidth;
   iframe.title = 'EasyAsk Assistant';
   iframe.allow = 'microphone *; autoplay *; clipboard-write *';
   iframe.style.cssText = [
@@ -62,13 +63,16 @@
         var maxHeight = isMobile
           ? Math.min(MODAL.h, window.innerHeight * 0.92)
           : Math.min(MODAL.h, window.innerHeight - 32);
+        var modalWidth = d.widened
+          ? Math.min(EXPANDED_MODAL.w, window.innerWidth - 32)
+          : Math.min(MODAL.w, window.innerWidth);
         iframe.style.transition = 'all .25s ease-out';
         iframe.style.top = 'auto';
         iframe.style.left = isLeft ? '0' : 'auto';
         iframe.style.right = isLeft ? 'auto' : '0';
         iframe.style.bottom = '0';
         iframe.style.transform = 'none';
-        iframe.style.width = Math.min(MODAL.w, window.innerWidth) + 'px';
+        iframe.style.width = modalWidth + 'px';
         iframe.style.height = maxHeight + 'px';
       } else {
         iframe.style.transition = 'all .3s ease';
@@ -108,6 +112,13 @@
   // Listen for SPA navigation (popstate for back/forward, periodic check for pushState)
   window.addEventListener('popstate', updateWidget);
   setInterval(updateWidget, 500);
+
+  // Send viewport width updates to iframe so expand button can show/hide
+  window.addEventListener('resize', function() {
+    if (iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ type: 'easyask:vw', vw: window.innerWidth }, ORIGIN);
+    }
+  });
 
   // Insert into DOM
   function insert() {

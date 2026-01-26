@@ -26,11 +26,18 @@ export default function TestPage() {
   const [loading, setLoading] = useState(true)
   const [organizationName, setOrganizationName] = useState<string>('')
   const [publishableKey, setPublishableKey] = useState<string>('')
+  const [viewportWidth, setViewportWidth] = useState<number>(0)
 
   useEffect(() => {
     checkUser()
     fetchWidgetPages()
     fetchOrganization()
+
+    // Track viewport width for expand button visibility
+    setViewportWidth(window.innerWidth)
+    const handleResize = () => setViewportWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const checkUser = async () => {
@@ -190,6 +197,7 @@ export default function TestPage() {
           embedded={true}
           pageUrl={selectedPage?.page_url}
           apiKey={publishableKey}
+          viewportWidth={viewportWidth}
         />
       </div>
     </div>

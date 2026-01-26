@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { X, Download, RefreshCw } from 'lucide-react'
+import { X, Download, RefreshCw, Maximize2, Minimize2 } from 'lucide-react'
 import ChatInterface, { ChatInterfaceHandle } from './ChatInterface'
 
 interface WidgetModalProps {
@@ -16,13 +16,17 @@ interface WidgetModalProps {
   isExperimental?: boolean
   groupId?: string
   position?: 'bottom-left' | 'bottom-right'
+  isWidened?: boolean
+  onToggleWidth?: () => void
+  viewportWidth?: number
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId, position = 'bottom-right' }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId, position = 'bottom-right', isWidened = false, onToggleWidth, viewportWidth = 0 }: WidgetModalProps) {
   const isLeft = position === 'bottom-left'
   const chatRef = useRef<ChatInterfaceHandle>(null)
   const [canDownload, setCanDownload] = useState(false)
   const [showRefresh, setShowRefresh] = useState(false)
+  const canExpand = viewportWidth >= 768
 
   const handleDownload = () => {
     chatRef.current?.downloadTranscript()
@@ -51,12 +55,22 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         exit={{ opacity: 0, y: 20 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
-        className={`fixed bottom-0 ${isLeft ? 'left-0' : 'right-0'} w-full sm:w-[460px] h-full max-h-[600px] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col border-2 border-orange-400/50`}
+        className={`fixed bottom-0 ${isLeft ? 'left-0' : 'right-0'} w-full ${isWidened ? 'sm:w-[min(800px,calc(100vw-2rem))]' : 'sm:w-[460px]'} h-full max-h-[600px] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col border-2 border-orange-400/50 transition-[width] duration-300 ease-in-out`}
         style={{ pointerEvents: 'auto' }}
       >
         <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400">
-          {/* Left side: Download and/or Refresh buttons */}
+          {/* Left side: Expand, Download, and/or Refresh buttons */}
           <div className="flex items-center gap-1">
+            {canExpand && onToggleWidth && (
+              <button
+                onClick={onToggleWidth}
+                className="p-1.5 rounded-full border border-white/30 hover:bg-white/20 transition-colors"
+                aria-label={isWidened ? 'Collapse width' : 'Expand width'}
+                title={isWidened ? 'Collapse width' : 'Expand width'}
+              >
+                {isWidened ? <Minimize2 className="w-4 h-4 text-white" /> : <Maximize2 className="w-4 h-4 text-white" />}
+              </button>
+            )}
             {canDownload && (
               <button
                 onClick={handleDownload}
@@ -77,7 +91,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
                 <RefreshCw className="w-4 h-4 text-white" />
               </button>
             )}
-            {!canDownload && !showRefresh && <div className="w-8" />}
+            {!canExpand && !canDownload && !showRefresh && <div className="w-8" />}
           </div>
 
           {/* Title in center */}
