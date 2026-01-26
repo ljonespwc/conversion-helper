@@ -92,22 +92,16 @@
   // Track current URL to detect SPA navigation
   var currentUrl = window.location.href;
 
-  // Update iframe when URL changes (SPA navigation)
+  // Update widget when URL changes (SPA navigation)
+  // Instead of reloading the iframe (which causes flicker), send a postMessage
+  // so the React app stays mounted and the pill stays visible.
   function updateWidget() {
     var newUrl = window.location.href;
     if (newUrl !== currentUrl) {
       currentUrl = newUrl;
-      // Hide immediately, then update iframe src - widget will show itself if page is configured
-      iframe.style.display = 'none';
-      iframe.style.transition = 'none';
-      iframe.style.top = 'auto';
-      iframe.style.left = isLeft ? '0' : 'auto';
-      iframe.style.right = isLeft ? 'auto' : '0';
-      iframe.style.bottom = '0';
-      iframe.style.transform = 'none';
-      iframe.style.width = 'min(' + PILL.w + 'px, 100vw)';
-      iframe.style.height = PILL.h + 'px';
-      iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(newUrl) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '');
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'easyask:urlchange', url: newUrl }, ORIGIN);
+      }
     }
   }
 

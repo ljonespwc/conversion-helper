@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
@@ -11,12 +11,23 @@ const VoiceWidget = dynamic(() => import('@/components/widget/VoiceWidget'), {
 
 function WidgetContent() {
   const searchParams = useSearchParams()
-  const pageUrl = searchParams.get('url')
+  const [pageUrl, setPageUrl] = useState<string | undefined>(searchParams.get('url') || undefined)
   const positionParam = searchParams.get('position')
   const position: 'bottom-left' | 'bottom-right' = positionParam === 'bottom-left' ? 'bottom-left' : 'bottom-right'
   const timezone = searchParams.get('tz') || undefined
   const apiKey = searchParams.get('key') || undefined
   const groupId = searchParams.get('group_id') || undefined
+
+  // Listen for URL change messages from parent (SPA navigation)
+  useEffect(() => {
+    function handleMessage(e: MessageEvent) {
+      if (e.data?.type === 'easyask:urlchange' && typeof e.data.url === 'string') {
+        setPageUrl(e.data.url)
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
 
   useEffect(() => {
     // Inject style tag to force transparent background (overrides Tailwind's bg-background)
@@ -46,7 +57,7 @@ function WidgetContent() {
 
   return (
     <div className="w-full h-screen bg-transparent">
-      <VoiceWidget embedded={true} pageUrl={pageUrl || undefined} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} />
+      <VoiceWidget embedded={true} pageUrl={pageUrl} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} />
     </div>
   )
 }

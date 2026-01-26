@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import WidgetModal from './WidgetModal'
 import WidgetButton from './WidgetButton'
@@ -28,6 +28,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [widgetLine1, setWidgetLine1] = useState<string | undefined>(undefined)
   const [widgetLine2, setWidgetLine2] = useState<string | undefined>(undefined)
   const [isExperimental, setIsExperimental] = useState<boolean>(false)
+  const hasEverBeenActive = useRef(false)
 
   const isModalOpen = embedded ? internalOpen : isOpen
   const handleClose = embedded ? () => {
@@ -38,19 +39,20 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     setInternalOpen(false)
   } : onClose || (() => {})
 
-  // Fetch page title and organization name if pageUrl is provided
+  // Fetch page config when pageUrl changes
   useEffect(() => {
     if (pageUrl && embedded) {
-      // Reset state when pageUrl changes
-      setIsActive(null)
-      setPageTitle(undefined)
-      setOrganizationName(undefined)
-      setWidgetLine1(undefined)
-      setWidgetLine2(undefined)
-      setIsExperimental(false)
+      // On initial load: reset state and wait for API response
+      // On SPA URL change when previously active: keep pill visible, re-check in background
+      if (!hasEverBeenActive.current) {
+        setIsActive(null)
+        setPageTitle(undefined)
+        setOrganizationName(undefined)
+        setWidgetLine1(undefined)
+        setWidgetLine2(undefined)
+        setIsExperimental(false)
+      }
 
-      // Try to fetch page info from widget pages API (with cache-busting)
-      // Include API key for authorization and optional group_id for direct matching
       const keyParam = apiKey ? `&key=${encodeURIComponent(apiKey)}` : ''
       const groupParam = groupId ? `&group_id=${encodeURIComponent(groupId)}` : ''
       fetch(`/api/widget-pages?url=${encodeURIComponent(pageUrl)}${keyParam}${groupParam}&_t=${Date.now()}`, {
@@ -64,24 +66,22 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           if (data?.page?.organization_name) {
             setOrganizationName(data.page.organization_name)
           }
-          // Check if widget is active on this page (only active if page exists AND is_active is true)
           const pageIsActive = data?.page?.is_active === true
           setIsActive(pageIsActive)
-          // Set branding visibility from organization setting
+          if (pageIsActive) {
+            hasEverBeenActive.current = true
+          }
           setShowBranding(data?.page?.show_branding ?? true)
-          // Set widget button copy from organization settings
           setWidgetLine1(data?.page?.widget_line1)
           setWidgetLine2(data?.page?.widget_line2)
-          // Set experimental mode flag
           setIsExperimental(data?.page?.is_experimental ?? false)
-          // Notify parent iframe to show/hide widget
           if (window.parent !== window) {
             window.parent.postMessage({ type: pageIsActive ? 'easyask:show' : 'easyask:hide' }, '*')
           }
         })
         .catch(err => {
           console.error('Failed to fetch page info:', err)
-          setIsActive(false) // Hide on error
+          setIsActive(false)
           if (window.parent !== window) {
             window.parent.postMessage({ type: 'easyask:hide' }, '*')
           }
