@@ -51,10 +51,10 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
         exit={{ opacity: 0, y: 20 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
-        className={`fixed bottom-0 ${isLeft ? 'left-0' : 'right-0'} w-full sm:w-[460px] h-full max-h-[600px] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col border-2 border-blue-400/50`}
+        className={`fixed bottom-0 ${isLeft ? 'left-0' : 'right-0'} w-full sm:w-[460px] h-full max-h-[600px] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col border-2 border-orange-400/50`}
         style={{ pointerEvents: 'auto' }}
       >
-        <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
+        <div className="flex items-center justify-between p-4 flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400">
           {/* Left side: Download and/or Refresh buttons */}
           <div className="flex items-center gap-1">
             {canDownload && (

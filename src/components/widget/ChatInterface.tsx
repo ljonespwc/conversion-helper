@@ -71,12 +71,12 @@ interface QuickActionButtonProps {
 
 const markdownComponents = {
   p: ({ children }: { children?: React.ReactNode }) => <p className="mb-2 last:mb-0">{children}</p>,
-  strong: ({ children }: { children?: React.ReactNode }) => <strong className="font-semibold text-blue-600">{children}</strong>,
+  strong: ({ children }: { children?: React.ReactNode }) => <strong className="font-semibold text-orange-600">{children}</strong>,
   em: ({ children }: { children?: React.ReactNode }) => <em className="italic text-gray-600">{children}</em>,
   ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
   ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
   li: ({ children }: { children?: React.ReactNode }) => <li className="text-gray-700">{children}</li>,
-  code: ({ children }: { children?: React.ReactNode }) => <code className="bg-gray-100 px-1.5 py-0.5 rounded text-blue-600 text-xs">{children}</code>,
+  code: ({ children }: { children?: React.ReactNode }) => <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-600 text-xs">{children}</code>,
 }
 
 // ============================================================================
@@ -93,7 +93,7 @@ function isValidEmail(email: string): boolean {
 
 function QuickActionButton({ icon: Icon, label, disabled, onClick }: QuickActionButtonProps): JSX.Element {
   const baseClasses = 'flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all duration-150'
-  const enabledClasses = 'bg-white hover:bg-blue-50 border-blue-400 text-blue-600 hover:text-blue-700 shadow-sm hover:shadow'
+  const enabledClasses = 'bg-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 border-gray-200 text-orange-600 hover:text-white hover:border-transparent shadow-sm hover:shadow'
   const disabledClasses = 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
 
   return (
@@ -120,7 +120,7 @@ function TypingIndicator(): JSX.Element {
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-2 h-2 bg-blue-500 rounded-full"
+            className="w-2 h-2 bg-orange-500 rounded-full"
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
           />
@@ -196,8 +196,8 @@ function ChatBubble({ message, isNew = false, showRating = false, userRating, ha
     >
       <div className={`w-full rounded-2xl px-4 py-3 ${
         isUser
-          ? 'bg-blue-500 text-white'
-          : 'bg-white border border-gray-200 text-gray-700'
+          ? 'bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white'
+          : 'bg-orange-50 border border-gray-200 text-gray-800'
       }`}>
         {isUser ? (
           <p className="text-sm leading-relaxed">{message.content}</p>
@@ -209,7 +209,7 @@ function ChatBubble({ message, isNew = false, showRating = false, userRating, ha
               </ReactMarkdown>
             )}
             {question && (
-              <p className="mt-3 font-semibold bg-yellow-100 px-2 py-1 -mx-1 rounded">
+              <p className="mt-3 font-semibold bg-orange-100 px-2 py-1 -mx-1 rounded">
                 {question}
               </p>
             )}
@@ -633,7 +633,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   // --------------------------------------------------------------------------
 
   return (
-    <div className="relative h-full flex flex-col bg-white/60 backdrop-blur-sm">
+    <div className="relative h-full flex flex-col bg-white">
       {/* Sparkle Burst - at top level to avoid overflow clipping */}
       <AnimatePresence>
         {showSparkleBurst && <SparkleBurst />}
@@ -697,12 +697,12 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
               onKeyDown={handleKeyDown}
               placeholder="Ask a question or paste some text..."
               disabled={isInputDisabled}
-              className="flex-1 px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:bg-white disabled:opacity-50 resize-none overflow-y-auto"
+              className="flex-1 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 focus:bg-white disabled:opacity-50 resize-none overflow-y-auto"
             />
             <button
               type="submit"
               disabled={isLoading || !hasInputText || !sessionId}
-              className="p-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-xl transition-colors"
+              className="p-3 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 disabled:bg-gray-300 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed rounded-xl transition-colors"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 text-white animate-spin" />
@@ -736,7 +736,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
               disabled={!hasInputText || isLoading}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all duration-150 ${
                 hasInputText && !isLoading
-                  ? 'bg-white hover:bg-blue-50 border-blue-400 text-blue-600 hover:text-blue-700 shadow-sm hover:shadow'
+                  ? 'bg-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 border-gray-200 text-orange-600 hover:text-white hover:border-transparent shadow-sm hover:shadow'
                   : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
@@ -786,7 +786,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
           FIXED FOOTER: Escalation Form + Branding (Very Bottom)
           ==================================================================== */}
       {(escalationState !== 'hidden' || showBranding) && (
-        <div className={`flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 ${
+        <div className={`flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 ${
           escalationState !== 'hidden' ? 'p-3 space-y-2' : 'py-1.5 px-3'
         }`}>
           {/* Escalation Form/Success - shown after thumbs down */}
@@ -801,9 +801,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-white/10 backdrop-blur-sm rounded-lg p-3 space-y-2"
+                    className="bg-white rounded-lg p-3 space-y-2"
                   >
-                    <p className="text-white text-sm text-center">
+                    <p className="text-gray-700 text-sm text-center">
                       Sorry that wasn&apos;t helpful. Want us to follow up?
                     </p>
                     <form onSubmit={handleEmailSubmit} className="space-y-2">
@@ -813,16 +813,16 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="your@email.com"
                         disabled={isSubmittingEmail}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 disabled:opacity-50"
+                        className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 focus:bg-white disabled:opacity-50"
                       />
                       {escalationError && (
-                        <div className="text-red-200 text-xs text-center">{escalationError}</div>
+                        <div className="text-red-500 text-xs text-center">{escalationError}</div>
                       )}
                       <div className="flex items-center gap-2">
                         <button
                           type="submit"
                           disabled={isSubmittingEmail || !email.trim()}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-gray-100 disabled:bg-white/50 disabled:cursor-not-allowed text-blue-600 text-sm font-medium rounded-md transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
                         >
                           {isSubmittingEmail ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -835,7 +835,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
                     </form>
                     <button
                       onClick={() => setEscalationState('hidden')}
-                      className="w-full text-white/70 hover:text-white text-xs transition-colors"
+                      className="w-full text-gray-400 hover:text-gray-600 text-xs transition-colors"
                     >
                       No thanks
                     </button>

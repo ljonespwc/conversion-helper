@@ -36,7 +36,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
     >
       {/* Gradient Background */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600"
+        className="absolute inset-0 bg-orange-500"
         style={{ borderRadius: '30px' }}
       />
 
@@ -67,7 +67,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
           <span className="text-sm font-semibold text-white leading-tight text-left">
             {line1 || DEFAULT_LINE1}
           </span>
-          <span className="text-[10px] sm:text-xs text-blue-100 leading-tight text-left">
+          <span className="text-[10px] sm:text-xs text-white/80 leading-tight text-left">
             {line2 || DEFAULT_LINE2}
           </span>
         </div>
