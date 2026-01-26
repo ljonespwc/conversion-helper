@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 're
 import { Loader2, Check, Sparkles, ChevronDown, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useChat, ChatMessage } from '@/hooks/useChat'
 import { usePostHog } from 'posthog-js/react'
 
@@ -77,6 +78,7 @@ const markdownComponents = {
   ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
   li: ({ children }: { children?: React.ReactNode }) => <li className="text-gray-700">{children}</li>,
   code: ({ children }: { children?: React.ReactNode }) => <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-600 text-xs">{children}</code>,
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-orange-600 underline hover:text-orange-700">{children}</a>,
 }
 
 // ============================================================================
@@ -204,7 +206,7 @@ function ChatBubble({ message, isNew = false, showRating = false, userRating, ha
         ) : (
           <div className="text-sm leading-relaxed">
             {main && (
-              <ReactMarkdown components={markdownComponents}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                 {main}
               </ReactMarkdown>
             )}
