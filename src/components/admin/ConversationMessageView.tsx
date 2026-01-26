@@ -23,21 +23,21 @@ export default function ConversationMessageView({
   })
 
   return (
-    <div className="bg-gray-800/50 rounded-lg px-4 py-3 border border-gray-700">
+    <div className="bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <span
               className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded ${
                 isUser
-                  ? 'bg-blue-900/30 text-blue-400'
-                  : 'bg-purple-900/30 text-purple-400'
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'bg-purple-50 text-purple-700'
               }`}
             >
               {isUser ? 'User' : 'Assistant'}
             </span>
           </div>
-          <div className="text-sm text-gray-200">
+          <div className="text-sm text-gray-700">
             {isUser ? (
               message.message
             ) : (
@@ -47,12 +47,12 @@ export default function ConversationMessageView({
                     <p className="mb-2 last:mb-0">{children}</p>
                   ),
                   strong: ({ children }) => (
-                    <strong className="font-semibold text-purple-300">
+                    <strong className="font-semibold text-orange-700">
                       {children}
                     </strong>
                   ),
                   em: ({ children }) => (
-                    <em className="italic text-gray-300">{children}</em>
+                    <em className="italic text-gray-600">{children}</em>
                   ),
                   ul: ({ children }) => (
                     <ul className="list-disc list-inside mb-2 space-y-1">
@@ -66,7 +66,7 @@ export default function ConversationMessageView({
                   ),
                   li: ({ children }) => <li>{children}</li>,
                   code: ({ children }) => (
-                    <code className="bg-gray-700 px-1.5 py-0.5 rounded text-purple-300 text-xs">
+                    <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-700 text-xs">
                       {children}
                     </code>
                   ),

@@ -7,7 +7,7 @@ import dynamicImport from 'next/dynamic'
 // Dynamically import VoiceWidget with no SSR (client-only component)
 const VoiceWidget = dynamicImport(() => import('@/components/widget/VoiceWidget'), {
   ssr: false,
-  loading: () => <div className="text-white text-sm">Loading widget...</div>
+  loading: () => <div className="text-gray-500 text-sm">Loading widget...</div>
 })
 
 // Disable static generation for this page (contains dynamic params and client-only code)
@@ -84,17 +84,17 @@ export default function DemoPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white p-8">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-gray-900 p-8">
         <div className="max-w-2xl">
           <h1 className="text-3xl font-bold mb-4">Demo Configuration Error</h1>
-          <p className="text-red-400 mb-6">{error}</p>
-          <div className="bg-gray-800 rounded-lg p-6">
-            <p className="text-sm text-gray-400 mb-2">Example usage:</p>
-            <code className="text-blue-400 text-sm break-all">
+          <p className="text-red-600 mb-6">{error}</p>
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-md">
+            <p className="text-sm text-gray-500 mb-2">Example usage:</p>
+            <code className="text-orange-600 text-sm break-all">
               /demo?url=https://www.precisionnutrition.com/nutrition-certification-level-1-register-now
             </code>
-            <p className="text-sm text-gray-400 mt-4">Allowed domains:</p>
-            <ul className="text-blue-400 text-sm mt-2 space-y-1">
+            <p className="text-sm text-gray-500 mt-4">Allowed domains:</p>
+            <ul className="text-orange-600 text-sm mt-2 space-y-1">
               {ALLOWED_DOMAINS.map(domain => (
                 <li key={domain}>• {domain}</li>
               ))}
@@ -107,8 +107,8 @@ export default function DemoPage() {
 
   if (!validatedUrl) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="text-white">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-gray-900">Loading...</div>
       </div>
     )
   }
@@ -164,7 +164,7 @@ export default function DemoPage() {
       </div>
 
       {/* Demo indicator badge */}
-      <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg z-50 pointer-events-none">
+      <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg z-50 pointer-events-none">
         🎬 Demo Mode
       </div>
     </div>

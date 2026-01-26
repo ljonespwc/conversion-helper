@@ -11,11 +11,11 @@ const config: Config = {
     extend: {
       colors: {
         easyask: {
-          primary: '#1e293b',
-          secondary: '#00AFEF',
+          primary: '#f97316',
+          secondary: '#fb923c',
           accent: '#f59e0b',
-          dark: '#0f172a',
-          light: '#f1f5f9',
+          dark: '#9a3412',
+          light: '#fff7ed',
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

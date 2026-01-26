@@ -118,13 +118,13 @@ export default function ContentManagementPage(): React.ReactElement {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">AI Assistant Knowledgebase</h1>
-          <p className="text-gray-400 mt-2 text-sm sm:text-base">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AI Assistant Knowledgebase</h1>
+          <p className="text-gray-500 mt-2 text-sm sm:text-base">
             Scrape pages, upload files, and manage content for the AI Assistant
           </p>
         </div>
@@ -146,8 +146,8 @@ export default function ContentManagementPage(): React.ReactElement {
 
         <div className="mb-8">
           {loading ? (
-            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
-              <p className="text-gray-400">Loading scraped pages...</p>
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-12 text-center">
+              <p className="text-gray-500">Loading scraped pages...</p>
             </div>
           ) : (
             <ScrapedPagesList
@@ -161,8 +161,8 @@ export default function ContentManagementPage(): React.ReactElement {
 
         <div className="mb-8">
           {uploadsLoading ? (
-            <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 p-12 text-center">
-              <p className="text-gray-400">Loading uploaded files...</p>
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-12 text-center">
+              <p className="text-gray-500">Loading uploaded files...</p>
             </div>
           ) : (
             <FileUploadSection

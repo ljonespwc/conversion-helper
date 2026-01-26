@@ -56,7 +56,7 @@ function RatingDisplay({ rating }: { rating: number | null }): React.ReactElemen
 
   if (rating === 5) {
     return (
-      <span className="inline-flex items-center gap-1 text-green-400" title="Helpful">
+      <span className="inline-flex items-center gap-1 text-green-600" title="Helpful">
         <ThumbsUp className="w-3 h-3" />
       </span>
     )
@@ -64,7 +64,7 @@ function RatingDisplay({ rating }: { rating: number | null }): React.ReactElemen
 
   if (rating === 1) {
     return (
-      <span className="inline-flex items-center gap-1 text-red-400" title="Not helpful">
+      <span className="inline-flex items-center gap-1 text-red-600" title="Not helpful">
         <ThumbsDown className="w-3 h-3" />
       </span>
     )
@@ -72,7 +72,7 @@ function RatingDisplay({ rating }: { rating: number | null }): React.ReactElemen
 
   return (
     <span
-      className="inline-flex items-center gap-1 text-orange-400"
+      className="inline-flex items-center gap-1 text-orange-500"
       title={`Legacy rating: ${rating}/5`}
     >
       {rating}&#9733;
@@ -98,7 +98,7 @@ export default function ConversationSessionItem({
   return (
     <div>
       <div
-        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-700/50 transition-colors"
+        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-100 transition-colors"
         onClick={onToggleExpand}
       >
         <div className="flex items-center space-x-3">
@@ -106,8 +106,8 @@ export default function ConversationSessionItem({
             onClick={onToggleBookmark}
             className={`p-1 rounded transition-colors ${
               session.is_bookmarked
-                ? 'text-yellow-400 hover:text-yellow-300'
-                : 'text-gray-500 hover:text-gray-300'
+                ? 'text-amber-500 hover:text-amber-400'
+                : 'text-gray-400 hover:text-gray-600'
             }`}
             title={session.is_bookmarked ? 'Remove bookmark' : 'Add bookmark'}
           >
@@ -120,8 +120,8 @@ export default function ConversationSessionItem({
             onClick={onToggleUnread}
             className={`p-0.5 rounded transition-colors ${
               session.is_unread
-                ? 'text-blue-400'
-                : 'text-gray-600 hover:text-gray-400'
+                ? 'text-orange-500'
+                : 'text-gray-300 hover:text-gray-500'
             }`}
             title={session.is_unread ? 'Mark as read' : 'Mark as unread'}
           >
@@ -135,10 +135,10 @@ export default function ConversationSessionItem({
             checked={isSelected}
             onClick={onToggleSelect}
             onChange={() => {}}
-            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800 cursor-pointer"
+            className="w-4 h-4 rounded border-gray-300 bg-white text-orange-500 focus:ring-orange-400 focus:ring-offset-white cursor-pointer"
           />
 
-          <button className="text-gray-500 hover:text-gray-300">
+          <button className="text-gray-400 hover:text-gray-600">
             {isExpanded ? (
               <ChevronDown className="w-5 h-5" />
             ) : (
@@ -149,12 +149,12 @@ export default function ConversationSessionItem({
           <div>
             <div
               className={`text-sm font-medium ${
-                session.is_unread ? 'text-white' : 'text-gray-300'
+                session.is_unread ? 'text-gray-900' : 'text-gray-600'
               }`}
             >
               {formatSessionTime(session.started_at)}
             </div>
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div className="text-xs text-gray-500 mt-0.5">
               {assistantCount} Assistant message{assistantCount !== 1 ? 's' : ''}
               {' \u2022 '}
               {userCount} User message{userCount !== 1 ? 's' : ''}
@@ -171,7 +171,7 @@ export default function ConversationSessionItem({
       </div>
 
       {isExpanded && session.messages && session.messages.length > 0 && (
-        <div className="bg-gray-900/50 px-6 py-3 border-t border-gray-700">
+        <div className="bg-gray-50/80 px-6 py-3 border-t border-gray-200">
           <div className="space-y-3">
             {session.messages.map((message) => (
               <ConversationMessageView key={message.id} message={message} />

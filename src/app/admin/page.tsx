@@ -262,18 +262,18 @@ export default function AdminDashboard(): React.ReactElement {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Reports & Analytics
               </h1>
-              <p className="text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">
-                Embed code and usage analytics
+              <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">
+                Monitor conversations and visitor engagement
               </p>
             </div>
 
@@ -312,16 +312,16 @@ export default function AdminDashboard(): React.ReactElement {
               loading ? '...' : (
                 <div className="flex flex-col items-center leading-tight">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-green-400">
+                    <div className="flex items-center gap-1 text-green-600">
                       <ThumbsUp className="w-4 h-4" />
                       <span>{stats?.positiveRatings || 0}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-red-400">
+                    <div className="flex items-center gap-1 text-red-600">
                       <ThumbsDown className="w-4 h-4" />
                       <span>{stats?.negativeRatings || 0}</span>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-500">
                     {stats?.totalRatings || 0} total
                   </div>
                 </div>

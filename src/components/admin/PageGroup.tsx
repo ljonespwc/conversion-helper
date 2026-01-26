@@ -36,22 +36,22 @@ export default function PageGroup({
   const unreadCount = sessions.filter((s) => s.is_unread).length
 
   return (
-    <div className="border-b border-gray-700 last:border-b-0">
+    <div className="border-b border-gray-200 last:border-b-0">
       <div
-        className="bg-gray-900/80 px-6 py-3 cursor-pointer hover:bg-gray-800/80 transition-colors"
+        className="bg-gray-100 px-6 py-3 cursor-pointer hover:bg-gray-200 transition-colors"
         onClick={onTogglePageGroup}
       >
         <div className="flex items-center gap-2">
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+            <ChevronDown className="w-4 h-4 text-gray-500" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-500" />
           )}
-          <Globe className="w-4 h-4 text-blue-400" />
-          <h3 className="text-sm font-semibold text-white">{pageTitle}</h3>
+          <Globe className="w-4 h-4 text-orange-600" />
+          <h3 className="text-sm font-semibold text-gray-900">{pageTitle}</h3>
           <span className="text-xs text-gray-500">({sessions.length})</span>
           {unreadCount > 0 && (
-            <span className="text-xs text-blue-400 font-medium">
+            <span className="text-xs text-orange-500 font-medium">
               {unreadCount} unread
             </span>
           )}
@@ -62,7 +62,7 @@ export default function PageGroup({
       </div>
 
       {isExpanded && (
-        <div className="divide-y divide-gray-700">
+        <div className="divide-y divide-gray-200">
           {sessions.map((session) => (
             <ConversationSessionItem
               key={session.id}

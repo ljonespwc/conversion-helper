@@ -77,16 +77,16 @@ export default function ConversationsList({
   const sortedGroups = sortGroups(sessionsByPage)
 
   return (
-    <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-700 bg-gray-900 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">Recent Conversations</h2>
+    <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">Recent Conversations</h2>
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleBookmarkedFilter}
             className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
               showBookmarkedOnly
                 ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
             }`}
           >
             <Bookmark
@@ -107,16 +107,16 @@ export default function ConversationsList({
       </div>
 
       {loading ? (
-        <div className="px-6 py-8 text-center text-gray-400">
+        <div className="px-6 py-8 text-center text-gray-500">
           Loading conversations...
         </div>
       ) : sessions.length === 0 ? (
-        <div className="px-6 py-8 text-center text-gray-400">
+        <div className="px-6 py-8 text-center text-gray-500">
           No conversations yet. The assistant will start tracking when users
           interact with it.
         </div>
       ) : sortedGroups.length === 0 && showBookmarkedOnly ? (
-        <div className="px-6 py-8 text-center text-gray-400">
+        <div className="px-6 py-8 text-center text-gray-500">
           No bookmarked conversations. Click the bookmark icon on a conversation
           to save it for later.
         </div>

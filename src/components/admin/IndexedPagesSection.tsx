@@ -14,10 +14,10 @@ interface IndexedPagesSectionProps {
 }
 
 const SYNC_STATUS_STYLES: Record<IndexedPageSyncStatus, { bg: string; text: string; border: string; label: string }> = {
-  synced: { bg: 'bg-green-900/30', text: 'text-green-400', border: 'border-green-700/50', label: 'Synced' },
-  orphaned: { bg: 'bg-orange-900/30', text: 'text-orange-400', border: 'border-orange-700/50', label: 'Orphaned' },
-  missing_from_google: { bg: 'bg-red-900/30', text: 'text-red-400', border: 'border-red-700/50', label: 'Missing' },
-  id_mismatch: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', border: 'border-yellow-700/50', label: 'ID Mismatch' }
+  synced: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: 'Synced' },
+  orphaned: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', label: 'Orphaned' },
+  missing_from_google: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Missing' },
+  id_mismatch: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: 'ID Mismatch' }
 }
 
 export default function IndexedPagesSection({
@@ -82,32 +82,32 @@ export default function IndexedPagesSection({
   }
 
   return (
-    <div className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden mb-8">
-      <div className="p-6 border-b border-gray-700 bg-gray-900">
+    <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden mb-8">
+      <div className="p-6 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex-1 hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+            className="flex-1 hover:bg-gray-100 transition-colors text-left -m-2 p-2 rounded-lg"
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   Current Knowledgebase Documents
                   {!loading && (
-                    <span className="text-sm font-normal text-gray-400">
+                    <span className="text-sm font-normal text-gray-500">
                       ({pages.length} in registry)
                     </span>
                   )}
                 </h2>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   These are all the files the AI Assistant has access to
                 </p>
               </div>
               <div className="flex-shrink-0 ml-4">
                 {isExpanded ? (
-                  <ChevronUp className="w-6 h-6 text-gray-400" />
+                  <ChevronUp className="w-6 h-6 text-gray-500" />
                 ) : (
-                  <ChevronDown className="w-6 h-6 text-gray-400" />
+                  <ChevronDown className="w-6 h-6 text-gray-500" />
                 )}
               </div>
             </div>
@@ -118,14 +118,14 @@ export default function IndexedPagesSection({
           <div className="flex items-center gap-3 mt-4">
             <button
               onClick={handleSelectAll}
-              className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+              className="text-sm text-orange-600 hover:text-orange-500 font-medium"
             >
               {selectedPages.length === pages.length ? 'Deselect All' : 'Select All'}
             </button>
             {selectedPages.length > 0 && (
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-4 py-2 font-medium transition-all shadow-lg flex items-center gap-2 text-sm"
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 font-medium transition-all shadow-lg flex items-center gap-2 text-sm"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Selected ({selectedPages.length})
@@ -138,11 +138,11 @@ export default function IndexedPagesSection({
       {isExpanded && (
         <>
           {loading ? (
-            <div className="px-6 py-12 text-center text-gray-400">
+            <div className="px-6 py-12 text-center text-gray-500">
               Loading indexed documents...
             </div>
           ) : pages.length > 0 ? (
-            <div className="divide-y divide-gray-700">
+            <div className="divide-y divide-gray-200">
               {pages.map((page) => {
                 const isSelected = selectedPages.includes(page.id)
                 const statusStyle = SYNC_STATUS_STYLES[page.sync_status]
@@ -153,8 +153,8 @@ export default function IndexedPagesSection({
                     className={cn(
                       'px-6 py-5 transition-colors',
                       isSelected
-                        ? 'bg-blue-900/20 border-l-4 border-blue-700'
-                        : 'hover:bg-gray-700/50'
+                        ? 'bg-orange-50 border-l-4 border-orange-300'
+                        : 'hover:bg-gray-100'
                     )}
                   >
                     <div className="flex items-start gap-4">
@@ -162,19 +162,19 @@ export default function IndexedPagesSection({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleTogglePage(page.id)}
-                        className="mt-1 w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                        className="mt-1 w-5 h-5 rounded border-gray-300 bg-white text-orange-500 focus:ring-2 focus:ring-orange-400 focus:ring-offset-0 cursor-pointer"
                       />
 
                       <div className="flex-1 min-w-0 flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-orange-500 flex-shrink-0" />
                             <span className="truncate">{page.page_title || 'Untitled'}</span>
                           </h3>
 
                           {page.source_type === 'uploaded' ? (
                             <div className="mb-3">
-                              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-purple-900/30 text-purple-400 border border-purple-700/50">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-purple-50 text-purple-700 border border-purple-200">
                                 <FileText className="w-3 h-3" />
                                 Uploaded File
                               </span>
@@ -184,7 +184,7 @@ export default function IndexedPagesSection({
                               href={page.page_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 mb-3"
+                              className="text-sm text-orange-600 hover:text-orange-500 hover:underline flex items-center gap-1 mb-3"
                             >
                               <span className="truncate">{page.page_url}</span>
                               <ExternalLink className="w-3 h-3 flex-shrink-0" />
@@ -220,7 +220,7 @@ export default function IndexedPagesSection({
                                     {page.page_urls.map((url, idx) => (
                                       <span
                                         key={idx}
-                                        className="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-blue-900/30 text-blue-400 border border-blue-700/50"
+                                        className="inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-blue-50 text-blue-700 border border-blue-200"
                                       >
                                         {widgetPagesMap[url] || getPageDisplayUrl(url)}
                                       </span>
@@ -235,7 +235,7 @@ export default function IndexedPagesSection({
                         <div className="flex-shrink-0">
                           <div className="text-right">
                             <p className="text-xs text-gray-500 mb-1">Document ID</p>
-                            <p className="text-xs font-mono text-gray-400 max-w-[200px] truncate">
+                            <p className="text-xs font-mono text-gray-500 max-w-[200px] truncate">
                               {page.document_id.split('/').pop()}
                             </p>
                           </div>
@@ -248,9 +248,9 @@ export default function IndexedPagesSection({
             </div>
           ) : (
             <div className="px-6 py-16 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-              <h3 className="text-lg font-semibold text-white mb-2">No documents indexed yet</h3>
-              <p className="text-gray-400 text-sm max-w-md mx-auto">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents indexed yet</h3>
+              <p className="text-gray-500 text-sm max-w-md mx-auto">
                 Documents selected from below will appear here.
               </p>
             </div>

@@ -22,7 +22,7 @@ export function Header({ user, loading = false }: HeaderProps) {
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+    <div className="bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}

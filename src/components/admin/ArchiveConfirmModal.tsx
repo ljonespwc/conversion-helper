@@ -17,12 +17,12 @@ export default function ArchiveConfirmModal({
 }: ArchiveConfirmModalProps): React.ReactElement {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-700">
-        <h3 className="text-lg font-bold text-white mb-2">Archive Conversations</h3>
-        <p className="text-gray-300 mb-4">
+      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 border border-gray-200">
+        <h3 className="text-lg font-bold text-gray-900 mb-2">Archive Conversations</h3>
+        <p className="text-gray-600 mb-4">
           Archive {selectedCount} conversation{selectedCount !== 1 ? 's' : ''}?
         </p>
-        <p className="text-sm text-gray-400 mb-6">
+        <p className="text-sm text-gray-500 mb-6">
           This will hide them from the dashboard. Any unresolved escalations will
           be automatically marked as resolved.
         </p>
@@ -30,7 +30,7 @@ export default function ArchiveConfirmModal({
           <button
             onClick={onCancel}
             disabled={isArchiving}
-            className="px-4 py-2 text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>

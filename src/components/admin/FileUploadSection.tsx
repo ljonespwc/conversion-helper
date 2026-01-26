@@ -23,10 +23,10 @@ interface StatusConfig {
 }
 
 const STATUS_BADGES: Record<string, StatusConfig> = {
-  ready: { bg: 'bg-green-900/30', text: 'text-green-400', label: 'Ready to Index', Icon: Check },
-  uploading: { bg: 'bg-blue-900/30', text: 'text-blue-400', label: 'Uploading', Icon: Loader2, animate: true },
-  completed: { bg: 'bg-purple-900/30', text: 'text-purple-400', label: 'Live in AI', Icon: Check },
-  failed: { bg: 'bg-red-900/30', text: 'text-red-400', label: 'Failed', Icon: X },
+  ready: { bg: 'bg-green-50', text: 'text-green-700', label: 'Ready to Index', Icon: Check },
+  uploading: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Uploading', Icon: Loader2, animate: true },
+  completed: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Live in AI', Icon: Check },
+  failed: { bg: 'bg-red-50', text: 'text-red-700', label: 'Failed', Icon: X },
 }
 
 function StatusBadge({ status }: { status: string }): JSX.Element | null {
@@ -154,30 +154,30 @@ export default function FileUploadSection({
   }
 
   return (
-    <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
+      <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+          className="w-full hover:bg-gray-100 transition-colors text-left -m-2 p-2 rounded-lg"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                 Uploaded Docs
-                <span className="text-sm font-normal text-gray-400">
+                <span className="text-sm font-normal text-gray-500">
                   ({uploads.length})
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">
                 Upload text or markdown files for the Assistant to use later
               </p>
             </div>
             <div className="flex-shrink-0 ml-4">
               {isExpanded ? (
-                <ChevronUp className="w-6 h-6 text-gray-400" />
+                <ChevronUp className="w-6 h-6 text-gray-500" />
               ) : (
-                <ChevronDown className="w-6 h-6 text-gray-400" />
+                <ChevronDown className="w-6 h-6 text-gray-500" />
               )}
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function FileUploadSection({
       {isExpanded && (
         <>
           {/* Upload Zone */}
-          <div className="p-4 sm:p-6 border-b border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200">
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -195,8 +195,8 @@ export default function FileUploadSection({
               className={cn(
                 'relative border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-colors',
                 isDragging
-                  ? 'border-blue-400 bg-blue-900/20'
-                  : 'border-gray-600 hover:border-gray-500'
+                  ? 'border-orange-400 bg-orange-50'
+                  : 'border-gray-300 hover:border-gray-400'
               )}
             >
               <input
@@ -210,9 +210,9 @@ export default function FileUploadSection({
               />
 
               <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
                   {uploading ? (
-                    <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
                   ) : (
                     <Upload className="w-8 h-8 text-gray-400" />
                   )}
@@ -222,11 +222,11 @@ export default function FileUploadSection({
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-semibold transition-colors"
+                    className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-lg font-semibold transition-colors"
                   >
                     {uploading ? 'Uploading...' : 'Select Files'}
                   </button>
-                  <p className="text-sm text-gray-400 mt-3">
+                  <p className="text-sm text-gray-500 mt-3">
                     or drag and drop files here
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -243,7 +243,7 @@ export default function FileUploadSection({
                   type="button"
                   onClick={() => setIsDeleteModalOpen(true)}
                   disabled={uploading || isDeleting}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-5 h-5" />
                   Delete Selected ({selectedUploads.length})
@@ -256,13 +256,13 @@ export default function FileUploadSection({
           {uploads.length > 0 && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
                   Uploaded Files ({uploads.length})
                 </h3>
                 {readyUploads.length > 0 && (
                   <button
                     onClick={handleSelectAll}
-                    className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+                    className="text-sm text-orange-600 hover:text-orange-500 font-medium"
                   >
                     {allSelected ? 'Deselect All' : 'Select All Ready'}
                   </button>
@@ -280,8 +280,8 @@ export default function FileUploadSection({
                       className={cn(
                         'flex items-center gap-4 p-4 rounded-xl border transition-colors',
                         isSelected
-                          ? 'bg-blue-900/20 border-blue-700'
-                          : 'bg-gray-900/50 border-gray-700 hover:border-gray-600'
+                          ? 'bg-orange-50 border-orange-300'
+                          : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                       )}
                     >
                       {isReady && (
@@ -289,18 +289,18 @@ export default function FileUploadSection({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggle(upload.id)}
-                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                          className="w-5 h-5 rounded border-gray-300 bg-white text-orange-500 focus:ring-2 focus:ring-orange-400 focus:ring-offset-0 cursor-pointer"
                         />
                       )}
 
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-lg bg-purple-900/30 border border-purple-700/50 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-purple-400" />
+                        <div className="w-10 h-10 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-purple-700" />
                         </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-white truncate">
+                        <h4 className="text-sm font-semibold text-gray-900 truncate">
                           {upload.filename}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">

@@ -104,19 +104,19 @@ export default function FileSearchUpload({
   }
 
   return (
-    <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 p-4 sm:p-6">
-      <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Upload to the Knowledgebase</h2>
-      <p className="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base">
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 p-4 sm:p-6">
+      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Upload to the Knowledgebase</h2>
+      <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
         Select pages where this content should be made accessible to the AI Assistant
       </p>
 
       {/* Page Selection */}
       {!loadingPages && widgetPages.length > 0 && totalSelected > 0 && (
-        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-900 rounded-lg border border-gray-700">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <button
               onClick={handleSelectAllPages}
-              className="text-xs text-blue-400 hover:text-blue-300 font-medium ml-auto"
+              className="text-xs text-orange-600 hover:text-orange-500 font-medium ml-auto"
             >
               {selectedPageUrls.length === widgetPages.length ? 'Deselect All' : 'Select All'}
             </button>
@@ -125,17 +125,17 @@ export default function FileSearchUpload({
             {widgetPages.map((page) => (
               <label
                 key={page.id}
-                className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg hover:bg-gray-750 cursor-pointer transition-colors"
+                className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
               >
                 <input
                   type="checkbox"
                   checked={selectedPageUrls.includes(page.page_url)}
                   onChange={() => handleTogglePage(page.page_url)}
-                  className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
+                  className="w-4 h-4 rounded border-gray-300 bg-white text-orange-500 focus:ring-2 focus:ring-orange-400 focus:ring-offset-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white">{page.page_title}</p>
-                  <p className="text-xs text-gray-400 truncate">{page.page_url}</p>
+                  <p className="text-sm font-medium text-gray-900">{page.page_title}</p>
+                  <p className="text-xs text-gray-500 truncate">{page.page_url}</p>
                 </div>
               </label>
             ))}
@@ -144,22 +144,22 @@ export default function FileSearchUpload({
       )}
 
       {loadingPages && totalSelected > 0 && (
-        <div className="mb-6 p-4 bg-gray-900 rounded-lg border border-gray-700 text-center">
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
           <Loader2 className="w-5 h-5 animate-spin mx-auto text-gray-400" />
-          <p className="text-sm text-gray-400 mt-2">Loading pages...</p>
+          <p className="text-sm text-gray-500 mt-2">Loading pages...</p>
         </div>
       )}
 
       {!loadingPages && widgetPages.length === 0 && totalSelected > 0 && (
-        <div className="mb-6 p-4 bg-orange-900/30 border border-orange-700 rounded-lg">
-          <p className="text-sm text-orange-400">
+        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <p className="text-sm text-orange-700">
             No pages configured yet. Please add pages in the <a href="/admin/pages" className="underline">Pages</a> section first.
           </p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700 text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
           {error}
         </div>
       )}
@@ -168,7 +168,7 @@ export default function FileSearchUpload({
         <>
           {/* All items succeeded */}
           {stats.failed === 0 && (
-            <div className="bg-green-900/30 border border-green-700 text-green-400 px-4 py-3 rounded-lg text-sm mb-4">
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <Check className="w-5 h-5" />
                 <span className="font-medium">Upload Complete!</span>
@@ -182,7 +182,7 @@ export default function FileSearchUpload({
 
           {/* All items failed */}
           {stats.successful === 0 && stats.failed > 0 && (
-            <div className="bg-red-900/30 border border-red-700 text-red-400 px-4 py-3 rounded-lg text-sm mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <X className="w-5 h-5" />
                 <span className="font-medium">Upload Failed</span>
@@ -197,7 +197,7 @@ export default function FileSearchUpload({
 
           {/* Partial success */}
           {stats.successful > 0 && stats.failed > 0 && (
-            <div className="bg-orange-900/30 border border-orange-700 text-orange-400 px-4 py-3 rounded-lg text-sm mb-4">
+            <div className="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded-lg text-sm mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-5 h-5" />
                 <span className="font-medium">Upload Completed with Errors</span>
@@ -216,7 +216,7 @@ export default function FileSearchUpload({
         <button
           onClick={handleUpload}
           disabled={uploading || totalSelected === 0}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <>
@@ -232,7 +232,7 @@ export default function FileSearchUpload({
         </button>
 
         {totalSelected === 0 && (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-500">
             To activate, select scraped pages or uploaded docs below
           </p>
         )}

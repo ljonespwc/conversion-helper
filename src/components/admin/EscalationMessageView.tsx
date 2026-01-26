@@ -15,9 +15,9 @@ export default function EscalationMessageView({
   const isFlagged = message.needs_followup
 
   function getBackgroundClass(): string {
-    if (isFlagged) return 'bg-red-900/20 border border-red-700/50'
-    if (isUser) return 'bg-blue-900/20'
-    return 'bg-purple-900/20'
+    if (isFlagged) return 'bg-red-50 border border-red-200'
+    if (isUser) return 'bg-blue-50'
+    return 'bg-purple-50'
   }
 
   return (
@@ -25,7 +25,7 @@ export default function EscalationMessageView({
       <div className="flex items-start justify-between mb-2">
         <span
           className={`text-xs font-semibold uppercase ${
-            isUser ? 'text-blue-400' : 'text-purple-400'
+            isUser ? 'text-blue-700' : 'text-purple-700'
           }`}
         >
           {message.role}
@@ -36,7 +36,7 @@ export default function EscalationMessageView({
           </span>
         )}
       </div>
-      <div className="text-white text-sm">
+      <div className="text-gray-700 text-sm">
         {isUser ? (
           message.message
         ) : (
@@ -46,12 +46,12 @@ export default function EscalationMessageView({
                 <p className="mb-2 last:mb-0">{children}</p>
               ),
               strong: ({ children }) => (
-                <strong className="font-semibold text-purple-300">
+                <strong className="font-semibold text-orange-700">
                   {children}
                 </strong>
               ),
               em: ({ children }) => (
-                <em className="italic text-gray-300">{children}</em>
+                <em className="italic text-gray-600">{children}</em>
               ),
               ul: ({ children }) => (
                 <ul className="list-disc list-inside mb-2 space-y-1">
@@ -65,7 +65,7 @@ export default function EscalationMessageView({
               ),
               li: ({ children }) => <li>{children}</li>,
               code: ({ children }) => (
-                <code className="bg-gray-700 px-1.5 py-0.5 rounded text-purple-300 text-xs">
+                <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-700 text-xs">
                   {children}
                 </code>
               ),
@@ -76,7 +76,7 @@ export default function EscalationMessageView({
         )}
       </div>
       {isFlagged && message.followup_reason && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-red-400">
+        <div className="mt-2 flex items-center gap-2 text-xs text-red-600">
           <AlertCircle className="w-3 h-3" />
           <span>{message.followup_reason}</span>
         </div>

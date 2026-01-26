@@ -129,16 +129,16 @@ export default function EscalationsPage(): React.ReactElement {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Header user={user} />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Email Escalations
           </h1>
-          <p className="mt-2 text-gray-400">
-            Manage customer escalations and unanswered questions
+          <p className="mt-2 text-gray-500">
+            Review customer escalations and flagged AI responses
           </p>
         </div>
 
@@ -151,33 +151,33 @@ export default function EscalationsPage(): React.ReactElement {
             />
             <StatsCard
               title="Unresolved"
-              value={<span className="text-red-400">{stats.unresolved}</span>}
-              icon={<AlertCircle className="w-6 h-6 text-red-400" />}
+              value={<span className="text-red-600">{stats.unresolved}</span>}
+              icon={<AlertCircle className="w-6 h-6 text-red-600" />}
             />
             <StatsCard
               title="Resolved"
-              value={<span className="text-green-400">{stats.resolved}</span>}
-              icon={<CheckCircle2 className="w-6 h-6 text-green-400" />}
+              value={<span className="text-green-600">{stats.resolved}</span>}
+              icon={<CheckCircle2 className="w-6 h-6 text-green-600" />}
             />
             <StatsCard
               title="Flagged Messages"
-              value={<span className="text-orange-400">{stats.total_flagged_messages}</span>}
-              icon={<AlertCircle className="w-6 h-6 text-orange-400" />}
+              value={<span className="text-orange-600">{stats.total_flagged_messages}</span>}
+              icon={<AlertCircle className="w-6 h-6 text-orange-600" />}
             />
           </div>
         )}
 
-        <div className="mt-8 bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-xl">
+        <div className="mt-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-400" />
-              <span className="text-gray-400 font-medium">Filters:</span>
+              <Filter className="w-5 h-5 text-gray-500" />
+              <span className="text-gray-500 font-medium">Filters:</span>
             </div>
 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               <option value="all">All Status</option>
               <option value="unresolved">Unresolved Only</option>
@@ -185,11 +185,11 @@ export default function EscalationsPage(): React.ReactElement {
             </select>
 
             <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-5 h-5 text-gray-400" />
+              <ArrowUpDown className="w-5 h-5 text-gray-500" />
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-                className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -201,7 +201,7 @@ export default function EscalationsPage(): React.ReactElement {
               <select
                 value={pageUrlFilter}
                 onChange={(e) => setPageUrlFilter(e.target.value)}
-                className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
               >
                 <option value="">All Pages</option>
                 {availablePages.map((page) => (
@@ -214,9 +214,9 @@ export default function EscalationsPage(): React.ReactElement {
           </div>
         </div>
 
-        <div className="mt-8 bg-gray-800 border border-gray-700 rounded-3xl shadow-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-700 bg-gray-900">
-            <h2 className="text-xl font-bold text-white">
+        <div className="mt-8 bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-xl font-bold text-gray-900">
               {loading
                 ? 'Loading...'
                 : `${escalations.length} Escalation${escalations.length !== 1 ? 's' : ''}`}
@@ -224,17 +224,17 @@ export default function EscalationsPage(): React.ReactElement {
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-gray-400">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+            <div className="p-12 text-center text-gray-500">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
               <p className="mt-4">Loading escalations...</p>
             </div>
           ) : escalations.length === 0 ? (
-            <div className="p-12 text-center text-gray-400">
+            <div className="p-12 text-center text-gray-500">
               <Mail className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <p>No escalations found</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-700">
+            <div className="divide-y divide-gray-200">
               {escalations.map((escalation) => (
                 <EscalationSessionItem
                   key={escalation.session_id}

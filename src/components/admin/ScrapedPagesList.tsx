@@ -33,25 +33,25 @@ function getStatusBadge(job: ScrapingJob): StatusBadgeConfig | null {
   const { scraping_status, indexing_status } = job
 
   if (scraping_status === 'pending') {
-    return { label: 'Pending', bgClass: 'bg-gray-700', textClass: 'text-gray-400' }
+    return { label: 'Pending', bgClass: 'bg-gray-100', textClass: 'text-gray-500' }
   }
   if (scraping_status === 'scraping') {
-    return { label: 'Scraping', bgClass: 'bg-blue-900/30', textClass: 'text-blue-400', icon: 'loader' }
+    return { label: 'Scraping', bgClass: 'bg-blue-50', textClass: 'text-blue-700', icon: 'loader' }
   }
   if (scraping_status === 'failed') {
-    return { label: 'Scrape Failed', bgClass: 'bg-red-900/30', textClass: 'text-red-400', icon: 'x' }
+    return { label: 'Scrape Failed', bgClass: 'bg-red-50', textClass: 'text-red-700', icon: 'x' }
   }
 
   if (scraping_status === 'scraped') {
     switch (indexing_status) {
       case 'not_indexed':
-        return { label: 'Ready to Index', bgClass: 'bg-green-900/30', textClass: 'text-green-400', icon: 'check' }
+        return { label: 'Ready to Index', bgClass: 'bg-green-50', textClass: 'text-green-700', icon: 'check' }
       case 'uploading':
-        return { label: 'Uploading', bgClass: 'bg-blue-900/30', textClass: 'text-blue-400', icon: 'loader' }
+        return { label: 'Uploading', bgClass: 'bg-blue-50', textClass: 'text-blue-700', icon: 'loader' }
       case 'indexed':
-        return { label: 'Live in AI', bgClass: 'bg-purple-900/30', textClass: 'text-purple-400', icon: 'check' }
+        return { label: 'Live in AI', bgClass: 'bg-purple-50', textClass: 'text-purple-700', icon: 'check' }
       case 'failed':
-        return { label: 'Upload Failed', bgClass: 'bg-orange-900/30', textClass: 'text-orange-400', icon: 'x' }
+        return { label: 'Upload Failed', bgClass: 'bg-orange-50', textClass: 'text-orange-700', icon: 'x' }
     }
   }
 
@@ -170,27 +170,27 @@ export default function ScrapedPagesList({
   }
 
   return (
-    <div className="bg-gray-800 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
-      <div className="p-4 sm:p-6 border-b border-gray-700 bg-gray-900">
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full hover:bg-gray-800/50 transition-colors text-left -m-2 p-2 rounded-lg"
+          className="w-full hover:bg-gray-100 transition-colors text-left -m-2 p-2 rounded-lg"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                 Scraped Pages
-                <span className="text-sm font-normal text-gray-400">
+                <span className="text-sm font-normal text-gray-500">
                   ({jobs.length})
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">Enter a URL to scrape for the Assistant to use later</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">Enter a URL to scrape for the Assistant to use later</p>
             </div>
             <div className="flex-shrink-0 ml-4">
               {isExpanded ? (
-                <ChevronUp className="w-6 h-6 text-gray-400" />
+                <ChevronUp className="w-6 h-6 text-gray-500" />
               ) : (
-                <ChevronDown className="w-6 h-6 text-gray-400" />
+                <ChevronDown className="w-6 h-6 text-gray-500" />
               )}
             </div>
           </div>
@@ -199,10 +199,10 @@ export default function ScrapedPagesList({
 
       {isExpanded && (
         <>
-          <div className="p-4 sm:p-6 border-b border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="url" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="url" className="block text-sm font-medium text-gray-600 mb-2">
                   Page URL
                 </label>
                 <input
@@ -211,13 +211,13 @@ export default function ScrapedPagesList({
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/page"
-                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent placeholder-gray-400 text-sm sm:text-base"
                   disabled={loading}
                 />
               </div>
 
               {error && (
-                <div className="bg-red-900/30 border border-red-700 text-red-400 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm">
                   {error}
                 </div>
               )}
@@ -226,7 +226,7 @@ export default function ScrapedPagesList({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  className="bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                   {loading ? 'Scraping...' : 'Scrape Page'}
@@ -237,7 +237,7 @@ export default function ScrapedPagesList({
                     type="button"
                     onClick={() => setIsDeleteModalOpen(true)}
                     disabled={loading}
-                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Delete Selected ({selectedJobs.length})</span>
@@ -250,13 +250,13 @@ export default function ScrapedPagesList({
           {jobs.length > 0 && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
                   Scraped Pages ({jobs.length})
                 </h3>
                 {readyJobs.length > 0 && (
                   <button
                     onClick={handleSelectAll}
-                    className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+                    className="text-sm text-orange-600 hover:text-orange-500 font-medium"
                   >
                     {allSelected ? 'Deselect All' : 'Select All Ready'}
                   </button>
@@ -276,8 +276,8 @@ export default function ScrapedPagesList({
                       className={cn(
                         'flex items-center gap-4 p-4 rounded-xl border transition-colors',
                         isSelected
-                          ? 'bg-blue-900/20 border-blue-700'
-                          : 'bg-gray-900/50 border-gray-700 hover:border-gray-600'
+                          ? 'bg-orange-50 border-orange-300'
+                          : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                       )}
                     >
                       {isReady && (
@@ -285,18 +285,18 @@ export default function ScrapedPagesList({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggle(job.id)}
-                          className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                          className="w-5 h-5 rounded border-gray-300 bg-white text-orange-500 focus:ring-2 focus:ring-orange-400 focus:ring-offset-0 cursor-pointer"
                         />
                       )}
 
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-lg bg-purple-900/30 border border-purple-700/50 flex items-center justify-center">
-                          <Globe className="w-5 h-5 text-purple-400" />
+                        <div className="w-10 h-10 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center">
+                          <Globe className="w-5 h-5 text-purple-700" />
                         </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-white truncate">
+                        <h4 className="text-sm font-semibold text-gray-900 truncate">
                           {displayUrl}
                         </h4>
                         <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
@@ -319,7 +319,7 @@ export default function ScrapedPagesList({
                           {job.error_message && (
                             <>
                               <span>•</span>
-                              <span className="text-red-400">{job.error_message}</span>
+                              <span className="text-red-600">{job.error_message}</span>
                             </>
                           )}
                         </div>
@@ -337,9 +337,9 @@ export default function ScrapedPagesList({
 
           {jobs.length === 0 && (
             <div className="px-6 py-16 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-              <h3 className="text-lg font-semibold text-white mb-2">No pages scraped yet</h3>
-              <p className="text-gray-400 text-sm max-w-md mx-auto">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No pages scraped yet</h3>
+              <p className="text-gray-500 text-sm max-w-md mx-auto">
                 Enter a URL above to scrape a page and convert it to markdown
               </p>
             </div>
