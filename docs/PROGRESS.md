@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-01-23
+**Last Updated**: 2026-01-26
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -505,6 +505,16 @@ buying_signal boolean
 - Classification adds ~200-400ms to response time
 - Follow-up questions come from actual content, not templates
 - `buying_signal: true` triggers more direct response style
+
+---
+
+## ✅ SPA Navigation Pill Flicker Fix (2026-01-26)
+
+Widget pill no longer disappears/reappears during SPA navigation (e.g., PN online course pages using wildcards or group_id). Previously, `widget.js` hid the iframe and reloaded `iframe.src` on every URL change, causing a ~500-1000ms gap. Now it sends a `postMessage('easyask:urlchange')` to the existing iframe — React stays mounted, pill stays visible, config re-checks in the background.
+
+**Files modified**: `public/widget.js`, `src/app/widget/page.tsx`, `src/components/widget/VoiceWidget.tsx`
+
+**Still needed for full-page navigation (non-SPA)**: The iframe still loads fresh on hard navigations. To eliminate the pill entrance animation on every page load, we'd need to persist widget state (e.g., via `localStorage` or a cookie flag) so `widget.js` can show the iframe immediately instead of waiting for the API round-trip.
 
 ---
 
