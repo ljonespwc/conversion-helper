@@ -173,17 +173,14 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid var(--landing-color-border);
+  background: linear-gradient(to right, rgb(251, 113, 133), rgb(251, 146, 60), rgb(251, 191, 36));
   transition: all 0.2s ease;
 }
 
 .landing-nav.scrolled {
-  background: rgba(255, 255, 255, 0.95);
   box-shadow:
-    0 1px 3px rgba(var(--landing-rgb-black), 0.08),
-    0 2px 8px rgba(var(--landing-rgb-black), 0.06);
+    0 2px 8px rgba(var(--landing-rgb-black), 0.12),
+    0 1px 3px rgba(var(--landing-rgb-black), 0.08);
 }
 
 .landing-nav-container {
@@ -203,13 +200,14 @@
   font-size: var(--landing-font-size-large);
   font-weight: 700;
   letter-spacing: var(--landing-letter-spacing-tight);
-  color: var(--landing-color-text-primary);
+  color: rgb(255, 255, 255);
   text-decoration: none;
-  transition: color var(--landing-transition);
+  transition: opacity var(--landing-transition);
 }
 
 .landing-logo-text:hover {
-  color: var(--landing-color-blue-text);
+  opacity: 0.85;
+  color: rgb(255, 255, 255);
 }
 
 .landing-logo-img {
@@ -226,7 +224,7 @@
 .landing-nav-desktop {
   display: none;
   align-items: center;
-  gap: var(--landing-space-small);
+  gap: 0.5em;
 }
 
 @media (min-width: 64em) {
@@ -236,41 +234,25 @@
 }
 
 .landing-nav-link {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 0.3em;
   padding: 0.5em 0.8em;
   font-size: var(--landing-font-size-xxx-small);
-  font-weight: 600;
-  color: var(--landing-color-text-secondary);
+  font-weight: 500;
+  color: rgb(255, 255, 255);
   text-decoration: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: var(--landing-border-radius);
+  border-radius: 0.75em;
   cursor: pointer;
-  transition: all var(--landing-transition);
-}
-
-.landing-nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 0.8em;
-  right: 0.8em;
-  height: 2px;
-  background: var(--landing-color-green-bright);
-  width: 0;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
 }
 
 .landing-nav-link:hover {
-  background: rgba(var(--landing-rgb-black), 0.04);
-  color: var(--landing-color-text-primary);
-}
-
-.landing-nav-link:hover::after {
-  width: calc(100% - 1.6em);
+  background: rgba(255, 255, 255, 0.3);
+  color: rgb(255, 255, 255);
 }
 
 .landing-nav-cta {
@@ -278,19 +260,18 @@
   font-size: var(--landing-font-size-xxx-small);
   font-weight: 500;
   color: rgb(255, 255, 255);
-  background: linear-gradient(135deg, var(--landing-color-cta-from), var(--landing-color-cta-to));
+  background: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: var(--landing-border-radius);
+  border-radius: 0.75em;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-blue), 0.2);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
 }
 
 .landing-nav-cta:hover {
-  background: linear-gradient(135deg, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
+  background: rgba(255, 255, 255, 0.3);
   color: rgb(255, 255, 255);
-  box-shadow: 0 4px 16px rgba(var(--landing-rgb-blue), 0.3);
 }
 
 .landing-nav-user {
@@ -299,10 +280,11 @@
   gap: 0.4em;
   padding: 0.5em 0.8em;
   font-size: var(--landing-font-size-xxx-small);
-  color: var(--landing-color-text-primary);
-  background: var(--landing-color-card);
-  border: 1px solid var(--landing-color-border);
-  border-radius: var(--landing-border-radius);
+  color: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 0.75em;
+  backdrop-filter: blur(4px);
 }
 
 .landing-nav-email {
@@ -330,24 +312,25 @@
   gap: 0.4em;
   padding: 0.5em 0.8em;
   font-size: var(--landing-font-size-xxx-small);
-  font-weight: 600;
-  color: var(--landing-color-text-primary);
-  background: var(--landing-color-card);
-  border: 1px solid var(--landing-color-border);
-  border-radius: var(--landing-border-radius);
+  font-weight: 500;
+  color: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 0.75em;
   cursor: pointer;
   text-decoration: none;
-  transition: all var(--landing-transition);
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
 }
 
 .landing-nav-hamburger:hover,
 .landing-nav-login:hover {
-  background: var(--landing-color-card-hover);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .landing-nav-mobile-menu {
-  border-top: 1px solid var(--landing-color-border);
-  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(to right, rgb(251, 113, 133), rgb(251, 146, 60), rgb(251, 191, 36));
 }
 
 .landing-nav-mobile-menu-content {
@@ -365,18 +348,19 @@
   gap: 0.4em;
   padding: 0.8em;
   font-size: var(--landing-font-size-xxx-small);
-  font-weight: 600;
-  color: var(--landing-color-text-primary);
-  background: var(--landing-color-card);
-  border: 1px solid var(--landing-color-border);
-  border-radius: var(--landing-border-radius);
+  font-weight: 500;
+  color: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 0.75em;
   cursor: pointer;
   text-decoration: none;
-  transition: all var(--landing-transition);
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
 }
 
 .landing-nav-mobile-link:hover {
-  background: var(--landing-color-card-hover);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .landing-nav-mobile-user {
@@ -385,10 +369,11 @@
   gap: 0.4em;
   padding: 0.8em;
   font-size: var(--landing-font-size-xxx-small);
-  color: var(--landing-color-text-primary);
-  background: var(--landing-color-card);
-  border: 1px solid var(--landing-color-border);
-  border-radius: var(--landing-border-radius);
+  color: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 0.75em;
+  backdrop-filter: blur(4px);
 }
 
 /* =================================

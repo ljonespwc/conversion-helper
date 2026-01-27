@@ -36,7 +36,7 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
     >
       {/* Gradient Background */}
       <div
-        className="absolute inset-0 bg-orange-500"
+        className="absolute inset-0 bg-gradient-to-br from-rose-500 via-orange-500 to-amber-500"
         style={{ borderRadius: '30px' }}
       />
 
@@ -59,15 +59,15 @@ export default function WidgetButton({ onClick, position = 'bottom-right', line1
       <div className="relative flex items-center justify-center h-full px-4 gap-2">
         {/* Message Icon */}
         <div className="flex-shrink-0">
-          <MessageCircle className="w-6 h-6 text-orange-900" />
+          <MessageCircle className="w-6 h-6 text-gray-900" />
         </div>
 
         {/* Text Content */}
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap gap-1">
-          <span className="text-sm font-semibold text-orange-900 leading-tight text-left">
+          <span className="text-sm font-semibold text-gray-900 leading-tight text-left">
             {line1 || DEFAULT_LINE1}
           </span>
-          <span className="text-[10px] sm:text-xs text-orange-900/80 leading-tight text-left">
+          <span className="text-[10px] sm:text-xs text-gray-800 leading-tight text-left">
             {line2 || DEFAULT_LINE2}
           </span>
         </div>

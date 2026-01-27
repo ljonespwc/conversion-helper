@@ -101,15 +101,15 @@ export default function WidgetButtonDemo() {
         <div className="relative flex items-center justify-center h-full px-4 gap-2">
           {/* Sparkle Icon */}
           <div className="flex-shrink-0">
-            <Sparkles className="w-6 h-6 text-white" />
+            <Sparkles className="w-6 h-6 text-gray-900" />
           </div>
 
           {/* Text Content */}
           <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
-            <span className="text-sm font-semibold text-white leading-tight">
+            <span className="text-sm font-semibold text-gray-900 leading-tight">
               Don't feel like reading? Just ask!
             </span>
-            <span className="text-xs text-orange-100 leading-tight">
+            <span className="text-xs text-gray-800 leading-tight">
               💬 Instant answers • Always helpful
             </span>
           </div>
