@@ -43,7 +43,7 @@ export default function WidgetButtonDemo() {
       >
         {/* Gradient Background */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600"
+          className="absolute inset-0 bg-gradient-to-br from-rose-500 via-orange-500 to-amber-500"
           style={{ borderRadius: '30px' }}
         />
 
@@ -109,7 +109,7 @@ export default function WidgetButtonDemo() {
             <span className="text-sm font-semibold text-white leading-tight">
               Don't feel like reading? Just ask!
             </span>
-            <span className="text-xs text-blue-100 leading-tight">
+            <span className="text-xs text-orange-100 leading-tight">
               💬 Instant answers • Always helpful
             </span>
           </div>

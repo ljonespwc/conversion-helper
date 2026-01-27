@@ -282,7 +282,7 @@ export default async function Home(): Promise<JSX.Element> {
                   Don't make visitors scroll. Give them instant, 100% accurate answers—at the perfect moment—and get the <RotatingWord />
                 </h2>
                 <div className="landing-cta-wrapper">
-                  <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
+                  <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
                     Get Early Access &rarr;
                   </EarlyAccessButton>
                 </div>
@@ -531,7 +531,7 @@ export default async function Home(): Promise<JSX.Element> {
             </p>
 
             <div className="landing-final-cta-button-wrapper">
-              <EarlyAccessButton className="landing-button-green landing-button-large landing-button-pulse">
+              <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
                 Get Early Access &rarr;
               </EarlyAccessButton>
             </div>

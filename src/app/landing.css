@@ -1,63 +1,63 @@
 /* =================================
-   LANDING PAGE - DARK MODE
-   Separate from app, using app's dark theme colors
+   LANDING PAGE - LIGHT MODE
+   Sunrise Warm palette with rose/orange accents
    ================================= */
 
-/* CSS Variables - Dark Mode Design System */
+/* CSS Variables - Light Mode Design System */
 :root {
-  /* Dark Mode Colors - Based on App Theme */
-  --landing-color-background: linear-gradient(to bottom right, rgb(15, 23, 42), rgb(17, 24, 39), rgb(30, 41, 59));
-  --landing-color-text-primary: rgb(255, 255, 255);
-  --landing-color-text-secondary: rgb(156, 163, 175); /* gray-400 */
-  --landing-color-text-muted: rgb(107, 114, 128); /* gray-500 */
+  /* Light Mode Colors - Sunrise Warm */
+  --landing-color-background: linear-gradient(to bottom right, rgb(249, 250, 251), rgb(255, 255, 255), rgb(243, 244, 246));
+  --landing-color-text-primary: rgb(17, 24, 39); /* gray-900 */
+  --landing-color-text-secondary: rgb(75, 85, 99); /* gray-600 */
+  --landing-color-text-muted: rgb(156, 163, 175); /* gray-400 */
 
   /* Card & Surface Colors */
-  --landing-color-card: rgb(31, 41, 55); /* gray-800 */
-  --landing-color-card-hover: rgb(55, 65, 81); /* gray-700 */
-  --landing-color-paper: rgb(17, 24, 39); /* gray-900 - slightly lighter than background */
+  --landing-color-card: rgb(255, 255, 255); /* white */
+  --landing-color-card-hover: rgb(249, 250, 251); /* gray-50 */
+  --landing-color-paper: rgb(249, 250, 251); /* gray-50 */
 
   /* Border Colors */
-  --landing-color-border: rgb(55, 65, 81); /* gray-700 */
-  --landing-color-border-light: rgb(75, 85, 99); /* gray-600 */
+  --landing-color-border: rgb(229, 231, 235); /* gray-200 */
+  --landing-color-border-light: rgb(209, 213, 219); /* gray-300 */
 
-  /* Accent Colors - Blue-Purple Gradient for CTAs */
-  --landing-color-cta-from: rgb(37, 99, 235); /* blue-600 */
-  --landing-color-cta-to: rgb(147, 51, 234); /* purple-600 */
-  --landing-color-cta-hover-from: rgb(29, 78, 216); /* blue-700 */
-  --landing-color-cta-hover-to: rgb(126, 34, 206); /* purple-700 */
+  /* Accent Colors - Rose-Orange Gradient for CTAs */
+  --landing-color-cta-from: rgb(244, 63, 94); /* rose-500 */
+  --landing-color-cta-to: rgb(249, 115, 22); /* orange-500 */
+  --landing-color-cta-hover-from: rgb(225, 29, 72); /* rose-600 */
+  --landing-color-cta-hover-to: rgb(234, 88, 12); /* orange-600 */
 
-  /* Tag/Badge Colors with Transparency */
-  --landing-color-purple-bg: rgba(88, 28, 135, 0.4); /* purple-900/40 */
-  --landing-color-purple-text: rgb(243, 232, 255); /* purple-100 - brighter for better contrast */
-  --landing-color-purple-border: rgb(126, 34, 206); /* purple-700 */
+  /* Tag/Badge Colors - Warm Solids */
+  --landing-color-purple-bg: rgb(255, 237, 213); /* orange-100 */
+  --landing-color-purple-text: rgb(154, 52, 18); /* orange-800 */
+  --landing-color-purple-border: rgb(251, 146, 60); /* orange-400 */
 
-  --landing-color-blue-bg: rgba(30, 58, 138, 0.4); /* blue-900/40 */
-  --landing-color-blue-text: rgb(147, 197, 253); /* blue-300 */
-  --landing-color-blue-border: rgb(29, 78, 216); /* blue-700 */
+  --landing-color-blue-bg: rgb(255, 241, 242); /* rose-50 */
+  --landing-color-blue-text: rgb(234, 88, 12); /* orange-600 */
+  --landing-color-blue-border: rgb(251, 146, 60); /* orange-400 */
 
-  --landing-color-green-bg: rgba(20, 83, 45, 0.4); /* green-900/40 */
-  --landing-color-green-text: rgb(134, 239, 172); /* green-300 */
-  --landing-color-green-border: rgb(21, 128, 61); /* green-700 */
-  --landing-color-green-bright: rgb(34, 197, 94); /* green-500 - for accents */
+  --landing-color-green-bg: rgba(255, 237, 213, 0.8); /* orange-100/80 */
+  --landing-color-green-text: rgb(234, 88, 12); /* orange-600 */
+  --landing-color-green-border: rgb(249, 115, 22); /* orange-500 */
+  --landing-color-green-bright: rgb(249, 115, 22); /* orange-500 - for accents */
 
-  --landing-color-red-bg: rgba(127, 29, 29, 0.3); /* red-900/30 */
-  --landing-color-red-text: rgb(248, 113, 113); /* red-400 */
-  --landing-color-red-border: rgb(185, 28, 28); /* red-700 */
+  --landing-color-red-bg: rgb(254, 226, 226); /* red-100 */
+  --landing-color-red-text: rgb(220, 38, 38); /* red-600 */
+  --landing-color-red-border: rgb(239, 68, 68); /* red-500 */
 
-  --landing-color-orange-text: rgb(251, 146, 60); /* orange-400 */
+  --landing-color-orange-text: rgb(234, 88, 12); /* orange-600 */
 
   /* RGB for opacity control */
   --landing-rgb-white: 255, 255, 255;
   --landing-rgb-black: 0, 0, 0;
-  --landing-rgb-blue: 37, 99, 235;
-  --landing-rgb-purple: 147, 51, 234;
-  --landing-rgb-green: 34, 197, 94;
-  --landing-rgb-orange: 251, 146, 60;
+  --landing-rgb-blue: 244, 63, 94; /* rose-500 */
+  --landing-rgb-purple: 249, 115, 22; /* orange-500 */
+  --landing-rgb-green: 249, 115, 22; /* orange-500 */
+  --landing-rgb-orange: 234, 88, 12; /* orange-600 */
 
-  /* Section Background Tints (subtle color overlays) */
-  --landing-color-blue-tint: rgba(59, 130, 246, 0.05);
-  --landing-color-purple-tint: rgba(147, 51, 234, 0.05);
-  --landing-color-green-tint: rgba(34, 197, 94, 0.05);
+  /* Section Background Tints (subtle warm overlays) */
+  --landing-color-blue-tint: rgba(249, 115, 22, 0.04);
+  --landing-color-purple-tint: rgba(249, 115, 22, 0.04);
+  --landing-color-green-tint: rgba(244, 63, 94, 0.04);
 
   /* Typography - Relative scaling for zoom compatibility */
   --landing-font-size: 1rem;
@@ -96,19 +96,19 @@
   --landing-border-radius: 0.25em;
   --landing-border-radius-card: 0.2em;
 
-  /* Shadow System - Dark mode appropriate */
-  --shadow-sm: 0 1px 3px rgba(var(--landing-rgb-black), 0.3),
-               0 1px 2px rgba(var(--landing-rgb-black), 0.2);
-  --shadow-md: 0 4px 12px rgba(var(--landing-rgb-black), 0.4),
-               0 2px 4px rgba(var(--landing-rgb-black), 0.3);
-  --shadow-lg: 0 8px 24px rgba(var(--landing-rgb-black), 0.5),
-               0 4px 8px rgba(var(--landing-rgb-black), 0.4);
-  --shadow-xl: 0 16px 48px rgba(var(--landing-rgb-black), 0.6),
-               0 8px 16px rgba(var(--landing-rgb-black), 0.5);
+  /* Shadow System - Light mode appropriate */
+  --shadow-sm: 0 1px 3px rgba(var(--landing-rgb-black), 0.08),
+               0 1px 2px rgba(var(--landing-rgb-black), 0.04);
+  --shadow-md: 0 4px 12px rgba(var(--landing-rgb-black), 0.1),
+               0 2px 4px rgba(var(--landing-rgb-black), 0.06);
+  --shadow-lg: 0 8px 24px rgba(var(--landing-rgb-black), 0.12),
+               0 4px 8px rgba(var(--landing-rgb-black), 0.08);
+  --shadow-xl: 0 16px 48px rgba(var(--landing-rgb-black), 0.15),
+               0 8px 16px rgba(var(--landing-rgb-black), 0.1);
 
-  /* Legacy shadow for backwards compatibility */
-  --landing-shadow: 0 0 0 1px rgba(var(--landing-rgb-white), 0.05),
-                    0 4px 8px rgba(var(--landing-rgb-black), 0.3);
+  /* Card shadow */
+  --landing-shadow: 0 0 0 1px rgba(var(--landing-rgb-black), 0.05),
+                    0 4px 8px rgba(var(--landing-rgb-black), 0.08);
 }
 
 /* Scale up typography on desktop */
@@ -131,7 +131,12 @@
   letter-spacing: var(--landing-letter-spacing);
   line-height: var(--landing-line-height);
   color: var(--landing-color-text-primary);
-  background: linear-gradient(to bottom right, rgb(15, 23, 42), rgb(17, 24, 39), rgb(30, 41, 59));
+  background:
+    radial-gradient(circle at 80% 5%, rgba(249, 115, 22, 0.04), transparent 40%),
+    radial-gradient(circle at 20% 30%, rgba(249, 115, 22, 0.04), transparent 35%),
+    radial-gradient(circle at 70% 55%, rgba(244, 63, 94, 0.04), transparent 35%),
+    radial-gradient(circle at 30% 80%, rgba(249, 115, 22, 0.05), transparent 35%),
+    linear-gradient(to bottom, rgb(249, 250, 251), rgb(255, 255, 255), rgb(249, 250, 251));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -168,17 +173,17 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px) saturate(180%);
   border-bottom: 1px solid var(--landing-color-border);
   transition: all 0.2s ease;
 }
 
 .landing-nav.scrolled {
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   box-shadow:
-    0 1px 3px rgba(var(--landing-rgb-black), 0.4),
-    0 2px 8px rgba(var(--landing-rgb-black), 0.3);
+    0 1px 3px rgba(var(--landing-rgb-black), 0.08),
+    0 2px 8px rgba(var(--landing-rgb-black), 0.06);
 }
 
 .landing-nav-container {
@@ -260,7 +265,7 @@
 }
 
 .landing-nav-link:hover {
-  background: rgba(var(--landing-rgb-white), 0.05);
+  background: rgba(var(--landing-rgb-black), 0.04);
   color: var(--landing-color-text-primary);
 }
 
@@ -272,21 +277,20 @@
   padding: 0.5em 1em;
   font-size: var(--landing-font-size-xxx-small);
   font-weight: 500;
-  color: var(--landing-color-green-text);
-  background: rgba(20, 83, 45, 0.3); /* green-900/30 */
-  border: 1px solid rgba(34, 197, 94, 0.3); /* green-500/30 */
+  color: rgb(255, 255, 255);
+  background: linear-gradient(135deg, var(--landing-color-cta-from), var(--landing-color-cta-to));
+  border: none;
   border-radius: var(--landing-border-radius);
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.15);
+  box-shadow: 0 2px 8px rgba(var(--landing-rgb-blue), 0.2);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .landing-nav-cta:hover {
-  background: rgba(20, 83, 45, 0.5); /* green-900/50 */
-  border-color: rgba(34, 197, 94, 0.5); /* green-500/50 */
-  color: rgb(187, 247, 208); /* green-200 - brighter on hover */
-  box-shadow: 0 4px 16px rgba(var(--landing-rgb-green), 0.25);
+  background: linear-gradient(135deg, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
+  color: rgb(255, 255, 255);
+  box-shadow: 0 4px 16px rgba(var(--landing-rgb-blue), 0.3);
 }
 
 .landing-nav-user {
@@ -343,7 +347,7 @@
 
 .landing-nav-mobile-menu {
   border-top: 1px solid var(--landing-color-border);
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .landing-nav-mobile-menu-content {
@@ -410,10 +414,7 @@
 .landing-hero {
   padding-top: 8rem; /* Account for fixed nav - all in rem for zoom */
   padding-bottom: var(--landing-space-xxx-large);
-  /* Subtle radial gradient overlay */
-  background:
-    radial-gradient(circle at 80% 20%, rgba(var(--landing-rgb-blue), 0.08), transparent 50%),
-    transparent;
+  background: transparent;
 }
 
 .landing-hero-grid {
@@ -477,7 +478,7 @@
   letter-spacing: var(--landing-letter-spacing);
   line-height: var(--landing-line-height);
   margin: var(--landing-space-medium) 0 0 0;
-  color: rgb(96, 165, 250); /* blue-400 from escalations page */
+  color: rgb(234, 88, 12); /* orange-600 */
   font-weight: 500;
   text-align: center;
 }
@@ -486,32 +487,31 @@
   margin-top: var(--landing-space-large);
 }
 
-.landing-button-green {
+.landing-button-cta {
   display: inline-block;
   padding: 0.5625em 0.95em 0.65em 0.95em;
   font-size: var(--landing-font-size-xxx-small);
   font-weight: 500;
   letter-spacing: var(--landing-letter-spacing);
-  color: var(--landing-color-green-text);
-  background: rgba(20, 83, 45, 0.3); /* green-900/30 */
-  border: 1px solid rgba(34, 197, 94, 0.3); /* green-500/30 */
+  color: rgb(255, 255, 255);
+  background: linear-gradient(135deg, var(--landing-color-cta-from), var(--landing-color-cta-to));
+  border: none;
   border-radius: var(--landing-border-radius);
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.15);
+  box-shadow: 0 2px 8px rgba(var(--landing-rgb-blue), 0.2);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.landing-button-green:hover {
-  background: rgba(20, 83, 45, 0.5); /* green-900/50 */
-  border-color: rgba(34, 197, 94, 0.5); /* green-500/50 */
-  color: rgb(187, 247, 208); /* green-200 - brighter on hover */
-  box-shadow: 0 4px 16px rgba(var(--landing-rgb-green), 0.25);
+.landing-button-cta:hover {
+  background: linear-gradient(135deg, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
+  color: rgb(255, 255, 255);
+  box-shadow: 0 4px 16px rgba(var(--landing-rgb-blue), 0.3);
 }
 
-.landing-button-green:active {
-  background: rgba(20, 83, 45, 0.6); /* green-900/60 */
-  box-shadow: 0 2px 8px rgba(var(--landing-rgb-green), 0.2);
+.landing-button-cta:active {
+  background: linear-gradient(135deg, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
+  box-shadow: 0 2px 8px rgba(var(--landing-rgb-blue), 0.2);
 }
 
 .landing-hero-image {
@@ -579,7 +579,7 @@
   width: 100%;
   height: auto;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Step icons with glow effect */
@@ -588,20 +588,20 @@
   height: 64px;
   border-radius: 0.5rem;
   box-shadow:
-    0 0 20px rgba(139, 92, 246, 0.4),
-    0 0 40px rgba(139, 92, 246, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+    0 0 20px rgba(249, 115, 22, 0.2),
+    0 0 40px rgba(249, 115, 22, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Persona icons with blue glow effect */
+/* Persona icons with orange glow effect */
 .landing-persona-icon-img {
   width: 64px;
   height: 64px;
   border-radius: 0.5rem;
   box-shadow:
-    0 0 20px rgba(96, 165, 250, 0.4),
-    0 0 40px rgba(96, 165, 250, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+    0 0 20px rgba(249, 115, 22, 0.2),
+    0 0 40px rgba(249, 115, 22, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .image-placeholder-icon {
@@ -631,7 +631,7 @@
 }
 
 .landing-section-problem {
-  background: linear-gradient(135deg, var(--landing-color-paper) 0%, rgba(var(--landing-rgb-blue), 0.05) 100%);
+  background: transparent;
 }
 
 .landing-section-problem .landing-section-heading {
@@ -850,7 +850,7 @@
    ================================= */
 
 .landing-section-differentiators {
-  background: linear-gradient(to bottom, transparent, rgba(var(--landing-rgb-blue), 0.05));
+  background: transparent;
 }
 
 .landing-section-intro {
@@ -922,9 +922,9 @@
   letter-spacing: var(--landing-letter-spacing);
   line-height: var(--landing-line-height);
   margin: 0 0 var(--landing-space-small) 0;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgb(75, 85, 99); /* gray-600 */
   padding-left: 0.75em;
-  border-left: 3px solid #a78bfa;
+  border-left: 3px solid rgb(251, 146, 60); /* orange-400 */
 }
 
 .landing-sub-diff-list {
@@ -970,7 +970,7 @@
    ================================= */
 
 .landing-section-clarity {
-  background: var(--landing-color-paper);
+  background: transparent;
 }
 
 .landing-section-clarity .landing-section-heading {
@@ -1060,7 +1060,7 @@
    ================================= */
 
 .landing-section-use-cases {
-  background: linear-gradient(to bottom, rgba(var(--landing-rgb-purple), 0.05), transparent);
+  background: transparent;
 }
 
 .landing-use-case-grid {
@@ -1139,7 +1139,7 @@
    ================================= */
 
 .landing-section-how-it-works {
-  background: var(--landing-color-paper);
+  background: transparent;
 }
 
 .landing-steps {
@@ -1282,7 +1282,7 @@
    ================================= */
 
 .landing-section-faq {
-  background: var(--landing-color-paper);
+  background: transparent;
 }
 
 .landing-faq-list {
@@ -1325,7 +1325,7 @@
 }
 
 .landing-faq-question:hover {
-  background: rgba(var(--landing-rgb-white), 0.03);
+  background: rgba(var(--landing-rgb-black), 0.03);
 }
 
 .landing-faq-icon {
@@ -1424,7 +1424,7 @@
    ================================= */
 
 .landing-section-final-cta {
-  background: linear-gradient(135deg, var(--landing-color-paper) 0%, rgba(var(--landing-rgb-blue), 0.05) 100%);
+  background: transparent;
   padding: var(--landing-space-xxx-large) 0;
 }
 
@@ -1596,7 +1596,7 @@ button:focus {
 }
 
 .early-access-close:hover {
-  background: rgba(var(--landing-rgb-white), 0.05);
+  background: rgba(var(--landing-rgb-black), 0.05);
   color: var(--landing-color-text-primary);
 }
 
@@ -1659,7 +1659,7 @@ button:focus {
   padding: 0.75em 1em;
   font-size: var(--landing-font-size-x-small);
   color: var(--landing-color-text-primary);
-  background: rgba(var(--landing-rgb-black), 0.3);
+  background: rgb(249, 250, 251); /* gray-50 */
   border: 1px solid var(--landing-color-border);
   border-radius: 6px;
   outline: none;
@@ -1691,18 +1691,17 @@ button:focus {
   padding: 0.75em 1.5em;
   font-size: var(--landing-font-size-x-small);
   font-weight: 600;
-  color: var(--landing-color-green-text);
-  background: rgba(20, 83, 45, 0.4);
-  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: rgb(255, 255, 255);
+  background: linear-gradient(135deg, var(--landing-color-cta-from), var(--landing-color-cta-to));
+  border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .early-access-button-primary:hover:not(:disabled) {
-  background: rgba(20, 83, 45, 0.6);
-  border-color: rgba(34, 197, 94, 0.6);
-  box-shadow: 0 4px 16px rgba(var(--landing-rgb-green), 0.25);
+  background: linear-gradient(135deg, var(--landing-color-cta-hover-from), var(--landing-color-cta-hover-to));
+  box-shadow: 0 4px 16px rgba(var(--landing-rgb-blue), 0.3);
 }
 
 .early-access-button-primary:disabled {
@@ -1724,7 +1723,7 @@ button:focus {
 }
 
 .early-access-button-secondary:hover {
-  background: rgba(var(--landing-rgb-white), 0.05);
+  background: rgba(var(--landing-rgb-black), 0.04);
   color: var(--landing-color-text-primary);
 }
 
@@ -1748,9 +1747,9 @@ button:focus {
   height: 3.5rem;
   margin-bottom: var(--landing-space-medium);
   font-size: 1.5rem;
-  color: var(--landing-color-green-text);
-  background: rgba(20, 83, 45, 0.3);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: rgb(234, 88, 12); /* orange-600 */
+  background: rgb(255, 237, 213); /* orange-100 */
+  border: 1px solid rgb(251, 146, 60); /* orange-400 */
   border-radius: 50%;
 }
 
@@ -1767,9 +1766,14 @@ button:focus {
    ================================= */
 
 .landing-section-manifesto {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-top: 1px solid rgba(139, 92, 246, 0.2);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  background: transparent;
+}
+
+.landing-section-manifesto .landing-container-narrow {
+  background: linear-gradient(135deg, rgb(255, 241, 242) 0%, rgb(255, 237, 213) 100%);
+  border: 1px solid rgb(251, 146, 60); /* orange-400 */
+  border-radius: 12px;
+  padding: var(--landing-space-x-large) var(--landing-space-x-large);
 }
 
 .landing-manifesto-image {
@@ -1785,9 +1789,9 @@ button:focus {
   border-radius: 0.5rem;
   shape-outside: margin-box;
   box-shadow:
-    0 0 20px rgba(251, 146, 60, 0.4),
-    0 0 40px rgba(251, 146, 60, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+    0 0 20px rgba(251, 146, 60, 0.2),
+    0 0 40px rgba(251, 146, 60, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .landing-manifesto-with-image {
@@ -1799,12 +1803,12 @@ button:focus {
   line-height: 1.8;
   max-width: 700px;
   margin: 0 auto;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(55, 65, 81); /* gray-700 */
 }
 
 .landing-manifesto-text p {
   margin-bottom: 1.5em;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgb(75, 85, 99); /* gray-600 */
 }
 
 .landing-manifesto-text p:last-child {
@@ -1813,7 +1817,7 @@ button:focus {
 
 .landing-manifesto-signature {
   font-style: italic;
-  color: #a78bfa;
+  color: rgb(234, 88, 12); /* orange-600 */
   text-align: right;
   margin-top: 2em;
 }
