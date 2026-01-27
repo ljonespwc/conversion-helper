@@ -107,10 +107,10 @@ export default function WidgetButtonDemo() {
           {/* Text Content */}
           <div className="flex flex-col items-start overflow-hidden whitespace-nowrap">
             <span className="text-sm font-semibold text-gray-900 leading-tight">
-              Don't feel like reading? Just ask!
+              Have a question? I never go off-script ✨
             </span>
             <span className="text-xs text-gray-800 leading-tight">
-              💬 Instant answers • Always helpful
+              Only this page's content. Go ahead, try me.
             </span>
           </div>
         </div>
