@@ -15,6 +15,10 @@ Approved positioning statements and messaging for use across the app.
 - "Scrape pages, upload docs, and assign what the AI knows — per page or across your whole site. Broad or focused, you decide."
 - "Give it your entire knowledge base, or just one sales deck. The AI answers from exactly what you allow — nothing more, nothing less."
 
+## Feature: Cross-Product Intelligence
+**"One Page. The Whole Story."**
+- "Visitors ask about products that aren't on the page they're looking at. That's not a problem — it's purchase intent. EasyAsk answers from everything you give it: your full suite, your pricing, how products complement each other. The page is the starting point. The conversation goes wherever the buyer wants."
+
 ## Feature: Real-Time Objection Handling
 **"One Unanswered Question Kills the Deal"**
 - "Your visitor is on your pricing page right now, ready to buy — but they have one question. If they have to search for it, email you, or 'come back later,' they won't. Answer it now."
