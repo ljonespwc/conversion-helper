@@ -85,6 +85,11 @@
         iframe.style.height = PILL.h + 'px';
       }
     }
+    if (d.type === 'easyask:position') {
+      isLeft = d.position === 'bottom-left';
+      iframe.style.left = isLeft ? '0' : 'auto';
+      iframe.style.right = isLeft ? 'auto' : '0';
+    }
     if (d.type === 'easyask:hide') {
       iframe.style.display = 'none';
     }

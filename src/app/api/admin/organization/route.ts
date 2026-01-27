@@ -45,7 +45,7 @@ export async function PATCH(request: Request) {
 
     // Parse request body
     const body = await request.json()
-    const { show_branding, widget_line1, widget_line2, notification_email } = body
+    const { show_branding, widget_line1, widget_line2, notification_email, widget_position } = body
 
     // Build updates object
     const updates: any = {}
@@ -105,6 +105,17 @@ export async function PATCH(request: Request) {
       } else {
         updates.notification_email = null
       }
+    }
+
+    // Validate and add widget_position if provided
+    if (widget_position !== undefined) {
+      if (widget_position !== 'bottom-left' && widget_position !== 'bottom-right') {
+        return NextResponse.json(
+          { error: 'widget_position must be "bottom-left" or "bottom-right"' },
+          { status: 400 }
+        )
+      }
+      updates.widget_position = widget_position
     }
 
     // Check if there are any updates to apply

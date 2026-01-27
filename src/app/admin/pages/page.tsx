@@ -33,6 +33,7 @@ interface Organization {
   widget_line1?: string | null
   widget_line2?: string | null
   notification_email?: string | null
+  widget_position?: 'bottom-left' | 'bottom-right'
 }
 
 interface UserInfo {
@@ -415,6 +416,27 @@ export default function PagesPage(): JSX.Element {
     }
   }
 
+  async function handleTogglePosition(): Promise<void> {
+    const current = userInfo?.organizations?.widget_position ?? 'bottom-right'
+    const next = current === 'bottom-right' ? 'bottom-left' : 'bottom-right'
+    try {
+      const response = await fetch('/api/admin/organization', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ widget_position: next })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle widget position')
+      }
+
+      await fetchUserInfo()
+    } catch (err) {
+      console.error('Error toggling widget position:', err)
+      alert('Failed to toggle widget position')
+    }
+  }
+
   async function copyToClipboard(text: string, id: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(text)
@@ -640,7 +662,7 @@ export default function PagesPage(): JSX.Element {
 
           <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
             Place this code before the closing <code className="text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded">&lt;/body&gt;</code> tag.
-            The assistant will appear as a chat button in the bottom-right corner.
+            The assistant will appear as a chat button in the position configured above.
           </p>
         </div>
 
@@ -695,6 +717,21 @@ export default function PagesPage(): JSX.Element {
                     enabled={userInfo.organizations.show_branding}
                     onToggle={() => handleToggleBranding(userInfo.organizations.show_branding)}
                     title={userInfo.organizations.show_branding ? 'Hide "Powered by EasyAsk" footer' : 'Show "Powered by EasyAsk" footer'}
+                  />
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between py-2 px-3 bg-gray-100 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 font-medium">Widget position:</span>
+                    <span className="text-xs text-gray-500">
+                      ({(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left' ? 'Bottom-left corner' : 'Bottom-right corner'})
+                    </span>
+                  </div>
+                  <ToggleSwitch
+                    enabled={(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left'}
+                    onToggle={handleTogglePosition}
+                    title={(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left' ? 'Switch to bottom-right' : 'Switch to bottom-left'}
                   />
                 </div>
               </div>

@@ -30,6 +30,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [widgetLine1, setWidgetLine1] = useState<string | undefined>(undefined)
   const [widgetLine2, setWidgetLine2] = useState<string | undefined>(undefined)
   const [isExperimental, setIsExperimental] = useState<boolean>(false)
+  const [resolvedPosition, setResolvedPosition] = useState<'bottom-left' | 'bottom-right'>(position)
   const hasEverBeenActive = useRef(false)
 
   const isModalOpen = embedded ? internalOpen : isOpen
@@ -78,7 +79,16 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           setWidgetLine1(data?.page?.widget_line1)
           setWidgetLine2(data?.page?.widget_line2)
           setIsExperimental(data?.page?.is_experimental ?? false)
+          // Update position from API (overrides data-position attribute)
+          const apiPosition = data?.page?.widget_position
+          if (apiPosition === 'bottom-left' || apiPosition === 'bottom-right') {
+            setResolvedPosition(apiPosition)
+          }
           if (window.parent !== window) {
+            // Send position to parent iframe BEFORE showing, so it repositions while still hidden
+            if (apiPosition === 'bottom-left' || apiPosition === 'bottom-right') {
+              window.parent.postMessage({ type: 'easyask:position', position: apiPosition }, '*')
+            }
             window.parent.postMessage({ type: pageIsActive ? 'easyask:show' : 'easyask:hide' }, '*')
           }
         })
@@ -126,7 +136,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           }}
           pageUrl={pageUrl}
           pageTitle={pageTitle}
-          position={position}
+          position={resolvedPosition}
           line1={widgetLine1}
           line2={widgetLine2}
         />
@@ -144,7 +154,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             apiKey={apiKey}
             isExperimental={isExperimental}
             groupId={groupId}
-            position={position}
+            position={resolvedPosition}
             isWidened={isWidened}
             onToggleWidth={handleToggleWidth}
             viewportWidth={viewportWidth}

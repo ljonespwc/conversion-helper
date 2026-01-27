@@ -266,7 +266,7 @@ export default async function Home(): Promise<JSX.Element> {
 
   return (
     <div className="landing-page">
-      <Script src="/widget.js" data-position="bottom-left" data-key="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab" strategy="lazyOnload" />
+      <Script src="/widget.js" data-key="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab" strategy="lazyOnload" />
       <LandingNav user={user} />
 
       <main className="landing-main">

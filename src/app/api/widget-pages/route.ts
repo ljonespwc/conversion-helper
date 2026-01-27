@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Look up organization by API key
     const { data: org, error: orgError } = await supabase
       .from('organizations')
-      .select('id, name, show_branding, widget_line1, widget_line2, website_url')
+      .select('id, name, show_branding, widget_line1, widget_line2, website_url, widget_position')
       .eq('publishable_key', apiKey)
       .single()
 
@@ -116,7 +116,8 @@ export async function GET(request: NextRequest) {
       widget_line1: page.widget_line1 ?? org.widget_line1,
       widget_line2: page.widget_line2 ?? org.widget_line2,
       is_experimental: isExperimentalPage(page.page_url, org.name),
-      is_pattern: isWildcardPattern(page.page_url) // Indicate if this was a pattern match
+      is_pattern: isWildcardPattern(page.page_url), // Indicate if this was a pattern match
+      widget_position: org.widget_position ?? 'bottom-right'
     }
 
     return NextResponse.json({ page: response }, { headers: NO_CACHE_HEADERS })
