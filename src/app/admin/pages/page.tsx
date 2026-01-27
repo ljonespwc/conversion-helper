@@ -724,13 +724,13 @@ export default function PagesPage(): JSX.Element {
                 <div className="flex items-center justify-between py-2 px-3 bg-gray-100 rounded-lg">
                   <span className="text-gray-600 font-medium">Widget position:</span>
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-medium ${(userInfo.organizations.widget_position ?? 'bottom-right') !== 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Right</span>
+                    <span className={`text-xs font-medium ${(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Left</span>
                     <ToggleSwitch
-                      enabled={(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left'}
+                      enabled={(userInfo.organizations.widget_position ?? 'bottom-right') !== 'bottom-left'}
                       onToggle={handleTogglePosition}
                       title="Toggle widget position"
                     />
-                    <span className={`text-xs font-medium ${(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Left</span>
+                    <span className={`text-xs font-medium ${(userInfo.organizations.widget_position ?? 'bottom-right') !== 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Right</span>
                   </div>
                 </div>
               </div>
