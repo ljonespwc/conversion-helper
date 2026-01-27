@@ -68,9 +68,9 @@ export async function GET(request: NextRequest) {
       query = query.eq('resolved', true)
     }
 
-    // Apply page URL filter
+    // Apply page URL filter (match by pathname substring since dropdown sends pathnames)
     if (pageUrl) {
-      query = query.eq('page_url', pageUrl)
+      query = query.ilike('page_url', `%${pageUrl}%`)
     }
 
     // Apply sorting
@@ -98,7 +98,11 @@ export async function GET(request: NextRequest) {
       .is('archived_at', null)
       .not('page_url', 'is', null)
 
-    const availablePages = Array.from(new Set(allPages?.map(p => p.page_url).filter(Boolean) || []))
+    const availablePages = Array.from(new Set(
+      (allPages || [])
+        .map(p => { try { return new URL(p.page_url).pathname } catch { return p.page_url } })
+        .filter(Boolean)
+    ))
 
     if (!sessions || sessions.length === 0) {
       return NextResponse.json({

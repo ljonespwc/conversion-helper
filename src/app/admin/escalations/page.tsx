@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Mail, Filter, ArrowUpDown, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Mail, Filter, ArrowUpDown, AlertCircle, CheckCircle2, Archive } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
 import EscalationSessionItem from '@/components/admin/EscalationSessionItem'
+import ArchiveConfirmModal from '@/components/admin/ArchiveConfirmModal'
 import type { Escalation, EscalationStats } from '@/components/admin/types'
 
 export const dynamic = 'force-dynamic'
@@ -28,6 +29,10 @@ export default function EscalationsPage(): React.ReactElement {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [copiedConversation, setCopiedConversation] = useState<string | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+
+  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set())
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
 
   useEffect(() => {
     checkUser()
@@ -114,6 +119,39 @@ export default function EscalationsPage(): React.ReactElement {
     setTimeout(() => setCopiedConversation(null), 2000)
   }
 
+  function toggleSelectSession(sessionId: string): void {
+    setSelectedSessions((prev) => {
+      const next = new Set(prev)
+      if (next.has(sessionId)) {
+        next.delete(sessionId)
+      } else {
+        next.add(sessionId)
+      }
+      return next
+    })
+  }
+
+  async function handleArchive(): Promise<void> {
+    if (selectedSessions.size === 0) return
+    setIsArchiving(true)
+    try {
+      const response = await fetch('/api/admin/conversations/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_ids: Array.from(selectedSessions) }),
+      })
+      if (response.ok) {
+        setSelectedSessions(new Set())
+        setShowArchiveConfirm(false)
+        await fetchEscalations()
+      }
+    } catch (err) {
+      console.error('Error archiving escalations:', err)
+    } finally {
+      setIsArchiving(false)
+    }
+  }
+
   function formatTimeAgo(timestamp: string): string {
     const diff = Date.now() - new Date(timestamp).getTime()
     const hours = Math.floor(diff / (1000 * 60 * 60))
@@ -122,10 +160,6 @@ export default function EscalationsPage(): React.ReactElement {
     if (days > 0) return `${days}d ago`
     if (hours > 0) return `${hours}h ago`
     return 'Just now'
-  }
-
-  function getPagePathname(url: string): string {
-    return new URL(url).pathname
   }
 
   return (
@@ -206,7 +240,7 @@ export default function EscalationsPage(): React.ReactElement {
                 <option value="">All Pages</option>
                 {availablePages.map((page) => (
                   <option key={page} value={page}>
-                    {getPagePathname(page)}
+                    {page}
                   </option>
                 ))}
               </select>
@@ -215,12 +249,21 @@ export default function EscalationsPage(): React.ReactElement {
         </div>
 
         <div className="mt-8 bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">
               {loading
                 ? 'Loading...'
                 : `${escalations.length} Escalation${escalations.length !== 1 ? 's' : ''}`}
             </h2>
+            {selectedSessions.size > 0 && (
+              <button
+                onClick={() => setShowArchiveConfirm(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                <Archive className="w-4 h-4" />
+                Archive Selected ({selectedSessions.size})
+              </button>
+            )}
           </div>
 
           {loading ? (
@@ -240,10 +283,12 @@ export default function EscalationsPage(): React.ReactElement {
                   key={escalation.session_id}
                   escalation={escalation}
                   isExpanded={expandedSessions.has(escalation.session_id)}
+                  isSelected={selectedSessions.has(escalation.session_id)}
                   copiedEmail={copiedEmail}
                   copiedConversation={copiedConversation}
                   updatingStatus={updatingStatus}
                   onToggleExpand={() => toggleExpanded(escalation.session_id)}
+                  onToggleSelect={() => toggleSelectSession(escalation.session_id)}
                   onCopyEmail={copyEmail}
                   onCopyConversation={copyConversation}
                   onToggleResolved={toggleResolved}
@@ -254,6 +299,15 @@ export default function EscalationsPage(): React.ReactElement {
           )}
         </div>
       </div>
+
+      {showArchiveConfirm && (
+        <ArchiveConfirmModal
+          selectedCount={selectedSessions.size}
+          isArchiving={isArchiving}
+          onConfirm={handleArchive}
+          onCancel={() => setShowArchiveConfirm(false)}
+        />
+      )}
     </div>
   )
 }

@@ -16,10 +16,12 @@ import EscalationMessageView from './EscalationMessageView'
 interface EscalationSessionItemProps {
   escalation: Escalation
   isExpanded: boolean
+  isSelected: boolean
   copiedEmail: string | null
   copiedConversation: string | null
   updatingStatus: string | null
   onToggleExpand: () => void
+  onToggleSelect: () => void
   onCopyEmail: (email: string) => void
   onCopyConversation: (escalation: Escalation) => void
   onToggleResolved: (sessionId: string, currentStatus: boolean) => void
@@ -62,10 +64,12 @@ function FlaggedBadge({ count }: { count: number }): React.ReactElement | null {
 export default function EscalationSessionItem({
   escalation,
   isExpanded,
+  isSelected,
   copiedEmail,
   copiedConversation,
   updatingStatus,
   onToggleExpand,
+  onToggleSelect,
   onCopyEmail,
   onCopyConversation,
   onToggleResolved,
@@ -97,6 +101,16 @@ export default function EscalationSessionItem({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={(e) => {
+                e.stopPropagation()
+                onToggleSelect()
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400 flex-shrink-0"
+            />
             <ChevronIcon className="w-5 h-5 text-gray-500 flex-shrink-0" />
 
             <div className="flex-1 min-w-0">
