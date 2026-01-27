@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { LogIn, LogOut, User, Menu, X } from 'lucide-react'
 
 interface HeaderProps {
@@ -9,8 +10,22 @@ interface HeaderProps {
   loading?: boolean
 }
 
+const NAV_ITEMS = [
+  { href: '/test', label: 'Test Page' },
+  { href: '/admin', label: 'Reports' },
+  { href: '/admin/escalations', label: 'Escalations' },
+  { href: '/admin/pages', label: 'Pages' },
+  { href: '/admin/content', label: 'Knowledgebase' },
+] as const
+
+function isActiveLink(pathname: string, href: string): boolean {
+  if (href === '/admin') return pathname === '/admin'
+  return pathname.startsWith(href)
+}
+
 export function Header({ user, loading = false }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   const handleLogout = async () => {
     const response = await fetch('/auth/logout', { method: 'POST' })
@@ -40,36 +55,19 @@ export function Header({ user, loading = false }: HeaderProps) {
           {/* Desktop Navigation (hidden on mobile/tablet) */}
           {!loading && user && (
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-              <Link
-                href="/test"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap"
-              >
-                Test Page
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap"
-              >
-                Reports
-              </Link>
-              <Link
-                href="/admin/escalations"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap"
-              >
-                Escalations
-              </Link>
-              <Link
-                href="/admin/pages"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap"
-              >
-                Pages
-              </Link>
-              <Link
-                href="/admin/content"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap"
-              >
-                Knowledgebase
-              </Link>
+              {NAV_ITEMS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap ${
+                    isActiveLink(pathname, href)
+                      ? 'bg-white/40'
+                      : 'bg-white/20 hover:bg-white/30'
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
 
               {/* User Email Display */}
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/20 backdrop-blur text-gray-900 text-sm">
@@ -126,41 +124,20 @@ export function Header({ user, loading = false }: HeaderProps) {
       {!loading && user && isMobileMenuOpen && (
         <div className="lg:hidden border-t border-white/20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-2">
-            <Link
-              href="/test"
-              onClick={closeMobileMenu}
-              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium"
-            >
-              Test Page
-            </Link>
-            <Link
-              href="/admin"
-              onClick={closeMobileMenu}
-              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium"
-            >
-              Reports
-            </Link>
-            <Link
-              href="/admin/escalations"
-              onClick={closeMobileMenu}
-              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium"
-            >
-              Escalations
-            </Link>
-            <Link
-              href="/admin/pages"
-              onClick={closeMobileMenu}
-              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium"
-            >
-              Pages
-            </Link>
-            <Link
-              href="/admin/content"
-              onClick={closeMobileMenu}
-              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium"
-            >
-              Knowledgebase
-            </Link>
+            {NAV_ITEMS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={closeMobileMenu}
+                className={`block w-full text-left px-4 py-3 rounded-xl backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium ${
+                  isActiveLink(pathname, href)
+                    ? 'bg-white/40'
+                    : 'bg-white/20 hover:bg-white/30'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
 
             {/* User Email */}
             <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/20 backdrop-blur text-gray-900 text-sm">
