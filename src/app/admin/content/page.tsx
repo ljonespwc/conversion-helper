@@ -137,14 +137,6 @@ export default function ContentManagementPage(): React.ReactElement {
         />
 
         <div className="mb-8">
-          <FileSearchUpload
-            selectedJobs={selectedJobs}
-            selectedUploads={selectedUploads}
-            onUploadComplete={handleUploadComplete}
-          />
-        </div>
-
-        <div className="mb-8">
           {loading ? (
             <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-12 text-center">
               <p className="text-gray-500">Loading scraped pages...</p>
@@ -172,6 +164,14 @@ export default function ContentManagementPage(): React.ReactElement {
               onUploadComplete={handleUploadComplete}
             />
           )}
+        </div>
+
+        <div className="sticky bottom-0 z-10 pt-4 pb-4 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent">
+          <FileSearchUpload
+            selectedJobs={selectedJobs}
+            selectedUploads={selectedUploads}
+            onUploadComplete={handleUploadComplete}
+          />
         </div>
       </div>
     </div>

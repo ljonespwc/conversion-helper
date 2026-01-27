@@ -104,7 +104,7 @@ export default function FileSearchUpload({
   }
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 p-4 sm:p-6">
+    <div className={`rounded-2xl sm:rounded-3xl shadow-xl border p-4 sm:p-6 transition-colors ${totalSelected > 0 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-200'}`}>
       <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Upload to the Knowledgebase</h2>
       <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
         Select pages where this content should be made accessible to the AI Assistant
@@ -233,7 +233,7 @@ export default function FileSearchUpload({
 
         {totalSelected === 0 && (
           <p className="text-sm text-gray-500">
-            To activate, select scraped pages or uploaded docs below
+            To activate, select scraped pages or uploaded docs above
           </p>
         )}
       </div>
