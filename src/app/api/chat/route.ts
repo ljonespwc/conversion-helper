@@ -354,7 +354,7 @@ export async function POST(request: Request) {
         session_id,
         role: 'user',
         message,
-        page_url,
+        page_url: contentPageUrl,
         organization_id: org.id,
         intent_category: classification.intent_category,
         buying_signal: classification.buying_signal
@@ -388,7 +388,7 @@ export async function POST(request: Request) {
         session_id,
         role: 'user',
         message,
-        page_url,
+        page_url: contentPageUrl,
         organization_id: org.id
       })
 
@@ -416,7 +416,7 @@ export async function POST(request: Request) {
       session_id,
       role: 'assistant',
       message: answer,
-      page_url,
+      page_url: contentPageUrl,
       organization_id: org.id
     })
 

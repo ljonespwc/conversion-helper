@@ -32,7 +32,8 @@ export default function PageGroup({
   onToggleUnread,
 }: PageGroupProps): React.ReactElement {
   const pageTitle = page?.page_title || (pageKey !== 'unknown' ? 'Unknown Page' : 'Demo/Test Sessions')
-  const displayUrl = page?.page_url || (pageKey !== 'unknown' ? pageKey : null)
+  const rawUrl = page?.page_url || (pageKey !== 'unknown' ? pageKey : null)
+  const displayUrl = rawUrl?.startsWith('http') ? rawUrl : null
   const unreadCount = sessions.filter((s) => s.is_unread).length
 
   return (
