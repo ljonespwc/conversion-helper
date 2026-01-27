@@ -166,10 +166,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '-')
         const storagePath = `${auth.user.id}/${timestamp}-${sanitizedFilename}`
 
+        const contentType = extensionCheck.extension === '.md' ? 'text/markdown' : 'text/plain'
         const { error: uploadError } = await supabase.storage
           .from(BUCKET_NAME)
           .upload(storagePath, file, {
-            contentType: file.type,
+            contentType,
             upsert: false
           })
 
