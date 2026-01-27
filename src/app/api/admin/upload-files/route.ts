@@ -169,7 +169,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const contentType = extensionCheck.extension === '.md' ? 'text/markdown' : 'text/plain'
         const { error: uploadError } = await supabase.storage
           .from(BUCKET_NAME)
-          .upload(storagePath, file, {
+          .upload(storagePath, buffer, {
             contentType,
             upsert: false
           })
