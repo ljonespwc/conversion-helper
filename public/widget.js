@@ -26,19 +26,25 @@
   var PILL = { w: 480, h: 100 };
   var MODAL = { w: 460, h: 600 };  // Corner-anchored modal
   var EXPANDED_MODAL = { w: 800 };  // Widened modal max width
+  var COLLAPSED = { w: 80, h: 80 };  // Collapsed circle
+  var COLLAPSE_KEY = 'easyask_collapsed';
+  var widgetCollapsed = false;
+  try { widgetCollapsed = localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) {}
 
   // Create iframe
   var iframe = document.createElement('iframe');
   iframe.id = 'easyask-widget';
-  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '') + '&vw=' + window.innerWidth;
+  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '') + '&vw=' + window.innerWidth + '&collapsed=' + (widgetCollapsed ? '1' : '0');
   iframe.title = 'EasyAsk Assistant';
   iframe.allow = 'microphone *; autoplay *; clipboard-write *';
   iframe.style.cssText = [
     'position:fixed',
     'bottom:0',
     isLeft ? 'left:0' : 'right:0',
-    'width:min(' + PILL.w + 'px, 100vw)',
-    'height:' + PILL.h + 'px',
+    widgetCollapsed
+      ? 'width:' + COLLAPSED.w + 'px'
+      : 'width:min(' + PILL.w + 'px, 100vw)',
+    'height:' + (widgetCollapsed ? COLLAPSED.h : PILL.h) + 'px',
     'border:none',
     'background:transparent',
     'z-index:' + Z_INDEX,
@@ -81,6 +87,24 @@
         iframe.style.right = isLeft ? 'auto' : '0';
         iframe.style.bottom = '0';
         iframe.style.transform = 'none';
+        if (widgetCollapsed) {
+          iframe.style.width = COLLAPSED.w + 'px';
+          iframe.style.height = COLLAPSED.h + 'px';
+        } else {
+          iframe.style.width = 'min(' + PILL.w + 'px, 100vw)';
+          iframe.style.height = PILL.h + 'px';
+        }
+      }
+    }
+    if (d.type === 'easyask:collapse') {
+      widgetCollapsed = !!d.collapsed;
+      try { localStorage.setItem(COLLAPSE_KEY, widgetCollapsed ? '1' : '0'); } catch (e) {}
+      if (widgetCollapsed) {
+        iframe.style.transition = 'all .3s ease';
+        iframe.style.width = COLLAPSED.w + 'px';
+        iframe.style.height = COLLAPSED.h + 'px';
+      } else {
+        iframe.style.transition = 'all .3s ease';
         iframe.style.width = 'min(' + PILL.w + 'px, 100vw)';
         iframe.style.height = PILL.h + 'px';
       }

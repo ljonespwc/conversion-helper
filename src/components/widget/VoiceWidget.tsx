@@ -17,9 +17,10 @@ interface VoiceWidgetProps {
   apiKey?: string
   groupId?: string
   viewportWidth?: number
+  initialCollapsed?: boolean
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0 }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0, initialCollapsed = false }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [isWidened, setIsWidened] = useState(false)
@@ -31,6 +32,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [widgetLine2, setWidgetLine2] = useState<string | undefined>(undefined)
   const [isExperimental, setIsExperimental] = useState<boolean>(false)
   const [resolvedPosition, setResolvedPosition] = useState<'bottom-left' | 'bottom-right'>(position)
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(initialCollapsed)
   const hasEverBeenActive = useRef(false)
 
   const isModalOpen = embedded ? internalOpen : isOpen
@@ -102,7 +104,12 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     }
   }, [pageUrl, embedded, apiKey, groupId])
 
-
+  const handleCollapse = () => {
+    setIsCollapsed(true)
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'easyask:collapse', collapsed: true }, '*')
+    }
+  }
 
   const handleToggleWidth = () => {
     const newWidened = !isWidened
@@ -134,6 +141,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
               organization_name: organizationName
             })
           }}
+          onCollapse={handleCollapse}
+          isCollapsed={isCollapsed}
           pageUrl={pageUrl}
           pageTitle={pageTitle}
           position={resolvedPosition}
