@@ -6,7 +6,7 @@ import { PostHogProvider } from '@/components/PostHogProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'EasyAsk - AI Assistant for Your Website',
+  title: 'EasyAsk - AI Assistant for Your Website. No Hallucinations.',
   description: 'Give your site the power of conversation. Instant, accurate answers for your visitors—no scrolling, no waiting. AI assistant for B2B websites.',
   metadataBase: new URL('https://easyask.io'),
   icons: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'EasyAsk - AI Assistant for Your Website',
+    title: 'EasyAsk - AI Assistant for Your Website. No Hallucinations.',
     description: 'Give your site the power of conversation. Instant, accurate answers for your visitors—no scrolling, no waiting.',
     url: 'https://easyask.io',
     siteName: 'EasyAsk',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EasyAsk - AI Assistant for Your Website',
+    title: 'EasyAsk - AI Assistant for Your Website. No Hallucinations.',
     description: 'Give your site the power of conversation. Instant, accurate answers—no scrolling, no waiting.',
     images: ['/images/twitter-image.png'],
   },
