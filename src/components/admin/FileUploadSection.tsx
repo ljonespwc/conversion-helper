@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import type { DragEvent } from 'react'
-import { Upload, FileText, Check, X, Loader2, Trash2, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
+import { Upload, FileText, Check, X, Loader2, Trash2, ChevronDown, ChevronUp, Calendar, ExternalLink } from 'lucide-react'
 import { formatDate, cn } from '@/lib/utils'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 import type { FileUpload } from './types'
@@ -54,6 +54,8 @@ export default function FileUploadSection({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [viewingFileId, setViewingFileId] = useState<string | null>(null)
 
   const readyUploads = uploads.filter(u => u.status === 'ready' || u.status === 'failed')
   const allSelected = selectedUploads.length === readyUploads.length && readyUploads.length > 0
@@ -151,6 +153,21 @@ export default function FileUploadSection({
       const upload = uploads.find(u => u.id === id)
       return { id, title: upload?.filename || 'Unknown' }
     })
+  }
+
+  async function handleViewFile(uploadId: string): Promise<void> {
+    setViewingFileId(uploadId)
+    try {
+      const response = await fetch(`/api/admin/upload-files/${uploadId}`)
+      const data = await response.json()
+      if (data.url) {
+        window.open(data.url, '_blank')
+      }
+    } catch (error) {
+      console.error('Failed to get file URL:', error)
+    } finally {
+      setViewingFileId(null)
+    }
   }
 
   return (
@@ -300,9 +317,23 @@ export default function FileUploadSection({
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-semibold text-gray-900 truncate">
-                          {upload.filename}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-semibold text-gray-900 truncate">
+                            {upload.filename}
+                          </h4>
+                          <button
+                            onClick={() => handleViewFile(upload.id)}
+                            disabled={viewingFileId === upload.id}
+                            className="flex-shrink-0 text-orange-500 hover:text-orange-600 transition-colors"
+                            title="View file"
+                          >
+                            {viewingFileId === upload.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                         <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
                           {upload.created_at && (
                             <>

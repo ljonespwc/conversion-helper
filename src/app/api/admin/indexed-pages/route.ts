@@ -117,6 +117,7 @@ export async function GET() {
       page_title: string
       page_urls: string[]
       scraped_at: string | undefined
+      source_type: 'scraped' | 'uploaded'
       sync_status: 'synced' | 'orphaned' | 'missing_from_google' | 'id_mismatch'
       in_google: boolean
       in_database: boolean
@@ -150,6 +151,10 @@ export async function GET() {
         dbId = dbPage.id
       }
 
+      // Determine source type: check DB first, then infer from URL
+      const sourceType: 'scraped' | 'uploaded' = dbPage?.source_type === 'uploaded'
+        || sourceUrl?.startsWith('upload://') ? 'uploaded' : 'scraped'
+
       combinedPages.push({
         id: dbId || `orphan-${docId.split('/').pop()}`, // Use DB id if available, else temp id
         document_id: docId,
@@ -157,6 +162,7 @@ export async function GET() {
         page_title: pageTitle,
         page_urls: pageUrls,
         scraped_at: indexedAt,
+        source_type: sourceType,
         sync_status: syncStatus,
         in_google: true,
         in_database: !!dbPage
@@ -173,6 +179,7 @@ export async function GET() {
           page_title: dbPage.page_title,
           page_urls: dbPage.page_urls || [],
           scraped_at: dbPage.scraped_at,
+          source_type: dbPage.source_type === 'uploaded' ? 'uploaded' : 'scraped',
           sync_status: 'missing_from_google',
           in_google: false,
           in_database: true

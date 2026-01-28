@@ -46,7 +46,7 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
               />
               <div className="landing-logo-text-block">
                 <span className="landing-logo-wordmark">EasyAsk</span>
-                <span className="landing-logo-tagline">Your content. Zero hallucinations.</span>
+                <span className="landing-logo-tagline">Your content. No hallucinations.</span>
               </div>
             </Link>
           </div>
