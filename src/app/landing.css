@@ -196,29 +196,42 @@
   gap: var(--landing-space-medium);
 }
 
-.landing-logo-text {
-  font-size: var(--landing-font-size-large);
-  font-weight: 700;
-  letter-spacing: var(--landing-letter-spacing-tight);
-  color: rgb(17, 24, 39); /* gray-900 */
+.landing-logo-link {
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: opacity var(--landing-transition);
 }
 
-.landing-logo-text:hover {
+.landing-logo-link:hover {
   opacity: 0.85;
-  color: rgb(17, 24, 39);
 }
 
 .landing-logo-img {
-  height: 40px;
-  width: auto;
+  height: 42px;
+  width: 42px;
   display: block;
-  transition: opacity var(--landing-transition);
 }
 
-.landing-logo-img:hover {
-  opacity: 0.85;
+.landing-logo-text-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-logo-wordmark {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: var(--landing-letter-spacing-tight);
+  color: rgb(17, 24, 39);
+  line-height: 1;
+}
+
+.landing-logo-tagline {
+  font-size: 0.65rem;
+  color: rgb(31, 41, 55);
+  letter-spacing: 0.01em;
+  margin-top: 4px;
 }
 
 .landing-nav-desktop {

@@ -54,7 +54,7 @@ export default async function NewLandingPage(): Promise<JSX.Element> {
               <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
                 Get Early Access &rarr;
               </EarlyAccessButton>
-              <p className="blog-hero-microcopy">Your content. Your rules. Zero hallucinations.</p>
+              <p className="blog-hero-microcopy">Your content. Zero hallucinations.</p>
             </div>
             <ImagePlaceholder
               dimensions="600 &times; 400"

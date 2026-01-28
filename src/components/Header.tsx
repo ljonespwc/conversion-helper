@@ -42,13 +42,20 @@ export function Header({ user, loading = false }: HeaderProps) {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-3 min-w-0">
-            <Link href="/" className="min-w-0" onClick={closeMobileMenu}>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
-                EasyAsk
-              </h1>
-              <p className="text-gray-800 text-xs sm:text-sm mt-0.5 hidden sm:block">
-                Your content. Your rules. Zero hallucinations.
-              </p>
+            <Link href="/" className="min-w-0 flex items-center gap-2.5" onClick={closeMobileMenu}>
+              <img
+                src="/images/main-logo.png"
+                alt="EasyAsk"
+                className="h-[42px] w-[42px] block"
+              />
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-gray-900 tracking-tight leading-none">
+                  EasyAsk
+                </span>
+                <span className="text-[0.65rem] text-gray-800 mt-1 hidden sm:block">
+                  Your content. Zero hallucinations.
+                </span>
+              </div>
             </Link>
           </div>
 

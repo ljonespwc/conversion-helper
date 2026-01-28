@@ -38,12 +38,16 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
         <div className="landing-nav-content">
           {/* Logo */}
           <div className="landing-logo">
-            <Link href="/" onClick={closeMobileMenu}>
+            <Link href="/" onClick={closeMobileMenu} className="landing-logo-link">
               <img
                 src="/images/main-logo.png"
                 alt="EasyAsk"
                 className="landing-logo-img"
               />
+              <div className="landing-logo-text-block">
+                <span className="landing-logo-wordmark">EasyAsk</span>
+                <span className="landing-logo-tagline">Your content. Zero hallucinations.</span>
+              </div>
             </Link>
           </div>
 
