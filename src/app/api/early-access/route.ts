@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimits, getClientIP } from '@/lib/ratelimit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -12,6 +13,20 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 3 signups per IP per hour
+    const clientIP = getClientIP(request)
+    try {
+      const { success } = await rateLimits.earlyAccess.limit(clientIP)
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          { status: 429 }
+        )
+      }
+    } catch (rateLimitError) {
+      console.error('Rate limiting error (allowing request):', rateLimitError)
+    }
+
     const { email } = await request.json()
 
     // Validate email

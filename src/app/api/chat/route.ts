@@ -243,7 +243,7 @@ export async function POST(request: Request) {
     // Rate limit: 50 requests per IP per hour
     const clientIP = getClientIP(request)
     try {
-      const { success, limit, remaining, reset } = await rateLimits.pageAssistant.limit(clientIP)
+      const { success, limit, remaining, reset } = await rateLimits.chat.limit(clientIP)
 
       if (!success) {
         console.warn(`Rate limit exceeded for chat IP ${clientIP}`)

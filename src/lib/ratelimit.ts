@@ -37,13 +37,22 @@ export const rateLimits = {
     prefix: '@easyask/ratelimit/feedback',
   }),
 
+  // Early access signup - prevent email spam
+  // 3 signups per IP per hour
+  earlyAccess: isDev ? mockRatelimit : new Ratelimit({
+    redis: redis!,
+    limiter: Ratelimit.slidingWindow(3, '1 h'),
+    analytics: true,
+    prefix: '@easyask/ratelimit/early-access',
+  }),
+
   // Chat messages - prevent query spam
   // 50 requests per IP per hour
-  pageAssistant: isDev ? mockRatelimit : new Ratelimit({
+  chat: isDev ? mockRatelimit : new Ratelimit({
     redis: redis!,
     limiter: Ratelimit.slidingWindow(50, '1 h'),
     analytics: true,
-    prefix: '@easyask/ratelimit/page-assistant',
+    prefix: '@easyask/ratelimit/chat',
   }),
 }
 
