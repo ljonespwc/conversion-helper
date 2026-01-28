@@ -47,6 +47,10 @@ CLOSING BEHAVIOR:
 function buildSystemPrompt(widgetPage: any, isExperimental: boolean): string {
   const basePrompt = `You are a helpful expert on ${widgetPage.page_title || 'this page'}. When visitors ask questions, they're genuinely interested and looking for your help—give them clear, useful answers.
 
+You have access to stored content via file search. You MUST ONLY use information found in the stored content.
+NEVER use your own knowledge, training data, or general information about this company/product.
+If file search returns no relevant results, say you don't have that information — do NOT guess or fill in from memory.
+
 CRITICAL RULES:
 1. When users ask "what's the price?" they mean THIS PAGE's product - search for pricing and answer directly
 2. When users say "that", "it", or "tell me more", they're referring to the PREVIOUS topic in our conversation - use context

@@ -54,7 +54,7 @@ export async function queryPageContent(
   conversationHistory?: Array<{ role: string; content: string }>,
   systemPrompt?: string,
   isExperimental?: boolean
-): Promise<{ answer: string; citations: any; organization?: string }> {
+): Promise<{ answer: string; citations: any; organization?: string; grounded: boolean }> {
   try {
     // Normalize page URL for consistent matching
     const normalizedPageUrl = normalizePageUrl(pageUrl)
@@ -154,10 +154,28 @@ export async function queryPageContent(
       })
     }
 
+    // Grounding check: if Gemini answered with zero grounding chunks,
+    // it used its own knowledge instead of stored content — replace with fallback
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || []
+    const isGrounded = groundingChunks.length > 0
+
+    if (!isGrounded && response.text) {
+      console.warn('⚠️ Ungrounded response detected — replaced with fallback', {
+        question,
+        pageUrl,
+        originalLength: response.text.length
+      })
+    }
+
+    const fallbackMessage = "I don't have specific information about that in my content. Could you try rephrasing, or is there something else I can help with?"
+
     return {
-      answer: response.text || 'Unable to generate response. Please try again in a moment.',
+      answer: isGrounded
+        ? (response.text || fallbackMessage)
+        : fallbackMessage,
       citations: response.candidates?.[0]?.groundingMetadata || null,
-      organization: orgData.name
+      organization: orgData.name,
+      grounded: isGrounded
     };
   } catch (error: any) {
     console.error('❌ Error querying Gemini File Search:', {
