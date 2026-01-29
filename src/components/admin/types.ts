@@ -5,6 +5,7 @@ export interface ConversationMessage {
   timestamp: number | null
   matched: boolean
   category: string | null
+  grounded: boolean | null
   created_at: string
 }
 

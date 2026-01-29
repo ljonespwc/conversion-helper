@@ -79,6 +79,17 @@ export default function ConversationMessageView({
           <p className="text-xs text-gray-500 mt-1">
             {formattedTime}
             {message.category && ` \u2022 ${message.category}`}
+            {!isUser && message.grounded !== null && message.grounded !== undefined && (
+              <span
+                className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
+                  message.grounded
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-amber-50 text-amber-700'
+                }`}
+              >
+                {message.grounded ? '\u2713 Grounded' : '\u26A0 Fallback'}
+              </span>
+            )}
           </p>
         </div>
       </div>

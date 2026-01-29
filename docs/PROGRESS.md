@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-01-29
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -515,6 +515,42 @@ Widget pill no longer disappears/reappears during SPA navigation (e.g., PN onlin
 **Files modified**: `public/widget.js`, `src/app/widget/page.tsx`, `src/components/widget/VoiceWidget.tsx`
 
 **Still needed for full-page navigation (non-SPA)**: The iframe still loads fresh on hard navigations. To eliminate the pill entrance animation on every page load, we'd need to persist widget state (e.g., via `localStorage` or a cookie flag) so `widget.js` can show the iframe immediately instead of waiting for the API round-trip.
+
+---
+
+## ✅ Grounding Validation & Status Indicator (2026-01-29)
+
+Two-layer defense against Gemini hallucinations, plus admin visibility into grounding status.
+
+### Layer 1: System Prompt Guardrails (`src/app/api/chat/route.ts`)
+- AI MUST ONLY use information from file search stored content
+- NEVER use training data or general knowledge about the company/product
+- If file search returns nothing relevant, say so — don't guess
+
+### Layer 2: Runtime Grounding Check (`src/lib/gemini-file-search.ts`)
+- After every response, checks `groundingMetadata.groundingChunks` from Gemini
+- If `groundingChunks.length === 0` → response came from Gemini's own knowledge, not stored content
+- Replaces ungrounded responses with fallback message
+- Returns `grounded: boolean` in the result type
+
+### Admin Grounding Badge
+- Added `grounded` boolean column to `conversation_messages` table (nullable, NULL for user messages and pre-existing rows)
+- `chat/route.ts` writes `grounded` value on every assistant message
+- Admin conversation view shows a badge per assistant message:
+  - Green `✓ Grounded` — answer came from stored content
+  - Amber `⚠ Fallback` — answer was replaced with fallback
+  - No badge for older messages (NULL)
+
+### Files Modified
+- `src/lib/gemini-file-search.ts` — grounding chunk check, fallback replacement, `grounded` return field
+- `src/app/api/chat/route.ts` — system prompt rules, passes `grounded` to tracking
+- `src/components/admin/types.ts` — `grounded` field on `ConversationMessage`
+- `src/components/admin/ConversationMessageView.tsx` — grounding badge UI
+
+### Database Migration
+```sql
+ALTER TABLE conversation_messages ADD COLUMN grounded BOOLEAN;
+```
 
 ---
 

@@ -130,7 +130,8 @@ export async function queryPageContent(
       textLength: response.text?.length || 0,
       finishReason,
       hasGrounding,
-      groundingChunksCount: response.candidates?.[0]?.groundingMetadata?.groundingChunks?.length || 0
+      groundingChunksCount: response.candidates?.[0]?.groundingMetadata?.groundingChunks?.length || 0,
+      groundingSupportsCount: response.candidates?.[0]?.groundingMetadata?.groundingSupports?.length || 0
     })
 
     // Warn if finish reason indicates an issue
@@ -154,12 +155,19 @@ export async function queryPageContent(
       })
     }
 
-    // Grounding check: if Gemini answered with zero grounding chunks,
-    // it used its own knowledge instead of stored content — replace with fallback
+    // Grounding check (two layers):
+    // 1. groundingChunks: did file search return any content at all?
+    //    If zero, Gemini ignored file search entirely — replace response with fallback.
+    // 2. groundingSupports: did the answer actually use the retrieved content?
+    //    Maps response segments back to chunks. A low count (0-1) means
+    //    file search ran but the answer isn't backed by stored content
+    //    (e.g., "I couldn't find info about the CEO" with 5 chunks but 1 tangential support).
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || []
-    const isGrounded = groundingChunks.length > 0
+    const groundingSupports = response.candidates?.[0]?.groundingMetadata?.groundingSupports || []
+    const hasChunks = groundingChunks.length > 0
+    const isGrounded = groundingSupports.length >= 2
 
-    if (!isGrounded && response.text) {
+    if (!hasChunks && response.text) {
       console.warn('⚠️ Ungrounded response detected — replaced with fallback', {
         question,
         pageUrl,
@@ -167,10 +175,19 @@ export async function queryPageContent(
       })
     }
 
+    if (hasChunks && !isGrounded) {
+      console.warn('⚠️ File search used but answer not grounded in content', {
+        question,
+        pageUrl,
+        chunksCount: groundingChunks.length,
+        supportsCount: groundingSupports.length
+      })
+    }
+
     const fallbackMessage = "I don't have specific information about that in my content. Could you try rephrasing, or is there something else I can help with?"
 
     return {
-      answer: isGrounded
+      answer: hasChunks
         ? (response.text || fallbackMessage)
         : fallbackMessage,
       citations: response.candidates?.[0]?.groundingMetadata || null,

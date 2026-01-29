@@ -112,6 +112,7 @@ async function trackConversation(params: {
   organization_id?: string | null
   intent_category?: string | null
   buying_signal?: boolean | null
+  grounded?: boolean | null
 }) {
   try {
     // First, ensure the session exists
@@ -173,7 +174,8 @@ async function trackConversation(params: {
         matched: params.role === 'assistant',
         category: null,
         intent_category: params.intent_category ?? null,
-        buying_signal: params.buying_signal ?? null
+        buying_signal: params.buying_signal ?? null,
+        grounded: params.grounded ?? null
       })
 
     if (messageError) {
@@ -331,6 +333,7 @@ export async function POST(request: Request) {
     let answer: string
     let organization: string | undefined
     let classification: Classification | null = null
+    let grounded: boolean = false
 
     // Sell page: use consultative selling with classification
     if (widgetPage.page_goal === 'sell') {
@@ -386,6 +389,7 @@ export async function POST(request: Request) {
 
       answer = result.answer
       organization = result.organization
+      grounded = result.grounded
     } else {
       // Lead/support pages: existing logic (no classification)
       await trackConversation({
@@ -407,6 +411,7 @@ export async function POST(request: Request) {
 
       answer = result.answer
       organization = result.organization
+      grounded = result.grounded
     }
 
     // Add assistant response to history
@@ -421,7 +426,8 @@ export async function POST(request: Request) {
       role: 'assistant',
       message: answer,
       page_url: contentPageUrl,
-      organization_id: org.id
+      organization_id: org.id,
+      grounded
     })
 
     // Clean up old conversations to prevent memory leak
