@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MessageCircle, Users, TrendingUp, Activity, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ThumbsUp, ThumbsDown, MousePointerClick, ArrowRightLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -285,7 +285,37 @@ export default function AdminDashboard(): React.ReactElement {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <StatsCard
+            title="Widget Opens"
+            value={loading ? '...' : (
+              <div className="flex flex-col items-center leading-tight">
+                <span>{stats?.totalOpens || 0}</span>
+                <div className="text-xs text-gray-500">
+                  {stats?.todayOpens || 0} today
+                </div>
+              </div>
+            )}
+            icon={<MousePointerClick className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="Unique Visitors"
+            value={loading ? '...' : stats?.uniqueOpeners || 0}
+            icon={<Users className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="Open → Chat Rate"
+            value={loading ? '...' : `${stats?.conversionRate || 0}%`}
+            icon={<ArrowRightLeft className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="Active Now"
+            value={loading ? '...' : stats?.activeNow || 0}
+            icon={<Activity className="w-5 h-5" />}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatsCard
             title="Total Conversations"
             value={loading ? '...' : stats?.total || 0}
@@ -300,11 +330,6 @@ export default function AdminDashboard(): React.ReactElement {
             title="Avg Session Duration"
             value={loading ? '...' : formatDuration(stats?.avgDuration || 0)}
             icon={<Activity className="w-5 h-5" />}
-          />
-          <StatsCard
-            title="Active Now"
-            value={loading ? '...' : stats?.activeNow || 0}
-            icon={<Users className="w-5 h-5" />}
           />
           <StatsCard
             title="User Feedback"

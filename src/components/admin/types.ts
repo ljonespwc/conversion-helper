@@ -34,6 +34,10 @@ export interface Stats {
   totalRatings: number
   positiveRatings: number
   negativeRatings: number
+  totalOpens: number
+  todayOpens: number
+  uniqueOpeners: number
+  conversionRate: number
   recentSessions: ConversationSession[]
 }
 

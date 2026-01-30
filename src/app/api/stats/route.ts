@@ -203,6 +203,44 @@ export async function GET(request: NextRequest) {
       .in('session_id', sessionIds)
       .order('created_at', { ascending: true })
 
+    // Get widget opens counts
+    let totalOpensQuery = supabase
+      .from('widget_opens')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
+
+    if (pageUrl) {
+      totalOpensQuery = applyPageUrlFilter(totalOpensQuery, pageUrl)
+    }
+
+    const { count: totalOpens } = await totalOpensQuery
+
+    let todayOpensQuery = supabase
+      .from('widget_opens')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
+      .gte('opened_at', today.toISOString())
+
+    if (pageUrl) {
+      todayOpensQuery = applyPageUrlFilter(todayOpensQuery, pageUrl)
+    }
+
+    const { count: todayOpens } = await todayOpensQuery
+
+    // Count unique visitors who opened the widget
+    let uniqueOpenersQuery = supabase
+      .from('widget_opens')
+      .select('visitor_id')
+      .eq('organization_id', organizationId)
+      .not('visitor_id', 'is', null)
+
+    if (pageUrl) {
+      uniqueOpenersQuery = applyPageUrlFilter(uniqueOpenersQuery, pageUrl)
+    }
+
+    const { data: openersData } = await uniqueOpenersQuery
+    const uniqueOpeners = new Set(openersData?.map(r => r.visitor_id)).size
+
     // Get ratings from sessions (1-5 star rating, excluding archived)
     let ratingsQuery = supabase
       .from('conversation_sessions')
@@ -261,8 +299,14 @@ export async function GET(request: NextRequest) {
       }
     }) || []
 
+    const opensCount = totalOpens || 0
+    const conversationsCount = total || 0
+    const conversionRate = opensCount > 0
+      ? Math.round((conversationsCount / opensCount) * 1000) / 10
+      : 0
+
     return NextResponse.json({
-      total: total || 0,
+      total: conversationsCount,
       today: todayCount || 0,
       avgDuration,
       activeNow: activeNow || 0,
@@ -270,6 +314,10 @@ export async function GET(request: NextRequest) {
       totalRatings,
       positiveRatings,
       negativeRatings,
+      totalOpens: opensCount,
+      todayOpens: todayOpens || 0,
+      uniqueOpeners,
+      conversionRate,
       recentSessions: formattedSessions
     }, {
       headers: {
@@ -287,6 +335,10 @@ export async function GET(request: NextRequest) {
       activeNow: 0,
       avgRating: 0,
       totalRatings: 0,
+      totalOpens: 0,
+      todayOpens: 0,
+      uniqueOpeners: 0,
+      conversionRate: 0,
       recentSessions: []
     })
   }
