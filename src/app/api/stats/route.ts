@@ -102,31 +102,29 @@ export async function GET(request: NextRequest) {
 
     const { count: todayCount } = await todayQuery
 
-    // Calculate average session duration using message timestamps (more accurate)
-    let completedQuery = supabase
+    // Calculate average session duration from message timestamps
+    let durationQuery = supabase
       .from('conversation_sessions')
-      .select('session_id, started_at, ended_at')
+      .select('session_id')
       .eq('organization_id', organizationId)
       .is('archived_at', null)
-      .not('ended_at', 'is', null)
 
     if (pageUrl) {
-      completedQuery = applyPageUrlFilter(completedQuery, pageUrl)
+      durationQuery = applyPageUrlFilter(durationQuery, pageUrl)
     }
 
-    const { data: completedSessions } = await completedQuery
+    const { data: durationSessions } = await durationQuery
 
     let avgDuration = 0
-    if (completedSessions && completedSessions.length > 0) {
-      // Get messages for all completed sessions to calculate accurate durations
-      const sessionIds = completedSessions.map(s => s.session_id)
+    if (durationSessions && durationSessions.length > 0) {
+      const sessionIds = durationSessions.map(s => s.session_id)
       const { data: sessionMessages } = await supabase
         .from('conversation_messages')
         .select('session_id, timestamp')
         .in('session_id', sessionIds)
         .not('timestamp', 'is', null)
 
-      // Group messages by session and calculate duration from timestamps
+      // Group timestamps by session
       const messagesBySession = (sessionMessages || []).reduce((acc, msg) => {
         if (!acc[msg.session_id]) {
           acc[msg.session_id] = []
@@ -135,23 +133,25 @@ export async function GET(request: NextRequest) {
         return acc
       }, {} as Record<string, number[]>)
 
-      // Calculate total duration across all sessions
+      const MAX_GAP_MS = 30 * 60 * 1000 // 30 minutes — gaps larger than this are separate visits
       let totalDuration = 0
       let sessionsWithDuration = 0
 
-      for (const session of completedSessions) {
+      for (const session of durationSessions) {
         const timestamps = messagesBySession[session.session_id]
         if (timestamps && timestamps.length >= 2) {
-          // Sort timestamps and calculate duration from first to last message
-          const sortedTimestamps = timestamps.sort((a, b) => a - b)
-          const duration = sortedTimestamps[sortedTimestamps.length - 1] - sortedTimestamps[0]
-          totalDuration += duration
-          sessionsWithDuration++
-        } else if (session.ended_at) {
-          // Fallback to session times if no message timestamps
-          const duration = new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()
-          totalDuration += duration
-          sessionsWithDuration++
+          const sorted = timestamps.sort((a, b) => a - b)
+          let duration = 0
+          for (let i = 1; i < sorted.length; i++) {
+            const gap = sorted[i] - sorted[i - 1]
+            if (gap <= MAX_GAP_MS) {
+              duration += gap
+            }
+          }
+          if (duration > 0) {
+            totalDuration += duration
+            sessionsWithDuration++
+          }
         }
       }
 
