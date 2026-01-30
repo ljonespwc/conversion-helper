@@ -221,7 +221,7 @@ function ChatBubble({ message, isNew = false, showRating = false, userRating, ha
       </div>
       {/* Rating thumbs - shown on last AI message */}
       {showRating && !isUser && (
-        <div className="flex items-center justify-end mt-1.5 gap-1 group">
+        <div className="flex items-center justify-end mt-2 gap-2">
           <AnimatePresence mode="wait">
             {showRatingCheck ? (
               <motion.div
@@ -239,31 +239,32 @@ function ChatBubble({ message, isNew = false, showRating = false, userRating, ha
                 key="thumbs"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2.5"
               >
-                <button
-                  onClick={() => onRate(1)}
-                  disabled={userRating !== null}
-                  className={`text-sm transition-all duration-200 ${
-                    userRating === null
-                      ? 'opacity-40 group-hover:opacity-100 hover:scale-110 cursor-pointer'
-                      : userRating === 1 ? 'opacity-100' : 'opacity-20'
-                  }`}
-                  title="Not helpful"
-                >
-                  👎
-                </button>
+                <span className="text-xs text-gray-400">Helpful?</span>
                 <button
                   onClick={() => onRate(5)}
                   disabled={userRating !== null}
-                  className={`text-sm transition-all duration-200 ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-sm transition-all duration-200 border ${
                     userRating === null
-                      ? 'opacity-40 group-hover:opacity-100 hover:scale-110 cursor-pointer'
-                      : userRating === 5 ? 'opacity-100' : 'opacity-20'
+                      ? 'border-green-300 bg-green-50 hover:bg-green-100 hover:scale-110 cursor-pointer'
+                      : userRating === 5 ? 'border-green-400 bg-green-100' : 'opacity-20 border-gray-200 bg-gray-50'
                   }`}
                   title="Helpful"
                 >
                   👍
+                </button>
+                <button
+                  onClick={() => onRate(1)}
+                  disabled={userRating !== null}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-sm transition-all duration-200 border ${
+                    userRating === null
+                      ? 'border-red-300 bg-red-50 hover:bg-red-100 hover:scale-110 cursor-pointer'
+                      : userRating === 1 ? 'border-red-400 bg-red-100' : 'opacity-20 border-gray-200 bg-gray-50'
+                  }`}
+                  title="Not helpful"
+                >
+                  👎
                 </button>
               </motion.div>
             )}
