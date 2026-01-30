@@ -146,7 +146,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
               fetch('/api/widget-open', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ api_key: apiKey, page_url: pageUrl, visitor_id: visitorId })
+                body: JSON.stringify({ api_key: apiKey, page_url: pageUrl, visitor_id: visitorId, group_id: groupId })
               }).catch(() => {})
             }
           }}

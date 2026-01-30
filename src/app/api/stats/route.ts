@@ -300,13 +300,44 @@ export async function GET(request: NextRequest) {
     }) || []
 
     const opensCount = totalOpens || 0
-    const conversationsCount = total || 0
-    const conversionRate = opensCount > 0
-      ? Math.round((conversationsCount / opensCount) * 1000) / 10
-      : 0
+
+    // Conversion rate: only count conversations created after opens tracking started
+    // so the numerator and denominator cover the same time window
+    let conversionRate = 0
+    if (opensCount > 0) {
+      let firstOpenQuery = supabase
+        .from('widget_opens')
+        .select('opened_at')
+        .eq('organization_id', organizationId)
+        .order('opened_at', { ascending: true })
+        .limit(1)
+
+      if (pageUrl) {
+        firstOpenQuery = applyPageUrlFilter(firstOpenQuery, pageUrl)
+      }
+
+      const { data: firstOpenData } = await firstOpenQuery
+      const firstOpenAt = firstOpenData?.[0]?.opened_at
+
+      if (firstOpenAt) {
+        let convsSinceTrackingQuery = supabase
+          .from('conversation_sessions')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', organizationId)
+          .is('archived_at', null)
+          .gte('created_at', firstOpenAt)
+
+        if (pageUrl) {
+          convsSinceTrackingQuery = applyPageUrlFilter(convsSinceTrackingQuery, pageUrl)
+        }
+
+        const { count: convsSinceTracking } = await convsSinceTrackingQuery
+        conversionRate = Math.round(((convsSinceTracking || 0) / opensCount) * 1000) / 10
+      }
+    }
 
     return NextResponse.json({
-      total: conversationsCount,
+      total: total || 0,
       today: todayCount || 0,
       avgDuration,
       activeNow: activeNow || 0,

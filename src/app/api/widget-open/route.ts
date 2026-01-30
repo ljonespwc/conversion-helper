@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isValidKeyFormat } from '@/lib/api-keys'
+import { getWidgetPage } from '@/lib/gemini-file-search'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +12,7 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { api_key, page_url, visitor_id } = await request.json()
+    const { api_key, page_url, visitor_id, group_id } = await request.json()
 
     if (!isValidKeyFormat(api_key)) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401 })
@@ -32,10 +33,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 401 })
     }
 
+    // Resolve canonical page_url (same as chat route uses for sessions)
+    const widgetPage = await getWidgetPage(page_url, org.id, group_id)
+    const canonicalPageUrl = widgetPage?.page_url || page_url
+
     // Insert widget open event
     await supabase.from('widget_opens').insert({
       organization_id: org.id,
-      page_url,
+      page_url: canonicalPageUrl,
       visitor_id: visitor_id || null,
     })
 
