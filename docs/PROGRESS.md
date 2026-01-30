@@ -148,7 +148,8 @@ await ai.fileSearchStores.documents.delete({
 ### Storage Strategy
 **All files stored in Supabase Storage** - scraped pages AND uploaded files use identical architecture:
 - **Bucket**: `uploaded-docs` (private, 10MB limit)
-- **Path format**: `{userId}/{timestamp}-{filename}.md`
+- **Path format**: `{userId}/{timestamp}-{filename}`
+- **Allowed types**: `.txt`, `.md`, `.pdf` (bucket allows `text/plain`, `text/markdown`, `application/pdf`)
 - **Database**: Metadata in `scraping_jobs` and `file_uploads` tables (no markdown in DB)
 
 ### Scraping (Jina AI Reader)
