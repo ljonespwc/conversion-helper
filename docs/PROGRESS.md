@@ -570,6 +570,17 @@ Persistent visitor identity via first-party cookie (`easyask_vid`). Multiple cha
 
 ---
 
+## ✅ Social Message Rescue for Grounding Fallback (2026-01-30)
+
+When the grounding gate finds 0 chunks (no file search results), a fast Gemini classification call now checks if the user's message is social/conversational ("thank you", "hello", "got it") before replacing with fallback. Social messages return the AI's natural response; content questions still get the fallback.
+
+- Added `isSocialMessage()` in `src/lib/gemini-file-search.ts` — Gemini 2.5 Flash REST call, JSON mode, `thinkingBudget: 0`
+- Modified grounding gate: `!hasChunks` → classify → rescue or fallback
+- Test: `tests/social-message-rescue.test.ts` (35 tests — classification accuracy + end-to-end gate behavior)
+- Also fixed test runner: project uses **vitest**, not jest (`npx vitest run`)
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)

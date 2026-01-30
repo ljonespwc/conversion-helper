@@ -45,6 +45,56 @@ function buildContentsArray(
 }
 
 /**
+ * Fast classification: is this a social/conversational message?
+ * Social messages (thanks, greetings, acknowledgments, farewells, simple confirmations)
+ * don't need grounding and should get the AI's natural response.
+ * Uses Gemini Flash REST API with JSON mode for speed.
+ * Returns false on error (fail-safe: fallback still applies).
+ */
+async function isSocialMessage(message: string): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Classify whether this user message is social/conversational or a content question.\n\nSocial messages include: greetings (hi, hello), thanks (thank you, thanks so much), acknowledgments (got it, ok, I see), farewells (bye, goodbye), simple confirmations (yes, no, no thanks, sure), and other pleasantries.\n\nContent questions include: anything asking for information, details, pricing, features, comparisons, or any substantive topic.\n\nMessage: "${message}"` }] }],
+          generationConfig: {
+            temperature: 0,
+            maxOutputTokens: 50,
+            responseMimeType: 'application/json',
+            responseJsonSchema: {
+              type: 'object',
+              properties: {
+                is_social: { type: 'boolean' }
+              },
+              required: ['is_social']
+            },
+            thinkingConfig: {
+              thinkingBudget: 0
+            }
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      console.warn('⚠️ isSocialMessage API error:', response.status);
+      return false;
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const parsed = JSON.parse(text);
+    return parsed.is_social === true;
+  } catch (error) {
+    console.warn('⚠️ isSocialMessage classification failed, defaulting to false:', error);
+    return false;
+  }
+}
+
+/**
  * Query File Search for content available on a specific page
  * Uses the new page-based architecture with page_urls metadata
  */
@@ -186,10 +236,29 @@ export async function queryPageContent(
 
     const fallbackMessage = "I don't have specific information about that in my content. Could you try rephrasing, or is there something else I can help with?"
 
+    // When no grounding chunks, check if this is a social/conversational message
+    // before replacing with fallback (e.g. "thank you", "got it", "hello")
+    if (!hasChunks) {
+      const social = await isSocialMessage(question)
+      if (social && response.text) {
+        console.log('💬 Social message rescued from fallback:', { question })
+        return {
+          answer: response.text,
+          citations: response.candidates?.[0]?.groundingMetadata || null,
+          organization: orgData.name,
+          grounded: true
+        }
+      }
+      return {
+        answer: fallbackMessage,
+        citations: response.candidates?.[0]?.groundingMetadata || null,
+        organization: orgData.name,
+        grounded: false
+      }
+    }
+
     return {
-      answer: hasChunks
-        ? (response.text || fallbackMessage)
-        : fallbackMessage,
+      answer: response.text || fallbackMessage,
       citations: response.candidates?.[0]?.groundingMetadata || null,
       organization: orgData.name,
       grounded: isGrounded
