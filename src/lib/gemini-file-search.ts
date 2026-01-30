@@ -352,11 +352,12 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
         }
       }
 
+      // matchedPage found via org ID path
       const organizations = matchedPage.organizations as any;
       return {
         organization_id: matchedPage.organization_id,
         page_title: matchedPage.page_title,
-        page_url: matchedPage.page_url, // Return the pattern URL or group ID
+        page_url: matchedPage.page_url,
         page_goal: matchedPage.page_goal,
         organization_name: organizations?.name || ''
       };
@@ -379,7 +380,6 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
       return null;
     }
 
-    // Flatten the organization name from nested structure
     const organizations = data.organizations as any;
     return {
       organization_id: data.organization_id,
@@ -391,51 +391,6 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
   } catch (error) {
     console.error('Error getting widget page:', error);
     return null;
-  }
-}
-
-/**
- * Check if a page is already indexed
- */
-export async function getIndexedPage(pageUrl: string) {
-  try {
-    const { data, error } = await supabase
-      .from('indexed_pages')
-      .select('*')
-      .eq('page_url', pageUrl)
-      .eq('status', 'active')
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = not found
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error getting indexed page:', error);
-    return null;
-  }
-}
-
-/**
- * List all indexed pages
- */
-export async function listIndexedPages() {
-  try {
-    const { data, error } = await supabase
-      .from('indexed_pages')
-      .select('*')
-      .eq('status', 'active')
-      .order('scraped_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    return data || [];
-  } catch (error) {
-    console.error('Error listing indexed pages:', error);
-    return [];
   }
 }
 

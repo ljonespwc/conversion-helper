@@ -26,6 +26,16 @@ Always use this project_id when interacting with Supabase MCP tools.
 
 **Important:** Claude should NOT start dev servers or deploy to production. Claude should focus on builds, tests, and code quality checks.
 
+### Code Simplification Workflow
+
+When using the `code-simplifier` skill to work through a list of files:
+
+1. **Never move to the next file without explicit user approval.**
+2. **Step 1 — Identify:** Analyze the file for real cleanup opportunities (dead code, deduplication, hoisting pure functions, etc.) without affecting functionality. Present findings to the user.
+3. **Step 2 — Apply:** After user approval of which changes to make, apply them using coding agents.
+4. **Step 3 — Verify:** Run a local build (`npx tsc --noEmit`) and write high-level tests for the file's pure helper functions to ensure nothing broke.
+5. Wait for the user to say "move onto the next" before proceeding.
+
 ---
 
 ## EasyAsk: Value Proposition & Messaging Framework

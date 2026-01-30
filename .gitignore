@@ -8,7 +8,6 @@
 # testing
 /coverage
 /tests/
-vitest.config.ts
 
 # next.js
 /.next/

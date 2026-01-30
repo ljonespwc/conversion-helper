@@ -34,6 +34,25 @@ function applyPageUrlFilter<T extends { or: (filter: string) => T }>(
   return query.or(`page_url.eq.${baseUrl},page_url.like.${baseUrl}?*`)
 }
 
+function groupBySessionId<T extends { session_id: string }>(
+  items: T[]
+): Record<string, T[]> {
+  return items.reduce((acc, item) => {
+    if (!acc[item.session_id]) {
+      acc[item.session_id] = []
+    }
+    acc[item.session_id].push(item)
+    return acc
+  }, {} as Record<string, T[]>)
+}
+
+function withPageFilter<T extends { or: (filter: string) => T }>(
+  query: T,
+  pageUrl: string | null
+): T {
+  return pageUrl ? applyPageUrlFilter(query, pageUrl) : query
+}
+
 // Create Supabase client with service role key
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,15 +91,14 @@ export async function GET(request: NextRequest) {
 
     // Build base query - always filter by organization_id, exclude archived
     // Optionally also filter by specific page_url if provided
-    let totalQuery = supabase
-      .from('conversation_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-      .is('archived_at', null)
-
-    if (pageUrl) {
-      totalQuery = applyPageUrlFilter(totalQuery, pageUrl)
-    }
+    let totalQuery = withPageFilter(
+      supabase
+        .from('conversation_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .is('archived_at', null),
+      pageUrl
+    )
 
     // Get total sessions (filtered by organization, excluding archived)
     const { count: total } = await totalQuery
@@ -89,29 +107,27 @@ export async function GET(request: NextRequest) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    let todayQuery = supabase
-      .from('conversation_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-      .is('archived_at', null)
-      .gte('created_at', today.toISOString())
-
-    if (pageUrl) {
-      todayQuery = applyPageUrlFilter(todayQuery, pageUrl)
-    }
+    let todayQuery = withPageFilter(
+      supabase
+        .from('conversation_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .is('archived_at', null)
+        .gte('created_at', today.toISOString()),
+      pageUrl
+    )
 
     const { count: todayCount } = await todayQuery
 
     // Calculate average session duration from message timestamps
-    let durationQuery = supabase
-      .from('conversation_sessions')
-      .select('session_id')
-      .eq('organization_id', organizationId)
-      .is('archived_at', null)
-
-    if (pageUrl) {
-      durationQuery = applyPageUrlFilter(durationQuery, pageUrl)
-    }
+    let durationQuery = withPageFilter(
+      supabase
+        .from('conversation_sessions')
+        .select('session_id')
+        .eq('organization_id', organizationId)
+        .is('archived_at', null),
+      pageUrl
+    )
 
     const { data: durationSessions } = await durationQuery
 
@@ -125,20 +141,14 @@ export async function GET(request: NextRequest) {
         .not('timestamp', 'is', null)
 
       // Group timestamps by session
-      const messagesBySession = (sessionMessages || []).reduce((acc, msg) => {
-        if (!acc[msg.session_id]) {
-          acc[msg.session_id] = []
-        }
-        acc[msg.session_id].push(msg.timestamp)
-        return acc
-      }, {} as Record<string, number[]>)
+      const grouped = groupBySessionId(sessionMessages || [])
 
       const MAX_GAP_MS = 30 * 60 * 1000 // 30 minutes — gaps larger than this are separate visits
       let totalDuration = 0
       let sessionsWithDuration = 0
 
       for (const session of durationSessions) {
-        const timestamps = messagesBySession[session.session_id]
+        const timestamps = grouped[session.session_id]?.map(m => m.timestamp)
         if (timestamps && timestamps.length >= 2) {
           const sorted = timestamps.sort((a, b) => a - b)
           let duration = 0
@@ -163,30 +173,28 @@ export async function GET(request: NextRequest) {
     // Get active sessions (last 5 minutes, filtered by organization)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
 
-    let activeQuery = supabase
-      .from('conversation_sessions')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-      .is('archived_at', null)
-      .gte('ended_at', fiveMinutesAgo.toISOString())
-
-    if (pageUrl) {
-      activeQuery = applyPageUrlFilter(activeQuery, pageUrl)
-    }
+    let activeQuery = withPageFilter(
+      supabase
+        .from('conversation_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .is('archived_at', null)
+        .gte('ended_at', fiveMinutesAgo.toISOString()),
+      pageUrl
+    )
 
     const { count: activeNow } = await activeQuery
 
     // Get recent sessions (all sessions, filtered by organization, excluding archived)
-    let recentQuery = supabase
-      .from('conversation_sessions')
-      .select('*')
-      .eq('organization_id', organizationId)
-      .is('archived_at', null)
-      .order('created_at', { ascending: false })
-
-    if (pageUrl) {
-      recentQuery = applyPageUrlFilter(recentQuery, pageUrl)
-    }
+    let recentQuery = withPageFilter(
+      supabase
+        .from('conversation_sessions')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .is('archived_at', null)
+        .order('created_at', { ascending: false }),
+      pageUrl
+    )
 
     const { data: recentSessions, error: sessionsError } = await recentQuery
 
@@ -204,54 +212,50 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: true })
 
     // Get widget opens counts
-    let totalOpensQuery = supabase
-      .from('widget_opens')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-
-    if (pageUrl) {
-      totalOpensQuery = applyPageUrlFilter(totalOpensQuery, pageUrl)
-    }
+    let totalOpensQuery = withPageFilter(
+      supabase
+        .from('widget_opens')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId),
+      pageUrl
+    )
 
     const { count: totalOpens } = await totalOpensQuery
 
-    let todayOpensQuery = supabase
-      .from('widget_opens')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
-      .gte('opened_at', today.toISOString())
-
-    if (pageUrl) {
-      todayOpensQuery = applyPageUrlFilter(todayOpensQuery, pageUrl)
-    }
+    let todayOpensQuery = withPageFilter(
+      supabase
+        .from('widget_opens')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .gte('opened_at', today.toISOString()),
+      pageUrl
+    )
 
     const { count: todayOpens } = await todayOpensQuery
 
     // Count unique visitors who opened the widget
-    let uniqueOpenersQuery = supabase
-      .from('widget_opens')
-      .select('visitor_id')
-      .eq('organization_id', organizationId)
-      .not('visitor_id', 'is', null)
-
-    if (pageUrl) {
-      uniqueOpenersQuery = applyPageUrlFilter(uniqueOpenersQuery, pageUrl)
-    }
+    let uniqueOpenersQuery = withPageFilter(
+      supabase
+        .from('widget_opens')
+        .select('visitor_id')
+        .eq('organization_id', organizationId)
+        .not('visitor_id', 'is', null),
+      pageUrl
+    )
 
     const { data: openersData } = await uniqueOpenersQuery
     const uniqueOpeners = new Set(openersData?.map(r => r.visitor_id)).size
 
     // Get ratings from sessions (1-5 star rating, excluding archived)
-    let ratingsQuery = supabase
-      .from('conversation_sessions')
-      .select('user_rating')
-      .eq('organization_id', organizationId)
-      .is('archived_at', null)
-      .not('user_rating', 'is', null)
-
-    if (pageUrl) {
-      ratingsQuery = applyPageUrlFilter(ratingsQuery, pageUrl)
-    }
+    let ratingsQuery = withPageFilter(
+      supabase
+        .from('conversation_sessions')
+        .select('user_rating')
+        .eq('organization_id', organizationId)
+        .is('archived_at', null)
+        .not('user_rating', 'is', null),
+      pageUrl
+    )
 
     const { data: ratingsData } = await ratingsQuery
 
@@ -266,13 +270,7 @@ export async function GET(request: NextRequest) {
       : 0
 
     // Group messages by session_id
-    const messagesBySession = (allMessages || []).reduce((acc, msg) => {
-      if (!acc[msg.session_id]) {
-        acc[msg.session_id] = []
-      }
-      acc[msg.session_id].push(msg)
-      return acc
-    }, {} as Record<string, any[]>)
+    const messagesBySession = groupBySessionId(allMessages || [])
 
     // Combine sessions with their messages and compute is_unread
     const formattedSessions = recentSessions?.map(session => {
@@ -305,31 +303,29 @@ export async function GET(request: NextRequest) {
     // so the numerator and denominator cover the same time window
     let conversionRate = 0
     if (opensCount > 0) {
-      let firstOpenQuery = supabase
-        .from('widget_opens')
-        .select('opened_at')
-        .eq('organization_id', organizationId)
-        .order('opened_at', { ascending: true })
-        .limit(1)
-
-      if (pageUrl) {
-        firstOpenQuery = applyPageUrlFilter(firstOpenQuery, pageUrl)
-      }
+      let firstOpenQuery = withPageFilter(
+        supabase
+          .from('widget_opens')
+          .select('opened_at')
+          .eq('organization_id', organizationId)
+          .order('opened_at', { ascending: true })
+          .limit(1),
+        pageUrl
+      )
 
       const { data: firstOpenData } = await firstOpenQuery
       const firstOpenAt = firstOpenData?.[0]?.opened_at
 
       if (firstOpenAt) {
-        let convsSinceTrackingQuery = supabase
-          .from('conversation_sessions')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', organizationId)
-          .is('archived_at', null)
-          .gte('created_at', firstOpenAt)
-
-        if (pageUrl) {
-          convsSinceTrackingQuery = applyPageUrlFilter(convsSinceTrackingQuery, pageUrl)
-        }
+        let convsSinceTrackingQuery = withPageFilter(
+          supabase
+            .from('conversation_sessions')
+            .select('*', { count: 'exact', head: true })
+            .eq('organization_id', organizationId)
+            .is('archived_at', null)
+            .gte('created_at', firstOpenAt),
+          pageUrl
+        )
 
         const { count: convsSinceTracking } = await convsSinceTrackingQuery
         conversionRate = Math.round(((convsSinceTracking || 0) / opensCount) * 1000) / 10
@@ -366,6 +362,8 @@ export async function GET(request: NextRequest) {
       activeNow: 0,
       avgRating: 0,
       totalRatings: 0,
+      positiveRatings: 0,
+      negativeRatings: 0,
       totalOpens: 0,
       todayOpens: 0,
       uniqueOpeners: 0,

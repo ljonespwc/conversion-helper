@@ -139,12 +139,11 @@ export default function FileUploadSection({
 
       onSelectionChange([])
       onUploadComplete()
-      setIsDeleteModalOpen(false)
     } catch (err) {
       console.error('Delete failed:', err)
-      setIsDeleteModalOpen(false)
     } finally {
       setIsDeleting(false)
+      setIsDeleteModalOpen(false)
     }
   }
 
@@ -170,6 +169,8 @@ export default function FileUploadSection({
     }
   }
 
+  const ChevronIcon = isExpanded ? ChevronUp : ChevronDown
+
   return (
     <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
       {/* Header */}
@@ -191,11 +192,7 @@ export default function FileUploadSection({
               </p>
             </div>
             <div className="flex-shrink-0 ml-4">
-              {isExpanded ? (
-                <ChevronUp className="w-6 h-6 text-gray-500" />
-              ) : (
-                <ChevronDown className="w-6 h-6 text-gray-500" />
-              )}
+              <ChevronIcon className="w-6 h-6 text-gray-500" />
             </div>
           </div>
         </button>

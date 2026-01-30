@@ -235,8 +235,7 @@ async function processUploadedFile(
 
   const isPdf = upload.filename.toLowerCase().endsWith('.pdf')
   const title = upload.filename.replace(/\.(txt|md|pdf)$/i, '')
-  const sanitizedTitle = sanitizeFilename(title)
-  const uploadIdentifier = `upload://${sanitizedTitle}-${Date.now()}`
+  const uploadIdentifier = `upload://${sanitizeFilename(title)}-${Date.now()}`
 
   let documentId: string
   let markdownPreview: string
@@ -353,10 +352,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'No items selected for upload' }, { status: 400 })
     }
 
-    if (pageUrls.length > 0 && !Array.isArray(pageUrls)) {
-      return NextResponse.json({ error: 'pageUrls must be an array' }, { status: 400 })
-    }
-
     const normalizedPageUrls = pageUrls.map(normalizePageUrl)
     const results: UploadResult[] = []
 
@@ -395,7 +390,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const successCount = results.filter(r => r.success).length
-    const failureCount = results.filter(r => !r.success).length
+    const failureCount = results.length - successCount
 
     return NextResponse.json({
       success: successCount > 0,

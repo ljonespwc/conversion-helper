@@ -299,9 +299,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   // Use provided pageUrl or capture from window
   const effectivePageUrl = pageUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
-  // --------------------------------------------------------------------------
-  // Chat Hook
-  // --------------------------------------------------------------------------
   const {
     messages,
     sessionId,
@@ -329,45 +326,23 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     }
   })
 
-  // --------------------------------------------------------------------------
-  // Input State
-  // --------------------------------------------------------------------------
   const [inputValue, setInputValue] = useState('')
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
-  // --------------------------------------------------------------------------
-  // UI Feedback State
-  // --------------------------------------------------------------------------
   const [showSparkleBurst, setShowSparkleBurst] = useState(false)
 
-  // --------------------------------------------------------------------------
-  // Escalation State
-  // --------------------------------------------------------------------------
   const [escalationState, setEscalationState] = useState<'hidden' | 'form' | 'success'>('hidden')
 
-  // --------------------------------------------------------------------------
-  // Email Escalation State
-  // --------------------------------------------------------------------------
   const [email, setEmail] = useState('')
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
-  const [escalationSuccess, setEscalationSuccess] = useState(false)
   const [escalationError, setEscalationError] = useState('')
 
-  // --------------------------------------------------------------------------
-  // Rating State
-  // --------------------------------------------------------------------------
   const [userRating, setUserRating] = useState<number | null>(null)
   const [showRatingCheck, setShowRatingCheck] = useState(false)
   const [hasFirstResponse, setHasFirstResponse] = useState(false)
 
-  // --------------------------------------------------------------------------
-  // Analytics Tracking Ref
-  // --------------------------------------------------------------------------
   const closeDataRef = useRef({ sessionId: '', messageCount: 0, pageUrl: effectivePageUrl })
 
-  // --------------------------------------------------------------------------
-  // Derived State
-  // --------------------------------------------------------------------------
   const greetingMessage = messages.find(m => m.isGreeting)
   const nonGreetingMessages = messages.filter(m => !m.isGreeting)
   const hasConversation = nonGreetingMessages.length > 0
@@ -379,9 +354,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   const canShowRating = hasFirstResponse && (!hasRated || showRatingCheck)
   const lastAIMessageIndex = nonGreetingMessages.map(m => m.role).lastIndexOf('assistant')
 
-  // --------------------------------------------------------------------------
-  // Download Transcript
-  // --------------------------------------------------------------------------
   const downloadTranscript = () => {
     const now = new Date()
     const dateStr = now.toLocaleDateString('en-US', {
@@ -426,6 +398,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     setEscalationState('hidden')
     setEmail('')
     setEscalationError('')
+    setIsSubmittingEmail(false)
     // Then start fresh in useChat
     startFreshConversation()
   }
@@ -437,10 +410,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     isRestoredSession,
     startFreshConversation: handleStartFreshConversation
   }), [hasConversation, messages, isRestoredSession, startFreshConversation])
-
-  // --------------------------------------------------------------------------
-  // Effects
-  // --------------------------------------------------------------------------
 
   // Start session on mount
   useEffect(() => {
@@ -511,10 +480,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
   }, [showLanguageDropdown])
-
-  // --------------------------------------------------------------------------
-  // Event Handlers
-  // --------------------------------------------------------------------------
 
   function handleSubmit(e: React.FormEvent): void {
     e.preventDefault()
@@ -606,7 +571,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
         throw new Error(data.error || 'Failed to submit email')
       }
 
-      setEscalationSuccess(true)
       setEmail('')
       setEscalationState('success')
       posthog?.capture('escalation_submitted', {
@@ -633,10 +597,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     setInputValue('')
     setShowLanguageDropdown(false)
   }
-
-  // --------------------------------------------------------------------------
-  // Render
-  // --------------------------------------------------------------------------
 
   return (
     <div className="relative h-full flex flex-col bg-white">

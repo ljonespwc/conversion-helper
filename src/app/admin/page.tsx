@@ -13,6 +13,25 @@ import type { Stats, WidgetPage, ConversationSession } from '@/components/admin/
 
 export const dynamic = 'force-dynamic'
 
+function toggleSetItem(setter: React.Dispatch<React.SetStateAction<Set<string>>>, key: string): void {
+  setter(prev => {
+    const next = new Set(prev)
+    if (next.has(key)) {
+      next.delete(key)
+    } else {
+      next.add(key)
+    }
+    return next
+  })
+}
+
+function formatDuration(seconds: number): string {
+  if (!seconds) return '0s'
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}m ${remainingSeconds}s`
+}
+
 export default function AdminDashboard(): React.ReactElement {
   const posthog = usePostHog()
   const [stats, setStats] = useState<Stats | null>(null)
@@ -93,28 +112,12 @@ export default function AdminDashboard(): React.ReactElement {
   }
 
   function togglePageGroup(pageKey: string): void {
-    setExpandedPageGroups(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(pageKey)) {
-        newSet.delete(pageKey)
-      } else {
-        newSet.add(pageKey)
-      }
-      return newSet
-    })
+    toggleSetItem(setExpandedPageGroups, pageKey)
   }
 
   function toggleSessionSelection(sessionId: string, e: React.MouseEvent): void {
     e.stopPropagation()
-    setSelectedSessions(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(sessionId)) {
-        newSet.delete(sessionId)
-      } else {
-        newSet.add(sessionId)
-      }
-      return newSet
-    })
+    toggleSetItem(setSelectedSessions, sessionId)
   }
 
   async function handleArchive(): Promise<void> {
@@ -254,13 +257,6 @@ export default function AdminDashboard(): React.ReactElement {
     })
   }
 
-  function formatDuration(seconds: number): string {
-    if (!seconds) return '0s'
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}m ${remainingSeconds}s`
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Header user={user} />
@@ -364,7 +360,7 @@ export default function AdminDashboard(): React.ReactElement {
           expandedSessions={expandedSessions}
           expandedPageGroups={expandedPageGroups}
           selectedSessions={selectedSessions}
-          onToggleBookmarkedFilter={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
+          onToggleBookmarkedFilter={() => setShowBookmarkedOnly(prev => !prev)}
           onShowArchiveConfirm={() => setShowArchiveConfirm(true)}
           onToggleSession={toggleSession}
           onTogglePageGroup={togglePageGroup}

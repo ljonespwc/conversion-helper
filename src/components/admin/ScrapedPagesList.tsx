@@ -160,12 +160,11 @@ export default function ScrapedPagesList({
 
       onSelectionChange([])
       onScrapeStarted()
-      setIsDeleteModalOpen(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete jobs')
-      setIsDeleteModalOpen(false)
     } finally {
       setIsDeleting(false)
+      setIsDeleteModalOpen(false)
     }
   }
 
@@ -247,7 +246,7 @@ export default function ScrapedPagesList({
             </form>
           </div>
 
-          {jobs.length > 0 && (
+          {jobs.length > 0 ? (
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
@@ -333,9 +332,7 @@ export default function ScrapedPagesList({
                 })}
               </div>
             </div>
-          )}
-
-          {jobs.length === 0 && (
+          ) : (
             <div className="px-6 py-16 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No pages scraped yet</h3>

@@ -269,14 +269,6 @@ interface ChatRequest {
   visitor_id?: string
 }
 
-interface ChatResponse {
-  success: boolean
-  response: string
-  session_id: string
-  organization?: string
-  error?: string
-}
-
 export async function POST(request: Request) {
   try {
     const body: ChatRequest = await request.json()
@@ -404,10 +396,8 @@ export async function POST(request: Request) {
       content: message
     })
 
-    let answer: string
-    let organization: string | undefined
     let classification: Classification | null = null
-    let grounded: boolean = false
+    let systemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content
 
     // Sell page: use consultative selling with classification
     if (widgetPage.page_goal === 'sell') {
@@ -430,65 +420,39 @@ export async function POST(request: Request) {
         await updateSessionStage(session_id, classification.stage)
       }
 
-      // 3. Track user message with classification
-      await trackConversation({
-        session_id,
-        role: 'user',
-        message,
-        page_url: contentPageUrl,
-        organization_id: org.id,
-        intent_category: classification.intent_category,
-        buying_signal: classification.buying_signal,
-        visitor_id
-      })
-
-      // 4. Build stage-aware prompt
+      // 3. Build stage-aware prompt
       const sellPrompt = buildSellPrompt(
         classification.stage,
         classification.intent_category,
         classification.buying_signal
       )
-
-      // 5. Generate response with File Search
-      // Combine base system prompt with sell guidance
-      const baseSystemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content || ''
-      const enhancedSystemPrompt = `${baseSystemPrompt}\n\n${sellPrompt}`
-
-      const result = await queryPageContent(
-        message,
-        contentPageUrl,
-        conversationHistory[session_id],
-        enhancedSystemPrompt,
-        isExperimental
-      )
-
-      answer = result.answer
-      organization = result.organization
-      grounded = result.grounded
-    } else {
-      // Lead/support pages: existing logic (no classification)
-      await trackConversation({
-        session_id,
-        role: 'user',
-        message,
-        page_url: contentPageUrl,
-        organization_id: org.id,
-        visitor_id
-      })
-
-      const systemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content
-      const result = await queryPageContent(
-        message,
-        contentPageUrl,
-        conversationHistory[session_id],
-        systemPrompt,
-        isExperimental
-      )
-
-      answer = result.answer
-      organization = result.organization
-      grounded = result.grounded
+      systemPrompt = `${systemPrompt || ''}\n\n${sellPrompt}`
     }
+
+    // Track user message (with classification fields if sell page)
+    await trackConversation({
+      session_id,
+      role: 'user',
+      message,
+      page_url: contentPageUrl,
+      organization_id: org.id,
+      intent_category: classification?.intent_category,
+      buying_signal: classification?.buying_signal,
+      visitor_id
+    })
+
+    // Generate response with File Search
+    const result = await queryPageContent(
+      message,
+      contentPageUrl,
+      conversationHistory[session_id],
+      systemPrompt,
+      isExperimental
+    )
+
+    const answer = result.answer
+    const organization = result.organization
+    const grounded = result.grounded
 
     // Add assistant response to history
     conversationHistory[session_id].push({

@@ -4,9 +4,6 @@ import { useEffect, useState } from 'react'
 import { Header } from '@/components/Header'
 import { Plus, Trash2, Copy, CheckCircle, Edit2, Check, X, ChevronDown, ChevronUp } from 'lucide-react'
 
-// Force dynamic rendering - prevent page caching
-export const dynamic = 'force-dynamic'
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -53,30 +50,18 @@ interface WidgetTextState {
 // Helper Functions
 // =============================================================================
 
+const PAGE_GOAL_CONFIG: Record<string, { label: string; style: string }> = {
+  sell: { label: 'Sell', style: 'bg-green-50 text-green-700 border border-green-200' },
+  lead: { label: 'Lead', style: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  support: { label: 'Support', style: 'bg-purple-50 text-purple-700 border border-purple-200' },
+}
+
 function getPageGoalStyle(goal: string): string {
-  switch (goal) {
-    case 'sell':
-      return 'bg-green-50 text-green-700 border border-green-200'
-    case 'lead':
-      return 'bg-blue-50 text-blue-700 border border-blue-200'
-    case 'support':
-      return 'bg-purple-50 text-purple-700 border border-purple-200'
-    default:
-      return 'bg-gray-100 text-gray-600'
-  }
+  return PAGE_GOAL_CONFIG[goal]?.style ?? 'bg-gray-100 text-gray-600'
 }
 
 function getPageGoalLabel(goal: string): string {
-  switch (goal) {
-    case 'sell':
-      return 'Sell'
-    case 'lead':
-      return 'Lead'
-    case 'support':
-      return 'Support'
-    default:
-      return goal
-  }
+  return PAGE_GOAL_CONFIG[goal]?.label ?? goal
 }
 
 // =============================================================================
@@ -270,6 +255,34 @@ export default function PagesPage(): JSX.Element {
   // API Functions
   // ===========================================================================
 
+  async function patchOrganization(body: Record<string, unknown>): Promise<void> {
+    const response = await fetch('/api/admin/organization', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to update organization')
+    }
+  }
+
+  async function patchWidgetPage(id: string, body: Record<string, unknown>): Promise<void> {
+    const response = await fetch(`/api/admin/widget-pages/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to update page')
+    }
+  }
+
+  function showError(err: unknown, fallback: string): void {
+    alert(err instanceof Error ? err.message : fallback)
+  }
+
   async function fetchUserInfo(): Promise<void> {
     try {
       const response = await fetch('/api/admin/user-info')
@@ -358,20 +371,11 @@ export default function PagesPage(): JSX.Element {
         prevPages.map(p => p.id === id ? { ...p, is_active: !currentStatus } : p)
       )
 
-      const response = await fetch(`/api/admin/widget-pages/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !currentStatus })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle page status')
-      }
-
+      await patchWidgetPage(id, { is_active: !currentStatus })
       await fetchPages()
     } catch (err) {
       console.error('Error toggling page status:', err)
-      alert('Failed to toggle page status')
+      showError(err, 'Failed to toggle page status')
       await fetchPages()
     }
   }
@@ -393,26 +397,17 @@ export default function PagesPage(): JSX.Element {
       await fetchPages()
     } catch (err) {
       console.error('Error deleting page:', err)
-      alert('Failed to delete page')
+      showError(err, 'Failed to delete page')
     }
   }
 
   async function handleToggleBranding(currentStatus: boolean): Promise<void> {
     try {
-      const response = await fetch('/api/admin/organization', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ show_branding: !currentStatus })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle branding visibility')
-      }
-
+      await patchOrganization({ show_branding: !currentStatus })
       await fetchUserInfo()
     } catch (err) {
       console.error('Error toggling branding:', err)
-      alert('Failed to toggle branding visibility')
+      showError(err, 'Failed to toggle branding visibility')
     }
   }
 
@@ -420,20 +415,11 @@ export default function PagesPage(): JSX.Element {
     const current = userInfo?.organizations?.widget_position ?? 'bottom-right'
     const next = current === 'bottom-right' ? 'bottom-left' : 'bottom-right'
     try {
-      const response = await fetch('/api/admin/organization', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ widget_position: next })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle widget position')
-      }
-
+      await patchOrganization({ widget_position: next })
       await fetchUserInfo()
     } catch (err) {
       console.error('Error toggling widget position:', err)
-      alert('Failed to toggle widget position')
+      showError(err, 'Failed to toggle widget position')
     }
   }
 
@@ -465,17 +451,7 @@ export default function PagesPage(): JSX.Element {
 
     setSavingTitle(true)
     try {
-      const response = await fetch(`/api/admin/widget-pages/${pageId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page_title: editingTitle.trim() })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update page title')
-      }
-
+      await patchWidgetPage(pageId, { page_title: editingTitle.trim() })
       setPages(prevPages =>
         prevPages.map(p => p.id === pageId ? { ...p, page_title: editingTitle.trim() } : p)
       )
@@ -483,7 +459,7 @@ export default function PagesPage(): JSX.Element {
       setEditingTitle('')
     } catch (err) {
       console.error('Error updating page title:', err)
-      alert(err instanceof Error ? err.message : 'Failed to update page title')
+      showError(err, 'Failed to update page title')
     } finally {
       setSavingTitle(false)
     }
@@ -507,20 +483,10 @@ export default function PagesPage(): JSX.Element {
 
     setSavingWidgetText(true)
     try {
-      const response = await fetch(`/api/admin/widget-pages/${pageId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          widget_line1: editingWidgetText.widget_line1 || null,
-          widget_line2: editingWidgetText.widget_line2 || null
-        })
+      await patchWidgetPage(pageId, {
+        widget_line1: editingWidgetText.widget_line1 || null,
+        widget_line2: editingWidgetText.widget_line2 || null
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update widget text')
-      }
-
       setPages(prevPages =>
         prevPages.map(p => p.id === pageId ? {
           ...p,
@@ -532,7 +498,7 @@ export default function PagesPage(): JSX.Element {
       setEditingWidgetText(null)
     } catch (err) {
       console.error('Error updating widget text:', err)
-      alert(err instanceof Error ? err.message : 'Failed to update widget text')
+      showError(err, 'Failed to update widget text')
     } finally {
       setSavingWidgetText(false)
     }
@@ -549,25 +515,15 @@ export default function PagesPage(): JSX.Element {
   async function handleSaveOrgWidgetText(): Promise<void> {
     setSavingOrgWidgetText(true)
     try {
-      const response = await fetch('/api/admin/organization', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          widget_line1: orgWidgetText.widget_line1 || null,
-          widget_line2: orgWidgetText.widget_line2 || null
-        })
+      await patchOrganization({
+        widget_line1: orgWidgetText.widget_line1 || null,
+        widget_line2: orgWidgetText.widget_line2 || null
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update widget text')
-      }
-
       await fetchUserInfo()
       setEditingOrgWidgetText(false)
     } catch (err) {
       console.error('Error updating org widget text:', err)
-      alert(err instanceof Error ? err.message : 'Failed to update widget text')
+      showError(err, 'Failed to update widget text')
     } finally {
       setSavingOrgWidgetText(false)
     }
@@ -581,24 +537,12 @@ export default function PagesPage(): JSX.Element {
   async function handleSaveNotificationEmail(): Promise<void> {
     setSavingNotificationEmail(true)
     try {
-      const response = await fetch('/api/admin/organization', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          notification_email: notificationEmail.trim() || null
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update notification email')
-      }
-
+      await patchOrganization({ notification_email: notificationEmail.trim() || null })
       await fetchUserInfo()
       setEditingNotificationEmail(false)
     } catch (err) {
       console.error('Error updating notification email:', err)
-      alert(err instanceof Error ? err.message : 'Failed to update notification email')
+      showError(err, 'Failed to update notification email')
     } finally {
       setSavingNotificationEmail(false)
     }
@@ -608,6 +552,7 @@ export default function PagesPage(): JSX.Element {
   // Derived Values
   // ===========================================================================
 
+  const widgetPosition = userInfo?.organizations?.widget_position ?? 'bottom-right'
   const publishableKey = userInfo?.organization?.publishable_key || userInfo?.organizations?.publishable_key
   const embedCode = publishableKey
     ? `<script src="https://www.easyask.io/widget.js" data-key="${publishableKey}"></script>`
@@ -642,22 +587,13 @@ export default function PagesPage(): JSX.Element {
             <pre className="bg-gray-950 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto border border-gray-700 text-xs sm:text-sm">
               <code>{embedCode}</code>
             </pre>
-            <button
-              onClick={() => copyToClipboard(embedCode, 'universal-embed')}
+            <CopyButton
+              text={embedCode}
+              id="universal-embed"
+              copiedId={copiedId}
+              onCopy={copyToClipboard}
               className="absolute top-2 right-2 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 shadow-lg"
-            >
-              {copiedId === 'universal-embed' ? (
-                <>
-                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Copy</span>
-                </>
-              )}
-            </button>
+            />
           </div>
 
           <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
@@ -724,13 +660,13 @@ export default function PagesPage(): JSX.Element {
                 <div className="flex items-center justify-between py-2 px-3 bg-gray-100 rounded-lg">
                   <span className="text-gray-600 font-medium">Widget position:</span>
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-medium ${(userInfo.organizations.widget_position ?? 'bottom-right') === 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Left</span>
+                    <span className={`text-xs font-medium ${widgetPosition === 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Left</span>
                     <ToggleSwitch
-                      enabled={(userInfo.organizations.widget_position ?? 'bottom-right') !== 'bottom-left'}
+                      enabled={widgetPosition !== 'bottom-left'}
                       onToggle={handleTogglePosition}
                       title="Toggle widget position"
                     />
-                    <span className={`text-xs font-medium ${(userInfo.organizations.widget_position ?? 'bottom-right') !== 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Right</span>
+                    <span className={`text-xs font-medium ${widgetPosition !== 'bottom-left' ? 'text-gray-900' : 'text-gray-400'}`}>Right</span>
                   </div>
                 </div>
               </div>
