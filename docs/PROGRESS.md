@@ -555,6 +555,21 @@ ALTER TABLE conversation_messages ADD COLUMN grounded BOOLEAN;
 
 ---
 
+## ✅ Visitor Tracking - Phase 1 (2026-01-29)
+
+Persistent visitor identity via first-party cookie (`easyask_vid`). Multiple chat sessions are now linked to the same visitor.
+
+- `visitors` table with `visitor_id`, `organization_id`, `first_seen_at`, `last_seen_at`, `total_conversations`, `email`
+- `conversation_sessions.visitor_id` FK links each session to a visitor
+- Cookie: UUID, 2-year expiry, root domain (`.precisionnutrition.com`), SameSite=Lax
+- Flow: `widget.js` sets cookie → passes `vid` to iframe → threaded through widget page → useChat → `/api/chat` → upserts visitor on new session creation
+- Atomic `total_conversations` increment via Postgres function
+- Multi-part TLD support (`.co.uk`, `.com.au`, etc.)
+
+**Phase 2 (purchase attribution) and Phase 3** are planned in the Claude conversation transcript: `~/.claude/projects/-Users-lancejones-projects-conversion-help/57560f38-2978-471d-93cf-53eb111702ab.jsonl`
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)
