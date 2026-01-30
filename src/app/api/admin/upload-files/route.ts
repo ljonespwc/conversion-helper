@@ -16,7 +16,7 @@ const ai = new GoogleGenAI({
 const BUCKET_NAME = 'uploaded-docs'
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB per file
 const MAX_BATCH_SIZE = 50 * 1024 * 1024 // 50MB total per request
-const ALLOWED_EXTENSIONS = ['.txt', '.md']
+const ALLOWED_EXTENSIONS = ['.txt', '.md', '.pdf']
 
 type UploadResult = {
   filename: string
@@ -81,16 +81,25 @@ function validateFileExtension(filename: string): { valid: boolean; extension: s
   }
 }
 
-async function validateFileContent(buffer: Buffer): Promise<
-  | { valid: true; content: string }
+async function validateFileContent(buffer: Buffer, extension: string): Promise<
+  | { valid: true; content: string | null }
   | { valid: false; error: string }
 > {
   const detectedType = await fileTypeFromBuffer(buffer)
 
+  // PDFs are binary — verify magic number matches, skip text checks
+  if (extension === '.pdf') {
+    if (!detectedType || detectedType.mime !== 'application/pdf') {
+      return { valid: false, error: 'File does not appear to be a valid PDF.' }
+    }
+    return { valid: true, content: null }
+  }
+
+  // Text files — reject any detected binary type
   if (detectedType) {
     return {
       valid: false,
-      error: `Invalid file type detected: ${detectedType.mime}. Only plain text and markdown files are allowed.`
+      error: `Invalid file type detected: ${detectedType.mime}. Only plain text, markdown, and PDF files are allowed.`
     }
   }
 
@@ -99,7 +108,7 @@ async function validateFileContent(buffer: Buffer): Promise<
   if (content.includes('\0')) {
     return {
       valid: false,
-      error: 'File contains binary data. Only plain text and markdown files are allowed.'
+      error: 'File contains binary data. Only plain text, markdown, and PDF files are allowed.'
     }
   }
 
@@ -150,7 +159,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer())
-        const contentValidation = await validateFileContent(buffer)
+        const contentValidation = await validateFileContent(buffer, extensionCheck.extension)
 
         if (!contentValidation.valid) {
           results.push({
@@ -161,12 +170,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           continue
         }
 
-        const wordCount = contentValidation.content.trim().split(/\s+/).filter(word => word.length > 0).length
+        const wordCount = contentValidation.content
+          ? contentValidation.content.trim().split(/\s+/).filter(word => word.length > 0).length
+          : 0
         const timestamp = Date.now()
         const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '-')
         const storagePath = `${auth.user.id}/${timestamp}-${sanitizedFilename}`
 
-        const contentType = extensionCheck.extension === '.md' ? 'text/markdown' : 'text/plain'
+        const contentTypeMap: Record<string, string> = {
+          '.md': 'text/markdown',
+          '.pdf': 'application/pdf',
+        }
+        const contentType = contentTypeMap[extensionCheck.extension] || 'text/plain'
         const { error: uploadError } = await supabase.storage
           .from(BUCKET_NAME)
           .upload(storagePath, buffer, {

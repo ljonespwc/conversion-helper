@@ -242,7 +242,7 @@ NEXT_PUBLIC_APP_URL=https://easyask.io
 - Email escalation with AI analysis of incomplete responses
 
 ### ✅ Security & Rate Limiting (2025-11-16 to 11-17)
-- **File Upload**: MIME type validation (magic numbers), UTF-8 validation, 10MB limit
+- **File Upload**: MIME type validation (magic numbers), UTF-8 validation, 10MB limit, PDF support (magic number verified)
 - **Scraping**: SSRF protection, private IP blocking, 45s timeout, 5MB limit
 - **Rate limits** (Upstash Redis): 50 messages/session, 5 sessions/hr per IP, 3 emails/day
 - Package: `file-type` for magic number detection

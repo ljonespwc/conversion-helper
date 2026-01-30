@@ -187,7 +187,7 @@ export default function FileUploadSection({
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                Upload text or markdown files for the Assistant to use later
+                Upload text, markdown, or PDF files for the Assistant to use later
               </p>
             </div>
             <div className="flex-shrink-0 ml-4">
@@ -219,7 +219,7 @@ export default function FileUploadSection({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".txt,.md"
+                accept=".txt,.md,.pdf"
                 multiple
                 onChange={(e) => handleFileSelect(e.target.files)}
                 className="hidden"
@@ -247,7 +247,7 @@ export default function FileUploadSection({
                     or drag and drop files here
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Text/Markdown only - 10MB per file - 50MB total per batch
+                    Text, Markdown, or PDF - 10MB per file - 50MB total per batch
                   </p>
                 </div>
               </div>

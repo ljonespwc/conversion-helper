@@ -54,7 +54,7 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Upload failed'
 }
 
-async function downloadFromStorage(filePath: string): Promise<string> {
+async function downloadFromStorage(filePath: string): Promise<Blob> {
   const { data, error } = await supabase.storage
     .from('uploaded-docs')
     .download(filePath)
@@ -63,18 +63,27 @@ async function downloadFromStorage(filePath: string): Promise<string> {
     throw new Error(`Storage download failed: ${error?.message || 'File not found'}`)
   }
 
-  return data.text()
+  return data
+}
+
+async function downloadAsText(filePath: string): Promise<string> {
+  const blob = await downloadFromStorage(filePath)
+  return blob.text()
 }
 
 async function uploadToFileSearch(
-  markdown: string,
+  content: string | Blob,
   title: string,
   sourceUrl: string,
   pageUrls: string[],
-  userStoreName: string
+  userStoreName: string,
+  mimeType: string = 'text/markdown',
+  fileExtension: string = 'md'
 ): Promise<string> {
-  const blob = new Blob([markdown], { type: 'text/markdown' })
-  const file = new File([blob], `${sanitizeFilename(title)}.md`, { type: 'text/markdown' })
+  const blob = typeof content === 'string'
+    ? new Blob([content], { type: mimeType })
+    : content
+  const file = new File([blob], `${sanitizeFilename(title)}.${fileExtension}`, { type: mimeType })
 
   const customMetadata: Array<{ key: string; stringValue: string }> = [
     { key: 'source_url', stringValue: sourceUrl },
@@ -155,7 +164,7 @@ async function processScrapedJob(
     .update({ status: 'uploading', indexing_status: 'uploading' })
     .eq('id', jobId)
 
-  const markdown = await downloadFromStorage(job.file_path)
+  const markdown = await downloadAsText(job.file_path)
   const title = new URL(job.url).pathname.split('/').pop() || 'page'
   const documentId = await uploadToFileSearch(markdown, title, job.url, normalizedPageUrls, userStoreName)
 
@@ -224,12 +233,23 @@ async function processUploadedFile(
     .update({ status: 'uploading' })
     .eq('id', uploadId)
 
-  const content = await downloadFromStorage(upload.file_path)
-  const title = upload.filename.replace(/\.(txt|md)$/i, '')
+  const isPdf = upload.filename.toLowerCase().endsWith('.pdf')
+  const title = upload.filename.replace(/\.(txt|md|pdf)$/i, '')
   const sanitizedTitle = sanitizeFilename(title)
   const uploadIdentifier = `upload://${sanitizedTitle}-${Date.now()}`
 
-  const documentId = await uploadToFileSearch(content, title, uploadIdentifier, normalizedPageUrls, userStoreName)
+  let documentId: string
+  let markdownPreview: string
+
+  if (isPdf) {
+    const blob = await downloadFromStorage(upload.file_path)
+    documentId = await uploadToFileSearch(blob, title, uploadIdentifier, normalizedPageUrls, userStoreName, 'application/pdf', 'pdf')
+    markdownPreview = `[PDF] ${upload.filename} (${(upload.file_size / 1024).toFixed(0)} KB)`
+  } else {
+    const content = await downloadAsText(upload.file_path)
+    documentId = await uploadToFileSearch(content, title, uploadIdentifier, normalizedPageUrls, userStoreName)
+    markdownPreview = content.substring(0, 500)
+  }
 
   const { error: indexError } = await supabase
     .from('indexed_pages')
@@ -242,7 +262,7 @@ async function processUploadedFile(
       file_search_store_name: userStoreName,
       synced_to_file_search: true,
       source_type: 'uploaded',
-      markdown_preview: content.substring(0, 500),
+      markdown_preview: markdownPreview,
       scraped_at: new Date().toISOString(),
       status: 'active',
       page_urls: normalizedPageUrls,
