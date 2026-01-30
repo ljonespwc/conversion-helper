@@ -22,6 +22,38 @@
     tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
   } catch (e) {}
 
+  // Persistent visitor identity via first-party cookie
+  function getRootDomain() {
+    var host = location.hostname;
+    var parts = host.split('.');
+    // localhost or IP addresses — no domain attribute needed
+    if (parts.length <= 2) return host;
+    // Multi-part TLDs (co.uk, com.au, etc.) — take last 3 parts
+    var twoPartTLDs = ['co.uk','com.au','co.nz','co.za','com.br','co.in','co.jp','com.mx','co.kr'];
+    var lastTwo = parts.slice(-2).join('.');
+    if (twoPartTLDs.indexOf(lastTwo) !== -1 && parts.length > 3) {
+      return '.' + parts.slice(-3).join('.');
+    }
+    // Standard TLDs — take last 2 parts
+    return '.' + parts.slice(-2).join('.');
+  }
+
+  function getVisitorId() {
+    var name = 'easyask_vid';
+    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    if (match) return decodeURIComponent(match[1]);
+    // Generate new UUID
+    var vid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    var expires = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(vid) + '; expires=' + expires + '; path=/; domain=' + getRootDomain() + '; SameSite=Lax';
+    return vid;
+  }
+
+  var visitorId = getVisitorId();
+
   // Sizes (fixed - modal scrolls internally)
   var PILL = { w: 480, h: 100 };
   var MODAL = { w: 460, h: 600 };  // Corner-anchored modal
@@ -34,7 +66,7 @@
   // Create iframe
   var iframe = document.createElement('iframe');
   iframe.id = 'easyask-widget';
-  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '') + '&vw=' + window.innerWidth + '&collapsed=' + (widgetCollapsed ? '1' : '0');
+  iframe.src = ORIGIN + '/widget?url=' + encodeURIComponent(window.location.href) + '&position=' + position + '&tz=' + encodeURIComponent(tz) + '&key=' + encodeURIComponent(apiKey) + (groupId ? '&group_id=' + encodeURIComponent(groupId) : '') + '&vw=' + window.innerWidth + '&collapsed=' + (widgetCollapsed ? '1' : '0') + '&vid=' + encodeURIComponent(visitorId);
   iframe.title = 'EasyAsk Assistant';
   iframe.allow = 'microphone *; autoplay *; clipboard-write *';
   iframe.style.cssText = [

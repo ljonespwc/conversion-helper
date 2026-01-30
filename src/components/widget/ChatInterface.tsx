@@ -47,6 +47,7 @@ interface ChatInterfaceProps {
   apiKey?: string
   isExperimental?: boolean
   groupId?: string
+  visitorId?: string
   onConversationStart?: () => void
   onSessionRestored?: () => void
 }
@@ -286,6 +287,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   apiKey,
   isExperimental = false,
   groupId,
+  visitorId,
   onConversationStart,
   onSessionRestored
 }, ref) {
@@ -317,6 +319,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     apiKey,
     timezone,
     groupId,
+    visitorId,
     onError: (err) => console.error('Chat error:', err),
     onResponse: () => {
       setShowSparkleBurst(true)

@@ -18,6 +18,7 @@ function WidgetContent() {
   const apiKey = searchParams.get('key') || undefined
   const groupId = searchParams.get('group_id') || undefined
   const initialCollapsed = searchParams.get('collapsed') === '1'
+  const visitorId = searchParams.get('vid') || undefined
   const [viewportWidth, setViewportWidth] = useState<number>(Number(searchParams.get('vw')) || 0)
 
   // Listen for messages from parent (SPA navigation + viewport width updates)
@@ -62,7 +63,7 @@ function WidgetContent() {
 
   return (
     <div className="w-full h-screen bg-transparent">
-      <VoiceWidget embedded={true} pageUrl={pageUrl} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} viewportWidth={viewportWidth} initialCollapsed={initialCollapsed} />
+      <VoiceWidget embedded={true} pageUrl={pageUrl} position={position} timezone={timezone} apiKey={apiKey} groupId={groupId} viewportWidth={viewportWidth} initialCollapsed={initialCollapsed} visitorId={visitorId} />
     </div>
   )
 }

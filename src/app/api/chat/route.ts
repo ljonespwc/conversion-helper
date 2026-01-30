@@ -103,6 +103,57 @@ async function updateSessionStage(session_id: string, stage: ConversationStage):
 }
 
 // Track conversation to database
+// Upsert visitor record and return the visitor row UUID
+async function upsertVisitor(visitorId: string, organizationId: string, pageUrl: string | null): Promise<string | null> {
+  try {
+    // Try to find existing visitor
+    const { data: existing } = await supabase
+      .from('visitors')
+      .select('id')
+      .eq('visitor_id', visitorId)
+      .single()
+
+    if (existing) {
+      // Update last_seen (total_conversations incremented on new session creation)
+      await supabase
+        .from('visitors')
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq('id', existing.id)
+      return existing.id
+    }
+
+    // Create new visitor
+    const { data: newVisitor, error } = await supabase
+      .from('visitors')
+      .insert({
+        visitor_id: visitorId,
+        organization_id: organizationId,
+        first_page_url: pageUrl
+      })
+      .select('id')
+      .single()
+
+    if (error) {
+      // Handle race condition: another request created the visitor concurrently
+      if (error.code === '23505') {
+        const { data: raced } = await supabase
+          .from('visitors')
+          .select('id')
+          .eq('visitor_id', visitorId)
+          .single()
+        return raced?.id ?? null
+      }
+      console.error('Failed to create visitor:', error)
+      return null
+    }
+
+    return newVisitor?.id ?? null
+  } catch (error) {
+    console.error('Visitor upsert error:', error)
+    return null
+  }
+}
+
 async function trackConversation(params: {
   session_id: string
   role: 'user' | 'assistant'
@@ -113,16 +164,23 @@ async function trackConversation(params: {
   intent_category?: string | null
   buying_signal?: boolean | null
   grounded?: boolean | null
+  visitor_id?: string | null
 }) {
   try {
     // First, ensure the session exists
     const { data: session, error: sessionError } = await supabase
       .from('conversation_sessions')
-      .select('id, total_questions, page_url, organization_id')
+      .select('id, total_questions, page_url, organization_id, visitor_id')
       .eq('session_id', params.session_id)
       .single()
 
     if (sessionError || !session) {
+      // Upsert visitor on new session only (avoids extra DB call on every message)
+      let visitorDbId: string | null = null
+      if (params.visitor_id && params.organization_id) {
+        visitorDbId = await upsertVisitor(params.visitor_id, params.organization_id, params.page_url)
+      }
+
       // Create new session
       const { error: createError } = await supabase
         .from('conversation_sessions')
@@ -130,12 +188,20 @@ async function trackConversation(params: {
           session_id: params.session_id,
           total_questions: params.role === 'user' ? 1 : 0,
           page_url: params.page_url || null,
-          organization_id: params.organization_id || null
+          organization_id: params.organization_id || null,
+          visitor_id: visitorDbId
         })
 
       if (createError) {
         console.error('Failed to create session:', createError)
         return
+      }
+
+      // Atomically increment visitor's total_conversations on new session
+      if (visitorDbId) {
+        await supabase.rpc('increment_visitor_conversations', {
+          visitor_row_id: visitorDbId
+        })
       }
     } else {
       // Update existing session
@@ -150,6 +216,13 @@ async function trackConversation(params: {
 
       if (!session.organization_id && params.organization_id) {
         updateData.organization_id = params.organization_id
+      }
+
+      if (!session.visitor_id && params.visitor_id && params.organization_id) {
+        const backfillVisitorId = await upsertVisitor(params.visitor_id, params.organization_id, params.page_url)
+        if (backfillVisitorId) {
+          updateData.visitor_id = backfillVisitorId
+        }
       }
 
       const { error: updateError } = await supabase
@@ -193,6 +266,7 @@ interface ChatRequest {
   page_url: string
   api_key: string
   group_id?: string
+  visitor_id?: string
 }
 
 interface ChatResponse {
@@ -206,7 +280,7 @@ interface ChatResponse {
 export async function POST(request: Request) {
   try {
     const body: ChatRequest = await request.json()
-    const { session_id, message, page_url, api_key, group_id } = body
+    const { session_id, message, page_url, api_key, group_id, visitor_id } = body
 
     // Validate required fields
     if (!session_id) {
@@ -364,7 +438,8 @@ export async function POST(request: Request) {
         page_url: contentPageUrl,
         organization_id: org.id,
         intent_category: classification.intent_category,
-        buying_signal: classification.buying_signal
+        buying_signal: classification.buying_signal,
+        visitor_id
       })
 
       // 4. Build stage-aware prompt
@@ -397,7 +472,8 @@ export async function POST(request: Request) {
         role: 'user',
         message,
         page_url: contentPageUrl,
-        organization_id: org.id
+        organization_id: org.id,
+        visitor_id
       })
 
       const systemPrompt = conversationHistory[session_id].find(m => m.role === 'system')?.content
@@ -427,7 +503,8 @@ export async function POST(request: Request) {
       message: answer,
       page_url: contentPageUrl,
       organization_id: org.id,
-      grounded
+      grounded,
+      visitor_id
     })
 
     // Clean up old conversations to prevent memory leak
