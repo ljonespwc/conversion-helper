@@ -23,6 +23,7 @@ export interface ConversationSession {
   bookmarked_at: string | null
   last_viewed_at: string | null
   is_unread: boolean
+  has_purchase: boolean
 }
 
 export interface Stats {
@@ -38,6 +39,8 @@ export interface Stats {
   todayOpens: number
   uniqueOpeners: number
   conversionRate: number
+  purchasesInfluenced: number
+  revenueInfluenced: number
   recentSessions: ConversationSession[]
 }
 

@@ -272,6 +272,51 @@ export async function GET(request: NextRequest) {
     // Group messages by session_id
     const messagesBySession = groupBySessionId(allMessages || [])
 
+    // Purchase attribution metrics
+    let purchaseCountQuery = supabase
+      .from('purchase_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId)
+
+    let purchaseAmountQuery = supabase
+      .from('purchase_events')
+      .select('amount')
+      .eq('organization_id', organizationId)
+
+    if (pageUrl) {
+      // Filter purchases by visitors who had sessions on this page
+      const baseUrl = getBaseUrl(pageUrl)
+      const { data: pageVisitors } = await supabase
+        .from('conversation_sessions')
+        .select('visitor_id')
+        .eq('organization_id', organizationId)
+        .not('visitor_id', 'is', null)
+        .or(`page_url.eq.${baseUrl},page_url.like.${baseUrl}?*`)
+
+      const visitorIds = [...new Set(pageVisitors?.map(v => v.visitor_id).filter(Boolean) || [])]
+      if (visitorIds.length > 0) {
+        purchaseCountQuery = purchaseCountQuery.in('visitor_id', visitorIds)
+        purchaseAmountQuery = purchaseAmountQuery.in('visitor_id', visitorIds)
+      } else {
+        // No visitors for this page — zero purchases
+        purchaseCountQuery = purchaseCountQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+        purchaseAmountQuery = purchaseAmountQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+      }
+    }
+
+    const { count: purchasesInfluenced } = await purchaseCountQuery
+    const { data: purchaseAmounts } = await purchaseAmountQuery
+    const revenueInfluenced = purchaseAmounts?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) || 0
+
+    // Get visitor IDs that have purchases (for tagging sessions)
+    const { data: purchaseVisitors } = await supabase
+      .from('purchase_events')
+      .select('visitor_id')
+      .eq('organization_id', organizationId)
+      .not('visitor_id', 'is', null)
+
+    const purchaseVisitorIds = new Set(purchaseVisitors?.map(p => p.visitor_id) || [])
+
     // Combine sessions with their messages and compute is_unread
     const formattedSessions = recentSessions?.map(session => {
       const messages = messagesBySession[session.session_id] || []
@@ -293,7 +338,8 @@ export async function GET(request: NextRequest) {
       return {
         ...session,
         messages,
-        is_unread: isUnread
+        is_unread: isUnread,
+        has_purchase: session.visitor_id ? purchaseVisitorIds.has(session.visitor_id) : false
       }
     }) || []
 
@@ -345,6 +391,8 @@ export async function GET(request: NextRequest) {
       todayOpens: todayOpens || 0,
       uniqueOpeners,
       conversionRate,
+      purchasesInfluenced: purchasesInfluenced || 0,
+      revenueInfluenced,
       recentSessions: formattedSessions
     }, {
       headers: {
@@ -368,6 +416,8 @@ export async function GET(request: NextRequest) {
       todayOpens: 0,
       uniqueOpeners: 0,
       conversionRate: 0,
+      purchasesInfluenced: 0,
+      revenueInfluenced: 0,
       recentSessions: []
     })
   }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MessageCircle, Users, TrendingUp, Activity, ThumbsUp, ThumbsDown, MousePointerClick, ArrowRightLeft } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ThumbsUp, ThumbsDown, MousePointerClick, ArrowRightLeft, ShoppingBag, DollarSign } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
@@ -350,6 +350,18 @@ export default function AdminDashboard(): React.ReactElement {
             }
             icon={<ThumbsUp className="w-5 h-5" />}
           />
+          <StatsCard
+            title="Purchases Influenced"
+            value={loading ? '...' : stats?.purchasesInfluenced || 0}
+            icon={<ShoppingBag className="w-5 h-5" />}
+          />
+          {!loading && (stats?.revenueInfluenced ?? 0) > 0 && (
+            <StatsCard
+              title="Revenue Influenced"
+              value={`$${(stats?.revenueInfluenced || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              icon={<DollarSign className="w-5 h-5" />}
+            />
+          )}
         </div>
 
         <ConversationsList

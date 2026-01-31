@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, ChevronRight, Bookmark, Circle, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { ChevronDown, ChevronRight, Bookmark, Circle, ThumbsUp, ThumbsDown, DollarSign } from 'lucide-react'
 import ConversationMessageView from './ConversationMessageView'
 import type { ConversationSession } from './types'
 
@@ -163,6 +163,15 @@ export default function ConversationSessionItem({
                 <>
                   {' \u2022 '}
                   <RatingDisplay rating={session.user_rating} />
+                </>
+              )}
+              {session.has_purchase && (
+                <>
+                  {' \u2022 '}
+                  <span className="inline-flex items-center gap-0.5 text-green-600" title="Visitor purchased">
+                    <DollarSign className="w-3 h-3" />
+                    <span className="text-xs font-medium">Purchased</span>
+                  </span>
                 </>
               )}
             </div>

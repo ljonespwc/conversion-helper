@@ -711,6 +711,62 @@ export default function PagesPage(): JSX.Element {
                 </div>
               </div>
 
+              {/* Purchase Tracking */}
+              <div className="md:col-span-2 mt-2">
+                <div className="py-3 px-4 bg-gray-100 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-600 font-medium">Purchase Tracking</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Place this on your purchase confirmation/success page to attribute sales to AI conversations.
+                  </p>
+                  <div className="relative">
+                    <pre className="bg-gray-950 text-gray-100 p-3 rounded-lg overflow-x-auto border border-gray-700 text-xs whitespace-pre-wrap">
+                      <code>{`<script>
+(function() {
+  var match = document.cookie.match(/(?:^|; )easyask_vid=([^;]*)/);
+  if (!match) return;
+  fetch('https://www.easyask.io/api/attribution/purchase', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: '${publishableKey || 'YOUR_API_KEY'}',
+      visitor_id: decodeURIComponent(match[1]),
+      external_order_id: '', // Replace with your order ID
+      amount: 0,             // Replace with order total
+      product_name: ''       // Replace with product name
+    })
+  });
+})();
+</script>`}</code>
+                    </pre>
+                    <CopyButton
+                      text={`<script>
+(function() {
+  var match = document.cookie.match(/(?:^|; )easyask_vid=([^;]*)/);
+  if (!match) return;
+  fetch('https://www.easyask.io/api/attribution/purchase', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: '${publishableKey || 'YOUR_API_KEY'}',
+      visitor_id: decodeURIComponent(match[1]),
+      external_order_id: '', // Replace with your order ID
+      amount: 0,             // Replace with order total
+      product_name: ''       // Replace with product name
+    })
+  });
+})();
+</script>`}
+                      id="purchase-snippet"
+                      copiedId={copiedId}
+                      onCopy={copyToClipboard}
+                      className="absolute top-2 right-2 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-lg px-2 py-1 text-xs font-medium transition-all flex items-center gap-1 shadow-lg"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Escalation Notification Email */}
               <div className="md:col-span-2 mt-2">
                 <div className="py-3 px-4 bg-gray-100 rounded-lg">
