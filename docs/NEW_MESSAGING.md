@@ -4,6 +4,22 @@ Approved positioning statements and messaging for use across the app.
 
 ---
 
+## Landing Page Rebuild (/new) — Section Decisions
+
+**Keep as-is:**
+- **How It Works** — "From zero to live in 4 steps" (Scrape, Upload, Assign, Launch)
+- **Manifesto** — "The end of scrolling" founder vision statement (Lance Jones)
+- **FAQ + Final CTA** — FAQ accordion + "Ready to turn your website into a conversation?" + early access button
+
+**Cut / rework:**
+- Hero (replacing with new H1/H2 below)
+- The Problem ("Your website is a monologue")
+- The Solution bridge ("EasyAsk turns your website into a conversation")
+- All 6 feature sections (01–06): Right Context, One Page Whole Story, Unanswered Question, AI That Sells, Knows What It Doesn't Know, They Get It
+- Use Cases ("Sound familiar?" — 4 scenarios)
+
+---
+
 ## App Header Subtitle
 **"Your content. No hallucinations."**
 
