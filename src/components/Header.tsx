@@ -13,6 +13,7 @@ interface HeaderProps {
 const NAV_ITEMS = [
   { href: '/test', label: 'Test Page' },
   { href: '/admin', label: 'Reports' },
+  { href: '/admin/analytics', label: 'Analytics' },
   { href: '/admin/escalations', label: 'Escalations' },
   { href: '/admin/pages', label: 'Pages' },
   { href: '/admin/content', label: 'Knowledgebase' },

@@ -106,6 +106,21 @@ export interface FileUpload {
   completed_at?: string | null
 }
 
+export interface QuestionTheme {
+  name: string
+  description: string
+  count: number
+  examples: string[]
+}
+
+export interface PageThemeResult {
+  page_url: string
+  page_title: string
+  themes: QuestionTheme[]
+  generated_at: string | null
+  message_count: number
+}
+
 export type IndexedPageSyncStatus = 'synced' | 'orphaned' | 'missing_from_google' | 'id_mismatch'
 
 export interface IndexedPage {
