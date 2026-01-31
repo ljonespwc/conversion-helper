@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Invalid API key' }, { status: 401 })
     }
 
-    // Verify visitor belongs to this org
+    // Look up visitor by cookie value (visitor_id text field, not the id UUID)
     const { data: visitor } = await supabase
       .from('visitors')
       .select('id')
-      .eq('id', visitor_id)
+      .eq('visitor_id', visitor_id)
       .eq('organization_id', org.id)
       .single()
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const { data: recentSession } = await supabase
       .from('conversation_sessions')
       .select('session_id')
-      .eq('visitor_id', visitor_id)
+      .eq('visitor_id', visitor.id)
       .eq('organization_id', org.id)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -67,18 +67,13 @@ export async function POST(request: NextRequest) {
       external_order_id: external_order_id || null,
     }
 
-    if (external_order_id) {
-      // Upsert to deduplicate on external_order_id
-      await supabase
-        .from('purchase_events')
-        .upsert(insertData, {
-          onConflict: 'organization_id,external_order_id',
-          ignoreDuplicates: true,
-        })
-    } else {
-      await supabase
-        .from('purchase_events')
-        .insert(insertData)
+    const { error: insertError } = await supabase
+      .from('purchase_events')
+      .insert(insertData)
+
+    // Silently ignore unique constraint violations (dedup on external_order_id)
+    if (insertError && !insertError.code?.startsWith('23')) {
+      console.error('Purchase event insert error:', insertError)
     }
 
     return NextResponse.json({ ok: true })
