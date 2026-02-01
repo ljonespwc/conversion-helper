@@ -377,9 +377,6 @@ export default async function LandingPage(): Promise<JSX.Element> {
                   In 1-2 years, most serious products will have a conversational layer on top of a massive library of answers. EasyAsk is our way of letting you do that today, without rewriting your whole site.
                 </p>
 
-                <p className="landing-manifesto-signature">
-                  &mdash; Lance Jones, Founder
-                </p>
               </div>
             </div>
           </div>
