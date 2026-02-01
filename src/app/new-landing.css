@@ -149,7 +149,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--landing-space-large);
-  margin: var(--landing-space-large) 0;
+  margin: var(--landing-space-large) 0 0 0;
   text-align: center;
 }
 

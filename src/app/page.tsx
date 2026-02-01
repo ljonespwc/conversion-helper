@@ -358,12 +358,10 @@ export default async function LandingPage(): Promise<JSX.Element> {
 
             <div className="blog-manifesto-wrapper">
               <div className="landing-manifesto-text landing-manifesto-with-image">
-                <img
-                  src="/images/library-as-voice.png"
-                  alt="AI assistant pulling threads of information from a massive library of floating documents"
-                  width={140}
-                  height={140}
-                  className="landing-manifesto-img"
+                <ImagePlaceholder
+                  dimensions="140 &times; 140"
+                  caption="Manifesto illustration"
+                  className="blog-placeholder-140x140"
                 />
                 <p>
                   We think the next UX shift isn&rsquo;t a new page layout&mdash;it&rsquo;s the end of scroll-first websites.
