@@ -456,3 +456,207 @@
   border: none;
   border-radius: 0;
 }
+
+/* =================================
+   SECTION LABEL TAGS — small uppercase pills
+   ================================= */
+
+.blog-section-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgb(249, 115, 22);
+  color: white;
+  padding: 0.25em 0.75em;
+  border-radius: 999px;
+  margin-bottom: 0.75em;
+}
+
+/* =================================
+   ACCENT COLOR IN HEADINGS
+   ================================= */
+
+.blog-heading-accent {
+  color: rgb(234, 88, 12);
+  font-style: italic;
+}
+
+/* =================================
+   CHECKMARK BULLETS IN PROOF BLOCKS
+   ================================= */
+
+.blog-proof-block h4 {
+  font-size: 0.9375rem;
+  border-left: 3px solid rgb(249, 115, 22);
+  padding-left: 0.6em;
+}
+
+.blog-proof-block ul li {
+  padding-left: 1.75em;
+  position: relative;
+}
+
+.blog-proof-block ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.25em;
+  width: 1.125em;
+  height: 1.125em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(249,115,22)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* =================================
+   COMPARISON CARDS — before/after
+   ================================= */
+
+.blog-comparison {
+  display: flex;
+  gap: 1.5em;
+  margin: var(--landing-space-large) 0 0 0;
+}
+
+.blog-comparison-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 1.5em;
+  text-align: center;
+}
+
+.blog-comparison-card p {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 1em 0 0 0;
+  color: var(--landing-color-text-secondary);
+}
+
+.blog-comparison-card--before {
+  background: #f3f4f6;
+  border: 2px dashed #d1d5db;
+}
+
+.blog-comparison-card--after {
+  background: rgba(249, 115, 22, 0.05);
+  border: 2px solid rgb(251, 146, 60);
+}
+
+.blog-comparison-tag {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  margin-bottom: 1em;
+}
+
+.blog-comparison-tag--before {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.blog-comparison-tag--after {
+  background: rgb(249, 115, 22);
+  color: white;
+}
+
+/* Grey bars — simulating wall of text */
+.blog-comparison-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0 0.5em;
+}
+
+.blog-comparison-lines div {
+  height: 0.5em;
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.blog-comparison-lines div:nth-child(1) { width: 100%; }
+.blog-comparison-lines div:nth-child(2) { width: 85%; }
+.blog-comparison-lines div:nth-child(3) { width: 92%; }
+.blog-comparison-lines div:nth-child(4) { width: 60%; }
+.blog-comparison-lines div:nth-child(5) { width: 75%; }
+
+/* Chat bubbles */
+.blog-comparison-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0 0.5em;
+}
+
+.blog-chat-bubble {
+  height: 1.75em;
+  border-radius: 12px;
+  max-width: 75%;
+}
+
+.blog-chat-bubble--user {
+  background: #e5e7eb;
+  align-self: flex-end;
+  width: 60%;
+}
+
+.blog-chat-bubble--assistant {
+  background: rgba(249, 115, 22, 0.15);
+  align-self: flex-start;
+  width: 75%;
+}
+
+/* Mobile: stack comparison cards */
+@media (max-width: 48em) {
+  .blog-comparison {
+    flex-direction: column;
+  }
+}
+
+/* =================================
+   ICON BADGES — How It Works steps
+   ================================= */
+
+.blog-step-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background-size: 1.25rem;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Hide the counter circles when icon badges are used */
+.blog-steps--icons li::before {
+  display: none;
+}
+
+/* Globe icon — Scrape */
+.blog-step-icon--scrape {
+  background-color: rgba(249, 115, 22, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(234,88,12)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20'/%3E%3Cpath d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+/* Upload-cloud icon — Upload */
+.blog-step-icon--upload {
+  background-color: rgba(244, 63, 94, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(244,63,94)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242'/%3E%3Cpath d='M12 12v9'/%3E%3Cpath d='m16 16-4-4-4 4'/%3E%3C/svg%3E");
+}
+
+/* Layers icon — Assign */
+.blog-step-icon--assign {
+  background-color: rgba(245, 158, 11, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(217,119,6)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z'/%3E%3Cpath d='m22.54 12.43-10 4.56a2 2 0 0 1-1.66 0l-9.4-4.28'/%3E%3Cpath d='m22.54 16.43-10 4.56a2 2 0 0 1-1.66 0l-9.4-4.28'/%3E%3C/svg%3E");
+}
+
+/* Rocket icon — Launch */
+.blog-step-icon--launch {
+  background-color: rgba(16, 185, 129, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(5,150,105)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z'/%3E%3Cpath d='m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z'/%3E%3Cpath d='M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0'/%3E%3Cpath d='M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5'/%3E%3C/svg%3E");
+}

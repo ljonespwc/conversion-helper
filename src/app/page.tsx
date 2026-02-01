@@ -89,11 +89,23 @@ export default async function LandingPage(): Promise<JSX.Element> {
               What if every visitor could just <em>ask</em>&mdash;and get an instant, accurate answer from your own content?
             </p>
 
-            <ImagePlaceholder
-              dimensions="720 &times; 200"
-              caption="Before/after: a wall of unread text vs. a chat conversation answering the visitor's exact question"
-              className="blog-placeholder-720x200"
-            />
+            <div className="blog-comparison">
+              <div className="blog-comparison-card blog-comparison-card--before">
+                <span className="blog-comparison-tag blog-comparison-tag--before">BEFORE</span>
+                <div className="blog-comparison-lines">
+                  <div /><div /><div /><div /><div />
+                </div>
+                <p>Wall of text. One question. No answer.</p>
+              </div>
+              <div className="blog-comparison-card blog-comparison-card--after">
+                <span className="blog-comparison-tag blog-comparison-tag--after">AFTER</span>
+                <div className="blog-comparison-chat">
+                  <div className="blog-chat-bubble blog-chat-bubble--user" />
+                  <div className="blog-chat-bubble blog-chat-bubble--assistant" />
+                </div>
+                <p>Ask a question. Get the answer.</p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -121,8 +133,9 @@ export default async function LandingPage(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
+            <span className="blog-section-tag">INSTANT ANSWERS</span>
             <h2 className="blog-feature-heading">
-              Answer in Seconds, Not Scrolls
+              Answer in Seconds, <span className="blog-heading-accent">Not Scrolls</span>
             </h2>
 
             <p>
@@ -146,7 +159,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <div className="blog-proof-block">
-              <h4>⚙️ How it works:</h4>
+              <h4>How it works:</h4>
               <ul>
                 <li><strong>Semantic search, not keyword matching.</strong> &ldquo;How much does it cost?&rdquo; matches your pricing doc even if &ldquo;cost&rdquo; never appears.</li>
                 <li><strong>Page-scoped context.</strong> You choose which documents the AI can access on each page&mdash;nothing more.</li>
@@ -168,8 +181,9 @@ export default async function LandingPage(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
+            <span className="blog-section-tag">GROUNDING</span>
             <h2 className="blog-feature-heading">
-              It Knows What It Doesn&rsquo;t Know
+              It Knows What It <span className="blog-heading-accent">Doesn&rsquo;t Know</span>
             </h2>
 
             <p>
@@ -193,7 +207,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </div>
 
             <div className="blog-proof-block">
-              <h4>⚙️ How it works:</h4>
+              <h4>How it works:</h4>
               <ul>
                 <li><strong>Two-layer hallucination defense.</strong> The AI only uses retrieved content&mdash;never training data. After generation, every response is checked against your documents. If it can&rsquo;t trace the answer, honesty replaces the response before the visitor sees it.</li>
                 <li><strong>Semantic search, not keyword matching.</strong> Understands what the visitor means, not just what they typed.</li>
@@ -214,8 +228,9 @@ export default async function LandingPage(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
+            <span className="blog-section-tag">ANALYTICS</span>
             <h2 className="blog-feature-heading">
-              Your Visitors Are Already Telling You What&rsquo;s Missing
+              Your Visitors Are Already Telling You <span className="blog-heading-accent">What&rsquo;s Missing</span>
             </h2>
 
             <p>
@@ -240,7 +255,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
 
 
             <div className="blog-proof-block">
-              <h4>⚙️ How it works:</h4>
+              <h4>How it works:</h4>
               <ul>
                 <li><strong>AI-clustered question themes.</strong> Groups visitor questions into themes automatically, per page, using their own language. You don&rsquo;t define categories. Patterns emerge.</li>
                 <li><strong>Grounding status on every response.</strong> Tagged as grounded (answered from your content) or fallback (couldn&rsquo;t find a match). A cluster of fallbacks = a content gap you can fix.</li>
@@ -262,8 +277,9 @@ export default async function LandingPage(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
+            <span className="blog-section-tag">SALES MODE</span>
             <h2 className="blog-feature-heading">
-              From Support Mode to Sales Mode
+              From Support Mode to <span className="blog-heading-accent">Sales Mode</span>
             </h2>
 
             <p>
@@ -283,7 +299,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <div className="blog-proof-block">
-              <h4>⚙️ How it works:</h4>
+              <h4>How it works:</h4>
               <ul>
                 <li><strong>Two-call AI architecture.</strong> A fast classification call reads every message, determines conversation stage and intent. The response call gets stage-specific instructions.</li>
                 <li><strong>Buying signal detection.</strong> When signals fire, the AI shifts from informational to action-oriented&mdash;&ldquo;Here&rsquo;s how to get started&rdquo; instead of &ldquo;Here&rsquo;s more to read.&rdquo;</li>
@@ -312,26 +328,30 @@ export default async function LandingPage(): Promise<JSX.Element> {
               No dev team. No integrations. No waiting.
             </p>
 
-            <ol className="blog-steps">
+            <ol className="blog-steps blog-steps--icons">
               <li>
+                <div className="blog-step-icon blog-step-icon--scrape" />
                 <div className="blog-step-content">
                   <h3>Scrape</h3>
                   <p>Enter your URLs. EasyAsk reads your pages and learns your content in seconds. Pricing page, features page, product docs&mdash;whatever you point it at.</p>
                 </div>
               </li>
               <li>
+                <div className="blog-step-icon blog-step-icon--upload" />
                 <div className="blog-step-content">
                   <h3>Upload</h3>
                   <p>Add anything else the AI should know. Sales decks, case studies, battle cards, pricing sheets, FAQ docs. Drag, drop, done.</p>
                 </div>
               </li>
               <li>
+                <div className="blog-step-icon blog-step-icon--assign" />
                 <div className="blog-step-content">
                   <h3>Assign</h3>
                   <p>Choose which content the AI can access on which pages. Pricing page gets pricing docs. Features page gets product specs. You control the context.</p>
                 </div>
               </li>
               <li>
+                <div className="blog-step-icon blog-step-icon--launch" />
                 <div className="blog-step-content">
                   <h3>Launch</h3>
                   <p>Paste one embed code. Your chat assistant is live. Visitors can start asking questions immediately.</p>
