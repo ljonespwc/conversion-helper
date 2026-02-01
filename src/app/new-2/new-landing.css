@@ -43,3 +43,10 @@
   font-weight: 700;
   color: var(--landing-color-text-primary);
 }
+
+/* Strip box styling from purple callouts — keep font only */
+.blog-landing .landing-callout-purple {
+  background: none;
+  border: none;
+  border-radius: 0;
+}

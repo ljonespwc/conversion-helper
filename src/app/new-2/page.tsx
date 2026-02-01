@@ -90,7 +90,6 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
               What if every visitor could just <em>ask</em>&mdash;and get an instant, accurate answer from your own content?
             </p>
 
-
             <ImagePlaceholder
               dimensions="720 &times; 200"
               caption="Before/after: a wall of unread text vs. a chat conversation answering the visitor's exact question"
@@ -124,7 +123,6 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
         <section className="blog-section">
           <div className="blog-container blog-body">
             <h2 className="blog-feature-heading">
-
               Answer in Seconds, Not Scrolls
             </h2>
 
@@ -147,15 +145,6 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             <p>
               The visitor who was going to bounce after 8 seconds gets their answer and stays. Every page becomes as helpful as <strong>your best salesperson on their best day</strong>&mdash;except it&rsquo;s 2 AM and the visitor is on their phone.
             </p>
-
-            <div className="blog-scenario">
-              <p>
-                <strong>The pricing page scenario:</strong> A prospect is comparing your three plans. They want to know if the mid-tier includes SSO. They can&rsquo;t find it on the page. In the old world, they email you, wait 24 hours, and by then they&rsquo;ve signed with a competitor who answered faster.
-              </p>
-              <p>
-                With EasyAsk, they type &ldquo;Does the Business plan include SSO?&rdquo; and get an accurate answer in 2 seconds. Deal alive.
-              </p>
-            </div>
 
             <div className="blog-proof-block">
               <h4>⚙️ How it works:</h4>
@@ -250,11 +239,6 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
               <p>This isn&rsquo;t analytics. It&rsquo;s your customers rewriting your copy for you.</p>
             </div>
 
-            <div className="blog-scenario">
-              <p>
-                You notice visitors keep asking about refund policies on your pricing page. You surface it. The objection disappears before it forms. Next week, different pattern&mdash;integration questions on the features page. You add a section. Bounce rate drops. Every week, sharper.
-              </p>
-            </div>
 
             <div className="blog-proof-block">
               <h4>⚙️ How it works:</h4>
@@ -298,7 +282,6 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             <p>
               That&rsquo;s not a vanity metric. That&rsquo;s <strong>proof your content is generating revenue</strong>&mdash;and a blueprint for generating more. You stop wondering whether the widget is &ldquo;working&rdquo; and start seeing exactly how much revenue it&rsquo;s driving.
             </p>
-
 
             <div className="blog-proof-block">
               <h4>⚙️ How it works:</h4>
@@ -359,13 +342,9 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
 
             <ImagePlaceholder
               dimensions="720 &times; 200"
-              caption="4-step flow diagram: Scrape → Upload → Assign → Launch"
+              caption="Most teams go live before lunch."
               className="blog-placeholder-720x200"
             />
-
-            <p className="landing-callout landing-callout-purple" style={{ marginTop: '2em' }}>
-              Most teams go live before lunch.
-            </p>
           </div>
         </section>
 
@@ -425,11 +404,10 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-final-cta">
           <div className="blog-container">
-            <h2 className="blog-section-heading">
+            <h2 className="blog-section-heading" style={{ marginBottom: '0.3em' }}>
               Ready to turn your website into a conversation?
             </h2>
-
-            <p className="landing-callout landing-callout-purple">
+            <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, fontSize: '1.25rem', marginBottom: '1.5em' }}>
               By tonight, your site could be answering questions.
             </p>
 
