@@ -581,6 +581,21 @@ When the grounding gate finds 0 chunks (no file search results), a fast Gemini c
 
 ---
 
+## ✅ Conversation Sharing (2026-02-01)
+
+Public share links for admin conversations. Share button on each conversation generates a unique token, copies the public URL to clipboard, and shows a brief confirmation tooltip.
+
+- `POST /api/admin/conversations/[session_id]/share` — generates `share_token` (UUID), stores in `conversation_sessions`
+- `GET /api/share/[token]` — public API returns session + messages (no auth required)
+- `/share/[token]` — public read-only conversation view
+- Share button with clipboard copy + 2s "Link copied!" tooltip
+- `share_token` column added to `conversation_sessions` table
+- Extracted `calculateDuration` helper to `src/lib/conversation-utils.ts`
+
+**Files**: `src/app/api/admin/conversations/[session_id]/share/route.ts`, `src/app/api/share/[token]/route.ts`, `src/app/share/[token]/page.tsx`, `src/components/admin/ConversationSessionItem.tsx`, `src/lib/conversation-utils.ts`
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)
