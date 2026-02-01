@@ -15,7 +15,7 @@ const faqItems = [
     question: 'Why wouldn\'t I just use ChatGPT or Claude?',
     answer: [
       'Generic AI makes things up. It\'ll confidently tell your prospect something completely wrong about your pricing, your features, or your policies. That\'s not a sales tool—it\'s a liability.',
-      'EasyAsk only answers from content you provide: your pages, your docs, your sales materials. Nothing else. If it doesn\'t know something, it says so and captures the visitor\'s email so your team can follow up. You also get analytics on every conversation—what people ask, how satisfied they are, and how likely they are to buy. It\'s built for conversion, not just conversation.',
+      'EasyAsk only answers from content you provide: your pages, your docs, your sales materials. Nothing else. If it doesn\'t know something, it says so and captures the visitor\'s email so your team can follow up. You also get analytics on every conversation—what people ask and how likely they are to buy. It\'s built for conversion, not just conversation.',
     ],
   },
   {

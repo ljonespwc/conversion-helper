@@ -1,0 +1,45 @@
+/* =================================
+   NEW-2 LANDING PAGE
+   Extends blog-landing styles with proof blocks
+   ================================= */
+
+/* Proof block — visually distinct callout after each feature section */
+.blog-proof-block {
+  background: var(--landing-color-purple-bg);
+  border: 1px solid var(--landing-color-purple-border);
+  border-radius: 8px;
+  padding: 1.25em 1.5em;
+  margin: var(--landing-space-large) 0;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--landing-color-purple-text);
+}
+
+.blog-proof-block h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.75em 0;
+  color: var(--landing-color-text-primary);
+}
+
+.blog-proof-block ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.blog-proof-block ul li {
+  margin: 0 0 0.75em 0;
+  color: var(--landing-color-purple-text);
+}
+
+.blog-proof-block ul li:last-child {
+  margin-bottom: 0;
+}
+
+.blog-proof-block strong {
+  font-weight: 700;
+  color: var(--landing-color-text-primary);
+}

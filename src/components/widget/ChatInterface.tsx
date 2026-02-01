@@ -593,7 +593,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
       : QUICK_ACTION_PREFIXES[action]
 
     const fullMessage = `${prefix} ${inputValue.trim()}`
-    sendMessage(fullMessage)
+    sendMessage(fullMessage, action === 'translate' ? { skipFileSearch: true } : undefined)
     setInputValue('')
     setShowLanguageDropdown(false)
   }

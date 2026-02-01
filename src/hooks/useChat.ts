@@ -28,7 +28,7 @@ interface UseChatReturn {
   organizationName: string | null
   isRestoredSession: boolean
   hasExistingRating: boolean
-  sendMessage: (message: string) => Promise<void>
+  sendMessage: (message: string, options?: { skipFileSearch?: boolean }) => Promise<void>
   startSession: () => void
   startFreshConversation: () => void
   endSession: () => void
@@ -159,7 +159,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     }, 0)
   }, [apiKey, startSession])
 
-  const sendMessage = useCallback(async (message: string) => {
+  const sendMessage = useCallback(async (message: string, options?: { skipFileSearch?: boolean }) => {
     if (!message.trim()) return
     if (!sessionId) {
       setError('Session not started')
@@ -188,7 +188,8 @@ export function useChat(options: UseChatOptions): UseChatReturn {
           api_key: apiKey,
           timezone,
           group_id: groupId,
-          visitor_id: visitorId
+          visitor_id: visitorId,
+          ...(options?.skipFileSearch && { skip_file_search: true })
         })
       })
 

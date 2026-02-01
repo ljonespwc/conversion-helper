@@ -267,12 +267,13 @@ interface ChatRequest {
   api_key: string
   group_id?: string
   visitor_id?: string
+  skip_file_search?: boolean
 }
 
 export async function POST(request: Request) {
   try {
     const body: ChatRequest = await request.json()
-    const { session_id, message, page_url, api_key, group_id, visitor_id } = body
+    const { session_id, message, page_url, api_key, group_id, visitor_id, skip_file_search } = body
 
     // Validate required fields
     if (!session_id) {
@@ -441,18 +442,51 @@ export async function POST(request: Request) {
       visitor_id
     })
 
-    // Generate response with File Search
-    const result = await queryPageContent(
-      message,
-      contentPageUrl,
-      conversationHistory[session_id],
-      systemPrompt,
-      isExperimental
-    )
+    let answer: string
+    let organization: string | undefined
+    let grounded: boolean | null
 
-    const answer = result.answer
-    const organization = result.organization
-    const grounded = result.grounded
+    if (skip_file_search) {
+      // Direct Gemini call without File Search (e.g. translate action)
+      const contents = conversationHistory[session_id]
+        .filter(m => m.role !== 'system')
+        .map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        }))
+
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents,
+            ...(systemPrompt && { systemInstruction: { parts: [{ text: systemPrompt }] } }),
+            generationConfig: { temperature: 0.4, maxOutputTokens: 2500 }
+          })
+        }
+      )
+
+      const geminiData = await geminiResponse.json()
+      answer = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
+        || "I couldn't generate a translation. Please try again."
+      organization = widgetPage.organization_name
+      grounded = null
+    } else {
+      // Generate response with File Search
+      const result = await queryPageContent(
+        message,
+        contentPageUrl,
+        conversationHistory[session_id],
+        systemPrompt,
+        isExperimental
+      )
+
+      answer = result.answer
+      organization = result.organization
+      grounded = result.grounded
+    }
 
     // Add assistant response to history
     conversationHistory[session_id].push({
