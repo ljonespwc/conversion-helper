@@ -90,9 +90,6 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
               What if every visitor could just <em>ask</em>&mdash;and get an instant, accurate answer from your own content?
             </p>
 
-            <div className="blog-pullquote">
-              <p>Every silent bounce is a conversation that never happened.</p>
-            </div>
 
             <ImagePlaceholder
               dimensions="720 &times; 200"
@@ -161,7 +158,7 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             </div>
 
             <div className="blog-proof-block">
-              <h4>How it works:</h4>
+              <h4>⚙️ How it works:</h4>
               <ul>
                 <li><strong>Semantic search, not keyword matching.</strong> &ldquo;How much does it cost?&rdquo; matches your pricing doc even if &ldquo;cost&rdquo; never appears.</li>
                 <li><strong>Page-scoped context.</strong> You choose which documents the AI can access on each page&mdash;nothing more.</li>
@@ -208,7 +205,7 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             </div>
 
             <div className="blog-proof-block">
-              <h4>How it works:</h4>
+              <h4>⚙️ How it works:</h4>
               <ul>
                 <li><strong>Two-layer hallucination defense.</strong> The AI only uses retrieved content&mdash;never training data. After generation, every response is checked against your documents. If it can&rsquo;t trace the answer, honesty replaces the response before the visitor sees it.</li>
                 <li><strong>Semantic search, not keyword matching.</strong> Understands what the visitor means, not just what they typed.</li>
@@ -260,7 +257,7 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             </div>
 
             <div className="blog-proof-block">
-              <h4>How it works:</h4>
+              <h4>⚙️ How it works:</h4>
               <ul>
                 <li><strong>AI-clustered question themes.</strong> Groups visitor questions into themes automatically, per page, using their own language. You don&rsquo;t define categories. Patterns emerge.</li>
                 <li><strong>Grounding status on every response.</strong> Tagged as grounded (answered from your content) or fallback (couldn&rsquo;t find a match). A cluster of fallbacks = a content gap you can fix.</li>
@@ -302,12 +299,9 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
               That&rsquo;s not a vanity metric. That&rsquo;s <strong>proof your content is generating revenue</strong>&mdash;and a blueprint for generating more. You stop wondering whether the widget is &ldquo;working&rdquo; and start seeing exactly how much revenue it&rsquo;s driving.
             </p>
 
-            <div className="blog-pullquote">
-              <p>A direct line from &ldquo;Does the Business plan include SSO?&rdquo; to &ldquo;$4,800 closed.&rdquo;</p>
-            </div>
 
             <div className="blog-proof-block">
-              <h4>How it works:</h4>
+              <h4>⚙️ How it works:</h4>
               <ul>
                 <li><strong>Two-call AI architecture.</strong> A fast classification call reads every message, determines conversation stage and intent. The response call gets stage-specific instructions.</li>
                 <li><strong>Buying signal detection.</strong> When signals fire, the AI shifts from informational to action-oriented&mdash;&ldquo;Here&rsquo;s how to get started&rdquo; instead of &ldquo;Here&rsquo;s more to read.&rdquo;</li>
@@ -329,7 +323,7 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
-            <h2 className="blog-section-heading" style={{ textAlign: 'center' }}>
+            <h2 className="blog-section-heading" style={{ textAlign: 'center', marginBottom: '0.3em' }}>
               From zero to live in 4 steps.
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, marginBottom: '1.5em' }}>
@@ -381,7 +375,7 @@ export default async function NewLanding2Page(): Promise<JSX.Element> {
         <section className="blog-section">
           <div className="blog-container">
             <h2 className="blog-section-heading" style={{ textAlign: 'center' }}>
-              The end of scrolling.
+              It&rsquo;s the end of scrolling.
             </h2>
 
             <div className="blog-manifesto-wrapper">
