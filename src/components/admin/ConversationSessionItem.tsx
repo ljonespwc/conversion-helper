@@ -1,7 +1,9 @@
 'use client'
 
-import { ChevronDown, ChevronRight, Bookmark, Circle, ThumbsUp, ThumbsDown, DollarSign } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronDown, ChevronRight, Bookmark, Circle, ThumbsUp, ThumbsDown, DollarSign, Share2, Check } from 'lucide-react'
 import ConversationMessageView from './ConversationMessageView'
+import { calculateDuration } from '@/lib/conversation-utils'
 import type { ConversationSession } from './types'
 
 interface ConversationSessionItemProps {
@@ -12,29 +14,7 @@ interface ConversationSessionItemProps {
   onToggleSelect: (e: React.MouseEvent) => void
   onToggleBookmark: (e: React.MouseEvent) => void
   onToggleUnread: (e: React.MouseEvent) => void
-}
-
-function calculateDuration(session: ConversationSession): number {
-  if (session.messages && session.messages.length >= 2) {
-    const timestamps = session.messages
-      .map((m) => m.timestamp)
-      .filter((t): t is number => t !== null)
-      .sort((a, b) => a - b)
-
-    if (timestamps.length >= 2) {
-      return Math.round((timestamps[timestamps.length - 1] - timestamps[0]) / 1000)
-    }
-  }
-
-  if (session.ended_at) {
-    return Math.round(
-      (new Date(session.ended_at).getTime() -
-        new Date(session.started_at).getTime()) /
-        1000
-    )
-  }
-
-  return 0
+  onShare: (e: React.MouseEvent) => void
 }
 
 function formatSessionTime(startedAt: string): string {
@@ -88,8 +68,10 @@ export default function ConversationSessionItem({
   onToggleSelect,
   onToggleBookmark,
   onToggleUnread,
+  onShare,
 }: ConversationSessionItemProps): React.ReactElement {
-  const duration = calculateDuration(session)
+  const [showCopied, setShowCopied] = useState(false)
+  const duration = calculateDuration(session.messages || [], session.started_at, session.ended_at)
   const assistantMessages = session.messages?.filter((m) => m.role === 'assistant') || []
   const userMessages = session.messages?.filter((m) => m.role === 'user') || []
   const assistantCount = assistantMessages.length
@@ -114,6 +96,28 @@ export default function ConversationSessionItem({
             <Bookmark
               className={`w-4 h-4 ${session.is_bookmarked ? 'fill-current' : ''}`}
             />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowCopied(true)
+              onShare(e)
+              setTimeout(() => setShowCopied(false), 2000)
+            }}
+            className="p-1 rounded transition-colors text-gray-400 hover:text-gray-600 relative"
+            title={session.share_token ? 'Copy share link' : 'Share conversation'}
+          >
+            {showCopied ? (
+              <>
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs rounded px-2 py-1">
+                  Link copied!
+                </span>
+              </>
+            ) : (
+              <Share2 className="w-4 h-4" />
+            )}
           </button>
 
           <button

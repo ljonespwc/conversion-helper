@@ -5,10 +5,12 @@ import type { ConversationMessage } from './types'
 
 interface ConversationMessageViewProps {
   message: ConversationMessage
+  variant?: 'default' | 'white'
 }
 
 export default function ConversationMessageView({
   message,
+  variant = 'default',
 }: ConversationMessageViewProps): React.ReactElement {
   const isUser = message.role === 'user'
   const timestamp = message.timestamp
@@ -23,7 +25,7 @@ export default function ConversationMessageView({
   })
 
   return (
-    <div className="bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
+    <div className={`${variant === 'white' ? 'bg-white' : 'bg-gray-50'} rounded-lg px-4 py-3 border border-gray-200`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">

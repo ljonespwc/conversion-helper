@@ -16,6 +16,7 @@ interface PageGroupProps {
   onToggleSessionSelection: (sessionId: string, e: React.MouseEvent) => void
   onToggleBookmark: (sessionId: string, currentValue: boolean, e: React.MouseEvent) => void
   onToggleUnread: (sessionId: string, currentlyUnread: boolean, e: React.MouseEvent) => void
+  onShare: (sessionId: string, e: React.MouseEvent) => void
 }
 
 export default function PageGroup({
@@ -30,6 +31,7 @@ export default function PageGroup({
   onToggleSessionSelection,
   onToggleBookmark,
   onToggleUnread,
+  onShare,
 }: PageGroupProps): React.ReactElement {
   const pageTitle = page?.page_title || (pageKey !== 'unknown' ? 'Unknown Page' : 'Demo/Test Sessions')
   const rawUrl = page?.page_url || (pageKey !== 'unknown' ? pageKey : null)
@@ -74,6 +76,7 @@ export default function PageGroup({
               onToggleSelect={(e) => onToggleSessionSelection(session.session_id, e)}
               onToggleBookmark={(e) => onToggleBookmark(session.session_id, session.is_bookmarked, e)}
               onToggleUnread={(e) => onToggleUnread(session.session_id, session.is_unread, e)}
+              onShare={(e) => onShare(session.session_id, e)}
             />
           ))}
         </div>

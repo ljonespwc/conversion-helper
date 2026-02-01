@@ -20,6 +20,7 @@ interface ConversationsListProps {
   onToggleSessionSelection: (sessionId: string, e: React.MouseEvent) => void
   onToggleBookmark: (sessionId: string, currentValue: boolean, e: React.MouseEvent) => void
   onToggleUnread: (sessionId: string, currentlyUnread: boolean, e: React.MouseEvent) => void
+  onShare: (sessionId: string, e: React.MouseEvent) => void
 }
 
 function groupSessionsByPage(
@@ -67,6 +68,7 @@ export default function ConversationsList({
   onToggleSessionSelection,
   onToggleBookmark,
   onToggleUnread,
+  onShare,
 }: ConversationsListProps): React.ReactElement {
   const filteredSessions = showBookmarkedOnly
     ? sessions.filter((s) => s.is_bookmarked)
@@ -140,6 +142,7 @@ export default function ConversationsList({
                 onToggleSessionSelection={onToggleSessionSelection}
                 onToggleBookmark={onToggleBookmark}
                 onToggleUnread={onToggleUnread}
+                onShare={onShare}
               />
             )
           })}

@@ -241,6 +241,30 @@ export default function AdminDashboard(): React.ReactElement {
     }
   }
 
+  async function handleShare(sessionId: string, e: React.MouseEvent): Promise<void> {
+    e.stopPropagation()
+
+    try {
+      const response = await fetch(`/api/admin/conversations/${sessionId}/share`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate share link')
+      }
+
+      const { token, url } = await response.json()
+      await navigator.clipboard.writeText(url)
+
+      updateSessionInStats(sessionId, { share_token: token })
+
+      posthog?.capture('conversation_shared', { session_id: sessionId })
+    } catch (error) {
+      console.error('Error sharing conversation:', error)
+      alert('Failed to generate share link. Please try again.')
+    }
+  }
+
   function handlePageSelect(page: WidgetPage | null): void {
     setSelectedPage(page)
     posthog?.capture('admin_page_filtered', {
@@ -288,6 +312,7 @@ export default function AdminDashboard(): React.ReactElement {
           onToggleSessionSelection={toggleSessionSelection}
           onToggleBookmark={toggleBookmark}
           onToggleUnread={toggleUnread}
+          onShare={handleShare}
         />
 
         <QuestionThemes

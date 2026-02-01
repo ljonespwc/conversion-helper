@@ -24,6 +24,7 @@ export interface ConversationSession {
   last_viewed_at: string | null
   is_unread: boolean
   has_purchase: boolean
+  share_token: string | null
 }
 
 export interface Stats {
