@@ -64,7 +64,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 height={805}
                 className="blog-hero-image"
               />
-              <p className="blog-image-caption">Your visitors have to work to get answers. Give them a lift.</p>
+              <p className="blog-image-caption">Don't make your visitors work to get answers. Give them a lift.</p>
             </div>
           </div>
         </section>
