@@ -75,7 +75,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-section">
           <div className="blog-container blog-body">
             <h2 className="blog-section-heading" style={{ textAlign: 'center' }}>
-              You gave visitors a library and expected them to browse. They wanted to ask a librarian.
+              Your visitors don&rsquo;t want to climb a mountain of content. They want to get to the top.
             </h2>
 
             <p>
