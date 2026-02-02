@@ -541,6 +541,10 @@ export default async function LandingPage(): Promise<JSX.Element> {
               Questions you&rsquo;re probably asking.
             </h2>
 
+            <p className="landing-manifesto-text" style={{ textAlign: 'center', maxWidth: '620px', margin: '0 auto 2.5rem' }}>
+              We built an entire product that replaces FAQ sections. Then we put an FAQ on our own site. The irony isn&rsquo;t lost on us. For what it&rsquo;s worth, the assistant down in the corner&nbsp;↙ handles follow-up questions better than this list does.
+            </p>
+
             <FAQAccordion />
           </div>
         </section>
