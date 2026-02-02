@@ -74,6 +74,19 @@
   margin-right: auto;
 }
 
+.blog-hero-image {
+  display: block;
+  max-width: 37.5rem;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 0 0 4px rgba(249, 115, 22, 0.05);
+}
+
 .blog-hero-microcopy {
   font-size: var(--landing-font-size-x-small);
   font-weight: 500;

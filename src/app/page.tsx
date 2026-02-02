@@ -56,11 +56,16 @@ export default async function LandingPage(): Promise<JSX.Element> {
               </EarlyAccessButton>
               <p className="blog-hero-microcopy">Your content. No hallucinations.</p>
             </div>
-            <ImagePlaceholder
-              dimensions="600 &times; 400"
-              caption="Widget screenshot mockup showing a visitor asking a product question and getting an instant answer"
-              className="blog-placeholder-600x400"
-            />
+            <div>
+              <img
+                src="/images/hero.png"
+                alt="Paper craft illustration of visitors hiking up a winding mountain path versus taking a direct cable car — representing the difference between scrolling through content and asking EasyAsk"
+                width={1200}
+                height={805}
+                className="blog-hero-image"
+              />
+              <p className="blog-image-caption">Your visitors have to work to get answers. Give them a lift.</p>
+            </div>
           </div>
         </section>
 
