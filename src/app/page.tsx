@@ -505,9 +505,14 @@ export default async function LandingPage(): Promise<JSX.Element> {
           <div className="blog-container">
             <div className="blog-manifesto-wrapper">
               <div className="landing-manifesto-text landing-manifesto-with-image">
-                <div className="blog-image-placeholder blog-placeholder-140x140">
-                  <span>140 &times; 140</span>
-                </div>
+                <img
+                  src="/images/manifesto.png"
+                  alt="Paper craft illustration of documents funneling into a single chat bubble"
+                  width={280}
+                  height={280}
+                  className="blog-manifesto-image"
+                />
+                <h3 className="blog-manifesto-heading">The end of the scroll.</h3>
                 <p>
                   We think the next UX shift isn&rsquo;t a new page layout&mdash;it&rsquo;s the end of scroll-first websites.
                 </p>
