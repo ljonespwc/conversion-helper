@@ -127,16 +127,6 @@
   color: var(--landing-color-text-primary);
 }
 
-.blog-feature-heading .blog-feature-number {
-  display: block;
-  font-size: var(--landing-font-size-xxx-small);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: rgb(234, 88, 12); /* orange-600 — matches existing accent */
-  margin-bottom: 0.25em;
-}
-
 /* =================================
    IMAGE PLACEHOLDERS — grey box, dashed border, caption
    ================================= */
@@ -162,29 +152,13 @@
   font-size: var(--landing-font-size-xxx-small);
   color: rgb(107, 114, 128); /* gray-500 — between muted and secondary */
   text-align: center;
-  margin: 0.25em 0 0 0;
+  margin: 1em 0 0 0;
   font-style: italic;
 }
 
 /* Aspect ratios for different placeholder sizes */
 .blog-placeholder-600x400 {
   aspect-ratio: 3 / 2;
-}
-
-.blog-placeholder-720x400 {
-  aspect-ratio: 9 / 5;
-}
-
-.blog-placeholder-720x360 {
-  aspect-ratio: 2 / 1;
-}
-
-.blog-placeholder-720x300 {
-  aspect-ratio: 12 / 5;
-}
-
-.blog-placeholder-720x200 {
-  aspect-ratio: 18 / 5;
 }
 
 /* =================================
@@ -206,48 +180,6 @@
   line-height: 1.6;
   margin: 0;
   color: var(--landing-color-text-primary);
-}
-
-/* =================================
-   DIVIDERS — thin horizontal rules
-   ================================= */
-
-.blog-divider {
-  border: none;
-  border-top: 1px solid var(--landing-color-border);
-  margin: var(--landing-space-x-large) 0;
-}
-
-/* =================================
-   USE CASES — single-column narrative blocks
-   ================================= */
-
-.blog-use-case {
-  margin-bottom: var(--landing-space-large);
-  padding-bottom: var(--landing-space-large);
-  border-bottom: 1px solid var(--landing-color-border);
-}
-
-.blog-use-case:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.blog-use-case h3 {
-  font-size: var(--landing-font-size-small);
-  font-weight: 700;
-  letter-spacing: var(--landing-letter-spacing);
-  line-height: var(--landing-line-height);
-  margin: 0 0 var(--landing-space-small) 0;
-  color: var(--landing-color-text-primary);
-}
-
-.blog-use-case p {
-  font-size: 1.125rem;
-  line-height: 1.7;
-  margin: 0;
-  color: var(--landing-color-text-secondary);
 }
 
 /* =================================
@@ -332,6 +264,17 @@
   padding: var(--landing-space-x-large);
 }
 
+.blog-manifesto-wrapper .blog-image-placeholder {
+  margin: 0 0 var(--landing-space-large) 0;
+}
+
+.blog-manifesto-attribution {
+  font-weight: 600;
+  font-style: italic;
+  color: rgb(234, 88, 12);
+  margin-top: 0.5em;
+}
+
 /* =================================
    FINAL CTA — centered single column
    ================================= */
@@ -354,34 +297,6 @@
 }
 
 /* =================================
-   CALLOUT SCENARIO BOX — for the pricing-page scenario
-   ================================= */
-
-.blog-scenario {
-  background: var(--landing-color-purple-bg);
-  border: 1px solid var(--landing-color-purple-border);
-  border-radius: 8px;
-  padding: 1.25em 1.5em;
-  margin: var(--landing-space-large) 0;
-  font-size: 1.0625rem;
-  line-height: 1.7;
-  color: var(--landing-color-purple-text);
-}
-
-.blog-scenario p {
-  margin: 0 0 0.75em 0;
-  color: var(--landing-color-purple-text);
-}
-
-.blog-scenario p:last-child {
-  margin-bottom: 0;
-}
-
-.blog-scenario strong {
-  font-weight: 700;
-}
-
-/* =================================
    RESPONSIVE
    ================================= */
 
@@ -398,7 +313,6 @@
     font-size: 1rem;
   }
 
-  .blog-use-case p,
   .blog-step-content p {
     font-size: 1rem;
   }
@@ -448,13 +362,6 @@
 .blog-proof-block strong {
   font-weight: 700;
   color: var(--landing-color-text-primary);
-}
-
-/* Strip box styling from purple callouts — keep font only */
-.blog-landing .landing-callout-purple {
-  background: none;
-  border: none;
-  border-radius: 0;
 }
 
 /* =================================
@@ -511,14 +418,39 @@
 }
 
 /* =================================
-   COMPARISON CARDS — before/after
+   SHARED DEMO ROW — side-by-side card layout
    ================================= */
 
-.blog-comparison {
+.blog-demo-row {
   display: flex;
   gap: 1.5em;
   margin: var(--landing-space-large) 0 0 0;
 }
+
+@media (max-width: 48em) {
+  .blog-demo-row {
+    flex-direction: column;
+  }
+}
+
+/* =================================
+   SHARED BADGE — base pill style for demo labels
+   ================================= */
+
+.blog-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2em 0.6em;
+  border-radius: 6px;
+  margin-bottom: 1em;
+}
+
+/* =================================
+   COMPARISON CARDS — before/after
+   ================================= */
 
 .blog-comparison-card {
   flex: 1;
@@ -545,14 +477,8 @@
 }
 
 .blog-comparison-tag {
-  display: inline-block;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.2em 0.6em;
   border-radius: 999px;
-  margin-bottom: 1em;
+  letter-spacing: 0.08em;
 }
 
 .blog-comparison-tag--before {
@@ -611,11 +537,439 @@
   width: 75%;
 }
 
-/* Mobile: stack comparison cards */
-@media (max-width: 48em) {
-  .blog-comparison {
-    flex-direction: column;
-  }
+/* =================================
+   GROUNDING DEMO — hallucination vs honest escalation
+   ================================= */
+
+.blog-grounding-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 1.25em;
+}
+
+.blog-grounding-card--other {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.blog-grounding-card--easyask {
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* .blog-grounding-badge — colors only, base from .blog-badge */
+
+.blog-grounding-badge--other {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.blog-grounding-badge--easyask {
+  background: rgba(249, 115, 22, 0.1);
+  color: rgb(234, 88, 12);
+}
+
+.blog-grounding-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625em;
+}
+
+.blog-grounding-bubble--hallucination {
+  background: #fee2e2;
+  color: #7f1d1d;
+  align-self: flex-start;
+  border-bottom-left-radius: 3px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.6em 0.85em;
+  border-radius: 10px;
+  border-bottom-left-radius: 3px;
+  max-width: 90%;
+}
+
+.blog-grounding-flag {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-top: 0.5em;
+  letter-spacing: 0.02em;
+}
+
+.blog-grounding-bubble--honest {
+  background: rgba(249, 115, 22, 0.08);
+  color: #44403c;
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.6em 0.85em;
+  border-radius: 10px;
+  border-bottom-left-radius: 3px;
+  max-width: 90%;
+}
+
+.blog-grounding-escalation {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(234, 88, 12);
+  background: rgba(249, 115, 22, 0.06);
+  padding: 0.4em 0.7em;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.blog-grounding-escalation-icon {
+  width: 0.875em;
+  height: 0.875em;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(234,88,12)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='16' x='2' y='4' rx='2'/%3E%3Cpath d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* =================================
+   SALES MODE DEMO — support vs sales conversation
+   ================================= */
+
+.blog-sales-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 1.25em;
+}
+
+.blog-sales-card--support {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.blog-sales-card--sales {
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* .blog-sales-badge — colors only, base from .blog-badge */
+
+.blog-sales-badge--support {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.blog-sales-badge--sales {
+  background: rgba(249, 115, 22, 0.1);
+  color: rgb(234, 88, 12);
+}
+
+/* Intent signal indicator */
+.blog-sales-signal {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0.625em 0 0.875em 0;
+}
+
+.blog-sales-signal-dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.blog-sales-signal-dot--low {
+  background: #d1d5db;
+}
+
+.blog-sales-signal-dot--high {
+  background: rgb(249, 115, 22);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.blog-sales-signal-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.blog-sales-signal-dot--high + .blog-sales-signal-label {
+  color: rgb(234, 88, 12);
+}
+
+/* Chat bubble variants */
+.blog-sales-bubble--support {
+  background: #f3f4f6;
+  color: #44403c;
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.6em 0.85em;
+  border-radius: 10px;
+  border-bottom-left-radius: 3px;
+  max-width: 90%;
+}
+
+.blog-sales-bubble--sales {
+  background: rgba(249, 115, 22, 0.08);
+  color: #44403c;
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.6em 0.85em;
+  border-radius: 10px;
+  border-bottom-left-radius: 3px;
+  max-width: 90%;
+}
+
+/* Outcome line */
+.blog-sales-outcome {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #9ca3af;
+  margin: 1em 0 0 0;
+}
+
+/* Purchase attribution block */
+.blog-sales-attribution {
+  margin-top: 0.875em;
+  background: rgba(249, 115, 22, 0.04);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  border-radius: 8px;
+  padding: 0.625em 0.75em;
+}
+
+.blog-sales-attribution-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.2em 0;
+}
+
+.blog-sales-attribution-row:not(:last-child) {
+  border-bottom: 1px solid rgba(249, 115, 22, 0.1);
+}
+
+.blog-sales-attribution-label {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.blog-sales-attribution-value {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* =================================
+   ANALYTICS DEMO — traditional vs EasyAsk insights
+   ================================= */
+
+.blog-analytics-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 1.25em;
+}
+
+.blog-analytics-card--traditional {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.blog-analytics-card--easyask {
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.blog-analytics-badge--traditional {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Metric row */
+.blog-analytics-metrics {
+  display: flex;
+  gap: 1em;
+  margin-bottom: 1em;
+}
+
+.blog-analytics-metric {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.blog-analytics-metric-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1.2;
+}
+
+.blog-analytics-metric-label {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Abstract bar chart */
+.blog-analytics-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375em;
+}
+
+.blog-analytics-bars div {
+  height: 0.5em;
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+/* Verdict line */
+.blog-analytics-verdict {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #9ca3af;
+  margin: 1em 0 0 0;
+  font-style: italic;
+}
+
+.blog-analytics-verdict--positive {
+  color: rgb(234, 88, 12);
+}
+
+/* Question themes */
+.blog-analytics-themes {
+  margin-top: 0.25em;
+}
+
+.blog-analytics-theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375em;
+}
+
+.blog-analytics-theme-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.blog-analytics-theme-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgb(234, 88, 12);
+  background: rgba(249, 115, 22, 0.08);
+  padding: 0.15em 0.5em;
+  border-radius: 999px;
+}
+
+.blog-analytics-questions {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.blog-analytics-questions li {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.6;
+  padding-left: 0.75em;
+  border-left: 2px solid rgba(249, 115, 22, 0.2);
+  margin-bottom: 0.25em;
+}
+
+.blog-analytics-questions li:last-child {
+  margin-bottom: 0;
+}
+
+/* =================================
+   PAGE-CONTEXT DEMO — Instant Answers section
+   ================================= */
+
+.blog-page-context-card {
+  flex: 1;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* .blog-page-context-badge — colors only, base from .blog-badge */
+
+.blog-page-context-badge--pricing {
+  background: rgba(249, 115, 22, 0.1);
+  color: rgb(234, 88, 12);
+}
+
+.blog-page-context-badge--features {
+  background: rgba(244, 63, 94, 0.1);
+  color: rgb(225, 29, 72);
+}
+
+.blog-page-context-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625em;
+}
+
+.blog-context-bubble {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  padding: 0.6em 0.85em;
+  border-radius: 10px;
+  max-width: 90%;
+}
+
+.blog-context-bubble--user {
+  background: #f3f4f6;
+  color: #374151;
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+}
+
+.blog-context-bubble--assistant {
+  background: rgba(249, 115, 22, 0.08);
+  color: #44403c;
+  align-self: flex-start;
+  border-bottom-left-radius: 3px;
+}
+
+p.blog-page-context-caption {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--landing-color-text-muted);
+  text-align: center;
+  margin: 1.5em 0 0 0;
+}
+
+/* =================================
+   "BEFORE LUNCH" CALLOUT
+   ================================= */
+
+.blog-before-lunch {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: italic;
+  text-align: center;
+  color: rgb(234, 88, 12);
+  margin: 4rem 0 0 0;
+  padding-top: 2rem;
+  letter-spacing: var(--landing-letter-spacing-tight);
 }
 
 /* =================================

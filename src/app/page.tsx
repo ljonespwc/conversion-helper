@@ -89,16 +89,16 @@ export default async function LandingPage(): Promise<JSX.Element> {
               What if every visitor could just <em>ask</em>&mdash;and get an instant, accurate answer from your own content?
             </p>
 
-            <div className="blog-comparison">
+            <div className="blog-demo-row blog-comparison">
               <div className="blog-comparison-card blog-comparison-card--before">
-                <span className="blog-comparison-tag blog-comparison-tag--before">BEFORE</span>
+                <span className="blog-badge blog-comparison-tag blog-comparison-tag--before">BEFORE</span>
                 <div className="blog-comparison-lines">
                   <div /><div /><div /><div /><div />
                 </div>
                 <p>Wall of text. One question. No answer.</p>
               </div>
               <div className="blog-comparison-card blog-comparison-card--after">
-                <span className="blog-comparison-tag blog-comparison-tag--after">AFTER</span>
+                <span className="blog-badge blog-comparison-tag blog-comparison-tag--after">AFTER</span>
                 <div className="blog-comparison-chat">
                   <div className="blog-chat-bubble blog-chat-bubble--user" />
                   <div className="blog-chat-bubble blog-chat-bubble--assistant" />
@@ -168,11 +168,31 @@ export default async function LandingPage(): Promise<JSX.Element> {
               </ul>
             </div>
 
-            <ImagePlaceholder
-              dimensions="720 &times; 400"
-              caption="Content assignment UI: pages on the left, knowledge sources on the right, drag-and-drop to connect them"
-              className="blog-placeholder-720x400"
-            />
+            <div className="blog-demo-row blog-page-context-demo">
+              <div className="blog-page-context-card">
+                <span className="blog-badge blog-page-context-badge--pricing">Pricing Page</span>
+                <div className="blog-page-context-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Does the Business plan include SSO?
+                  </div>
+                  <div className="blog-context-bubble blog-context-bubble--assistant">
+                    Yes &mdash; SSO is included on Business and Enterprise. Business starts at $49/seat/mo.
+                  </div>
+                </div>
+              </div>
+              <div className="blog-page-context-card">
+                <span className="blog-badge blog-page-context-badge--features">Features Page</span>
+                <div className="blog-page-context-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Does it integrate with Salesforce?
+                  </div>
+                  <div className="blog-context-bubble blog-context-bubble--assistant">
+                    Yes &mdash; native Salesforce integration with two-way sync. Setup takes about 10 minutes.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="blog-page-context-caption">Same widget. Different intelligence per page.</p>
           </div>
         </section>
 
@@ -215,11 +235,36 @@ export default async function LandingPage(): Promise<JSX.Element> {
               </ul>
             </div>
 
-            <ImagePlaceholder
-              dimensions="720 &times; 300"
-              caption="Escalation flow: AI says 'I don't have that answer' → captures email → team gets a lead with the full conversation"
-              className="blog-placeholder-720x300"
-            />
+            <div className="blog-demo-row blog-grounding-demo">
+              <div className="blog-grounding-card blog-grounding-card--other">
+                <span className="blog-badge blog-grounding-badge--other">Other Chatbots</span>
+                <div className="blog-grounding-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Can I pay annually for a discount?
+                  </div>
+                  <div className="blog-context-bubble blog-grounding-bubble--hallucination">
+                    Yes! We offer a 20% discount on all annual plans. Just select &ldquo;Annual&rdquo; at checkout.
+                    <span className="blog-grounding-flag">&#x26a0; Made up &mdash; no source</span>
+                  </div>
+                </div>
+              </div>
+              <div className="blog-grounding-card blog-grounding-card--easyask">
+                <span className="blog-badge blog-grounding-badge--easyask">EasyAsk</span>
+                <div className="blog-grounding-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Can I pay annually for a discount?
+                  </div>
+                  <div className="blog-context-bubble blog-grounding-bubble--honest">
+                    I don&rsquo;t have information about annual billing in the docs I&rsquo;ve been given. Want me to pass your question to the team?
+                  </div>
+                  <div className="blog-grounding-escalation">
+                    <span className="blog-grounding-escalation-icon" />
+                    Email captured &rarr; routed to sales
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="blog-page-context-caption">One invents an answer. The other captures a lead.</p>
           </div>
         </section>
 
@@ -264,11 +309,53 @@ export default async function LandingPage(): Promise<JSX.Element> {
               </ul>
             </div>
 
-            <ImagePlaceholder
-              dimensions="720 &times; 400"
-              caption="Question themes dashboard: AI-clustered visitor questions grouped by theme and page"
-              className="blog-placeholder-720x400"
-            />
+            <div className="blog-demo-row blog-analytics-demo">
+              <div className="blog-analytics-card blog-analytics-card--traditional">
+                <span className="blog-badge blog-analytics-badge--traditional">Traditional Analytics</span>
+                <div className="blog-analytics-metrics">
+                  <div className="blog-analytics-metric">
+                    <span className="blog-analytics-metric-value">2,847</span>
+                    <span className="blog-analytics-metric-label">Pageviews</span>
+                  </div>
+                  <div className="blog-analytics-metric">
+                    <span className="blog-analytics-metric-value">68%</span>
+                    <span className="blog-analytics-metric-label">Bounce rate</span>
+                  </div>
+                  <div className="blog-analytics-metric">
+                    <span className="blog-analytics-metric-value">0:42</span>
+                    <span className="blog-analytics-metric-label">Avg. time</span>
+                  </div>
+                </div>
+                <div className="blog-analytics-bars">
+                  <div style={{ width: '80%' }} /><div style={{ width: '55%' }} /><div style={{ width: '35%' }} /><div style={{ width: '20%' }} />
+                </div>
+                <p className="blog-analytics-verdict">They left. You don&rsquo;t know why.</p>
+              </div>
+              <div className="blog-analytics-card blog-analytics-card--easyask">
+                <span className="blog-badge blog-grounding-badge--easyask">EasyAsk</span>
+                <div className="blog-analytics-themes">
+                  <div className="blog-analytics-theme">
+                    <span className="blog-analytics-theme-label">Integrations</span>
+                    <span className="blog-analytics-theme-count">40%</span>
+                  </div>
+                  <ul className="blog-analytics-questions">
+                    <li>&ldquo;Does it connect to Salesforce?&rdquo;</li>
+                    <li>&ldquo;Any Zapier integration?&rdquo;</li>
+                    <li>&ldquo;Can I sync with HubSpot?&rdquo;</li>
+                  </ul>
+                  <div className="blog-analytics-theme" style={{ marginTop: '0.75em' }}>
+                    <span className="blog-analytics-theme-label">Pricing clarity</span>
+                    <span className="blog-analytics-theme-count">25%</span>
+                  </div>
+                  <ul className="blog-analytics-questions">
+                    <li>&ldquo;What happens after the trial?&rdquo;</li>
+                    <li>&ldquo;Is there a free tier?&rdquo;</li>
+                  </ul>
+                </div>
+                <p className="blog-analytics-verdict blog-analytics-verdict--positive">They told you exactly what&rsquo;s missing.</p>
+              </div>
+            </div>
+            <p className="blog-page-context-caption">One counts clicks. The other reads minds.</p>
           </div>
         </section>
 
@@ -308,11 +395,54 @@ export default async function LandingPage(): Promise<JSX.Element> {
               </ul>
             </div>
 
-            <ImagePlaceholder
-              dimensions="720 &times; 360"
-              caption="Conversation stage diagram with purchase receipt sidebar showing attributed revenue"
-              className="blog-placeholder-720x360"
-            />
+            <div className="blog-demo-row blog-sales-demo">
+              <div className="blog-sales-card blog-sales-card--support">
+                <span className="blog-badge blog-sales-badge--support">Support Mode</span>
+                <div className="blog-sales-signal">
+                  <span className="blog-sales-signal-dot blog-sales-signal-dot--low" />
+                  <span className="blog-sales-signal-label">Low intent</span>
+                </div>
+                <div className="blog-grounding-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    What does your product do?
+                  </div>
+                  <div className="blog-context-bubble blog-sales-bubble--support">
+                    EasyAsk turns your existing content into a conversational AI assistant. Visitors ask questions and get instant answers from your docs, pages, and files.
+                  </div>
+                </div>
+                <p className="blog-sales-outcome">Informed &rarr; may return later</p>
+              </div>
+              <div className="blog-sales-card blog-sales-card--sales">
+                <span className="blog-badge blog-sales-badge--sales">Sales Mode</span>
+                <div className="blog-sales-signal">
+                  <span className="blog-sales-signal-dot blog-sales-signal-dot--high" />
+                  <span className="blog-sales-signal-label">Buying signal detected</span>
+                </div>
+                <div className="blog-grounding-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Does the Business plan include SSO?
+                  </div>
+                  <div className="blog-context-bubble blog-sales-bubble--sales">
+                    Yes &mdash; SSO is included on Business and Enterprise. Business is $49/seat/mo. Want me to walk you through getting started?
+                  </div>
+                </div>
+                <div className="blog-sales-attribution">
+                  <div className="blog-sales-attribution-row">
+                    <span className="blog-sales-attribution-label">Purchase</span>
+                    <span className="blog-sales-attribution-value">$2,940/yr</span>
+                  </div>
+                  <div className="blog-sales-attribution-row">
+                    <span className="blog-sales-attribution-label">Product</span>
+                    <span className="blog-sales-attribution-value">Business &middot; 5 seats</span>
+                  </div>
+                  <div className="blog-sales-attribution-row">
+                    <span className="blog-sales-attribution-label">Sessions before purchase</span>
+                    <span className="blog-sales-attribution-value">3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="blog-page-context-caption">Same widget. Different conversation. Attributed revenue.</p>
           </div>
         </section>
 
@@ -359,11 +489,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               </li>
             </ol>
 
-            <ImagePlaceholder
-              dimensions="720 &times; 200"
-              caption="Most teams go live before lunch."
-              className="blog-placeholder-720x200"
-            />
+            <p className="blog-before-lunch">Most teams go live before lunch.</p>
           </div>
         </section>
 
@@ -372,17 +498,11 @@ export default async function LandingPage(): Promise<JSX.Element> {
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container">
-            <h2 className="blog-section-heading" style={{ textAlign: 'center' }}>
-              It&rsquo;s the end of scrolling.
-            </h2>
-
             <div className="blog-manifesto-wrapper">
               <div className="landing-manifesto-text landing-manifesto-with-image">
-                <ImagePlaceholder
-                  dimensions="140 &times; 140"
-                  caption="Manifesto illustration"
-                  className="blog-placeholder-140x140"
-                />
+                <div className="blog-image-placeholder blog-placeholder-140x140">
+                  <span>140 &times; 140</span>
+                </div>
                 <p>
                   We think the next UX shift isn&rsquo;t a new page layout&mdash;it&rsquo;s the end of scroll-first websites.
                 </p>
@@ -394,6 +514,8 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 <p>
                   In 1-2 years, most serious products will have a conversational layer on top of a massive library of answers. EasyAsk is our way of letting you do that today, without rewriting your whole site.
                 </p>
+
+                <p className="blog-manifesto-attribution">&mdash; Lance Jones, Founder</p>
 
               </div>
             </div>
