@@ -62,6 +62,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                   <Link href="/admin" className="landing-nav-link">
                     Reports
                   </Link>
+                  <Link href="/admin/analytics" className="landing-nav-link">
+                    Analytics
+                  </Link>
                   <Link href="/admin/escalations" className="landing-nav-link">
                     Escalations
                   </Link>
@@ -133,6 +136,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
             </Link>
             <Link href="/admin" onClick={closeMobileMenu} className="landing-nav-mobile-link">
               Reports
+            </Link>
+            <Link href="/admin/analytics" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Analytics
             </Link>
             <Link href="/admin/escalations" onClick={closeMobileMenu} className="landing-nav-mobile-link">
               Escalations
