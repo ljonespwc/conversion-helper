@@ -202,7 +202,143 @@ export default async function LandingPage(): Promise<JSX.Element> {
         </section>
 
         {/* ============================================================
-            5. FEATURE: It Knows What It Doesn't Know
+            5. FEATURE: From Support Mode to Sales Mode
+            ============================================================ */}
+        <section className="blog-section">
+          <div className="blog-container blog-body">
+            <span className="blog-section-tag">SALES MODE</span>
+            <h2 className="blog-feature-heading">
+              From Support Mode to <span className="blog-heading-accent">Sales Mode</span>
+            </h2>
+
+            <p>
+              <span className="blog-lead">Someone asking &ldquo;what do you do?&rdquo; and someone asking &ldquo;does the Business plan include SSO?&rdquo; are not the same visitor.</span>
+            </p>
+
+            <p>
+              The second one is <strong>five minutes from pulling out their credit card.</strong> EasyAsk knows the difference.
+            </p>
+
+            <p>
+              Tag a page as a sales page and the AI shifts from support to consultative selling. It picks up on buying cues: pricing, comparisons, implementation. It responds with answers that address objections while qualifying intent. It doesn&rsquo;t push. It guides.
+            </p>
+
+            <p>
+              And when they buy, you see it. Not in a separate dashboard you have to cross-reference&mdash;<strong>right next to their conversation.</strong> Dollar amount, product, every question they asked before they bought.
+            </p>
+
+            <p>
+              That&rsquo;s not a vanity metric. That&rsquo;s <strong>proof your content is generating revenue</strong>&mdash;and a blueprint for generating more. You stop wondering whether the widget is &ldquo;working&rdquo; and start seeing exactly how much revenue it&rsquo;s driving.
+            </p>
+
+            {/* Quick Action Toolkit Callout */}
+            <div className="blog-toolkit-callout">
+              <h3 className="blog-toolkit-heading">Smart tools that match visitor intent.</h3>
+              <p className="blog-toolkit-intro">
+                On a sales page, visitors want to evaluate. On a lead page, they want the quick version. On a support page, they want to understand. The intent-based <strong>"quick question buttons"</strong> adapt automatically.
+              </p>
+
+              <div className="blog-demo-row blog-toolkit-row">
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--sell">Sales Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill">Pros &amp; Cons</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Compare&hellip;</span>
+                    <span className="blog-toolkit-pill">How It Works</span>
+                    <span className="blog-toolkit-pill">Show Proof</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them decide</p>
+                </div>
+
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--lead">Lead Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill">TL;DR</span>
+                    <span className="blog-toolkit-pill">Why Should I Care?</span>
+                    <span className="blog-toolkit-pill">What Do I Get?</span>
+                    <span className="blog-toolkit-pill">Quick Facts</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them understand</p>
+                </div>
+
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--support">Support Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Explain&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Example&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Define&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Translate&hellip;</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them learn</p>
+                </div>
+              </div>
+
+              <p className="blog-page-context-caption">Same widget. Different toolkit per page.</p>
+            </div>
+
+            <div className="blog-proof-block">
+              <h4>How it works on sales pages:</h4>
+              <ul>
+                <li><strong>Two-call AI architecture.</strong> A fast classification call reads every message, determines conversation stage and intent. The response call gets stage-specific instructions.</li>
+                <li><strong>Buying signal detection.</strong> When signals fire, the AI shifts from informational to action-oriented&mdash;&ldquo;Here&rsquo;s how to get started&rdquo; instead of &ldquo;Here&rsquo;s more to read.&rdquo;</li>
+                <li><strong>Persistent visitor identity.</strong> First-party cookie tracks visitors across sessions. Tuesday&rsquo;s pricing question and Thursday&rsquo;s return visit&mdash;one visitor, full journey.</li>
+                <li><strong>Purchase attribution.</strong> Lightweight API connects purchases to visitor records. Transaction amount, product, and the chat sessions that preceded it. No UTM guesswork.</li>
+              </ul>
+            </div>
+
+            <div className="blog-demo-row blog-sales-demo">
+              <div className="blog-sales-card blog-sales-card--support">
+                <span className="blog-badge blog-sales-badge--support">Support Mode</span>
+                <div className="blog-sales-signal">
+                  <span className="blog-sales-signal-dot blog-sales-signal-dot--low" />
+                  <span className="blog-sales-signal-label">Low intent</span>
+                </div>
+                <div className="blog-grounding-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    What does your product do?
+                  </div>
+                  <div className="blog-context-bubble blog-sales-bubble--support">
+                    EasyAsk turns your existing content into a conversational AI assistant. Visitors ask questions and get instant answers from your docs, pages, and files.
+                  </div>
+                </div>
+                <p className="blog-sales-outcome">Informed &rarr; may return later</p>
+              </div>
+              <div className="blog-sales-card blog-sales-card--sales">
+                <span className="blog-badge blog-sales-badge--sales">Sales Mode</span>
+                <div className="blog-sales-signal">
+                  <span className="blog-sales-signal-dot blog-sales-signal-dot--high" />
+                  <span className="blog-sales-signal-label">Buying signal detected</span>
+                </div>
+                <div className="blog-grounding-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Does the Business plan include SSO?
+                  </div>
+                  <div className="blog-context-bubble blog-sales-bubble--sales">
+                    Yes &mdash; SSO is included on Business and Enterprise. Business is $49/seat/mo. Want me to walk you through getting started?
+                  </div>
+                </div>
+                <div className="blog-sales-attribution">
+                  <div className="blog-sales-attribution-row">
+                    <span className="blog-sales-attribution-label">Purchase</span>
+                    <span className="blog-sales-attribution-value">$2,940/yr</span>
+                  </div>
+                  <div className="blog-sales-attribution-row">
+                    <span className="blog-sales-attribution-label">Product</span>
+                    <span className="blog-sales-attribution-value">Business &middot; 5 seats</span>
+                  </div>
+                  <div className="blog-sales-attribution-row">
+                    <span className="blog-sales-attribution-label">Sessions before purchase</span>
+                    <span className="blog-sales-attribution-value">3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="blog-page-context-caption">Same widget. Different conversation. Attributed revenue.</p>
+          </div>
+        </section>
+
+        {/* ============================================================
+            6. FEATURE: It Knows What It Doesn't Know
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
@@ -365,143 +501,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         </section>
 
         {/* ============================================================
-            7. FEATURE: From Support Mode to Sales Mode
-            ============================================================ */}
-        <section className="blog-section">
-          <div className="blog-container blog-body">
-            <span className="blog-section-tag">SALES MODE</span>
-            <h2 className="blog-feature-heading">
-              From Support Mode to <span className="blog-heading-accent">Sales Mode</span>
-            </h2>
-
-            <p>
-              <span className="blog-lead">Someone asking &ldquo;what do you do?&rdquo; and someone asking &ldquo;does the Business plan include SSO?&rdquo; are not the same visitor.</span>
-            </p>
-
-            <p>
-              The second one is <strong>five minutes from pulling out their credit card.</strong> EasyAsk knows the difference.
-            </p>
-
-            <p>
-              Tag a page as a sales page and the AI shifts from support to consultative selling. It picks up on buying cues: pricing, comparisons, implementation. It responds with answers that address objections while qualifying intent. It doesn&rsquo;t push. It guides.
-            </p>
-
-            <p>
-              And when they buy, you see it. Not in a separate dashboard you have to cross-reference&mdash;<strong>right next to their conversation.</strong> Dollar amount, product, every question they asked before they bought.
-            </p>
-
-            <p>
-              That&rsquo;s not a vanity metric. That&rsquo;s <strong>proof your content is generating revenue</strong>&mdash;and a blueprint for generating more. You stop wondering whether the widget is &ldquo;working&rdquo; and start seeing exactly how much revenue it&rsquo;s driving.
-            </p>
-
-            {/* Quick Action Toolkit Callout */}
-            <div className="blog-toolkit-callout">
-              <h3 className="blog-toolkit-heading">Smart tools that match visitor intent.</h3>
-              <p className="blog-toolkit-intro">
-                On a sales page, visitors want to evaluate. On a lead page, they want the quick version. On a support page, they want to understand. The quick-action buttons adapt automatically.
-              </p>
-
-              <div className="blog-demo-row blog-toolkit-row">
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--sell">Sales Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill">Pros &amp; Cons</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Compare&hellip;</span>
-                    <span className="blog-toolkit-pill">How It Works</span>
-                    <span className="blog-toolkit-pill">Show Proof</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them decide</p>
-                </div>
-
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--lead">Lead Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill">TL;DR</span>
-                    <span className="blog-toolkit-pill">Why Should I Care?</span>
-                    <span className="blog-toolkit-pill">What Do I Get?</span>
-                    <span className="blog-toolkit-pill">Quick Facts</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them understand</p>
-                </div>
-
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--support">Support Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Explain&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Example&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Define&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Translate&hellip;</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them learn</p>
-                </div>
-              </div>
-
-              <p className="blog-page-context-caption">Same widget. Different toolkit per page.</p>
-            </div>
-
-            <div className="blog-proof-block">
-              <h4>How it works on sales pages:</h4>
-              <ul>
-                <li><strong>Two-call AI architecture.</strong> A fast classification call reads every message, determines conversation stage and intent. The response call gets stage-specific instructions.</li>
-                <li><strong>Buying signal detection.</strong> When signals fire, the AI shifts from informational to action-oriented&mdash;&ldquo;Here&rsquo;s how to get started&rdquo; instead of &ldquo;Here&rsquo;s more to read.&rdquo;</li>
-                <li><strong>Persistent visitor identity.</strong> First-party cookie tracks visitors across sessions. Tuesday&rsquo;s pricing question and Thursday&rsquo;s return visit&mdash;one visitor, full journey.</li>
-                <li><strong>Purchase attribution.</strong> Lightweight API connects purchases to visitor records. Transaction amount, product, and the chat sessions that preceded it. No UTM guesswork.</li>
-              </ul>
-            </div>
-
-            <div className="blog-demo-row blog-sales-demo">
-              <div className="blog-sales-card blog-sales-card--support">
-                <span className="blog-badge blog-sales-badge--support">Support Mode</span>
-                <div className="blog-sales-signal">
-                  <span className="blog-sales-signal-dot blog-sales-signal-dot--low" />
-                  <span className="blog-sales-signal-label">Low intent</span>
-                </div>
-                <div className="blog-grounding-chat">
-                  <div className="blog-context-bubble blog-context-bubble--user">
-                    What does your product do?
-                  </div>
-                  <div className="blog-context-bubble blog-sales-bubble--support">
-                    EasyAsk turns your existing content into a conversational AI assistant. Visitors ask questions and get instant answers from your docs, pages, and files.
-                  </div>
-                </div>
-                <p className="blog-sales-outcome">Informed &rarr; may return later</p>
-              </div>
-              <div className="blog-sales-card blog-sales-card--sales">
-                <span className="blog-badge blog-sales-badge--sales">Sales Mode</span>
-                <div className="blog-sales-signal">
-                  <span className="blog-sales-signal-dot blog-sales-signal-dot--high" />
-                  <span className="blog-sales-signal-label">Buying signal detected</span>
-                </div>
-                <div className="blog-grounding-chat">
-                  <div className="blog-context-bubble blog-context-bubble--user">
-                    Does the Business plan include SSO?
-                  </div>
-                  <div className="blog-context-bubble blog-sales-bubble--sales">
-                    Yes &mdash; SSO is included on Business and Enterprise. Business is $49/seat/mo. Want me to walk you through getting started?
-                  </div>
-                </div>
-                <div className="blog-sales-attribution">
-                  <div className="blog-sales-attribution-row">
-                    <span className="blog-sales-attribution-label">Purchase</span>
-                    <span className="blog-sales-attribution-value">$2,940/yr</span>
-                  </div>
-                  <div className="blog-sales-attribution-row">
-                    <span className="blog-sales-attribution-label">Product</span>
-                    <span className="blog-sales-attribution-value">Business &middot; 5 seats</span>
-                  </div>
-                  <div className="blog-sales-attribution-row">
-                    <span className="blog-sales-attribution-label">Sessions before purchase</span>
-                    <span className="blog-sales-attribution-value">3</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="blog-page-context-caption">Same widget. Different conversation. Attributed revenue.</p>
-          </div>
-        </section>
-
-        {/* ============================================================
-            8. HOW IT WORKS
+            5. HOW IT WORKS
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
@@ -604,7 +604,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-final-cta">
           <div className="blog-container">
             <h2 className="blog-section-heading" style={{ marginBottom: '0.3em' }}>
-              Ready to turn your website into a conversation?
+              Turn browsers into buyers before they bounce.
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, fontSize: '1.25rem', marginBottom: '1.5em' }}>
               By tonight, your site could be answering questions. No pilot program. No procurement process.
