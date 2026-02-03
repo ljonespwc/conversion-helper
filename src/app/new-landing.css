@@ -1157,3 +1157,72 @@ p.blog-page-context-caption {
     width: 100%;
   }
 }
+
+/* =================================
+   PERSONA CARDS — Who It's For
+   ================================= */
+
+.blog-persona-cards {
+  display: flex;
+  gap: 1.25em;
+  margin: 2em 0;
+}
+
+.blog-persona-card {
+  flex: 1;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.blog-persona-card p {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0.75em 0 0 0;
+  color: var(--landing-color-text-secondary);
+}
+
+.blog-persona-card p strong {
+  color: var(--landing-color-text-primary);
+}
+
+/* Badge colors per persona */
+.blog-persona-badge--saas {
+  background: rgba(59, 130, 246, 0.1);
+  color: rgb(37, 99, 235);
+}
+
+.blog-persona-badge--ecommerce {
+  background: rgba(16, 185, 129, 0.1);
+  color: rgb(5, 150, 105);
+}
+
+.blog-persona-badge--smb {
+  background: rgba(249, 115, 22, 0.1);
+  color: rgb(234, 88, 12);
+}
+
+/* Subtle left border accent matching badge */
+.blog-persona-card--saas {
+  border-left: 3px solid rgb(59, 130, 246);
+}
+
+.blog-persona-card--ecommerce {
+  border-left: 3px solid rgb(16, 185, 129);
+}
+
+.blog-persona-card--smb {
+  border-left: 3px solid rgb(249, 115, 22);
+}
+
+@media (max-width: 48em) {
+  .blog-persona-cards {
+    flex-direction: column;
+  }
+
+  .blog-persona-card {
+    max-width: 100%;
+  }
+}

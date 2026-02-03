@@ -135,7 +135,47 @@ export default async function LandingPage(): Promise<JSX.Element> {
         </section>
 
         {/* ============================================================
-            4. FEATURE: Answer in Seconds, Not Scrolls
+            4. WHO IT'S FOR
+            ============================================================ */}
+        <section className="blog-section">
+          <div className="blog-container blog-body">
+            <span className="blog-section-tag">WHO IT&rsquo;S FOR</span>
+            <h2 className="blog-feature-heading">
+              Built for teams who can&rsquo;t afford to lose another sale to <span className="blog-heading-accent">silence</span>.
+            </h2>
+
+            <div className="blog-demo-row blog-persona-cards">
+              <div className="blog-persona-card blog-persona-card--saas">
+                <span className="blog-badge blog-persona-badge--saas">SaaS</span>
+                <p>
+                  <strong>The SaaS founder</strong> who watches qualified visitors bounce because they couldn&rsquo;t find integration info fast enough. You wrote the perfect answer. They just didn&rsquo;t scroll far enough to find it.
+                </p>
+              </div>
+
+              <div className="blog-persona-card blog-persona-card--ecommerce">
+                <span className="blog-badge blog-persona-badge--ecommerce">E-commerce</span>
+                <p>
+                  <strong>The e-commerce manager</strong> who knows 2 AM shoppers have questions&mdash;but can&rsquo;t justify overnight staff. Every unanswered &ldquo;does this run true to size?&rdquo; is a cart left behind.
+                </p>
+              </div>
+
+              <div className="blog-persona-card blog-persona-card--smb">
+                <span className="blog-badge blog-persona-badge--smb">SMB</span>
+                <p>
+                  <strong>The SMB owner</strong> who&rsquo;s tired of enterprise software with enterprise prices. You don&rsquo;t need a 6-month implementation. You need something that works by Friday.
+                </p>
+              </div>
+            </div>
+
+            <div className="blog-pullquote">
+              <p>You want enterprise-grade AI without the enterprise overhead.</p>
+              <p style={{ fontSize: '1rem', marginTop: '0.75em', opacity: 0.85 }}>No procurement committee. No integration project. No $50K pilot.<br />Your content. A simple but skilled chat widget. Sales happening while you sleep.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            5. FEATURE: Answer in Seconds, Not Scrolls
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
