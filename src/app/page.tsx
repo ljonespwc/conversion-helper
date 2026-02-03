@@ -49,7 +49,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-hero">
           <div className="blog-container">
             <h1>Your product didn&rsquo;t lose them.<br />Your page did.</h1>
-            <p className="blog-subtitle">Turn your pages, case studies, and sales decks into an AI assistant that answers instantly, learns what visitors want, and closes sales.</p>
+            <p className="blog-subtitle">EasyAsk is a lightweight AI assistant that answers questions, generates leads, handles objections, and closes sales. Trained on your content.</p>
             <div className="blog-cta-wrapper">
               <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
                 Get Early Access &rarr;
@@ -75,7 +75,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-section">
           <div className="blog-container blog-body">
             <h2 className="blog-section-heading" style={{ textAlign: 'center' }}>
-              Your visitors don&rsquo;t want to climb a mountain of content. They want to get to the top.
+              Your visitors don&rsquo;t want to climb a mountain of content before buying. They want to summit, fast.
             </h2>
 
             <p>
@@ -83,11 +83,15 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <p>
-              <strong>60% of traffic is mobile.</strong> Nobody reads 1,200 words on a phone. They have one question. If they can&rsquo;t find the answer in seconds, they bounce.
+              <strong>60% of traffic is mobile.</strong> Nobody reads 1,200 words on a phone. They have one question. If they can&rsquo;t find the answer in seconds, they may bounce.
             </p>
 
             <p>
-              They didn&rsquo;t bounce because your product was wrong. They bounced because your page <strong>made them work for the answer.</strong>
+              They don&rsquo;t bounce because your product is wrong. They bounce because your page <strong>makes them work for the answer.</strong>
+            </p>
+
+            <p>
+              Every bounce is a buyer you&rsquo;ll never get back. They had a question. You had the answer. The page just didn&rsquo;t connect them.
             </p>
 
             <p>
@@ -127,9 +131,6 @@ export default async function LandingPage(): Promise<JSX.Element> {
               Feed it your pages, sales decks, pricing sheets. It learns your product in minutes. Answers in your words&mdash;<strong>never inventing, never hallucinating.</strong>
             </p>
 
-            <p>
-              Here&rsquo;s what changes when visitors can ask instead of scroll.
-            </p>
           </div>
         </section>
 
@@ -144,7 +145,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </h2>
 
             <p>
-              <span className="blog-lead">Your visitor is on your pricing page right now. They have one question. If they can&rsquo;t get the answer in seconds, they&rsquo;re gone.</span>
+              <span className="blog-lead">Your visitor is on your pricing page right now. They have one pricing question. If they can&rsquo;t get the answer in seconds, they&rsquo;re gone.</span>
             </p>
 
             <p>
@@ -156,11 +157,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <p>
-              Built-in comprehension tools let visitors translate, simplify, summarize, or define terms inside the chat. Complex doesn&rsquo;t have to mean confusing.
-            </p>
-
-            <p>
-              The visitor who was going to bounce after 8 seconds gets their answer and stays. Every page becomes as helpful as <strong>your best salesperson on their best day</strong>&mdash;except it&rsquo;s 2 AM and the visitor is on their phone.
+              The visitor who was going to bounce after 8 seconds gets their answer and stays. Every page becomes as effective as <strong>your best salesperson on their best day</strong>&mdash;except it&rsquo;s 2 AM and the visitor is on their phone.
             </p>
 
             <div className="blog-proof-block">
@@ -169,7 +166,6 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 <li><strong>Semantic search, not keyword matching.</strong> &ldquo;How much does it cost?&rdquo; matches your pricing doc even if &ldquo;cost&rdquo; never appears.</li>
                 <li><strong>Page-scoped context.</strong> You choose which documents the AI can access on each page&mdash;nothing more.</li>
                 <li><strong>Cross-product intelligence.</strong> The page is the starting point. The conversation goes wherever the buyer wants.</li>
-                <li><strong>Comprehension tools.</strong> Translate, simplify, summarize, define&mdash;right inside the chat.</li>
               </ul>
             </div>
 
@@ -212,7 +208,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </h2>
 
             <p>
-              <span className="blog-lead">Someone asking &ldquo;what do you do?&rdquo; and someone asking &ldquo;does the Business plan include SSO?&rdquo; are not the same visitor.</span>
+              <span className="blog-lead">Someone asking &ldquo;what does your product do?&rdquo; and someone asking &ldquo;does the Business plan include SSO?&rdquo; are not the same visitor.</span>
             </p>
 
             <p>
@@ -220,7 +216,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <p>
-              Tag a page as a sales page and the AI shifts from support to consultative selling. It picks up on buying cues: pricing, comparisons, implementation. It responds with answers that address objections while qualifying intent. It doesn&rsquo;t push. It guides.
+              Tag a page as a sales page and the AI shifts from support to consultative selling. It picks up on buying cues: pricing, comparisons, implementation. It responds with answers that address objections while qualifying intent. <strong>It doesn&rsquo;t push. It guides.</strong>
             </p>
 
             <p>
@@ -362,10 +358,6 @@ export default async function LandingPage(): Promise<JSX.Element> {
             <p>
               Every honest &ldquo;I don&rsquo;t know&rdquo; is a signal&mdash;a question your visitors keep asking that your content doesn&rsquo;t answer. And every captured email is a lead your team would have lost entirely.
             </p>
-
-            <div className="blog-pullquote">
-              <p>The AI assistant that never goes off-script.</p>
-            </div>
 
             <div className="blog-proof-block">
               <h4>How it works:</h4>
@@ -607,7 +599,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               Turn browsers into buyers before they bounce.
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, fontSize: '1.25rem', marginBottom: '1.5em' }}>
-              By tonight, your site could be answering questions. No pilot program. No procurement process.
+              By tonight, your site could be answering questions.
             </p>
 
             <div className="blog-cta-wrapper">
