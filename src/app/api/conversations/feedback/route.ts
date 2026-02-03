@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { rateLimits, getClientIP } from '@/lib/ratelimit'
+import { isValidKeyFormat } from '@/lib/api-keys'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +40,29 @@ export async function POST(request: NextRequest) {
       console.error('Rate limiting error (allowing request):', rateLimitError)
     }
 
-    const { session_id, rating } = await request.json()
+    const { session_id, rating, api_key } = await request.json()
+
+    // Validate API key
+    if (!isValidKeyFormat(api_key)) {
+      return NextResponse.json(
+        { error: 'Invalid or missing API key' },
+        { status: 401 }
+      )
+    }
+
+    // Look up organization by API key
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .select('id')
+      .eq('publishable_key', api_key)
+      .single()
+
+    if (orgError || !org) {
+      return NextResponse.json(
+        { error: 'Invalid API key' },
+        { status: 401 }
+      )
+    }
 
     // Validate required fields
     if (!session_id) {
@@ -57,10 +80,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if session exists
+    // Check if session exists AND belongs to this organization
     const { data: session, error: fetchError } = await supabase
       .from('conversation_sessions')
-      .select('id, user_rating')
+      .select('id, user_rating, organization_id')
       .eq('session_id', session_id)
       .maybeSingle()
 
@@ -68,57 +91,41 @@ export async function POST(request: NextRequest) {
       throw fetchError
     }
 
-    if (session) {
-      // Session exists - check if rating already submitted
-      if (session.user_rating) {
-        return NextResponse.json(
-          {
-            message: 'Rating already submitted for this conversation',
-            current_rating: session.user_rating
-          },
-          { status: 200 }
-        )
-      }
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Session not found' },
+        { status: 404 }
+      )
+    }
 
-      // Update existing session with rating
-      const { error: updateError } = await supabase
-        .from('conversation_sessions')
-        .update({ user_rating: rating })
-        .eq('session_id', session_id)
+    // Verify session belongs to the organization
+    if (session.organization_id !== org.id) {
+      return NextResponse.json(
+        { error: 'Session not found' },
+        { status: 404 }
+      )
+    }
 
-      if (updateError) {
-        throw updateError
-      }
-    } else {
-      // Session doesn't exist yet (conversation still in progress)
-      // Create it now with just session_id and rating
-      // The webhook will fill in the rest at session.end
-      const { error: insertError } = await supabase
-        .from('conversation_sessions')
-        .insert({
-          session_id,
-          user_rating: rating,
-          started_at: new Date().toISOString(),
-          total_questions: 0,
-          matched_responses: 0
-        })
+    // Check if rating already submitted
+    if (session.user_rating) {
+      return NextResponse.json(
+        {
+          message: 'Rating already submitted for this conversation',
+          current_rating: session.user_rating
+        },
+        { status: 200 }
+      )
+    }
 
-      if (insertError) {
-        // Handle unique constraint violation (race condition - session was just created)
-        if (insertError.code === '23505') {
-          // Retry update
-          const { error: retryError } = await supabase
-            .from('conversation_sessions')
-            .update({ user_rating: rating })
-            .eq('session_id', session_id)
+    // Update existing session with rating
+    const { error: updateError } = await supabase
+      .from('conversation_sessions')
+      .update({ user_rating: rating })
+      .eq('session_id', session_id)
+      .eq('organization_id', org.id)
 
-          if (retryError) {
-            throw retryError
-          }
-        } else {
-          throw insertError
-        }
-      }
+    if (updateError) {
+      throw updateError
     }
 
     console.log(`⭐ Rating captured: ${rating}/5 for session ${session_id}`)

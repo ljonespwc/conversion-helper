@@ -1,12 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { Webhook } from 'svix'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FORWARD_TO = 'lancecj@gmail.com'
 
+type WebhookEvent = {
+  type: string
+  data: {
+    from: string
+    to: string | string[]
+    subject: string
+    html?: string
+    text?: string
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const event = await request.json()
+    const webhookSecret = process.env.RESEND_WEBHOOK_SECRET
+
+    if (!webhookSecret) {
+      console.error('RESEND_WEBHOOK_SECRET not configured')
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+    }
+
+    // Verify svix signature
+    const svixHeaders = {
+      'svix-id': request.headers.get('svix-id') || '',
+      'svix-timestamp': request.headers.get('svix-timestamp') || '',
+      'svix-signature': request.headers.get('svix-signature') || '',
+    }
+
+    const body = await request.text()
+
+    let event: WebhookEvent
+    try {
+      const wh = new Webhook(webhookSecret)
+      event = wh.verify(body, svixHeaders) as WebhookEvent
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err)
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    }
 
     console.log('Resend webhook received:', JSON.stringify(event, null, 2))
 

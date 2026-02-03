@@ -32,6 +32,7 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "resend": "^6.5.2",
+    "svix": "^1.84.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
   },

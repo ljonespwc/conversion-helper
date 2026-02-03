@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
+import { canDelete, UserRole } from '@/lib/rbac'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,8 +60,12 @@ export async function GET() {
           let pageToken: string | null = null
 
           do {
-            const url: string = `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20${pageToken ? `&pageToken=${pageToken}` : ''}&key=${process.env.GEMINI_API_KEY}`
-            const response = await fetch(url)
+            const url: string = `https://generativelanguage.googleapis.com/v1beta/${storeName}/documents?pageSize=20${pageToken ? `&pageToken=${pageToken}` : ''}`
+            const response = await fetch(url, {
+              headers: {
+                'x-goog-api-key': process.env.GEMINI_API_KEY!
+              }
+            })
 
             if (!response.ok) {
               throw new Error(`Google API error: ${response.statusText}`)
@@ -224,10 +229,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's organization_id
+    // Get user's organization_id and role
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .select('organization_id')
+      .select('organization_id, role')
       .eq('id', user.id)
       .single()
 
@@ -235,6 +240,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { error: 'User organization not found' },
         { status: 400 }
+      )
+    }
+
+    // Check RBAC permission for delete operation
+    if (!canDelete(userData.role as UserRole)) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
       )
     }
 

@@ -3,6 +3,7 @@ import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { GoogleGenAI } from '@google/genai'
 import { fileTypeFromBuffer } from 'file-type'
+import { canDelete, UserRole } from '@/lib/rbac'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,8 +51,8 @@ function createSummary<T extends { success: boolean }>(results: T[]): {
 }
 
 async function getAuthenticatedUserOrg(): Promise<
-  | { user: { id: string }; organizationId: string; error?: never }
-  | { user?: never; organizationId?: never; error: NextResponse }
+  | { user: { id: string }; organizationId: string; role: UserRole; error?: never }
+  | { user?: never; organizationId?: never; role?: never; error: NextResponse }
 > {
   const serverSupabase = await createServerClient()
   const { data: { user } } = await serverSupabase.auth.getUser()
@@ -62,7 +63,7 @@ async function getAuthenticatedUserOrg(): Promise<
 
   const { data: userData, error: userError } = await supabase
     .from('users')
-    .select('organization_id')
+    .select('organization_id, role')
     .eq('id', user.id)
     .single()
 
@@ -70,7 +71,7 @@ async function getAuthenticatedUserOrg(): Promise<
     return { error: NextResponse.json({ error: 'User organization not found' }, { status: 400 }) }
   }
 
-  return { user, organizationId: userData.organization_id }
+  return { user, organizationId: userData.organization_id, role: userData.role as UserRole }
 }
 
 function validateFileExtension(filename: string): { valid: boolean; extension: string } {
@@ -266,6 +267,14 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const auth = await getAuthenticatedUserOrg()
     if (auth.error) return auth.error
+
+    // Check RBAC permission for delete operation
+    if (!canDelete(auth.role)) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      )
+    }
 
     const { uploadIds } = await request.json()
 

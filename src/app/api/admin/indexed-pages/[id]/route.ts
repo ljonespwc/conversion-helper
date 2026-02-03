@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createClient as createServerClient } from '@/lib/supabase/server'
+import { canDelete, UserRole } from '@/lib/rbac'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,10 +21,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's organization_id
+    // Get user's organization_id and role
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .select('organization_id')
+      .select('organization_id, role')
       .eq('id', user.id)
       .single()
 
@@ -31,6 +32,14 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'User organization not found' },
         { status: 400 }
+      )
+    }
+
+    // Check RBAC permission for delete operation
+    if (!canDelete(userData.role as UserRole)) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
       )
     }
 
