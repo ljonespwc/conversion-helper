@@ -20,9 +20,10 @@ interface WidgetModalProps {
   onToggleWidth?: () => void
   viewportWidth?: number
   visitorId?: string
+  pageGoal?: string | null
 }
 
-export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId, position = 'bottom-right', isWidened = false, onToggleWidth, viewportWidth = 0, visitorId }: WidgetModalProps) {
+export default function WidgetModal({ onClose, pageUrl, organizationName, showBranding = true, timezone, isDemo = false, apiKey, isExperimental = false, groupId, position = 'bottom-right', isWidened = false, onToggleWidth, viewportWidth = 0, visitorId, pageGoal }: WidgetModalProps) {
   const isLeft = position === 'bottom-left'
   const chatRef = useRef<ChatInterfaceHandle>(null)
   const [canDownload, setCanDownload] = useState(false)
@@ -122,6 +123,7 @@ export default function WidgetModal({ onClose, pageUrl, organizationName, showBr
             isExperimental={isExperimental}
             groupId={groupId}
             visitorId={visitorId}
+            pageGoal={pageGoal}
             onConversationStart={() => setCanDownload(true)}
             onSessionRestored={() => setShowRefresh(true)}
           />

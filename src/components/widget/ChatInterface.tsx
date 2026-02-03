@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
-import { Loader2, Check, Sparkles, ChevronDown, Send, Languages, Lightbulb, FileText, BookOpen } from 'lucide-react'
+import { Loader2, Check, Sparkles, ChevronDown, Send } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useChat, ChatMessage } from '@/hooks/useChat'
 import { usePostHog } from 'posthog-js/react'
+import { getQuickActionsForGoal, hasTranslateAction, hasInputRequiredAction, type PageGoal, type QuickAction } from '@/lib/quick-actions'
 
 // ============================================================================
 // Constants
@@ -21,18 +22,6 @@ const TRANSLATE_LANGUAGES = [
   { code: 'pt', label: 'Portuguese' },
 ] as const
 
-const QUICK_ACTION_PREFIXES: Record<string, string> = {
-  translate: 'Translate this to',
-  explain: 'Explain this simply:',
-  summarize: 'Summarize this:',
-  define: 'Define the key terms in this:'
-}
-
-const QUICK_ACTIONS = [
-  { key: 'explain', label: 'Explain Simply', icon: Lightbulb },
-  { key: 'summarize', label: 'Summarize', icon: FileText },
-  { key: 'define', label: 'Define Terms', icon: BookOpen }
-] as const
 
 // ============================================================================
 // Types
@@ -48,6 +37,7 @@ interface ChatInterfaceProps {
   isExperimental?: boolean
   groupId?: string
   visitorId?: string
+  pageGoal?: string | null
   onConversationStart?: () => void
   onSessionRestored?: () => void
 }
@@ -289,6 +279,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   isExperimental = false,
   groupId,
   visitorId,
+  pageGoal,
   onConversationStart,
   onSessionRestored
 }, ref) {
@@ -348,6 +339,18 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   const hasConversation = nonGreetingMessages.length > 0
   const hasInputText = inputValue.trim().length > 0
   const isInputDisabled = isLoading || !sessionId
+
+  // Dynamic quick actions based on page goal
+  const quickActions = getQuickActionsForGoal((pageGoal as PageGoal) ?? null)
+  const showTranslateDropdown = hasTranslateAction(quickActions)
+  const nonTranslateActions = quickActions.filter(a => a.key !== 'translate')
+  const translateAction = quickActions.find(a => a.key === 'translate')
+  const hasDisabledButtons = hasInputRequiredAction(quickActions)
+
+  // Dynamic placeholder based on whether any buttons need input
+  const inputPlaceholder = hasDisabledButtons
+    ? 'Ask a question, or type text for grayed-out buttons'
+    : 'Ask a question or tap a button below'
 
   // Rating UI: only show if user hasn't rated yet (check both local state AND DB)
   const hasRated = userRating !== null || hasExistingRating
@@ -585,15 +588,25 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     }
   }
 
-  function handleQuickAction(action: string, language?: string): void {
-    if (!inputValue.trim()) return
+  function handleQuickAction(action: QuickAction, language?: string): void {
+    let fullMessage: string
 
-    const prefix = action === 'translate'
-      ? `${QUICK_ACTION_PREFIXES.translate} ${language}:`
-      : QUICK_ACTION_PREFIXES[action]
+    if (action.key === 'translate' && language) {
+      // Translate: special case with language parameter
+      if (!inputValue.trim()) return
+      fullMessage = `${action.prepend} ${language}: ${inputValue.trim()}`
+    } else if (action.requiresInput) {
+      // Input-required actions: prepend to user text
+      if (!inputValue.trim()) return
+      fullMessage = `${action.prepend} ${inputValue.trim()}`
+    } else {
+      // Zero-input actions: send the prompt directly (may append user text if present)
+      fullMessage = inputValue.trim()
+        ? `${action.prompt}\n\nContext: ${inputValue.trim()}`
+        : action.prompt
+    }
 
-    const fullMessage = `${prefix} ${inputValue.trim()}`
-    sendMessage(fullMessage, action === 'translate' ? { skipFileSearch: true } : undefined)
+    sendMessage(fullMessage, action.key === 'translate' ? { skipFileSearch: true } : undefined)
     setInputValue('')
     setShowLanguageDropdown(false)
   }
@@ -661,7 +674,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
               value={inputValue}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask a question or paste some text..."
+              placeholder={inputPlaceholder}
               disabled={isInputDisabled}
               className="flex-1 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 focus:bg-white disabled:opacity-50 resize-none overflow-y-auto"
             />
@@ -692,57 +705,59 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Translate with dropdown */}
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                if (hasInputText) setShowLanguageDropdown(!showLanguageDropdown)
-              }}
-              disabled={!hasInputText || isLoading}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all duration-150 ${
-                hasInputText && !isLoading
-                  ? 'bg-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 border-gray-200 text-orange-600 hover:text-white hover:border-transparent shadow-sm hover:shadow'
-                  : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              <Languages className="w-3.5 h-3.5" />
-              <span>Translate</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${showLanguageDropdown ? 'rotate-180' : ''}`} />
-            </button>
+          {/* Translate with dropdown (only if this goal has translate) */}
+          {showTranslateDropdown && translateAction && (
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (hasInputText) setShowLanguageDropdown(!showLanguageDropdown)
+                }}
+                disabled={!hasInputText || isLoading}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-all duration-150 ${
+                  hasInputText && !isLoading
+                    ? 'bg-white hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 border-gray-200 text-orange-600 hover:text-white hover:border-transparent shadow-sm hover:shadow'
+                    : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <translateAction.icon className="w-3.5 h-3.5" />
+                <span>Translate</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${showLanguageDropdown ? 'rotate-180' : ''}`} />
+              </button>
 
-            {/* Language dropdown - opens upward since we're at bottom */}
-            <AnimatePresence>
-              {showLanguageDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  className="absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-10"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {TRANSLATE_LANGUAGES.map(({ code, label }) => (
-                    <button
-                      key={code}
-                      onClick={() => handleQuickAction('translate', label)}
-                      className="w-full px-4 py-2 text-xs text-left text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              {/* Language dropdown - opens upward since we're at bottom */}
+              <AnimatePresence>
+                {showLanguageDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="absolute bottom-full left-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-10"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {TRANSLATE_LANGUAGES.map(({ code, label }) => (
+                      <button
+                        key={code}
+                        onClick={() => handleQuickAction(translateAction, label)}
+                        className="w-full px-4 py-2 text-xs text-left text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* Other action buttons */}
-          {QUICK_ACTIONS.map(({ key, label, icon }) => (
+          {nonTranslateActions.map((action) => (
             <QuickActionButton
-              key={key}
-              icon={icon}
-              label={label}
-              disabled={!hasInputText || isLoading}
-              onClick={() => handleQuickAction(key)}
+              key={action.key}
+              icon={action.icon}
+              label={action.label}
+              disabled={action.requiresInput ? (!hasInputText || isLoading) : isLoading}
+              onClick={() => handleQuickAction(action)}
             />
           ))}
         </div>

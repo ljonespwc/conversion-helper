@@ -54,7 +54,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
                 Get Early Access &rarr;
               </EarlyAccessButton>
-              <p className="blog-hero-microcopy">Your content. No hallucinations.</p>
+              <p className="blog-hero-microcopy">Your content. No hallucinations. No enterprise contract.</p>
             </div>
             <div>
               <img
@@ -375,7 +375,11 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </h2>
 
             <p>
-              <span className="blog-lead">Someone asking &ldquo;what do you do?&rdquo; and someone asking &ldquo;does the Business plan include SSO?&rdquo; are not the same visitor.</span> The second one is <strong>five minutes from pulling out their credit card.</strong> EasyAsk knows the difference.
+              <span className="blog-lead">Someone asking &ldquo;what do you do?&rdquo; and someone asking &ldquo;does the Business plan include SSO?&rdquo; are not the same visitor.</span>
+            </p>
+
+            <p>
+              The second one is <strong>five minutes from pulling out their credit card.</strong> EasyAsk knows the difference.
             </p>
 
             <p>
@@ -390,8 +394,53 @@ export default async function LandingPage(): Promise<JSX.Element> {
               That&rsquo;s not a vanity metric. That&rsquo;s <strong>proof your content is generating revenue</strong>&mdash;and a blueprint for generating more. You stop wondering whether the widget is &ldquo;working&rdquo; and start seeing exactly how much revenue it&rsquo;s driving.
             </p>
 
+            {/* Quick Action Toolkit Callout */}
+            <div className="blog-toolkit-callout">
+              <h3 className="blog-toolkit-heading">Smart tools that match visitor intent.</h3>
+              <p className="blog-toolkit-intro">
+                On a sales page, visitors want to evaluate. On a lead page, they want the quick version. On a support page, they want to understand. The quick-action buttons adapt automatically.
+              </p>
+
+              <div className="blog-demo-row blog-toolkit-row">
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--sell">Sales Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill">Pros &amp; Cons</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Compare&hellip;</span>
+                    <span className="blog-toolkit-pill">How It Works</span>
+                    <span className="blog-toolkit-pill">Show Proof</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them decide</p>
+                </div>
+
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--lead">Lead Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill">TL;DR</span>
+                    <span className="blog-toolkit-pill">Why Should I Care?</span>
+                    <span className="blog-toolkit-pill">What Do I Get?</span>
+                    <span className="blog-toolkit-pill">Quick Facts</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them understand</p>
+                </div>
+
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--support">Support Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Explain&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Example&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Define&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Translate&hellip;</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them learn</p>
+                </div>
+              </div>
+
+              <p className="blog-page-context-caption">Same widget. Different toolkit per page.</p>
+            </div>
+
             <div className="blog-proof-block">
-              <h4>How it works:</h4>
+              <h4>How it works on sales pages:</h4>
               <ul>
                 <li><strong>Two-call AI architecture.</strong> A fast classification call reads every message, determines conversation stage and intent. The response call gets stage-specific instructions.</li>
                 <li><strong>Buying signal detection.</strong> When signals fire, the AI shifts from informational to action-oriented&mdash;&ldquo;Here&rsquo;s how to get started&rdquo; instead of &ldquo;Here&rsquo;s more to read.&rdquo;</li>
@@ -460,7 +509,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               From zero to live in 4 steps.
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, marginBottom: '1.5em' }}>
-              No dev team. No integrations. No waiting.
+              No dev team. No integrations. No waiting. No enterprise budget.
             </p>
 
             <ol className="blog-steps blog-steps--icons">
@@ -489,7 +538,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 <div className="blog-step-icon blog-step-icon--launch" />
                 <div className="blog-step-content">
                   <h3>Launch</h3>
-                  <p>Paste one embed code. Your chat assistant is live. Visitors can start asking questions immediately.</p>
+                  <p>Paste one embed code. Your chat assistant is live. Visitors can start asking questions immediately. Most &ldquo;enterprise AI&rdquo; takes months. This takes an afternoon.</p>
                 </div>
               </li>
             </ol>
@@ -525,7 +574,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
                   In 1-2 years, most serious products will have a conversational layer on top of a massive library of answers. EasyAsk is our way of letting you do that today, without rewriting your whole site.
                 </p>
 
-                <p className="blog-manifesto-attribution">&mdash; Lance Jones, Founder</p>
+                <p className="blog-manifesto-attribution">&mdash; Lance Jones, CRO expert &amp; founder</p>
 
               </div>
             </div>
@@ -542,7 +591,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </h2>
 
             <p className="landing-manifesto-text" style={{ textAlign: 'center', maxWidth: '620px', margin: '0 auto 2.5rem' }}>
-              We built an entire product that replaces FAQ sections. Then we put an FAQ on our own site. The irony isn&rsquo;t lost on us. For what it&rsquo;s worth, the assistant down in the corner&nbsp;↙ handles follow-up questions better than this list does.
+              We built an entire product that replaces FAQ sections. Then we put an FAQ on our own site. The irony isn&rsquo;t lost on us. For what it&rsquo;s worth, the assistant down in the corner handles follow-up questions better than this list does.
             </p>
 
             <FAQAccordion />
@@ -558,7 +607,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               Ready to turn your website into a conversation?
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, fontSize: '1.25rem', marginBottom: '1.5em' }}>
-              By tonight, your site could be answering questions.
+              By tonight, your site could be answering questions. No pilot program. No procurement process.
             </p>
 
             <div className="blog-cta-wrapper">

@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     // Fetch ALL widget pages for this organization to enable pattern matching
     const { data: pages, error } = await supabase
       .from('widget_pages')
-      .select('page_title, page_url, is_active, widget_line1, widget_line2')
+      .select('page_title, page_url, is_active, widget_line1, widget_line2, page_goal')
       .eq('organization_id', org.id)
 
     if (error || !pages || pages.length === 0) {
@@ -117,7 +117,8 @@ export async function GET(request: NextRequest) {
       widget_line2: page.widget_line2 ?? org.widget_line2,
       is_experimental: isExperimentalPage(page.page_url, org.name),
       is_pattern: isWildcardPattern(page.page_url), // Indicate if this was a pattern match
-      widget_position: org.widget_position ?? 'bottom-right'
+      widget_position: org.widget_position ?? 'bottom-right',
+      page_goal: page.page_goal ?? null
     }
 
     return NextResponse.json({ page: response }, { headers: NO_CACHE_HEADERS })

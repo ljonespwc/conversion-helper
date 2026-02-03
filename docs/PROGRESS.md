@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-01-29
+**Last Updated**: 2026-02-03
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -593,6 +593,74 @@ Public share links for admin conversations. Share button on each conversation ge
 - Extracted `calculateDuration` helper to `src/lib/conversation-utils.ts`
 
 **Files**: `src/app/api/admin/conversations/[session_id]/share/route.ts`, `src/app/api/share/[token]/route.ts`, `src/app/share/[token]/page.tsx`, `src/components/admin/ConversationSessionItem.tsx`, `src/lib/conversation-utils.ts`
+
+---
+
+## ✅ Quick Action Buttons by Intent (2026-02-02)
+
+Replaced hardcoded quick action buttons with smart defaults based on `page_goal`. Different button sets appear depending on whether the page is configured for sales, lead gen, or education/support.
+
+### Button Sets by Page Goal
+
+**SALES** (`page_goal = 'sell'`):
+| Button | Type | Purpose |
+|--------|------|---------|
+| Pros & Cons | Zero-input | Honest trade-off analysis from indexed content |
+| Compare | Input | Side-by-side comparison using pasted competitor info |
+| How Does It Work? | Zero-input | Step-by-step process/mechanism explanation |
+| Show Me Proof | Zero-input | Surfaces case studies, testimonials, results |
+
+**LEAD GEN** (`page_goal = 'lead'`):
+| Button | Type | Purpose |
+|--------|------|---------|
+| TL;DR | Zero-input | Ultra-concise 2-3 sentence summary |
+| Why Should I Care? | Zero-input | Personal relevance and impact framing |
+| What Do I Get? | Zero-input | Deliverables/features/outcomes breakdown |
+| Quick Facts | Zero-input | Price, timeline, requirements in bullets |
+
+**EDUCATION** (`page_goal = 'support'`):
+| Button | Type | Purpose |
+|--------|------|---------|
+| Explain Simply | Input | Rewrite at simpler reading level |
+| Give an Example | Zero-input | Abstract → concrete real-world example |
+| Define Terms | Input | Extract and define jargon |
+| Translate | Input | Language dropdown (existing behavior) |
+
+**FALLBACK** (no `page_goal`): Explain Simply, Summarize, Define Terms, Translate (current behavior preserved)
+
+### Implementation Details
+
+- **Zero-input buttons**: Always enabled, send canned prompt directly (no user text required)
+- **Input-required buttons**: Disabled when input is empty, prepend prompt to user text
+- **Translate dropdown**: Only renders for goals that include translate action (support + fallback)
+- **Content-grounded prompts**: All prompts include "the content provided" / "from the content provided" phrasing to ensure Gemini File Search retrieves from indexed documents rather than hallucinating
+
+### Data Flow
+
+`GET /api/widget-pages` → returns `page_goal` → `VoiceWidget` → `WidgetModal` → `ChatInterface` → `getQuickActionsForGoal(pageGoal)` → dynamic button rendering
+
+**Files**:
+- `src/lib/quick-actions.ts` — **NEW**: types, presets, `getQuickActionsForGoal()` getter
+- `src/app/api/widget-pages/route.ts` — added `page_goal` to SELECT and response
+- `src/components/widget/VoiceWidget.tsx` — threads `pageGoal` state from API
+- `src/components/widget/WidgetModal.tsx` — passes `pageGoal` prop through
+- `src/components/widget/ChatInterface.tsx` — dynamic actions, zero-input handling
+
+### Disabled Actions Config (2026-02-03)
+
+Added global config to disable specific buttons per goal without removing code. The Compare button for Sell pages is currently disabled because it can't be grounded — competitor info isn't in indexed content, causing fallback responses.
+
+**Config location**: `DISABLED_ACTIONS` object in `src/lib/quick-actions.ts`
+
+```typescript
+const DISABLED_ACTIONS: Partial<Record<NonNullable<PageGoal>, string[]>> = {
+  sell: ['compare'], // Compare disabled until grounding bypass is implemented
+}
+```
+
+**To re-enable Compare**: Remove `'compare'` from the `sell` array.
+
+**Future**: If we implement a grounding bypass for Compare (e.g., two-call approach where EasyAsk info is grounded but comparison synthesis is unshackled), re-enable the button.
 
 ---
 

@@ -33,6 +33,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
   const [widgetLine2, setWidgetLine2] = useState<string | undefined>(undefined)
   const [isExperimental, setIsExperimental] = useState<boolean>(false)
   const [resolvedPosition, setResolvedPosition] = useState<'bottom-left' | 'bottom-right'>(position)
+  const [pageGoal, setPageGoal] = useState<string | null>(null)
   const [isCollapsed, setIsCollapsed] = useState<boolean>(initialCollapsed)
   const hasEverBeenActive = useRef(false)
 
@@ -87,6 +88,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
           if (apiPosition === 'bottom-left' || apiPosition === 'bottom-right') {
             setResolvedPosition(apiPosition)
           }
+          setPageGoal(data?.page?.page_goal ?? null)
           if (window.parent !== window) {
             // Send position to parent iframe BEFORE showing, so it repositions while still hidden
             if (apiPosition === 'bottom-left' || apiPosition === 'bottom-right') {
@@ -177,6 +179,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             onToggleWidth={handleToggleWidth}
             viewportWidth={viewportWidth}
             visitorId={visitorId}
+            pageGoal={pageGoal}
           />
         )}
       </AnimatePresence>
