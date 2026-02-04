@@ -6,8 +6,8 @@ import { PostHogProvider } from '@/components/PostHogProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'EasyAsk - AI Assistant for Your Website. No Hallucinations.',
-  description: 'Give your site the power of conversation. Instant, accurate answers for your visitors—no scrolling, no waiting. AI assistant for B2B websites.',
+  title: 'EasyAsk - Turn browsers into buyers before they bounce.',
+  description: 'AI chat trained on your content. Answers questions, handles objections, closes sales. No hallucinations.',
   metadataBase: new URL('https://easyask.io'),
   icons: {
     icon: [
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'EasyAsk - AI Assistant for Your Website. No Hallucinations.',
-    description: 'Give your site the power of conversation. Instant, accurate answers for your visitors—no scrolling, no waiting.',
+    title: 'EasyAsk - Turn browsers into buyers before they bounce.',
+    description: 'AI chat trained on your content. Answers questions, handles objections, closes sales. No hallucinations.',
     url: 'https://easyask.io',
     siteName: 'EasyAsk',
     images: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         url: '/images/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'EasyAsk - Your site answers now. No more scrolling.',
+        alt: 'EasyAsk - Turn browsers into buyers before they bounce.',
       },
     ],
     locale: 'en_US',
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EasyAsk - AI Assistant for Your Website. No Hallucinations.',
-    description: 'Give your site the power of conversation. Instant, accurate answers—no scrolling, no waiting.',
+    title: 'EasyAsk - Turn browsers into buyers before they bounce.',
+    description: 'AI chat trained on your content. Answers questions, handles objections, closes sales. No hallucinations.',
     images: ['/images/twitter-image.png'],
   },
 }
