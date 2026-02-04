@@ -606,7 +606,10 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
         : action.prompt
     }
 
-    sendMessage(fullMessage, action.key === 'translate' ? { skipFileSearch: true } : undefined)
+    sendMessage(fullMessage, {
+      skipFileSearch: action.key === 'translate',
+      quickAction: action.key
+    })
     setInputValue('')
     setShowLanguageDropdown(false)
   }

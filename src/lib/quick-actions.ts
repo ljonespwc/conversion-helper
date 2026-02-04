@@ -214,3 +214,27 @@ export function hasTranslateAction(actions: QuickAction[]): boolean {
 export function hasInputRequiredAction(actions: QuickAction[]): boolean {
   return actions.some(a => a.requiresInput)
 }
+
+// ============================================================================
+// Label Lookup (for admin display)
+// ============================================================================
+
+export const QUICK_ACTION_LABELS: Record<string, string> = {
+  // Sell actions
+  'pros-cons': 'Pros & Cons',
+  'compare': 'Compare',
+  'how-it-works': 'How It Works',
+  'show-proof': 'Show Proof',
+  // Lead actions
+  'tldr': 'TL;DR',
+  'why-care': 'Why Care',
+  'what-do-i-get': 'What I Get',
+  'quick-facts': 'Quick Facts',
+  // Support actions
+  'explain': 'Explain',
+  'example': 'Example',
+  'define': 'Define',
+  'translate': 'Translate',
+  // Fallback actions
+  'summarize': 'Summarize',
+}

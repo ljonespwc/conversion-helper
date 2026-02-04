@@ -165,6 +165,7 @@ async function trackConversation(params: {
   buying_signal?: boolean | null
   grounded?: boolean | null
   visitor_id?: string | null
+  quick_action?: string | null
 }) {
   try {
     // First, ensure the session exists
@@ -248,7 +249,8 @@ async function trackConversation(params: {
         category: null,
         intent_category: params.intent_category ?? null,
         buying_signal: params.buying_signal ?? null,
-        grounded: params.grounded ?? null
+        grounded: params.grounded ?? null,
+        quick_action: params.quick_action ?? null
       })
 
     if (messageError) {
@@ -268,12 +270,13 @@ interface ChatRequest {
   group_id?: string
   visitor_id?: string
   skip_file_search?: boolean
+  quick_action?: string
 }
 
 export async function POST(request: Request) {
   try {
     const body: ChatRequest = await request.json()
-    const { session_id, message, page_url, api_key, group_id, visitor_id, skip_file_search } = body
+    const { session_id, message, page_url, api_key, group_id, visitor_id, skip_file_search, quick_action } = body
 
     // Validate required fields
     if (!session_id) {
@@ -439,7 +442,8 @@ export async function POST(request: Request) {
       organization_id: org.id,
       intent_category: classification?.intent_category,
       buying_signal: classification?.buying_signal,
-      visitor_id
+      visitor_id,
+      quick_action
     })
 
     let answer: string

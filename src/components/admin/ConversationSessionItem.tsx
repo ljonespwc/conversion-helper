@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ChevronDown, ChevronRight, Bookmark, Circle, ThumbsUp, ThumbsDown, DollarSign, Share2, Check } from 'lucide-react'
 import ConversationMessageView from './ConversationMessageView'
 import { calculateDuration } from '@/lib/conversation-utils'
+import { QUICK_ACTION_LABELS } from '@/lib/quick-actions'
 import type { ConversationSession } from './types'
 
 interface ConversationSessionItemProps {
@@ -76,6 +77,15 @@ export default function ConversationSessionItem({
   const userMessages = session.messages?.filter((m) => m.role === 'user') || []
   const assistantCount = assistantMessages.length
   const userCount = userMessages.length
+
+  // Aggregate unique quick actions used in this session
+  const quickActions = Array.from(
+    new Set(
+      session.messages
+        ?.map((m) => m.quick_action)
+        .filter((action): action is string => action !== null && action !== undefined)
+    )
+  )
 
   return (
     <div>
@@ -177,6 +187,18 @@ export default function ConversationSessionItem({
                     <span className="text-xs font-medium">Purchased</span>
                   </span>
                 </>
+              )}
+              {quickActions.length > 0 && (
+                <span className="ml-2 inline-flex gap-1">
+                  {quickActions.map((action) => (
+                    <span
+                      key={action}
+                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-200 text-gray-700"
+                    >
+                      {QUICK_ACTION_LABELS[action] || action}
+                    </span>
+                  ))}
+                </span>
               )}
             </div>
           </div>

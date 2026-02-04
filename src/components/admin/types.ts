@@ -7,6 +7,7 @@ export interface ConversationMessage {
   category: string | null
   grounded: boolean | null
   created_at: string
+  quick_action: string | null
 }
 
 export interface ConversationSession {
