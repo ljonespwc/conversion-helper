@@ -1534,14 +1534,7 @@ p.blog-page-context-caption {
   }
 
   .examples-tabs {
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding-bottom: 0.5em;
-    margin-left: -1em;
-    margin-right: -1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    -webkit-overflow-scrolling: touch;
+    justify-content: center;
   }
 
   .examples-tab {
