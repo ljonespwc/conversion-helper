@@ -89,6 +89,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                 </>
               ) : (
                 <>
+                  <Link href="/examples" className="landing-nav-link">
+                    See Conversations
+                  </Link>
                   <Link href="/pricing" className="landing-nav-link">
                     Pricing
                   </Link>
@@ -182,6 +185,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
       {!loading && !user && isMobileMenuOpen && (
         <div className="landing-nav-mobile-menu">
           <div className="landing-nav-mobile-menu-content">
+            <Link href="/examples" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              See Conversations
+            </Link>
             <Link href="/pricing" onClick={closeMobileMenu} className="landing-nav-mobile-link">
               Pricing
             </Link>
