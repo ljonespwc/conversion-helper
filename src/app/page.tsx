@@ -38,7 +38,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
 
   return (
     <div className="blog-landing">
-      <Script src="/widget.js" data-key="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab" strategy="lazyOnload" />
+      <Script src="https://www.easyask.io/widget.js" data-key="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab" />
       <LandingNav user={user} />
 
       <main>
