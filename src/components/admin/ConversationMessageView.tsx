@@ -1,6 +1,7 @@
 'use client'
 
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { ConversationMessage } from './types'
 
 interface ConversationMessageViewProps {
@@ -44,7 +45,20 @@ export default function ConversationMessageView({
               message.message
             ) : (
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
+                  h1: ({ children }) => (
+                    <h1 className="text-base font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-sm font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-sm font-bold text-gray-800 mt-2 mb-1 first:mt-0">{children}</h3>
+                  ),
+                  h4: ({ children }) => (
+                    <h4 className="text-sm font-semibold text-gray-800 mt-2 mb-1 first:mt-0">{children}</h4>
+                  ),
                   p: ({ children }) => (
                     <p className="mb-2 last:mb-0">{children}</p>
                   ),
@@ -57,16 +71,16 @@ export default function ConversationMessageView({
                     <em className="italic text-gray-600">{children}</em>
                   ),
                   ul: ({ children }) => (
-                    <ul className="list-disc list-inside mb-2 space-y-1">
+                    <ul className="list-disc list-outside pl-5 mb-2 space-y-1">
                       {children}
                     </ul>
                   ),
                   ol: ({ children }) => (
-                    <ol className="list-decimal list-inside mb-2 space-y-1">
+                    <ol className="list-decimal list-outside pl-5 mb-2 space-y-1">
                       {children}
                     </ol>
                   ),
-                  li: ({ children }) => <li>{children}</li>,
+                  li: ({ children }) => <li className="pl-1">{children}</li>,
                   code: ({ children }) => (
                     <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-700 text-xs">
                       {children}

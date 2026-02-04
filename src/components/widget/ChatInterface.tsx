@@ -62,12 +62,16 @@ interface QuickActionButtonProps {
 // ============================================================================
 
 const markdownComponents = {
+  h1: ({ children }: { children?: React.ReactNode }) => <h1 className="text-lg font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h1>,
+  h2: ({ children }: { children?: React.ReactNode }) => <h2 className="text-base font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h2>,
+  h3: ({ children }: { children?: React.ReactNode }) => <h3 className="text-sm font-bold text-gray-800 mt-2 mb-1 first:mt-0">{children}</h3>,
+  h4: ({ children }: { children?: React.ReactNode }) => <h4 className="text-sm font-semibold text-gray-800 mt-2 mb-1 first:mt-0">{children}</h4>,
   p: ({ children }: { children?: React.ReactNode }) => <p className="mb-2 last:mb-0">{children}</p>,
   strong: ({ children }: { children?: React.ReactNode }) => <strong className="font-semibold text-orange-600">{children}</strong>,
   em: ({ children }: { children?: React.ReactNode }) => <em className="italic text-gray-600">{children}</em>,
-  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-  li: ({ children }: { children?: React.ReactNode }) => <li className="text-gray-700">{children}</li>,
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-disc list-outside pl-5 mb-2 space-y-1">{children}</ul>,
+  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-outside pl-5 mb-2 space-y-1">{children}</ol>,
+  li: ({ children }: { children?: React.ReactNode }) => <li className="text-gray-700 pl-1">{children}</li>,
   code: ({ children }: { children?: React.ReactNode }) => <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-600 text-xs">{children}</code>,
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-orange-600 underline hover:text-orange-700">{children}</a>,
 }
