@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import ScrapedPagesList from '@/components/admin/ScrapedPagesList'
 import FileUploadSection from '@/components/admin/FileUploadSection'
-import FileSearchUpload from '@/components/admin/FileSearchUpload'
+import StickyActionsBar from '@/components/admin/StickyActionsBar'
 import IndexedPagesSection from '@/components/admin/IndexedPagesSection'
 import type { ScrapingJob, FileUpload, IndexedPage, WidgetPage } from '@/components/admin/types'
 
@@ -22,6 +22,7 @@ export default function ContentManagementPage(): React.ReactElement {
   const [uploads, setUploads] = useState<FileUpload[]>([])
   const [selectedUploads, setSelectedUploads] = useState<string[]>([])
   const [indexedPages, setIndexedPages] = useState<IndexedPage[]>([])
+  const [selectedIndexedPages, setSelectedIndexedPages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [uploadsLoading, setUploadsLoading] = useState(true)
   const [indexedPagesLoading, setIndexedPagesLoading] = useState(true)
@@ -112,6 +113,16 @@ export default function ContentManagementPage(): React.ReactElement {
   function handleUploadComplete(): void {
     setSelectedJobs([])
     setSelectedUploads([])
+    setSelectedIndexedPages([])
+    fetchJobs()
+    fetchUploads()
+    fetchIndexedPages()
+  }
+
+  function handleDeleteComplete(): void {
+    setSelectedJobs([])
+    setSelectedUploads([])
+    setSelectedIndexedPages([])
     fetchJobs()
     fetchUploads()
     fetchIndexedPages()
@@ -134,6 +145,8 @@ export default function ContentManagementPage(): React.ReactElement {
           loading={indexedPagesLoading}
           widgetPagesMap={widgetPagesMap}
           onRefresh={fetchIndexedPages}
+          selectedPages={selectedIndexedPages}
+          onSelectionChange={setSelectedIndexedPages}
         />
 
         <div className="mb-8">
@@ -166,13 +179,16 @@ export default function ContentManagementPage(): React.ReactElement {
           )}
         </div>
 
-        <div className="sticky bottom-0 z-10 pt-4 pb-4 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent">
-          <FileSearchUpload
-            selectedJobs={selectedJobs}
-            selectedUploads={selectedUploads}
-            onUploadComplete={handleUploadComplete}
-          />
-        </div>
+        <StickyActionsBar
+          selectedJobs={selectedJobs}
+          selectedUploads={selectedUploads}
+          selectedIndexedPages={selectedIndexedPages}
+          jobs={jobs}
+          uploads={uploads}
+          indexedPages={indexedPages}
+          onDeleteComplete={handleDeleteComplete}
+          onUploadComplete={handleUploadComplete}
+        />
       </div>
     </div>
   )

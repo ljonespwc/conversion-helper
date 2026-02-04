@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, X, FileText, Globe, Plus, Trash2, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
+import { Check, Loader2, X, FileText, Globe, Plus, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
-import DeleteConfirmationModal from './DeleteConfirmationModal'
 import type { ScrapingJob } from './types'
 
 interface ScrapedPagesListProps {
@@ -82,8 +81,6 @@ export default function ScrapedPagesList({
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
 
   const readyJobs = jobs.filter(isJobReady)
@@ -142,32 +139,6 @@ export default function ScrapedPagesList({
     onSelectionChange(allSelected ? [] : readyJobIds)
   }
 
-  async function handleDelete(): Promise<void> {
-    setIsDeleting(true)
-
-    try {
-      const response = await fetch('/api/admin/scraping-jobs', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobIds: selectedJobs })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete jobs')
-      }
-
-      onSelectionChange([])
-      onScrapeStarted()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete jobs')
-    } finally {
-      setIsDeleting(false)
-      setIsDeleteModalOpen(false)
-    }
-  }
-
   return (
     <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
       <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
@@ -221,28 +192,14 @@ export default function ScrapedPagesList({
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                >
-                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  {loading ? 'Scraping...' : 'Scrape Page'}
-                </button>
-
-                {selectedJobs.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setIsDeleteModalOpen(true)}
-                    disabled={loading}
-                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                  >
-                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>Delete Selected ({selectedJobs.length})</span>
-                  </button>
-                )}
-              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white rounded-lg px-4 sm:px-6 py-2 sm:py-2.5 font-medium transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                {loading ? 'Scraping...' : 'Scrape Page'}
+              </button>
             </form>
           </div>
 
@@ -344,20 +301,6 @@ export default function ScrapedPagesList({
         </>
       )}
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDelete}
-        items={selectedJobs.map(id => {
-          const job = jobs.find(j => j.id === id)
-          return {
-            id,
-            title: job ? getDisplayUrl(job.url) : 'Unknown'
-          }
-        })}
-        type="scraped"
-        loading={isDeleting}
-      />
     </div>
   )
 }

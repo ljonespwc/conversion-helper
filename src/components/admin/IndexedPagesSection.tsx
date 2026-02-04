@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Trash2, Globe } from 'lucide-react'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Globe } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
-import DeleteConfirmationModal from './DeleteConfirmationModal'
 import type { IndexedPage, IndexedPageSyncStatus } from './types'
 
 interface IndexedPagesSectionProps {
@@ -11,6 +10,8 @@ interface IndexedPagesSectionProps {
   loading: boolean
   widgetPagesMap: Record<string, string>
   onRefresh: () => void
+  selectedPages: string[]
+  onSelectionChange: (ids: string[]) => void
 }
 
 const SYNC_STATUS_STYLES: Record<IndexedPageSyncStatus, { bg: string; text: string; border: string; label: string }> = {
@@ -24,52 +25,25 @@ export default function IndexedPagesSection({
   pages,
   loading,
   widgetPagesMap,
-  onRefresh
+  onRefresh,
+  selectedPages,
+  onSelectionChange
 }: IndexedPagesSectionProps): React.ReactElement {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [selectedPages, setSelectedPages] = useState<string[]>([])
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   function handleTogglePage(pageId: string): void {
-    setSelectedPages(prev =>
-      prev.includes(pageId)
-        ? prev.filter(id => id !== pageId)
-        : [...prev, pageId]
+    onSelectionChange(
+      selectedPages.includes(pageId)
+        ? selectedPages.filter(id => id !== pageId)
+        : [...selectedPages, pageId]
     )
   }
 
   function handleSelectAll(): void {
     if (selectedPages.length === pages.length && pages.length > 0) {
-      setSelectedPages([])
+      onSelectionChange([])
     } else {
-      setSelectedPages(pages.map(p => p.id))
-    }
-  }
-
-  async function handleDelete(): Promise<void> {
-    setIsDeleting(true)
-
-    try {
-      const response = await fetch('/api/admin/indexed-pages', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageIds: selectedPages })
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to delete indexed pages')
-      }
-
-      setSelectedPages([])
-      onRefresh()
-      setIsDeleteModalOpen(false)
-    } catch (err) {
-      console.error('Delete failed:', err)
-      setIsDeleteModalOpen(false)
-    } finally {
-      setIsDeleting(false)
+      onSelectionChange(pages.map(p => p.id))
     }
   }
 
@@ -122,15 +96,6 @@ export default function IndexedPagesSection({
             >
               {selectedPages.length === pages.length ? 'Deselect All' : 'Select All'}
             </button>
-            {selectedPages.length > 0 && (
-              <button
-                onClick={() => setIsDeleteModalOpen(true)}
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 font-medium transition-all shadow-lg flex items-center gap-2 text-sm"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete Selected ({selectedPages.length})
-              </button>
-            )}
           </div>
         )}
       </div>
@@ -258,20 +223,6 @@ export default function IndexedPagesSection({
         </>
       )}
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDelete}
-        items={selectedPages.map(id => {
-          const page = pages.find(p => p.id === id)
-          return {
-            id,
-            title: page?.page_title || 'Unknown'
-          }
-        })}
-        type="indexed"
-        loading={isDeleting}
-      />
     </div>
   )
 }

@@ -2,9 +2,8 @@
 
 import { useState, useRef } from 'react'
 import type { DragEvent } from 'react'
-import { Upload, FileText, Check, X, Loader2, Trash2, ChevronDown, ChevronUp, Calendar, ExternalLink } from 'lucide-react'
+import { Upload, FileText, Check, X, Loader2, ChevronDown, ChevronUp, Calendar, ExternalLink } from 'lucide-react'
 import { formatDate, cn } from '@/lib/utils'
-import DeleteConfirmationModal from './DeleteConfirmationModal'
 import type { FileUpload } from './types'
 
 interface FileUploadSectionProps {
@@ -50,8 +49,6 @@ export default function FileUploadSection({
 }: FileUploadSectionProps): JSX.Element {
   const [uploading, setUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -119,39 +116,6 @@ export default function FileUploadSection({
     } else {
       onSelectionChange(readyUploadIds)
     }
-  }
-
-  async function handleDelete(): Promise<void> {
-    setIsDeleting(true)
-
-    try {
-      const response = await fetch('/api/admin/upload-files', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uploadIds: selectedUploads })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete uploads')
-      }
-
-      onSelectionChange([])
-      onUploadComplete()
-    } catch (err) {
-      console.error('Delete failed:', err)
-    } finally {
-      setIsDeleting(false)
-      setIsDeleteModalOpen(false)
-    }
-  }
-
-  function getDeleteModalItems(): Array<{ id: string; title: string }> {
-    return selectedUploads.map(id => {
-      const upload = uploads.find(u => u.id === id)
-      return { id, title: upload?.filename || 'Unknown' }
-    })
   }
 
   async function handleViewFile(uploadId: string): Promise<void> {
@@ -250,20 +214,6 @@ export default function FileUploadSection({
               </div>
             </div>
 
-            {/* Delete Selected Button */}
-            {selectedUploads.length > 0 && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsDeleteModalOpen(true)}
-                  disabled={uploading || isDeleting}
-                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-6 py-2.5 font-medium transition-all shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trash2 className="w-5 h-5" />
-                  Delete Selected ({selectedUploads.length})
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Uploaded Files List */}
@@ -359,14 +309,6 @@ export default function FileUploadSection({
         </>
       )}
 
-      <DeleteConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDelete}
-        items={getDeleteModalItems()}
-        type="uploaded"
-        loading={isDeleting}
-      />
     </div>
   )
 }

@@ -13,7 +13,7 @@ interface DeleteConfirmationModalProps {
   onClose: () => void
   onConfirm: () => Promise<void>
   items: DeleteItem[]
-  type: 'scraped' | 'uploaded' | 'indexed'
+  type: 'scraped' | 'uploaded' | 'indexed' | 'mixed'
   loading?: boolean
 }
 
@@ -33,6 +33,8 @@ export default function DeleteConfirmationModal({
         return 'This will permanently delete the selected files from Storage, database, and Google File Search (if indexed). This action cannot be undone.'
       case 'indexed':
         return 'This will permanently delete the selected documents from Google File Search (including all chunks) and the registry. This action cannot be undone.'
+      case 'mixed':
+        return 'This will permanently delete the selected items from Storage, database, and Google File Search (where applicable). This action cannot be undone.'
     }
   }
 
@@ -44,6 +46,8 @@ export default function DeleteConfirmationModal({
         return 'uploaded file'
       case 'indexed':
         return 'indexed document'
+      case 'mixed':
+        return 'item'
     }
   }
 
