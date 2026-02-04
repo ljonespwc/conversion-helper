@@ -95,6 +95,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                   <Link href="/pricing" className="landing-nav-link">
                     Pricing
                   </Link>
+                  <Link href="/login" className="landing-nav-link">
+                    Login
+                  </Link>
                   <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta">
                     Get Early Access
                   </button>
@@ -190,6 +193,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
             </Link>
             <Link href="/pricing" onClick={closeMobileMenu} className="landing-nav-mobile-link">
               Pricing
+            </Link>
+            <Link href="/login" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Login
             </Link>
             <button
               onClick={() => {

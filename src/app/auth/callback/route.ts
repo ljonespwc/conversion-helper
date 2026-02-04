@@ -41,10 +41,24 @@ export async function GET(request: Request) {
       })
 
       if (userError || !userData || !userData.organization_id) {
-        // SIGNUP DISABLED - reject new OAuth users
-        // Original: redirect to onboarding
-        // return NextResponse.redirect(`${origin}/onboarding`)
-        console.log('OAuth signup blocked - user not in system:', session.user.email)
+        // No existing user record — check if email is on the approved allowlist
+        const email = session.user.email?.toLowerCase()
+
+        const { data: approved } = await supabaseAdmin
+          .from('early_access_signups')
+          .select('id')
+          .eq('email', email)
+          .eq('approved', true)
+          .single()
+
+        if (approved) {
+          // Approved user — send to onboarding (creates org + store + user record)
+          console.log('Approved signup via allowlist:', email)
+          return NextResponse.redirect(`${origin}/onboarding`)
+        }
+
+        // Not approved — reject
+        console.log('OAuth signup blocked - not on approved list:', email)
         return NextResponse.redirect(`${origin}/login?error=Account not found. Contact admin for access.`)
       }
 

@@ -664,6 +664,43 @@ const DISABLED_ACTIONS: Partial<Record<NonNullable<PageGoal>, string[]>> = {
 
 ---
 
+## ✅ Email Allowlist Gate for Approved Signups (2026-02-04)
+
+Replaced hard signup block with an email allowlist. Approved users sign up via Google OAuth → onboarding flow (org creation, File Search store, user record). Unapproved users still see "Account not found."
+
+### How It Works
+1. User clicks "Login with Google" on `/login`
+2. OAuth callback checks `public.users` — if existing user, redirect to `/admin`
+3. If no user record, check `early_access_signups` for email with `approved = true`
+4. If approved → redirect to `/onboarding` (creates everything automatically)
+5. If not approved → reject with error message
+
+### Approval Workflow
+```sql
+-- Approve someone already on waitlist:
+UPDATE early_access_signups SET approved = true WHERE email = 'person@example.com';
+
+-- Pre-approve someone not on waitlist yet:
+INSERT INTO early_access_signups (email, approved) VALUES ('person@example.com', true);
+```
+
+### Database Change
+```sql
+ALTER TABLE early_access_signups ADD COLUMN approved BOOLEAN DEFAULT false;
+```
+
+### Files Modified
+- `src/app/auth/callback/route.ts` — allowlist check before rejecting new OAuth users
+- `src/components/LandingNav.tsx` — added Login link to desktop + mobile logged-out nav
+
+### Notes
+- Existing users unaffected — they already have `public.users` records
+- Login page unchanged — already has Google OAuth button
+- Onboarding flow unchanged — already handles full setup
+- Email comparison is case-insensitive (lowercased before lookup)
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)
