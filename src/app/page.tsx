@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import Script from 'next/script'
 import { LandingNav } from '@/components/LandingNav'
 import { FAQAccordion } from '@/components/FAQAccordion'
-import { EarlyAccessButton } from '@/components/landing'
 import './landing.css'
 import './new-landing.css'
 
@@ -51,9 +50,9 @@ export default async function LandingPage(): Promise<JSX.Element> {
             <h1>Your product didn&rsquo;t lose them.<br />Your page did.</h1>
             <p className="blog-subtitle">EasyAsk is a lightweight AI assistant that answers questions, generates leads, handles objections, and closes sales. Trained on your content.</p>
             <div className="blog-cta-wrapper">
-              <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
-                Get Early Access &rarr;
-              </EarlyAccessButton>
+              <a href="/pricing" className="landing-button-cta landing-button-large landing-button-pulse">
+                See Pricing &rarr;
+              </a>
               <p className="blog-hero-microcopy">Your content. No hallucinations. No enterprise contract.</p>
             </div>
             <div>
@@ -643,9 +642,9 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <div className="blog-cta-wrapper">
-              <EarlyAccessButton className="landing-button-cta landing-button-large landing-button-pulse">
-                Get Early Access &rarr;
-              </EarlyAccessButton>
+              <a href="/pricing" className="landing-button-cta landing-button-large landing-button-pulse">
+                See Pricing &rarr;
+              </a>
               <p className="blog-final-microcopy">The AI assistant that never goes off-script.</p>
             </div>
           </div>

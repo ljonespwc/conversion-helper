@@ -89,6 +89,9 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                 </>
               ) : (
                 <>
+                  <Link href="/pricing" className="landing-nav-link">
+                    Pricing
+                  </Link>
                   <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta">
                     Get Early Access
                   </button>
@@ -114,9 +117,19 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                     )}
                   </button>
                 ) : (
-                  <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta">
-                    Get Early Access
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                      className="landing-nav-hamburger"
+                      aria-label="Toggle menu"
+                    >
+                      {isMobileMenuOpen ? (
+                        <X className="w-5 h-5" />
+                      ) : (
+                        <Menu className="w-5 h-5" />
+                      )}
+                    </button>
+                  </>
                 )}
               </>
             )}
@@ -127,7 +140,7 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
       {/* Early Access Modal */}
       <EarlyAccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
-      {/* Mobile/Tablet Menu Dropdown */}
+      {/* Mobile/Tablet Menu Dropdown - Logged In */}
       {!loading && user && isMobileMenuOpen && (
         <div className="landing-nav-mobile-menu">
           <div className="landing-nav-mobile-menu-content">
@@ -160,6 +173,26 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
             <button onClick={handleLogout} className="landing-nav-mobile-link">
               <LogOut className="w-4 h-4" />
               Logout
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile/Tablet Menu Dropdown - Logged Out */}
+      {!loading && !user && isMobileMenuOpen && (
+        <div className="landing-nav-mobile-menu">
+          <div className="landing-nav-mobile-menu-content">
+            <Link href="/pricing" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Pricing
+            </Link>
+            <button
+              onClick={() => {
+                closeMobileMenu()
+                setIsModalOpen(true)
+              }}
+              className="landing-nav-mobile-link"
+            >
+              Get Early Access
             </button>
           </div>
         </div>
