@@ -3,6 +3,7 @@ import { Check, MessageSquare, FileText, Target, Mail, BarChart3, Code } from 'l
 import { LandingNav } from '@/components/LandingNav'
 import { EarlyAccessButton } from '@/components/landing'
 import { PricingFAQ } from './PricingFAQ'
+import Script from 'next/script'
 import '../landing.css'
 import '../new-landing.css'
 
@@ -277,6 +278,11 @@ export default async function PricingPage() {
           </div>
         </section>
       </main>
+
+      <Script
+        src="https://www.easyask.io/widget.js"
+        data-key="pk_live_77d79847449d815d284ec68564a121d5c39362637819eaab"
+      />
     </div>
   )
 }
