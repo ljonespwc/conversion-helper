@@ -1367,6 +1367,7 @@ p.blog-page-context-caption {
   color: var(--landing-color-text-secondary);
   margin: 0;
   line-height: 1.5;
+  text-align: left;
 }
 
 .examples-card-preview {
@@ -1390,6 +1391,7 @@ p.blog-page-context-caption {
   font-style: italic;
   color: #6b7280;
   line-height: 1.4;
+  text-align: left;
 }
 
 .examples-card-footer {

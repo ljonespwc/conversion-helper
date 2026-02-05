@@ -29,8 +29,8 @@ export const EXAMPLE_CONVERSATIONS: ExampleConversation[] = [
     businessType: 'saas',
     goal: 'sell',
     title: 'The Skeptic',
-    description: 'Handling objections about AI chatbots with specifics, not fluff. Shows how EasyAsk differentiates from generic solutions.',
-    previewQuestion: 'How is this different from just putting a ChatGPT widget on my site?',
+    description: 'Handling objections with specifics, not fluff. Differentiates from crowded competition and closes with clear pricing.',
+    previewQuestion: 'How is this any different from the 50 other project management tools out there?',
   },
   {
     token: 'sh_example_saas_lead',
