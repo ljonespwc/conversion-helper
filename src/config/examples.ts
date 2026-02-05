@@ -71,7 +71,7 @@ export const EXAMPLE_CONVERSATIONS: ExampleConversation[] = [
     businessType: 'ecommerce',
     goal: 'support',
     title: 'The Honest Handoff',
-    description: 'When AI can\'t access order details, it says so honestly and captures email for human follow-up.',
+    description: 'When AI can\'t access order details, it says so honestly and directs to the right channel.',
     previewQuestion: 'I ordered 3 days ago and still no shipping confirmation.',
   },
 
