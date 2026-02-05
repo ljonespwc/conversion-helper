@@ -33,13 +33,6 @@ const faqItems = [
     ],
   },
   {
-    question: 'What does it cost?',
-    answer: [
-      'We\'re currently in early access, so pricing isn\'t finalized yet. Sign up and we\'ll work with you directly to get you set up.',
-      'What we can tell you: there are no setup fees, no implementation costs, and you can set it up yourself in under 10 minutes. No dev team required. No six-month "pilot program."',
-    ],
-  },
-  {
     question: 'Does it integrate with my CRM?',
     answer: [
       'EasyAsk captures emails, conversation transcripts, and purchase intent signals. You can export that data anytime or connect it to your existing tools via webhook.',
