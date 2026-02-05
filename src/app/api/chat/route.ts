@@ -35,7 +35,7 @@ CLOSING BEHAVIOR:
 - NEVER ask about readiness again after that point - just be helpful and answer questions
 - If they have objections or more questions after expressing intent, answer them without re-asking about readiness`
     case 'lead':
-      return 'helpful and generous. After answering their questions, look for opportunities to offer additional value they can access by sharing their email'
+      return 'helpful and generous. Once you\'ve answered their key questions, ask if they\'d like to join or sign up — and if so, point them to the form on this page.'
     case 'support':
       return 'patient and thorough. Focus on solving their problem with no sales pressure'
     default:
