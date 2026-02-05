@@ -2173,3 +2173,158 @@ button:focus {
     padding: 1.5rem 1.25rem;
   }
 }
+
+/* =================================
+   PARTNER PAGE STYLES
+   ================================= */
+
+.partner-offer-card {
+  background: linear-gradient(135deg, rgb(255, 241, 242) 0%, rgb(255, 237, 213) 100%);
+  border: 2px solid rgb(251, 146, 60); /* orange-400 */
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  max-width: 36rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.partner-offer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: var(--landing-font-size-x-small);
+  line-height: var(--landing-line-height);
+  color: var(--landing-color-text-primary);
+}
+
+.partner-calculator {
+  background: var(--landing-color-card);
+  border: 1px solid var(--landing-color-border);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.partner-slider {
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--landing-color-border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  accent-color: rgb(249, 115, 22);
+}
+
+.partner-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  background: rgb(249, 115, 22);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.partner-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.partner-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: rgb(249, 115, 22);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+}
+
+.partner-plan-toggle {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.partner-plan-btn {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  font-size: var(--landing-font-size-xxx-small);
+  font-weight: 600;
+  color: var(--landing-color-text-secondary);
+  background: var(--landing-color-card);
+  border: 1px solid var(--landing-color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.partner-plan-btn:hover {
+  border-color: var(--landing-color-border-light);
+}
+
+.partner-plan-btn--active {
+  color: rgb(234, 88, 12);
+  background: rgb(255, 237, 213);
+  border-color: rgb(251, 146, 60);
+}
+
+.partner-earnings-amount {
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgb(234, 88, 12);
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.partner-earnings-animating {
+  animation: earnings-pop 0.3s ease;
+}
+
+@keyframes earnings-pop {
+  0% { opacity: 0.6; transform: scale(0.97); }
+  50% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.partner-breakdown {
+  font-size: var(--landing-font-size-xxxx-small);
+  color: var(--landing-color-text-muted);
+  margin: 0.5rem 0 0 0;
+  line-height: 1.5;
+}
+
+.partner-placeholder {
+  background: rgb(243, 244, 246);
+  border: 2px dashed var(--landing-color-border);
+  border-radius: 12px;
+  aspect-ratio: 16 / 9;
+  max-width: 48rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--landing-color-text-muted);
+  font-size: var(--landing-font-size-xxx-small);
+}
+
+@media (max-width: 48em) {
+  .partner-earnings-amount {
+    font-size: 2.25rem;
+  }
+
+  .partner-offer-card {
+    padding: 1.5rem;
+  }
+
+  .partner-calculator {
+    padding: 1.5rem;
+  }
+}

@@ -19,9 +19,10 @@ interface VoiceWidgetProps {
   viewportWidth?: number
   initialCollapsed?: boolean
   visitorId?: string
+  forceActive?: boolean
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0, initialCollapsed = false, visitorId }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0, initialCollapsed = false, visitorId, forceActive = false }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [isWidened, setIsWidened] = useState(false)
@@ -122,8 +123,8 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
     }
   }
 
-  // Don't render widget until we confirm page is active
-  if (!isActive) {
+  // Don't render widget until we confirm page is active (unless forceActive is set for testing)
+  if (!isActive && !forceActive) {
     return null
   }
 

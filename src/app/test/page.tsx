@@ -198,6 +198,7 @@ export default function TestPage() {
           pageUrl={selectedPage?.page_url}
           apiKey={publishableKey}
           viewportWidth={viewportWidth}
+          forceActive={true}
         />
       </div>
     </div>
