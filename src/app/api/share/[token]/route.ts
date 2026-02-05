@@ -34,7 +34,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       .from('conversation_messages')
       .select('id, role, message, timestamp, matched, category, grounded, created_at')
       .eq('session_id', session.session_id)
-      .order('created_at', { ascending: true })
+      .order('timestamp', { ascending: true })
 
     if (messagesError) {
       console.error('Error fetching messages:', messagesError)
