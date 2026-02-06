@@ -1,6 +1,6 @@
 # Development Progress Tracker
 
-**Last Updated**: 2026-02-03
+**Last Updated**: 2026-02-05
 **Current Phase**: Production Ready - Text Chat Interface
 **Supabase Project**: `fwimhxkkszdaogugslar`
 
@@ -661,6 +661,14 @@ const DISABLED_ACTIONS: Partial<Record<NonNullable<PageGoal>, string[]>> = {
 **To re-enable Compare**: Remove `'compare'` from the `sell` array.
 
 **Future**: If we implement a grounding bypass for Compare (e.g., two-call approach where EasyAsk info is grounded but comparison synthesis is unshackled), re-enable the button.
+
+### Quick Action History Isolation (2026-02-05)
+
+Quick actions now pass **no conversation history** to File Search. Prior behavior: full chat history was always sent, which muddied the semantic signal and caused retrieval failures (fallback responses) when a quick action followed unrelated questions.
+
+**Change**: `src/app/api/chat/route.ts` line ~486 — `quick_action ? undefined : conversationHistory[session_id]`
+
+In-memory history still accumulates everything, so subsequent regular questions include the quick action Q&A.
 
 ---
 

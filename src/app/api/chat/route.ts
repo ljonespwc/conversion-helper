@@ -479,10 +479,11 @@ export async function POST(request: Request) {
       grounded = null
     } else {
       // Generate response with File Search
+      // For quick actions, pass no history to give File Search a clean semantic signal
       const result = await queryPageContent(
         message,
         contentPageUrl,
-        conversationHistory[session_id],
+        quick_action ? undefined : conversationHistory[session_id],
         systemPrompt,
         isExperimental
       )
