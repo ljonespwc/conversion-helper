@@ -709,6 +709,20 @@ ALTER TABLE early_access_signups ADD COLUMN approved BOOLEAN DEFAULT false;
 
 ---
 
+## ✅ Admin Dashboard Session Limit Fix (2026-02-06)
+
+Fixed bug where recent conversations showed "0 messages" in admin dashboard.
+
+**Root cause:** `/api/stats` fetched ALL non-archived sessions (1000+), then used `.in('session_id', sessionIds)` to get messages. Two issues:
+1. Supabase default limit of 1000 rows cut off recent messages
+2. 1000+ UUIDs in `.in()` clause exceeded URL length limits
+
+**Fix:** Added `.limit(200)` to sessions query and `.limit(10000)` to messages query.
+
+**Future improvement:** Lazy-load messages on session expand instead of fetching all upfront. Current approach fetches 200×~5 = 1000 messages per page load even though users only expand a few sessions.
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)

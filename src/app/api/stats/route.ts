@@ -185,14 +185,16 @@ export async function GET(request: NextRequest) {
 
     const { count: activeNow } = await activeQuery
 
-    // Get recent sessions (all sessions, filtered by organization, excluding archived)
+    // Get recent sessions (limited to avoid massive .in() queries for messages)
+    // 200 sessions is enough for the dashboard view and keeps queries performant
     let recentQuery = withPageFilter(
       supabase
         .from('conversation_sessions')
         .select('*')
         .eq('organization_id', organizationId)
         .is('archived_at', null)
-        .order('created_at', { ascending: false }),
+        .order('created_at', { ascending: false })
+        .limit(200),
       pageUrl
     )
 
