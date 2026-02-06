@@ -204,12 +204,15 @@ export async function GET(request: NextRequest) {
     }
 
     // Get messages for these sessions
+    // Note: Supabase default limit is 1000 rows. With many sessions, this can cut off
+    // messages for recent sessions. Explicitly set a high limit to avoid this.
     const sessionIds = recentSessions?.map(s => s.session_id) || []
     const { data: allMessages } = await supabase
       .from('conversation_messages')
       .select('*')
       .in('session_id', sessionIds)
       .order('created_at', { ascending: true })
+      .limit(10000)
 
     // Get widget opens counts
     let totalOpensQuery = withPageFilter(
