@@ -206,15 +206,34 @@ export async function GET(request: NextRequest) {
     }
 
     // Get messages for these sessions
-    // Note: Supabase default limit is 1000 rows. With many sessions, this can cut off
-    // messages for recent sessions. Explicitly set a high limit to avoid this.
+    // Note: Supabase's server-side max_rows setting caps queries at 1000 rows regardless
+    // of .limit(). We paginate to fetch all messages for the recent sessions.
     const sessionIds = recentSessions?.map(s => s.session_id) || []
-    const { data: allMessages } = await supabase
-      .from('conversation_messages')
-      .select('*')
-      .in('session_id', sessionIds)
-      .order('created_at', { ascending: true })
-      .limit(10000)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let allMessages: Array<{ session_id: string; created_at: string; [key: string]: any }> = []
+    const BATCH_SIZE = 1000
+    let offset = 0
+    let hasMore = true
+
+    while (hasMore) {
+      const { data: batch } = await supabase
+        .from('conversation_messages')
+        .select('*')
+        .in('session_id', sessionIds)
+        .order('created_at', { ascending: true })
+        .range(offset, offset + BATCH_SIZE - 1)
+
+      if (batch && batch.length > 0) {
+        allMessages = allMessages.concat(batch)
+        offset += BATCH_SIZE
+        hasMore = batch.length === BATCH_SIZE
+      } else {
+        hasMore = false
+      }
+
+      // Safety limit to prevent infinite loops
+      if (offset > 20000) break
+    }
 
     // Get widget opens counts
     let totalOpensQuery = withPageFilter(
