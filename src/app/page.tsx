@@ -53,7 +53,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               <a href="/pricing" className="landing-button-cta landing-button-large landing-button-pulse">
                 See Pricing &rarr;
               </a>
-              <p className="blog-hero-microcopy">Your content. No hallucinations. Works in 20+ languages.</p>
+              <p className="blog-hero-microcopy">Your content. No hallucinations. Works in 50+ languages.</p>
             </div>
             <div>
               <img

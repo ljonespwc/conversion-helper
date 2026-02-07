@@ -11,6 +11,11 @@ import '../new-landing.css'
 // Types
 // =============================================================================
 
+interface PricingFeature {
+  text: string
+  highlight?: boolean
+}
+
 interface PricingTier {
   name: string
   price: string
@@ -20,7 +25,7 @@ interface PricingTier {
   cta: string
   ctaType: 'primary' | 'secondary' | 'contact'
   popular?: boolean
-  features: string[]
+  features: (string | PricingFeature)[]
 }
 
 export interface FAQItem {
@@ -37,18 +42,19 @@ const tiers: PricingTier[] = [
     name: 'Starter',
     price: '$129',
     priceNote: '/mo',
-    description: 'Perfect for single product or service businesses.',
-    pageLimit: 'Up to 10 pages',
+    description: 'Everything you need to start closing from your site.',
+    pageLimit: 'Up to 50 pages',
     cta: 'Get Early Access',
     ctaType: 'primary',
     popular: true,
     features: [
-      'Instant answers from your content',
       'Buying signal detection',
       'Purchase attribution',
-      'Zero hallucinations',
       'Lead capture when AI can\'t answer',
+      'Instant answers from your content',
+      'Zero hallucinations',
       'Conversation analytics',
+      '50+ languages supported',
       'Live in an afternoon',
     ],
   },
@@ -56,28 +62,25 @@ const tiers: PricingTier[] = [
     name: 'Growth',
     price: '$299',
     priceNote: '/mo',
-    description: 'For teams scaling across multiple products.',
+    description: 'For teams turning every page into pipeline.',
     pageLimit: 'Unlimited pages',
     cta: 'Get Early Access',
     ctaType: 'primary',
     features: [
-      'Instant answers from your content',
       'Buying signal detection',
       'Purchase attribution',
-      'Zero hallucinations',
       'Lead capture when AI can\'t answer',
+      'Instant answers from your content',
+      'Zero hallucinations',
       'Conversation analytics',
+      '50+ languages supported',
+      { text: 'Auto rescrape keeps content current', highlight: true },
       'Live in an afternoon',
     ],
   },
 ]
 
 const includedFeatures = [
-  {
-    icon: MessageSquare,
-    title: 'Answers in seconds, not scrolls',
-    description: 'Visitors ask a question. They get the answer. No hunting through pages.',
-  },
   {
     icon: Target,
     title: 'Buying signal detection',
@@ -89,14 +92,19 @@ const includedFeatures = [
     description: 'See which conversations led to sales. Dollar amount, product, full journey.',
   },
   {
-    icon: FileText,
-    title: 'Your content only, never invents',
-    description: 'Grounded in your docs. If it doesn\'t know, it says so.',
-  },
-  {
     icon: Mail,
     title: 'Captures leads before they bounce',
     description: 'When AI can\'t answer, it grabs their email and question.',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Answers in seconds, not scrolls',
+    description: 'Visitors ask a question. They get the answer. No hunting through pages.',
+  },
+  {
+    icon: FileText,
+    title: 'Sells with your voice, not generic AI',
+    description: 'Grounded in your docs. If it doesn\'t know, it says so.',
   },
   {
     icon: Code,
@@ -106,6 +114,13 @@ const includedFeatures = [
 ]
 
 const faqItems: FAQItem[] = [
+  {
+    question: 'How does EasyAsk help me sell more?',
+    answer: [
+      'EasyAsk answers objections in real time, right when a prospect is deciding. It detects buying signals, captures leads before they bounce, and attributes revenue back to specific conversations.',
+      'You see exactly which questions led to purchases and where prospects drop off.',
+    ],
+  },
   {
     question: 'How long does setup take?',
     answer: [
@@ -136,7 +151,7 @@ const faqItems: FAQItem[] = [
   {
     question: 'What happens when I hit the page limit?',
     answer: [
-      'On Starter, the widget works on your first 10 configured pages. Need more? Upgrade to Growth for unlimited.',
+      'On Starter, the widget works on your first 50 configured pages. Need more? Upgrade to Growth for unlimited.',
       'You can always reconfigure which pages are active without losing any content.',
     ],
   },
@@ -184,12 +199,17 @@ function PricingCard({ tier }: { tier: PricingTier }) {
 
 
         <ul className="pricing-features">
-          {tier.features.map((feature, index) => (
-            <li key={index}>
-              <Check className="pricing-check" size={16} />
-              {feature}
-            </li>
-          ))}
+          {tier.features.map((feature, index) => {
+            const isObj = typeof feature === 'object'
+            const text = isObj ? feature.text : feature
+            const highlight = isObj && feature.highlight
+            return (
+              <li key={index} className={highlight ? 'pricing-feature-highlight' : ''}>
+                <Check className="pricing-check" size={16} />
+                {text}
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>
@@ -212,9 +232,9 @@ export default async function PricingPage() {
         {/* Hero Section */}
         <section className="pricing-hero">
           <div className="blog-container">
-            <h1>Simple pricing. Powerful results.</h1>
+            <h1>One extra conversion a month pays for itself.</h1>
             <p className="pricing-subtitle">
-              Turn every page into a sales conversation. Pay for what you need.
+              Sales, leads, and answers. Running 24/7.
             </p>
           </div>
         </section>
@@ -267,7 +287,7 @@ export default async function PricingPage() {
               Ready to turn visitors into buyers?
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, fontSize: '1.25rem', marginBottom: '1.5em' }}>
-              By tonight, your site could be answering questions.
+              By tonight, your site could be closing.
             </p>
 
             <div className="pricing-final-cta-buttons">

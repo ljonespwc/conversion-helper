@@ -2124,6 +2124,15 @@ button:focus {
   margin-top: 0.125rem;
 }
 
+.pricing-feature-highlight {
+  color: var(--landing-color-text-primary);
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), rgba(234, 88, 12, 0.08));
+  margin: 0.25rem -0.75rem;
+  padding: 0.625rem 0.75rem !important;
+  border-radius: 0.5rem;
+}
+
 /* What's Included Section */
 .pricing-included-subtitle {
   font-size: var(--landing-font-size-x-small);
