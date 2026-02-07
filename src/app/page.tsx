@@ -48,7 +48,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-hero">
           <div className="blog-container">
             <h1>Your product didn&rsquo;t lose them.<br />Your page did.</h1>
-            <p className="blog-subtitle">EasyAsk is a lightweight AI assistant that answers questions, generates leads, handles objections, and closes sales. Trained on your content.</p>
+            <p className="blog-subtitle">EasyAsk is AI that sells your product, captures leads, and answers every question. Trained on your content.</p>
             <div className="blog-cta-wrapper">
               <a href="/pricing" className="landing-button-cta landing-button-large landing-button-pulse">
                 See Pricing &rarr;
@@ -63,7 +63,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 height={805}
                 className="blog-hero-image"
               />
-              <p className="blog-image-caption">Don't make your visitors work to get answers. Give them a lift.</p>
+              <p className="blog-image-caption">Don't make your visitors work to make a purchase. Give them a lift.</p>
             </div>
           </div>
         </section>
@@ -74,7 +74,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-section">
           <div className="blog-container blog-body">
             <h2 className="blog-section-heading" style={{ textAlign: 'center' }}>
-              Your visitors don&rsquo;t want to climb a mountain of content before buying. They want to summit, fast.
+              Every unanswered question is revenue walking out the door.
             </h2>
 
             <p>
@@ -90,11 +90,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <p>
-              Every bounce is a buyer you&rsquo;ll never get back. They had a question. You had the answer. The page just didn&rsquo;t connect them.
-            </p>
-
-            <p>
-              What if every visitor could just <em>ask</em>&mdash;and get an instant, accurate answer from your own content?
+              <span className="blog-lead">EasyAsk doesn&rsquo;t replace your content. It makes your content reachable.</span> Feed it your pages, sales decks, pricing sheets. It learns your product in minutes. Answers in your words&mdash;<strong>never inventing, never hallucinating.</strong>
             </p>
 
             <div className="blog-demo-row blog-comparison">
@@ -111,30 +107,14 @@ export default async function LandingPage(): Promise<JSX.Element> {
                   <div className="blog-chat-bubble blog-chat-bubble--user" />
                   <div className="blog-chat-bubble blog-chat-bubble--assistant" />
                 </div>
-                <p>Ask a question. Get the answer.</p>
+                <p>Ask a question. Stay and buy.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* ============================================================
-            3. THE REFRAME (short bridge)
-            ============================================================ */}
-        <section className="blog-section">
-          <div className="blog-container blog-body">
-            <p>
-              <span className="blog-lead">EasyAsk doesn&rsquo;t replace your content. It makes your content reachable.</span>
-            </p>
-
-            <p>
-              Feed it your pages, sales decks, pricing sheets. It learns your product in minutes. Answers in your words&mdash;<strong>never inventing, never hallucinating.</strong>
-            </p>
-
-          </div>
-        </section>
-
-        {/* ============================================================
-            4. WHO IT'S FOR
+            3. WHO IT'S FOR
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
@@ -165,79 +145,11 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 </p>
               </div>
             </div>
-
-            <div className="blog-pullquote">
-              <p>You want enterprise-grade AI without the enterprise overhead.</p>
-              <p style={{ fontSize: '1rem', marginTop: '0.75em', opacity: 0.85 }}>No procurement committee. No integration project. No $50K pilot.<br />Your content. A simple but skilled chat widget. Sales happening while you sleep.</p>
-            </div>
           </div>
         </section>
 
         {/* ============================================================
-            5. FEATURE: Answer in Seconds, Not Scrolls
-            ============================================================ */}
-        <section className="blog-section">
-          <div className="blog-container blog-body">
-            <span className="blog-section-tag">INSTANT ANSWERS</span>
-            <h2 className="blog-feature-heading">
-              Answer in Seconds, <span className="blog-heading-accent">Not Scrolls</span>
-            </h2>
-
-            <p>
-              <span className="blog-lead">Your visitor is on your pricing page right now. They have one pricing question. If they can&rsquo;t get the answer in seconds, they&rsquo;re gone.</span>
-            </p>
-
-            <p>
-              Page-scoped context means your pricing page talks pricing, your features page demonstrates value. You control what the AI knows on each page.
-            </p>
-
-            <p>
-              But visitors ask about products that aren&rsquo;t on the current page&mdash;and that&rsquo;s <strong>purchase intent.</strong> EasyAsk answers from everything you give it: your full suite, your pricing, how products complement each other.
-            </p>
-
-            <p>
-              The visitor who was going to bounce after 8 seconds gets their answer and stays. Every page becomes as effective as <strong>your best salesperson on their best day</strong>&mdash;except it&rsquo;s 2 AM and the visitor is on their phone.
-            </p>
-
-            <div className="blog-proof-block">
-              <h4>How it works:</h4>
-              <ul>
-                <li><strong>Semantic search, not keyword matching.</strong> &ldquo;How much does it cost?&rdquo; matches your pricing doc even if &ldquo;cost&rdquo; never appears.</li>
-                <li><strong>Page-scoped context.</strong> You choose which documents the AI can access on each page&mdash;nothing more.</li>
-                <li><strong>Cross-product intelligence.</strong> The page is the starting point. The conversation goes wherever the buyer wants.</li>
-              </ul>
-            </div>
-
-            <div className="blog-demo-row blog-page-context-demo">
-              <div className="blog-page-context-card">
-                <span className="blog-badge blog-page-context-badge--pricing">Pricing Page</span>
-                <div className="blog-page-context-chat">
-                  <div className="blog-context-bubble blog-context-bubble--user">
-                    Does the Business plan include SSO?
-                  </div>
-                  <div className="blog-context-bubble blog-context-bubble--assistant">
-                    Yes &mdash; SSO is included on Business and Enterprise. Business starts at $49/seat/mo.
-                  </div>
-                </div>
-              </div>
-              <div className="blog-page-context-card">
-                <span className="blog-badge blog-page-context-badge--features">Features Page</span>
-                <div className="blog-page-context-chat">
-                  <div className="blog-context-bubble blog-context-bubble--user">
-                    Does it integrate with Salesforce?
-                  </div>
-                  <div className="blog-context-bubble blog-context-bubble--assistant">
-                    Yes &mdash; native Salesforce integration with two-way sync. Setup takes about 10 minutes.
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="blog-page-context-caption">Same widget. Different intelligence per page.</p>
-          </div>
-        </section>
-
-        {/* ============================================================
-            5. FEATURE: From Support Mode to Sales Mode
+            4. FEATURE: From Support Mode to Sales Mode
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
@@ -263,65 +175,11 @@ export default async function LandingPage(): Promise<JSX.Element> {
               <p style={{ fontSize: '1rem', marginTop: '0.75em', opacity: 0.85 }}>Behind every response is a dual-model architecture trained in consultative selling&mdash;classifying buyer stage, detecting purchase intent, and adapting tone from educational to action-oriented in real time. It doesn&rsquo;t follow a script. It reads the room.</p>
             </div>
 
-            <p>
-              And when they buy, you see it. Not in a separate dashboard you have to cross-reference&mdash;<strong>right next to their conversation.</strong> Dollar amount, product, every question they asked before they bought.
-            </p>
-
-            <p>
-              That&rsquo;s not a vanity metric. That&rsquo;s <strong>proof your content is generating revenue</strong>&mdash;and a blueprint for generating more. You stop wondering whether the widget is &ldquo;working&rdquo; and start seeing exactly how much revenue it&rsquo;s driving.
-            </p>
-
-            {/* Quick Action Toolkit Callout */}
-            <div className="blog-toolkit-callout">
-              <h3 className="blog-toolkit-heading">Smart tools that match visitor intent.</h3>
-              <p className="blog-toolkit-intro">
-                On a sales page, visitors want to evaluate. On a lead page, they want the quick version. On a support page, they want to understand. The intent-based <strong>"quick question buttons"</strong> adapt automatically.
-              </p>
-
-              <div className="blog-demo-row blog-toolkit-row">
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--sell">Sales Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill">Pros &amp; Cons</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Compare&hellip;</span>
-                    <span className="blog-toolkit-pill">How It Works</span>
-                    <span className="blog-toolkit-pill">Show Proof</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them decide</p>
-                </div>
-
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--lead">Lead Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill">TL;DR</span>
-                    <span className="blog-toolkit-pill">Why Should I Care?</span>
-                    <span className="blog-toolkit-pill">What Do I Get?</span>
-                    <span className="blog-toolkit-pill">Quick Facts</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them understand</p>
-                </div>
-
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--support">Support Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Explain&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Example&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Define&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Translate&hellip;</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them learn</p>
-                </div>
-              </div>
-
-              <p className="blog-page-context-caption">Same widget. Different toolkit per page.</p>
-            </div>
-
             <div className="blog-proof-block">
               <h4>How it works on sales pages:</h4>
               <ul>
                 <li><strong>Two-call AI architecture.</strong> A fast classification call reads every message, determines conversation stage and intent. The response call gets stage-specific instructions.</li>
                 <li><strong>Buying signal detection.</strong> When signals fire, the AI shifts from informational to action-oriented&mdash;&ldquo;Here&rsquo;s how to get started&rdquo; instead of &ldquo;Here&rsquo;s more to read.&rdquo;</li>
-                <li><strong>Persistent visitor identity.</strong> First-party cookie tracks visitors across sessions. Tuesday&rsquo;s pricing question and Thursday&rsquo;s return visit&mdash;one visitor, full journey.</li>
                 <li><strong>Purchase attribution.</strong> Lightweight API connects purchases to visitor records. Transaction amount, product, and the chat sessions that preceded it. No UTM guesswork.</li>
               </ul>
             </div>
@@ -378,13 +236,116 @@ export default async function LandingPage(): Promise<JSX.Element> {
         </section>
 
         {/* ============================================================
-            6. FEATURE: It Knows What It Doesn't Know
+            5. FEATURE: Every Page Becomes a Sales Conversation
             ============================================================ */}
         <section className="blog-section">
           <div className="blog-container blog-body">
-            <span className="blog-section-tag">GROUNDING</span>
+            <span className="blog-section-tag">PAGE INTELLIGENCE</span>
             <h2 className="blog-feature-heading">
-              It Knows What It <span className="blog-heading-accent">Doesn&rsquo;t Know</span>
+              Every Page Becomes a <span className="blog-heading-accent">Sales Conversation</span>
+            </h2>
+
+            <p>
+              <span className="blog-lead">Your visitor is on your pricing page right now with one question standing between them and checkout. EasyAsk answers it instantly&mdash;from your content, on that page.</span>
+            </p>
+
+            <p>
+              Page-scoped context means your pricing page talks pricing, your features page demonstrates value. You control what the AI knows on each page.
+            </p>
+
+            <p>
+              But visitors ask about products that aren&rsquo;t on the current page&mdash;and that&rsquo;s <strong>purchase intent.</strong> EasyAsk answers from everything you give it: your full suite, your pricing, how products complement each other.
+            </p>
+
+            <div className="blog-proof-block">
+              <h4>How it works:</h4>
+              <ul>
+                <li><strong>Page-scoped context.</strong> You choose which documents the AI can access on each page&mdash;nothing more.</li>
+                <li><strong>Cross-product intelligence.</strong> The page is the starting point. The conversation goes wherever the buyer wants.</li>
+              </ul>
+            </div>
+
+            <div className="blog-demo-row blog-page-context-demo">
+              <div className="blog-page-context-card">
+                <span className="blog-badge blog-page-context-badge--pricing">Pricing Page</span>
+                <div className="blog-page-context-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    What&rsquo;s included in the Pro plan?
+                  </div>
+                  <div className="blog-context-bubble blog-context-bubble--assistant">
+                    Pro includes unlimited seats, priority support, and custom integrations. Plans start at $79/mo.
+                  </div>
+                </div>
+              </div>
+              <div className="blog-page-context-card">
+                <span className="blog-badge blog-page-context-badge--features">Features Page</span>
+                <div className="blog-page-context-chat">
+                  <div className="blog-context-bubble blog-context-bubble--user">
+                    Does it integrate with Salesforce?
+                  </div>
+                  <div className="blog-context-bubble blog-context-bubble--assistant">
+                    Yes &mdash; native Salesforce integration with two-way sync. Setup takes about 10 minutes.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="blog-page-context-caption">Same widget. Different intelligence per page.</p>
+
+            {/* Quick Action Toolkit Callout */}
+            <div className="blog-toolkit-callout">
+              <h3 className="blog-toolkit-heading">Smart tools that match visitor intent.</h3>
+              <p className="blog-toolkit-intro">
+                On a sales page, visitors want to evaluate. On a lead page, they want the quick version. On a support page, they want to understand. The intent-based <strong>&ldquo;quick question buttons&rdquo;</strong> adapt automatically.
+              </p>
+
+              <div className="blog-demo-row blog-toolkit-row">
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--sell">Sales Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill">Pros &amp; Cons</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Compare&hellip;</span>
+                    <span className="blog-toolkit-pill">How It Works</span>
+                    <span className="blog-toolkit-pill">Show Proof</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them decide</p>
+                </div>
+
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--lead">Lead Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill">TL;DR</span>
+                    <span className="blog-toolkit-pill">Why Should I Care?</span>
+                    <span className="blog-toolkit-pill">What Do I Get?</span>
+                    <span className="blog-toolkit-pill">Quick Facts</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them understand</p>
+                </div>
+
+                <div className="blog-toolkit-card">
+                  <span className="blog-badge blog-toolkit-badge--support">Support Page</span>
+                  <div className="blog-toolkit-buttons">
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Explain&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Example&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Define&hellip;</span>
+                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Translate&hellip;</span>
+                  </div>
+                  <p className="blog-toolkit-outcome">Help them learn</p>
+                </div>
+              </div>
+
+              <p className="blog-page-context-caption">Same widget. Different toolkit per page.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            6. FEATURE: Can't Answer? Captures the Lead Instead
+            ============================================================ */}
+        <section className="blog-section">
+          <div className="blog-container blog-body">
+            <span className="blog-section-tag">LEAD CAPTURE</span>
+            <h2 className="blog-feature-heading">
+              Can&rsquo;t Answer? <span className="blog-heading-accent">Captures the Lead Instead</span>
             </h2>
 
             <p>
@@ -397,10 +358,6 @@ export default async function LandingPage(): Promise<JSX.Element> {
 
             <p>
               Your team gets a warm lead with the exact question that needs answering. <strong>No hallucination. No lost prospect.</strong>
-            </p>
-
-            <p>
-              Every honest &ldquo;I don&rsquo;t know&rdquo; is a signal&mdash;a question your visitors keep asking that your content doesn&rsquo;t answer. And every captured email is a lead your team would have lost entirely.
             </p>
 
             <div className="blog-proof-block">
@@ -467,12 +424,8 @@ export default async function LandingPage(): Promise<JSX.Element> {
               You <strong>stop guessing</strong> what to put on your pricing page and <strong>start knowing.</strong> You see that 40% of questions on your features page are about integrations&mdash;so you add an integrations section and watch bounce rate drop.
             </p>
 
-            <p>
-              Your site gets <strong>sharper every week</strong> because your visitors are telling you exactly how to fix it.
-            </p>
-
             <div className="blog-pullquote">
-              <p>This isn&rsquo;t analytics. It&rsquo;s your customers rewriting your copy for you.</p>
+              <p>This isn&rsquo;t analytics. It&rsquo;s your customers telling you how to close them.</p>
             </div>
 
 
@@ -481,7 +434,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               <ul>
                 <li><strong>AI-clustered question themes.</strong> Groups visitor questions into themes automatically, per page, using their own language. You don&rsquo;t define categories. Patterns emerge.</li>
                 <li><strong>Grounding status on every response.</strong> Tagged as grounded (answered from your content) or fallback (couldn&rsquo;t find a match). A cluster of fallbacks = a content gap you can fix.</li>
-                <li><strong>Exact words, not interpretations.</strong> The literal phrasing visitors used&mdash;ready-made language for your copy.</li>
+                <li><strong>Revenue-linked insights.</strong> See which questions lead to purchases and which cause drop-offs.</li>
                 <li><strong>Per-page analytics.</strong> Widget opens, unique visitors, open-to-chat conversion, active sessions, duration, thumbs up/down&mdash;all broken down per page.</li>
               </ul>
             </div>
