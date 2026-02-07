@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'EasyAsk - Turn browsers into buyers before they bounce.',
-  description: 'AI that sells your product, captures leads, and answers every question. Trained on your content.',
+  description: 'AI trained on your content, selling your product, capturing leads, and answering every question.',
   metadataBase: new URL('https://easyask.io'),
   icons: {
     icon: [
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'EasyAsk - Turn browsers into buyers before they bounce.',
-    description: 'AI that sells your product, captures leads, and answers every question. Trained on your content.',
+    description: 'AI trained on your content, selling your product, capturing leads, and answering every question.',
     url: 'https://easyask.io',
     siteName: 'EasyAsk',
     images: [
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'EasyAsk - Turn browsers into buyers before they bounce.',
-    description: 'AI that sells your product, captures leads, and answers every question. Trained on your content.',
+    description: 'AI trained on your content, selling your product, capturing leads, and answering every question.',
     images: ['/images/twitter-image.png'],
   },
 }

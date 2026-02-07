@@ -48,7 +48,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
         <section className="blog-hero">
           <div className="blog-container">
             <h1>Your product didn&rsquo;t lose them.<br />Your page did.</h1>
-            <p className="blog-subtitle">EasyAsk is AI that sells your product, captures leads, and answers every question. Trained on your content.</p>
+            <p className="blog-subtitle">EasyAsk is AI trained on your content, selling your product, capturing leads, and answering every question.</p>
             <div className="blog-cta-wrapper">
               <a href="/pricing" className="landing-button-cta landing-button-large landing-button-pulse">
                 See Pricing &rarr;
