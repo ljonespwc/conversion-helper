@@ -258,6 +258,11 @@ export default async function LandingPage(): Promise<JSX.Element> {
               Tag a page as a sales page and the AI shifts from support to consultative selling. It picks up on buying cues: pricing, comparisons, implementation. It responds with answers that address objections while qualifying intent. <strong>It doesn&rsquo;t push. It guides.</strong>
             </p>
 
+            <div className="blog-pullquote">
+              <p>Most AI chatbots answer questions. EasyAsk sells.</p>
+              <p style={{ fontSize: '1rem', marginTop: '0.75em', opacity: 0.85 }}>Behind every response is a dual-model architecture trained in consultative selling&mdash;classifying buyer stage, detecting purchase intent, and adapting tone from educational to action-oriented in real time. It doesn&rsquo;t follow a script. It reads the room.</p>
+            </div>
+
             <p>
               And when they buy, you see it. Not in a separate dashboard you have to cross-reference&mdash;<strong>right next to their conversation.</strong> Dollar amount, product, every question they asked before they bought.
             </p>
