@@ -42,6 +42,65 @@ const classificationData = [
   { message: 'What topics does it cover?', stage: '\u2014', detail: 'signal: false', group: 'signal' },
 ]
 
+const conversationExamples = [
+  {
+    stage: 'discovering',
+    intent: 'general',
+    question: 'What is this certification about?',
+    response: `This certification, the PN Level 1 Nutrition Certification, is designed to help you guide people in improving their health, nutrition, and lifestyle behaviors. It teaches a structured, systematic, and science-based approach to nutrition coaching, enabling you to provide advice clients can trust. The program covers the philosophy and methodology of coaching, the science of nutrition, and practical application, including how to assess clients, create action plans, monitor data, and even build a coaching business.\n\nWhat are you hoping to achieve by looking into a nutrition certification?`,
+    annotations: ['Answers the question thoroughly', 'Ends with a diagnostic question about their goals', 'No pitch, no pricing, no pressure'],
+  },
+  {
+    stage: 'discovering',
+    intent: 'fit',
+    question: 'Is this good for someone who wants to become a health coach?',
+    response: `Yes, this program is designed for individuals who want to become health coaches. It\u2019s suitable for those switching careers, looking for a flexible and fulfilling job, or wanting to add nutrition coaching to their existing health and wellness services. The certification teaches you the nutrition science and coaching skills needed to help people and can be completed in about 20 weeks, investing 3-5 hours per week.\n\nWhat kind of impact are you hoping to make as a health coach?`,
+    annotations: ['Confirms fit honestly', 'Includes time commitment (concrete details)', 'Asks about their aspirations \u2014 not "ready to buy?"'],
+  },
+  {
+    stage: 'evaluating',
+    intent: 'pricing',
+    question: 'How much does it cost and what payment options are there?',
+    response: `The Precision Nutrition Level 1 Certification offers two payment options. You can choose a single payment of **$599 USD**, which saves you $200 USD compared to the original price of $799 USD. Alternatively, you can opt for a monthly payment plan of **$59 USD per month for 12 months**, saving you $20 USD per month. All prices are listed in USD.\n\nBoth options come with a 100% money-back guarantee. You also get a 45-day money-back guarantee, allowing you to return your textbooks for a full refund if you\u2019re not satisfied before you certify.\n\nWhich payment option aligns best with your budget?`,
+    annotations: ['Leads with value (savings framing)', 'Brackets both options with specific numbers', 'Mentions guarantee to reduce risk', 'Asks what fits \u2014 not "ready to sign up?"'],
+  },
+  {
+    stage: 'evaluating',
+    intent: 'features',
+    question: 'What specific topics does the course cover? How deep does it go?',
+    response: `The certification covers a comprehensive range of topics across three main units, designed to provide a step-by-step progression for learning and practicing the material.\n\n**Unit 1: The Precision Nutrition Approach** focuses on the philosophy and methodology of coaching. You\u2019ll learn how to explore your own coaching style, use evidence in coaching, coach "deep health," build effective coaching relationships, and help clients learn and change.\n\n**Unit 2: The Science of Nutrition** delves into the scientific foundations. This includes energy balance and metabolism, digestion and absorption, macro- and micronutrients, water and fluid balance, and the impact of stress and recovery.\n\n**Unit 3: Putting it into Practice** teaches you how to apply what you\u2019ve learned. This unit covers the step-by-step PN coaching process, how to assess clients, create action plans, monitor and use data, and work with different "nutritional levels" and client capacities.\n\nThe program includes 20 chapters, with each chapter featuring a video, text, study guide questions, real-world case studies for practice, and a short end-of-chapter exam. The content is built upon extensive research and expertise, combining insights from coaching over 150,000 clients and over 1100 scientific citations.\n\nWhat aspects of nutrition coaching are most important for you to master?`,
+    annotations: ['Extremely detailed \u2014 3 units broken down', 'Specific numbers: 20 chapters, 150K clients, 1100 citations', 'Frames features as outcomes ("you\u2019ll learn how to...")', 'Asks what matters most to deepen the conversation'],
+  },
+  {
+    stage: 'evaluating',
+    intent: 'comparison',
+    question: 'How does Precision Nutrition compare to other nutrition certifications?',
+    response: `Precision Nutrition (PN) Level 1 Nutrition Coaching is designed to help you start coaching and making an impact immediately, focusing on practical application rather than just academic knowledge.\n\nHere\u2019s how it compares:\n\u2022 **Focus on Coaching:** Unlike many degree programs that are more academic and broad, PN teaches you a proven, step-by-step system for effective nutrition coaching.\n\u2022 **Time and Cost:** A traditional degree can take 4+ years and cost $50,000\u2013$100,000+ USD, while the PN Certification can be completed in about 20 weeks by dedicating 3-5 hours per week.\n\u2022 **Accessibility:** PN Level 1 is open to anyone, regardless of prior experience.\n\u2022 **Industry Recognition:** Precision Nutrition is recognized as the #1 recommended nutrition certification by Business Insider.\n\u2022 **Real-World Application:** The program incorporates insights from coaching over 150,000 clients, 20,000+ hours of research, and the expertise of 7 PhDs, 2 MDs, and 3 RDs.\n\u2022 **Career Support:** Upon certification, you can be listed on the PN website and in the US, you are guaranteed job interviews with leading health and fitness organizations.\n\nWhat aspects of a nutrition certification are most important to you?`,
+    annotations: ['Never names or trashes a competitor', 'Differentiates on concrete strengths', 'Uses specific proof points (150K clients, 7 PhDs)', 'Asks what matters to THIS buyer'],
+  },
+  {
+    stage: 'ready_to_buy',
+    intent: 'logistics',
+    question: 'I\u2019m going with the monthly plan. The textbooks are included, right? How soon do they ship?',
+    response: `Yes, the textbooks are included in the price of your certification, whether you choose the single payment or the monthly plan. Shipping is also included, and there are no extra charges for it.\n\nOnce your textbooks and course materials are shipped, you will receive tracking details so you can monitor your package. We do everything we can to minimize international customs and brokerage fees for those outside North America.\n\nWhen you\u2019re ready to get started, you can sign up directly on this page. Anything else I can help with?`,
+    annotations: ['Confirms their decision (no re-selling)', 'Removes friction: shipping is free, tracking included', 'Clear next step: "sign up directly on this page"', 'Assumptive: "When you\u2019re ready" not "If you decide"'],
+  },
+  {
+    stage: 'ready_to_buy',
+    intent: 'general',
+    question: 'What happens after I sign up?',
+    response: `That\u2019s great to hear! Once you sign up, you\u2019ll gain immediate access to your student dashboard, which includes lifetime access to your course materials. Each day, you\u2019ll log into your PN homepage to find new materials to read, a workout, and a daily habit or practice to complete.\n\nYour payment plan consists of 12 monthly payments, separate from your self-paced study. Even after you complete the certification, you\u2019ll continue to have access to all course materials without any further payments once your plan is paid off.\n\nAre you ready to get started and transform your nutrition coaching journey?`,
+    annotations: ['Future-paces: "Once you sign up, you\u2019ll..."', 'Paints a picture of daily life as a student', 'Removes payment anxiety: lifetime access after plan is done', 'Assumptive close: "Are you ready to get started?"'],
+  },
+  {
+    stage: 'handoff_needed',
+    intent: 'objection',
+    question: 'I\u2019m really confused about how the money-back guarantee works. Is it really 45 days? I need to understand this before I spend $599.',
+    response: `That\u2019s a fair concern, and it\u2019s important to understand the guarantee before making a commitment.\n\nYes, for the Level 1 Nutrition Certification, we do offer a 45-day, 100% money-back guarantee. You can try the certification for 45 days, and if you\u2019re not happy with what you learn, you can email us to request a refund. This needs to be done within the 45-day trial period and before you\u2019ve completed the course and certified. You\u2019ll also need to return your textbooks.\n\nDoes that help address your concern about the money-back guarantee?`,
+    annotations: ['Validates: "That\u2019s a fair concern"', 'Answers with specific details from content', 'No sales pressure \u2014 just information', 'Checks if the concern is resolved'],
+  },
+]
+
 const stageColors: Record<string, string> = {
   discovering: '#3b82f6',
   evaluating: '#f59e0b',
@@ -51,6 +110,7 @@ const stageColors: Record<string, string> = {
 
 export default function SellTestReport() {
   const [activeStage, setActiveStage] = useState<Stage>('discovering')
+  const [galleryFilter, setGalleryFilter] = useState<string>('all')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -696,6 +756,160 @@ export default function SellTestReport() {
           letter-spacing: 0.5px;
         }
 
+        /* ---- Gallery ---- */
+        .sr-gallery {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .sr-gallery-filters {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin-bottom: 12px;
+        }
+
+        .sr-gallery-filter {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.5px;
+          padding: 7px 16px;
+          border-radius: 6px;
+          border: 1px solid var(--border);
+          background: transparent;
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .sr-gallery-filter:hover {
+          border-color: var(--text-muted);
+          color: var(--text-secondary);
+        }
+
+        .sr-gallery-filter[data-active="true"] {
+          background: var(--surface-2);
+          border-color: var(--text-secondary);
+          color: var(--text);
+        }
+
+        .sr-conv {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          overflow: hidden;
+          animation: sr-fadeIn 0.3s ease;
+        }
+
+        .sr-conv-header {
+          padding: 16px 24px;
+          border-bottom: 1px solid var(--border-subtle);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .sr-conv-badges {
+          display: flex;
+          gap: 6px;
+          flex: 1;
+        }
+
+        .sr-conv-intent {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: var(--text-muted);
+          padding: 3px 8px;
+          background: var(--surface-3);
+          border-radius: 4px;
+        }
+
+        .sr-conv-q {
+          padding: 20px 24px;
+          border-bottom: 1px solid var(--border-subtle);
+          display: flex;
+          gap: 14px;
+          align-items: flex-start;
+        }
+
+        .sr-conv-q-avatar {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: var(--surface-3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          color: var(--text-muted);
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        .sr-conv-q-text {
+          font-size: 15px;
+          color: var(--text);
+          font-weight: 400;
+          line-height: 1.6;
+        }
+
+        .sr-conv-a {
+          padding: 20px 24px;
+          display: flex;
+          gap: 14px;
+          align-items: flex-start;
+        }
+
+        .sr-conv-a-avatar {
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          color: white;
+          flex-shrink: 0;
+          margin-top: 2px;
+          font-family: var(--font-mono);
+          font-weight: 500;
+        }
+
+        .sr-conv-a-body {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .sr-conv-a-text {
+          font-size: 14px;
+          color: var(--text-secondary);
+          line-height: 1.75;
+          white-space: pre-line;
+          font-weight: 300;
+        }
+
+        .sr-conv-annotations {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid var(--border-subtle);
+        }
+
+        .sr-conv-annotation {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          padding: 4px 10px;
+          border-radius: 4px;
+          background: var(--surface-3);
+          color: var(--text-secondary);
+          line-height: 1.4;
+        }
+
         /* ---- Responsive ---- */
         @media (max-width: 900px) {
           .sr-hero, .sr-section { padding: 48px 24px; }
@@ -709,6 +923,8 @@ export default function SellTestReport() {
           .sr-footer { padding: 48px 24px; }
           .sr-stage-tabs { width: 100%; }
           .sr-stage-tab { flex: 1; text-align: center; padding: 10px 12px; }
+          .sr-conv-q, .sr-conv-a { padding: 16px 18px; }
+          .sr-conv-annotations { flex-direction: column; }
         }
       `}</style>
 
@@ -870,9 +1086,83 @@ export default function SellTestReport() {
           </div>
         </section>
 
-        {/* ===== SECTION 3: CLASSIFICATION ACCURACY ===== */}
+        {/* ===== SECTION 3: RESPONSE GALLERY ===== */}
         <section className="sr-section">
           <p className="sr-section-num">03</p>
+          <h2>Response <em>Gallery</em></h2>
+          <p className="sr-section-desc">
+            Eight real AI responses from the test suite, showing how the engine adapts
+            its tone, depth, and follow-up strategy based on stage and intent.
+          </p>
+
+          <div className="sr-gallery-filters">
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'discovering', label: 'Discovering' },
+              { key: 'evaluating', label: 'Evaluating' },
+              { key: 'ready_to_buy', label: 'Ready to Buy' },
+              { key: 'handoff_needed', label: 'Handoff' },
+            ].map(f => (
+              <button
+                key={f.key}
+                className="sr-gallery-filter"
+                data-active={galleryFilter === f.key ? 'true' : 'false'}
+                onClick={() => setGalleryFilter(f.key)}
+              >
+                {f.key !== 'all' && (
+                  <span style={{
+                    display: 'inline-block',
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: stageColors[f.key] || 'var(--text-muted)',
+                    marginRight: 6,
+                    verticalAlign: 'middle',
+                  }} />
+                )}
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="sr-gallery">
+            {conversationExamples
+              .filter(ex => galleryFilter === 'all' || ex.stage === galleryFilter)
+              .map((ex, i) => (
+              <div className="sr-conv" key={`${ex.stage}-${ex.intent}-${i}`}>
+                <div className="sr-conv-header">
+                  <div className="sr-conv-badges">
+                    <span className={`sr-badge sr-badge-${ex.stage}`}>
+                      {ex.stage.replace('_', ' ')}
+                    </span>
+                    <span className="sr-conv-intent">{ex.intent}</span>
+                  </div>
+                </div>
+                <div className="sr-conv-q">
+                  <div className="sr-conv-q-avatar">V</div>
+                  <p className="sr-conv-q-text">{ex.question}</p>
+                </div>
+                <div className="sr-conv-a">
+                  <div className="sr-conv-a-avatar" style={{ background: stageColors[ex.stage] || 'var(--text-muted)' }}>
+                    AI
+                  </div>
+                  <div className="sr-conv-a-body">
+                    <p className="sr-conv-a-text">{ex.response}</p>
+                    <div className="sr-conv-annotations">
+                      {ex.annotations.map((a, j) => (
+                        <span className="sr-conv-annotation" key={j}>{a}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ===== SECTION 4: CLASSIFICATION ACCURACY ===== */}
+        <section className="sr-section">
+          <p className="sr-section-num">04</p>
           <h2>Classification <em>Accuracy</em></h2>
           <p className="sr-section-desc">
             13 real visitor messages classified with 100% accuracy.
@@ -921,9 +1211,9 @@ export default function SellTestReport() {
           </div>
         </section>
 
-        {/* ===== SECTION 4: METHODOLOGY MAP ===== */}
+        {/* ===== SECTION 5: METHODOLOGY MAP ===== */}
         <section className="sr-section">
-          <p className="sr-section-num">04</p>
+          <p className="sr-section-num">05</p>
           <h2>Selling <em>Methodology</em></h2>
           <p className="sr-section-desc">
             Each stage applies a distinct consultative selling framework.
@@ -971,9 +1261,9 @@ export default function SellTestReport() {
           </div>
         </section>
 
-        {/* ===== SECTION 5: VERTICAL AGNOSTIC ===== */}
+        {/* ===== SECTION 6: VERTICAL AGNOSTIC ===== */}
         <section className="sr-section" style={{ borderBottom: 'none' }}>
-          <p className="sr-section-num">05</p>
+          <p className="sr-section-num">06</p>
           <h2>Works for <em>Any Vertical</em></h2>
 
           <div className="sr-agnostic">
