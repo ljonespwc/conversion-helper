@@ -55,7 +55,7 @@ export function Header({ user, loading = false }: HeaderProps) {
                   EasyAsk
                 </span>
                 <span className="text-[0.65rem] text-gray-800 mt-1 hidden sm:block">
-                  Your content. No hallucinations.
+                  Your content. Your closer.
                 </span>
               </div>
             </Link>
