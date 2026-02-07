@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Loader2, X, FileText, Globe, Plus, ChevronDown, ChevronUp, Calendar } from 'lucide-react'
+import { Check, Loader2, X, FileText, Globe, Plus, ChevronDown, ChevronUp, Calendar, Search } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
 import type { ScrapingJob } from './types'
 
@@ -82,8 +82,12 @@ export default function ScrapedPagesList({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const readyJobs = jobs.filter(isJobReady)
+  const filteredJobs = searchQuery
+    ? jobs.filter(job => getDisplayUrl(job.url).toLowerCase().includes(searchQuery.toLowerCase()))
+    : jobs
+  const readyJobs = filteredJobs.filter(isJobReady)
   const allSelected = selectedJobs.length === readyJobs.length && readyJobs.length > 0
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
@@ -205,9 +209,20 @@ export default function ScrapedPagesList({
 
           {jobs.length > 0 ? (
             <div className="p-6">
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search pages..."
+                  className="w-full pl-9 pr-3 py-2 bg-gray-100 border border-gray-300 text-gray-900 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 focus:border-transparent placeholder-gray-400"
+                />
+              </div>
+
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                  Scraped Pages ({jobs.length})
+                  Scraped Pages ({filteredJobs.length})
                 </h3>
                 {readyJobs.length > 0 && (
                   <button
@@ -220,7 +235,7 @@ export default function ScrapedPagesList({
               </div>
 
               <div className="space-y-2">
-                {jobs.map((job) => {
+                {filteredJobs.map((job) => {
                   const isReady = isJobReady(job)
                   const isSelected = selectedJobs.includes(job.id)
                   const displayUrl = getDisplayUrl(job.url)

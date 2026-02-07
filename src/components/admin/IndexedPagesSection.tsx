@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Globe } from 'lucide-react'
+import { FileText, ExternalLink, Calendar, ChevronDown, ChevronUp, Globe, Search } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
 import type { IndexedPage, IndexedPageSyncStatus } from './types'
 
@@ -30,6 +30,14 @@ export default function IndexedPagesSection({
   onSelectionChange
 }: IndexedPagesSectionProps): React.ReactElement {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredPages = searchQuery
+    ? pages.filter(p =>
+        (p.page_title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.page_url.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : pages
 
   function handleTogglePage(pageId: string): void {
     onSelectionChange(
@@ -40,10 +48,10 @@ export default function IndexedPagesSection({
   }
 
   function handleSelectAll(): void {
-    if (selectedPages.length === pages.length && pages.length > 0) {
+    if (selectedPages.length === filteredPages.length && filteredPages.length > 0) {
       onSelectionChange([])
     } else {
-      onSelectionChange(pages.map(p => p.id))
+      onSelectionChange(filteredPages.map(p => p.id))
     }
   }
 
@@ -94,7 +102,7 @@ export default function IndexedPagesSection({
               onClick={handleSelectAll}
               className="text-sm text-orange-600 hover:text-orange-500 font-medium"
             >
-              {selectedPages.length === pages.length ? 'Deselect All' : 'Select All'}
+              {selectedPages.length === filteredPages.length && filteredPages.length > 0 ? 'Deselect All' : 'Select All'}
             </button>
           </div>
         )}
@@ -107,8 +115,21 @@ export default function IndexedPagesSection({
               Loading indexed documents...
             </div>
           ) : pages.length > 0 ? (
-            <div className="divide-y divide-gray-200">
-              {pages.map((page) => {
+            <>
+              <div className="px-6 pt-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search documents..."
+                    className="w-full pl-9 pr-3 py-2 bg-gray-100 border border-gray-300 text-gray-900 rounded-lg text-sm focus:ring-2 focus:ring-orange-400 focus:border-transparent placeholder-gray-400"
+                  />
+                </div>
+              </div>
+              <div className="divide-y divide-gray-200 mt-4">
+              {filteredPages.map((page) => {
                 const isSelected = selectedPages.includes(page.id)
                 const statusStyle = SYNC_STATUS_STYLES[page.sync_status]
 
@@ -211,6 +232,7 @@ export default function IndexedPagesSection({
                 )
               })}
             </div>
+            </>
           ) : (
             <div className="px-6 py-16 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
