@@ -12,11 +12,11 @@ interface HeaderProps {
 
 const NAV_ITEMS = [
   { href: '/test', label: 'Test Page' },
-  { href: '/admin', label: 'Reports' },
+  { href: '/admin', label: 'Conversations' },
   { href: '/admin/analytics', label: 'Analytics' },
   { href: '/admin/escalations', label: 'Escalations' },
   { href: '/admin/pages', label: 'Pages' },
-  { href: '/admin/content', label: 'Knowledgebase' },
+  { href: '/admin/content', label: 'Content' },
 ] as const
 
 function isActiveLink(pathname: string, href: string): boolean {

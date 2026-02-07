@@ -155,7 +155,8 @@ export async function POST(request: NextRequest) {
         created_by_user_id: user.id,
         page_url,
         page_title,
-        page_goal: page_goal || null
+        page_goal: page_goal || null,
+        is_active: false
       })
       .select()
       .single()

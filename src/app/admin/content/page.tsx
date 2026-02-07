@@ -134,9 +134,9 @@ export default function ContentManagementPage(): React.ReactElement {
 
       <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AI Assistant Knowledgebase</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Content</h1>
           <p className="text-gray-500 mt-2 text-sm sm:text-base">
-            Scrape pages, upload files, and manage content for the AI Assistant
+            Scrape pages, upload files, and manage what the assistant knows
           </p>
         </div>
 

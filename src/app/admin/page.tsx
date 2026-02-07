@@ -282,7 +282,7 @@ export default function AdminDashboard(): React.ReactElement {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Reports
+                Conversations
               </h1>
               <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">
                 Monitor conversations and visitor engagement

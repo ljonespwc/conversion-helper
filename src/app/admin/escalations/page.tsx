@@ -169,7 +169,7 @@ export default function EscalationsPage(): React.ReactElement {
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Email Escalations
+            Escalations
           </h1>
           <p className="mt-2 text-gray-500">
             Review customer escalations and flagged AI responses
