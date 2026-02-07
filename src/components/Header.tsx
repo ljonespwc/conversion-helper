@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LogIn, LogOut, User, Menu, X } from 'lucide-react'
+import { LogIn, Menu, X } from 'lucide-react'
 
 interface HeaderProps {
   user: { email?: string | null; id: string } | null
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: '/admin/escalations', label: 'Escalations' },
   { href: '/admin/pages', label: 'Pages' },
   { href: '/admin/content', label: 'Content' },
+  { href: '/admin/settings', label: 'Settings' },
 ] as const
 
 function isActiveLink(pathname: string, href: string): boolean {
@@ -77,18 +78,11 @@ export function Header({ user, loading = false }: HeaderProps) {
                 </Link>
               ))}
 
-              {/* User Email Display */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/20 backdrop-blur text-gray-900 text-sm">
-                <User className="w-4 h-4" />
-                <span className="max-w-[150px] truncate">{user.email}</span>
-              </div>
-
-              {/* Logout Button */}
+              {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium whitespace-nowrap"
+                className="px-3 py-2.5 text-gray-900 text-sm font-medium opacity-75 hover:opacity-100 hover:underline underline-offset-[3px] transition-all duration-200 whitespace-nowrap"
               >
-                <LogOut className="w-4 h-4" />
                 Logout
               </button>
             </div>
@@ -147,21 +141,12 @@ export function Header({ user, loading = false }: HeaderProps) {
               </Link>
             ))}
 
-            {/* User Email */}
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/20 backdrop-blur text-gray-900 text-sm">
-              <User className="w-4 h-4" />
-              <span className="truncate">{user.email}</span>
-            </div>
-
-            {/* Logout Button */}
+            {/* Logout */}
             <button
               onClick={handleLogout}
-              className="block w-full text-left px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur transition-all duration-200 text-gray-900 text-sm font-medium"
+              className="block w-full text-left px-4 py-3 text-gray-900 text-sm font-medium opacity-75 hover:opacity-100 hover:underline underline-offset-[3px] transition-all duration-200"
             >
-              <span className="flex items-center gap-2">
-                <LogOut className="w-4 h-4" />
-                Logout
-              </span>
+              Logout
             </button>
           </div>
         </div>
