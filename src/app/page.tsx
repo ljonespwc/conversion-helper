@@ -527,7 +527,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
                 <div className="blog-step-icon blog-step-icon--launch" />
                 <div className="blog-step-content">
                   <h3>Launch</h3>
-                  <p>Paste one embed code. Your chat assistant is live. Visitors can start asking questions immediately. Most &ldquo;enterprise AI&rdquo; takes months. This takes an afternoon.</p>
+                  <p>Paste one embed code. Your AI sales assistant is live. Most &ldquo;enterprise AI&rdquo; takes months. This takes an afternoon.</p>
                 </div>
               </li>
             </ol>
@@ -550,7 +550,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
                   height={280}
                   className="blog-manifesto-image"
                 />
-                <h3 className="blog-manifesto-heading">The end of the scroll.</h3>
+                <h3 className="blog-manifesto-heading">The end of the scroll. The start of the sale.</h3>
                 <p>
                   We think the next UX shift isn&rsquo;t a new page layout&mdash;it&rsquo;s the end of scroll-first websites.
                 </p>
@@ -603,7 +603,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               <a href="/pricing" className="landing-button-cta landing-button-large landing-button-pulse">
                 See Pricing &rarr;
               </a>
-              <p className="blog-final-microcopy">The AI assistant that never goes off-script.</p>
+              <p className="blog-final-microcopy">Your content. Your voice. Their credit card.</p>
             </div>
           </div>
         </section>
