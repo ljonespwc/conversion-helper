@@ -21,7 +21,7 @@ export default async function ExamplesPage() {
         {/* Hero Section */}
         <section className="examples-hero">
           <div className="blog-container">
-            <h1>See EasyAsk in action.</h1>
+            <h1>Here's what visitors actually ask.</h1>
             <p className="examples-subtitle">
               Real conversations showing how our AI assistant handles sales, lead capture, and support across different industries.
             </p>

@@ -269,23 +269,54 @@
   color: rgb(17, 24, 39);
 }
 
-.landing-nav-cta {
-  padding: 0.625rem 1rem;
+/* Primary CTA - solid white button that pops against gradient nav */
+.landing-nav-cta-primary {
+  padding: 0.625rem 1.25rem;
   font-size: var(--landing-font-size-xxx-small);
-  font-weight: 500;
+  font-weight: 600;
   color: rgb(17, 24, 39);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   border-radius: 0.75rem;
   text-decoration: none;
   cursor: pointer;
-  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
 
-.landing-nav-cta:hover {
-  background: rgba(255, 255, 255, 0.3);
+.landing-nav-cta-primary:hover {
+  background: rgb(255, 255, 255);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Login - ghost text link, understated */
+.landing-nav-link-login {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 0.75rem;
+  font-size: var(--landing-font-size-xxx-small);
+  font-weight: 500;
   color: rgb(17, 24, 39);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+}
+
+.landing-nav-link-login:hover {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Spacer to push CTA + Login to the right */
+.landing-nav-spacer {
+  flex: 1;
 }
 
 .landing-nav-user {
@@ -375,6 +406,51 @@
 
 .landing-nav-mobile-link:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile: Primary CTA - solid white, stands out */
+.landing-nav-mobile-cta-primary {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: var(--landing-font-size-xxx-small);
+  font-weight: 600;
+  color: rgb(17, 24, 39);
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.landing-nav-mobile-cta-primary:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Mobile: Login - ghost/subtle */
+.landing-nav-mobile-link-login {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: var(--landing-font-size-xxx-small);
+  font-weight: 500;
+  color: rgb(17, 24, 39);
+  background: transparent;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+}
+
+.landing-nav-mobile-link-login:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .landing-nav-mobile-user {

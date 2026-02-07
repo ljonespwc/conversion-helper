@@ -90,17 +90,18 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
               ) : (
                 <>
                   <Link href="/examples" className="landing-nav-link">
-                    See Examples
+                    👀 Eavesdrop
                   </Link>
                   <Link href="/pricing" className="landing-nav-link">
                     Pricing
                   </Link>
-                  <Link href="/login" className="landing-nav-link">
-                    Login
-                  </Link>
-                  <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta">
+                  <div className="landing-nav-spacer" />
+                  <button onClick={() => setIsModalOpen(true)} className="landing-nav-cta-primary">
                     Get Early Access
                   </button>
+                  <Link href="/login" className="landing-nav-link-login">
+                    Login
+                  </Link>
                 </>
               )}
             </div>
@@ -189,23 +190,23 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
         <div className="landing-nav-mobile-menu">
           <div className="landing-nav-mobile-menu-content">
             <Link href="/examples" onClick={closeMobileMenu} className="landing-nav-mobile-link">
-              See Examples
+              👀 Eavesdrop
             </Link>
             <Link href="/pricing" onClick={closeMobileMenu} className="landing-nav-mobile-link">
               Pricing
-            </Link>
-            <Link href="/login" onClick={closeMobileMenu} className="landing-nav-mobile-link">
-              Login
             </Link>
             <button
               onClick={() => {
                 closeMobileMenu()
                 setIsModalOpen(true)
               }}
-              className="landing-nav-mobile-link"
+              className="landing-nav-mobile-cta-primary"
             >
               Get Early Access
             </button>
+            <Link href="/login" onClick={closeMobileMenu} className="landing-nav-mobile-link-login">
+              Login
+            </Link>
           </div>
         </div>
       )}
