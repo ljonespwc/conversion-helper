@@ -50,22 +50,28 @@ export async function classifyMessage(
   const systemPrompt = `Classify a sales page visitor's message.
 
 STAGE - where they are in the buying journey:
-- discovering: exploring, general questions
-- evaluating: comparing options, detailed questions
-- ready_to_buy: expressing intent, asking how to proceed
-- handoff_needed: frustrated, complex issue
+- discovering: exploring, early questions ("what is...", "how does...", "tell me about...", "I'm looking into...")
+- evaluating: comparing, detailed/specific questions ("how does X compare to...", "what about...", "does it work with...", "what if I need...")
+- ready_to_buy: expressing purchase intent ("how do I sign up", "let's do it", "I want to get started", "what's the next step", "can I start today")
+- handoff_needed: frustrated, complex/custom needs, wants human ("this isn't working", "I need to talk to someone", "this is too complicated", "can I speak to a person")
 
 INTENT_CATEGORY - what type of question:
-- pricing: cost, payment, discounts
-- fit: requirements, use cases
-- trust: proof, reviews, credibility
-- features: capabilities, what's included
-- comparison: vs alternatives
-- objection: doubt, hesitation
-- logistics: shipping, setup, access
-- general: other
+- pricing: cost, payment, discounts, ROI, value for money
+- fit: requirements, use cases, suitability ("will this work for...")
+- trust: proof, reviews, credibility, results, case studies
+- features: capabilities, what's included, how things work
+- comparison: vs alternatives, competitors, other options
+- objection: doubt, hesitation, concern, pushback ("I'm not sure...", "but what about...")
+- logistics: shipping, setup, access, onboarding, timeline
+- general: greetings, off-topic, or doesn't fit above categories
 
-BUYING_SIGNAL: true if showing purchase intent`;
+BUYING_SIGNAL checklist - true if ANY apply:
+- Asks about purchase process, signup, or getting started
+- Uses future-ownership language ("when I use this...", "once we have...")
+- Expresses readiness ("I'm ready", "let's go", "I want this")
+- Asks about payment, billing, or discounts
+- Asks about onboarding or implementation timeline
+- Requests a demo, trial, or proposal`;
 
   const userPrompt = `Page: ${pageTitle}
 Conversation: ${conversationSummary}
@@ -148,29 +154,10 @@ export function buildSellPrompt(
   intentCategory: IntentCategory,
   buyingSignal: boolean
 ): string {
-  // Core response approach (always included)
-  const coreApproach = `RESPONSE APPROACH:
-1. ANSWER FIRST: Directly address their question using the content you find
-2. FOLLOW-UP (optional): Ask ONE question about their needs - base it on options/details you found in the content
-3. NEXT STEP (optional): Suggest ONE action they could take
-
-CONSTRAINTS:
-- Never ask questions instead of answering
-- Maximum 2 questions per response
-- For simple factual questions, just answer - no follow-up needed
-- If information isn't in the content, acknowledge honestly and offer alternatives
-- Follow-up questions should relate to specifics you found (options, tiers, use cases) - not generic`;
-
-  // Stage-specific behavior
+  const coreApproach = getCoreApproach(stage);
   const stageGuidance = getStageGuidance(stage);
-
-  // Intent-specific guidance
   const intentGuidance = getIntentGuidance(intentCategory);
-
-  // Buying signal context
-  const signalContext = buyingSignal
-    ? '\nBUYING SIGNAL DETECTED: This visitor is showing purchase intent. Be direct about next steps while still being helpful.'
-    : '';
+  const signalGuidance = getBuyingSignalGuidance(stage, buyingSignal);
 
   return `${coreApproach}
 
@@ -178,39 +165,129 @@ CURRENT STAGE: ${stage}
 ${stageGuidance}
 
 INTENT TYPE: ${intentCategory}
-${intentGuidance}${signalContext}`;
+${intentGuidance}${signalGuidance}`;
+}
+
+function getCoreApproach(stage: ConversationStage): string {
+  const constraints = `CONSTRAINTS:
+- Never ask questions instead of answering — always answer first
+- Maximum 2 questions per response
+- For simple factual questions, just answer — no follow-up needed
+- If information isn't in the content, acknowledge honestly and offer alternatives
+- Specificity is persuasive: use exact numbers, names, and details from the content
+- Follow-up questions should relate to specifics you found (options, tiers, use cases) — not generic`;
+
+  switch (stage) {
+    case 'discovering':
+      return `RESPONSE APPROACH:
+1. ANSWER: Directly address their question using the content
+2. DIAGNOSE: Ask ONE question about their situation or what they're trying to solve
+
+${constraints}`;
+    case 'evaluating':
+      return `RESPONSE APPROACH:
+1. ANSWER WITH SPECIFICS: Address their question with concrete details, numbers, and outcomes from the content
+2. DEEPEN: Ask what matters most to them, or proactively surface a concern they might have
+
+${constraints}`;
+    case 'ready_to_buy':
+      return `RESPONSE APPROACH:
+1. ANSWER: Address their question directly
+2. REMOVE FRICTION: Preempt any barriers to getting started
+3. NEXT STEP: Provide ONE clear action to move forward
+
+${constraints}`;
+    case 'handoff_needed':
+      return `RESPONSE APPROACH:
+1. ANSWER: Address what you can from the content
+2. EMPATHIZE: Show you understand their frustration or need
+3. TRANSITION: Smoothly move toward connecting them with a human
+
+${constraints}`;
+  }
+}
+
+function getBuyingSignalGuidance(stage: ConversationStage, buyingSignal: boolean): string {
+  if (!buyingSignal) return '';
+
+  switch (stage) {
+    case 'discovering':
+      return `\nBUYING SIGNAL DETECTED: They're showing early interest — acknowledge their enthusiasm without rushing. Continue learning about their needs so you can be genuinely helpful.`;
+    case 'evaluating':
+      return `\nBUYING SIGNAL DETECTED: They're leaning in. Use a micro-commitment to gauge readiness: "It sounds like this could be a good fit — would it help to walk through how to get started?" Guide toward the next step if they're ready.`;
+    case 'ready_to_buy':
+      return `\nBUYING SIGNAL DETECTED: They want to buy. Be direct. Use assumptive language ("When you get started..." not "If you decide..."). Future-pace: help them picture success after purchase. Provide the clearest possible path to action.`;
+    case 'handoff_needed':
+      return `\nBUYING SIGNAL DETECTED: They're interested but need human help. Validate both the concern AND the interest. Frame the handoff as acceleration, not delay: "Let me connect you with someone who can get you set up right away."`;
+  }
 }
 
 function getStageGuidance(stage: ConversationStage): string {
   switch (stage) {
     case 'discovering':
-      return `Focus on understanding them. After answering, ask about their situation or goals. Don't push toward purchase yet.`;
+      return `Diagnose before prescribing. Answer their question, then ask ONE situation or problem question to understand their needs.
+Don't pitch features or mention purchasing yet — they're still learning.
+Goal: understand their world so you can be relevant later.
+Example question: "What are you currently using for this?" or "What prompted you to look into this?"`;
     case 'evaluating':
-      return `Go deeper. Address concerns proactively. Ask what's most important to them based on the options available.`;
+      return `Answer with specifics — numbers, outcomes, concrete details from the content.
+Proactively surface concerns they might have ("One thing people often wonder about is...").
+Ask what matters most to them so you can focus on what's relevant.
+When appropriate, frame the cost of inaction: what happens if they don't solve this?
+Goal: help them build a clear case for (or against) this solution.`;
     case 'ready_to_buy':
-      return `Be direct about next steps. After answering, offer to help them get started. If they confirm, direct them to sign up.`;
+      return `Use assumptive language: "When you get started..." not "If you decide..."
+Provide ONE clear next step — don't overwhelm with options.
+Future-pace: help them picture life after the purchase ("Once you're set up, you'll be able to...").
+Don't re-sell or pile on more features — they're already convinced. Just remove friction.
+Goal: make buying feel easy and inevitable.`;
     case 'handoff_needed':
-      return `Be helpful without sales pressure. Reassure them a human will follow up. Focus on their immediate question.`;
+      return `Validate their concern — show you understand why this needs human attention.
+Answer what you can from the content, even if it's partial.
+Frame the handoff as elevated service, not a failure: "Let me connect you with someone who can give this the attention it deserves."
+No sales pressure. Focus on being genuinely helpful.
+Goal: leave them feeling heard and confident that help is coming.`;
   }
 }
 
 function getIntentGuidance(intent: IntentCategory): string {
   switch (intent) {
     case 'pricing':
-      return `Include specific numbers from content. If multiple options exist, ask which fits their situation.`;
+      return `Lead with value before stating numbers — what do they get for the price?
+Include specific numbers from the content. If multiple tiers/options exist, bracket them ("ranges from X to Y").
+If they push back on price, explore what value means to them — don't offer discounts unprompted.
+Ask which option fits their situation if there are choices.`;
     case 'fit':
-      return `Be encouraging but honest about requirements. Ask about their specific use case to guide them.`;
+      return `Diagnose first: ask about their situation before declaring it's a fit.
+Then match their needs to specific content — "Based on what you described, X would handle that because..."
+Be honest if it's not a great fit — this builds trust and they may still buy for other reasons.`;
     case 'trust':
-      return `Only cite proof that exists in the content. If specific proof isn't available, acknowledge and offer alternatives.`;
+      return `Cite exact numbers, outcomes, or results from the content — specificity is credibility.
+Weave in case studies or examples naturally, not as a list of testimonials.
+If specific proof isn't available for their question, acknowledge honestly and offer what you do have.
+Never fabricate or exaggerate proof.`;
     case 'features':
-      return `Be thorough about what's included. If they ask about one feature, ask if there are others they're curious about.`;
+      return `Sell outcomes, not features. "This means you can..." not "This includes..."
+Connect each feature to a problem it solves or a result it enables.
+After answering, ask if there are other capabilities that matter to them.`;
     case 'comparison':
-      return `Help them understand differences. Ask what matters most to guide your recommendation.`;
+      return `Never trash competitors — it erodes trust.
+Differentiate on what matters to THIS buyer, not generic advantages.
+Ask what's driving the comparison: "What's making you consider alternatives?" — this reveals what actually matters.
+Highlight unique strengths from the content without needing to diminish others.`;
     case 'objection':
-      return `Acknowledge the concern directly. Address it with specifics from content. Ask what would help them feel confident.`;
+      return `Follow this sequence: Acknowledge → Explore → Reframe → Check.
+Acknowledge: "That's a fair concern."
+Explore: "Can you tell me more about what's behind that?"
+Reframe: Address it with specific content that speaks to their concern.
+Check: "Does that help address your concern?" Never dismiss or minimize.`;
     case 'logistics':
-      return `Be clear and step-by-step. Ask if they need help with anything else to get started.`;
+      return `Be clear and step-by-step — they want to know exactly what happens next.
+Preempt friction: mention anything they should know or prepare.
+They're close to buying — keep momentum. Make the process feel simple and fast.`;
     case 'general':
-      return `Answer helpfully and look for an opportunity to learn more about what they're looking for.`;
+      return `Answer their question helpfully, then pivot to learn about their needs.
+Ask what brought them here or what they're trying to accomplish.
+Use their answer to guide the conversation toward relevant content.`;
   }
 }
