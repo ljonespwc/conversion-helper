@@ -596,7 +596,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
               Turn browsers into buyers before they bounce.
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--landing-color-text-secondary)', fontWeight: 600, fontSize: '1.25rem', marginBottom: '1.5em' }}>
-              By tonight, your site could be answering questions.
+              By tonight, your site could be closing.
             </p>
 
             <div className="blog-cta-wrapper">
