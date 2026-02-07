@@ -912,7 +912,7 @@ export default function SellTestReport() {
                       )}
                     </td>
                     <td style={{ textAlign: 'center' }}>
-                      <span className="sr-check">&check;</span>
+                      <span className="sr-check">{'\u2713'}</span>
                     </td>
                   </tr>
                 ))}
@@ -1036,7 +1036,7 @@ export default function SellTestReport() {
           </div>
           <div className="sr-footer-right">
             <span className="sr-footer-badge">
-              <span style={{ fontSize: 14 }}>&check;</span>
+              <span style={{ fontSize: 14 }}>{'\u2713'}</span>
               47 tests &middot; 100% pass &middot; Real Gemini API
             </span>
           </div>
