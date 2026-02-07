@@ -90,7 +90,7 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </p>
 
             <p>
-              <span className="blog-lead">EasyAsk doesn&rsquo;t replace your content. It makes your content reachable.</span> Feed it your pages, sales decks, pricing sheets. It learns your product in minutes. Answers in your words&mdash;<strong>never inventing, never hallucinating.</strong>
+              EasyAsk doesn&rsquo;t replace your content. <strong>It makes your content reachable.</strong> Feed it your pages, sales decks, pricing sheets. It learns your product in minutes. Answers in your words&mdash;<strong>never inventing, never hallucinating.</strong>
             </p>
 
             <div className="blog-demo-row blog-comparison">
