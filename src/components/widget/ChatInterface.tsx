@@ -175,9 +175,10 @@ interface ChatBubbleProps {
   hasFirstResponse: boolean
   showRatingCheck: boolean
   onRate: (rating: number) => void
+  pageGoal?: string | null
 }
 
-function ChatBubble({ message, isNew = false, showRating = false, userRating, hasFirstResponse, showRatingCheck, onRate }: ChatBubbleProps): JSX.Element {
+function ChatBubble({ message, isNew = false, showRating = false, userRating, hasFirstResponse, showRatingCheck, onRate, pageGoal }: ChatBubbleProps): JSX.Element {
   const isUser = message.role === 'user'
 
   // For AI messages, check for trailing question
@@ -207,7 +208,7 @@ function ChatBubble({ message, isNew = false, showRating = false, userRating, ha
             )}
             {question && (
               <p className="mt-3 font-semibold bg-orange-100 px-2 py-1 -mx-1 rounded">
-                {question}
+                {pageGoal === 'sell' && main ? `❓ ${question}` : question}
               </p>
             )}
           </div>
@@ -652,6 +653,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
             hasFirstResponse={hasFirstResponse}
             showRatingCheck={showRatingCheck}
             onRate={handleRating}
+            pageGoal={pageGoal}
           />
         ))}
 
