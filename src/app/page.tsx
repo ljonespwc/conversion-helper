@@ -291,49 +291,43 @@ export default async function LandingPage(): Promise<JSX.Element> {
             </div>
             <p className="blog-page-context-caption">Same widget. Different intelligence per page.</p>
 
-            {/* Quick Action Toolkit Callout */}
-            <div className="blog-toolkit-callout">
-              <h3 className="blog-toolkit-heading">Smart tools that match visitor intent.</h3>
-              <p className="blog-toolkit-intro">
-                On a sales page, visitors want to evaluate. On a lead page, they want the quick version. On a support page, they want to understand. The intent-based <strong>&ldquo;quick question buttons&rdquo;</strong> adapt automatically.
-              </p>
+          </div>
+        </section>
 
-              <div className="blog-demo-row blog-toolkit-row">
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--sell">Sales Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill">Pros &amp; Cons</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Compare&hellip;</span>
-                    <span className="blog-toolkit-pill">How It Works</span>
-                    <span className="blog-toolkit-pill">Show Proof</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them decide</p>
-                </div>
+        {/* ============================================================
+            5b. WHERE TO DEPLOY
+            ============================================================ */}
+        <section className="blog-section">
+          <div className="blog-container blog-body">
+            <h2 className="blog-feature-heading" style={{ textAlign: 'center' }}>
+              Put it where the <span className="blog-heading-accent">questions</span> are.
+            </h2>
 
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--lead">Lead Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill">TL;DR</span>
-                    <span className="blog-toolkit-pill">Why Should I Care?</span>
-                    <span className="blog-toolkit-pill">What Do I Get?</span>
-                    <span className="blog-toolkit-pill">Quick Facts</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them understand</p>
-                </div>
-
-                <div className="blog-toolkit-card">
-                  <span className="blog-badge blog-toolkit-badge--support">Support Page</span>
-                  <div className="blog-toolkit-buttons">
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Explain&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Example&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Define&hellip;</span>
-                    <span className="blog-toolkit-pill blog-toolkit-pill--input">Translate&hellip;</span>
-                  </div>
-                  <p className="blog-toolkit-outcome">Help them learn</p>
-                </div>
+            <div className="blog-placement-grid">
+              <div className="blog-placement-card blog-placement--pricing">
+                <h3>Pricing Page</h3>
+                <p>Handles &ldquo;is it worth it?&rdquo; before they leave.</p>
               </div>
-
-              <p className="blog-page-context-caption">Same widget. Different toolkit per page.</p>
+              <div className="blog-placement-card blog-placement--product">
+                <h3>Product Pages</h3>
+                <p>Specs, compatibility, fit. Answered instantly.</p>
+              </div>
+              <div className="blog-placement-card blog-placement--checkout">
+                <h3>Checkout</h3>
+                <p>Last minute doubts, gone.</p>
+              </div>
+              <div className="blog-placement-card blog-placement--landing">
+                <h3>Landing Pages</h3>
+                <p>Expensive traffic deserves answers.</p>
+              </div>
+              <div className="blog-placement-card blog-placement--comparison">
+                <h3>Comparison Pages</h3>
+                <p>Your AI makes the case.</p>
+              </div>
+              <div className="blog-placement-card blog-placement--help">
+                <h3>Help Center</h3>
+                <p>Repeat questions, handled.</p>
+              </div>
             </div>
           </div>
         </section>
