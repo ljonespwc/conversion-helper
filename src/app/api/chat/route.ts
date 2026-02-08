@@ -478,6 +478,16 @@ export async function POST(request: Request) {
       organization = widgetPage.organization_name
       grounded = null
     } else {
+      // Pros & Cons override: the default sell system prompt is "benefit-focused"
+      // which suppresses honest downsides. For this action only, swap to balanced
+      // tone so Gemini lists real cons instead of token limitations.
+      if (quick_action === 'pros-cons' && systemPrompt) {
+        systemPrompt = systemPrompt.replace(
+          'confident and benefit-focused. Emphasize value and outcomes in your answers.',
+          'balanced and honest. Present both benefits and genuine downsides, limitations, or trade-offs fairly.'
+        )
+      }
+
       // Generate response with File Search
       // For quick actions, pass no history to give File Search a clean semantic signal
       const result = await queryPageContent(
