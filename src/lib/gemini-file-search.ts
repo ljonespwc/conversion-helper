@@ -236,9 +236,50 @@ export async function queryPageContent(
 
     const fallbackMessage = "I don't have specific information about that in my content. Could you try rephrasing, or is there something else I can help with?"
 
-    // When no grounding chunks, check if this is a social/conversational message
-    // before replacing with fallback (e.g. "thank you", "got it", "hello")
+    // When no grounding chunks, File Search didn't engage at all.
+    // Retry once without conversation history — gives File Search a clean semantic signal.
+    // If retry also gets 0 chunks, fall through to social check / fallback.
     if (!hasChunks) {
+      console.log('🔄 0 chunks — retrying without conversation history', { question, pageUrl })
+
+      const retryContents = buildContentsArray(undefined, question)
+      const retryResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: retryContents,
+        config: {
+          temperature,
+          maxOutputTokens,
+          ...(systemInstruction && { systemInstruction }),
+          tools: [
+            {
+              fileSearch: {
+                fileSearchStoreNames: [orgData.file_search_store_name],
+                metadataFilter
+              }
+            }
+          ]
+        }
+      })
+
+      const retryChunks = retryResponse.candidates?.[0]?.groundingMetadata?.groundingChunks || []
+      const retrySupports = retryResponse.candidates?.[0]?.groundingMetadata?.groundingSupports || []
+
+      if (retryChunks.length > 0) {
+        console.log('✅ Retry succeeded — File Search engaged', {
+          chunksCount: retryChunks.length,
+          supportsCount: retrySupports.length
+        })
+        return {
+          answer: retryResponse.text || fallbackMessage,
+          citations: retryResponse.candidates?.[0]?.groundingMetadata || null,
+          organization: orgData.name,
+          grounded: retrySupports.length >= 2
+        }
+      }
+
+      console.warn('⚠️ Retry also got 0 chunks — checking social / fallback', { question })
+
+      // Retry also failed — check if social message before giving up
       const social = await isSocialMessage(question)
       if (social && response.text) {
         console.log('💬 Social message rescued from fallback:', { question })
