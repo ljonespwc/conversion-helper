@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { LogOut, User, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { EarlyAccessModal } from '@/components/landing/EarlyAccessModal'
 
 interface LandingNavProps {
@@ -60,7 +60,7 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                     Test Page
                   </Link>
                   <Link href="/admin" className="landing-nav-link">
-                    Reports
+                    Conversations
                   </Link>
                   <Link href="/admin/analytics" className="landing-nav-link">
                     Analytics
@@ -72,18 +72,14 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
                     Pages
                   </Link>
                   <Link href="/admin/content" className="landing-nav-link">
-                    Knowledgebase
+                    Content
                   </Link>
-
-                  {/* User Email Display */}
-                  <div className="landing-nav-user">
-                    <User className="w-4 h-4" />
-                    <span className="landing-nav-email">{user.email}</span>
-                  </div>
+                  <Link href="/admin/settings" className="landing-nav-link">
+                    Settings
+                  </Link>
 
                   {/* Logout Button */}
                   <button onClick={handleLogout} className="landing-nav-link">
-                    <LogOut className="w-4 h-4" />
                     Logout
                   </button>
                 </>
@@ -155,7 +151,7 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
               Test Page
             </Link>
             <Link href="/admin" onClick={closeMobileMenu} className="landing-nav-mobile-link">
-              Reports
+              Conversations
             </Link>
             <Link href="/admin/analytics" onClick={closeMobileMenu} className="landing-nav-mobile-link">
               Analytics
@@ -167,18 +163,14 @@ export function LandingNav({ user, loading = false }: LandingNavProps) {
               Pages
             </Link>
             <Link href="/admin/content" onClick={closeMobileMenu} className="landing-nav-mobile-link">
-              Knowledgebase
+              Content
             </Link>
-
-            {/* User Email */}
-            <div className="landing-nav-mobile-user">
-              <User className="w-4 h-4" />
-              <span>{user.email}</span>
-            </div>
+            <Link href="/admin/settings" onClick={closeMobileMenu} className="landing-nav-mobile-link">
+              Settings
+            </Link>
 
             {/* Logout Button */}
             <button onClick={handleLogout} className="landing-nav-mobile-link">
-              <LogOut className="w-4 h-4" />
               Logout
             </button>
           </div>
