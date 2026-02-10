@@ -781,7 +781,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
         <div className="flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 py-1.5 px-3">
           {/* Escalation Form/Success - animated tray */}
           <AnimatePresence>
-            {hasConversation && escalationState !== 'hidden' && (
+            {!!sessionId && escalationState !== 'hidden' && (
               <motion.div
                 key="escalation-tray"
                 initial={{ height: 0, opacity: 0 }}
