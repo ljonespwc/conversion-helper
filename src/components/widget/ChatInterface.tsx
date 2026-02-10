@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
-import { Loader2, Check, Sparkles, ChevronDown, Send } from 'lucide-react'
+import { Loader2, Check, Sparkles, ChevronDown, Send, Mail } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -328,6 +328,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   const [showSparkleBurst, setShowSparkleBurst] = useState(false)
 
   const [escalationState, setEscalationState] = useState<'hidden' | 'form' | 'success'>('hidden')
+  const escalationTrigger = useRef<'thumbs_down' | 'human_help'>('thumbs_down')
 
   const [email, setEmail] = useState('')
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
@@ -526,6 +527,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
       setShowRatingCheck(true)
       setTimeout(() => {
         setShowRatingCheck(false)
+        escalationTrigger.current = 'thumbs_down'
         setEscalationState('form')
         posthog?.capture('negative_feedback_escalation_shown', {
           session_id: sessionId,
@@ -775,94 +777,128 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
       {/* ====================================================================
           FIXED FOOTER: Escalation Form + Branding (Very Bottom)
           ==================================================================== */}
-      {(escalationState !== 'hidden' || showBranding) && (
-        <div className={`flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 ${
-          escalationState !== 'hidden' ? 'p-3 space-y-2' : 'py-1.5 px-3'
-        }`}>
-          {/* Escalation Form/Success - shown after thumbs down */}
-          {hasConversation && escalationState !== 'hidden' && (
-            <div className="w-full max-w-md mx-auto">
-              <AnimatePresence mode="wait">
-                {/* Email Form UI - shown after thumbs down */}
-                {escalationState === 'form' && (
-                  <motion.div
-                    key="escalation-form"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-lg p-3 space-y-2"
-                  >
-                    <p className="text-gray-700 text-sm text-center">
-                      Sorry that wasn&apos;t helpful. Want us to follow up?
-                    </p>
-                    <form onSubmit={handleEmailSubmit} className="space-y-2">
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        disabled={isSubmittingEmail}
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 focus:bg-white disabled:opacity-50"
-                      />
-                      {escalationError && (
-                        <div className="text-red-500 text-xs text-center">{escalationError}</div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="submit"
-                          disabled={isSubmittingEmail || !email.trim()}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
-                        >
-                          {isSubmittingEmail ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Send className="w-4 h-4" />
-                          )}
-                          <span>{isSubmittingEmail ? 'Sending...' : 'Send'}</span>
-                        </button>
-                      </div>
-                    </form>
-                    <button
-                      onClick={() => setEscalationState('hidden')}
-                      className="w-full text-gray-400 hover:text-gray-600 text-xs transition-colors"
-                    >
-                      No thanks
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* Success message - shown after email submitted */}
-                {escalationState === 'success' && (
-                  <motion.div
-                    key="escalation-success"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center justify-center gap-2 text-white text-sm py-1"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>We&apos;ll be in touch!</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {/* Powered by EasyAsk Footer */}
-          {showBranding && (
-            <div className="flex items-center justify-center">
-              <a
-                href="https://easyask.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-white/70 hover:text-white transition-colors"
+      {(escalationState !== 'hidden' || showBranding || hasConversation) && (
+        <div className="flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 py-1.5 px-3">
+          {/* Escalation Form/Success - animated tray */}
+          <AnimatePresence>
+            {hasConversation && escalationState !== 'hidden' && (
+              <motion.div
+                key="escalation-tray"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
               >
-                Powered by EasyAsk
-              </a>
-            </div>
-          )}
+                <div className="w-full max-w-md mx-auto pt-1.5 pb-2">
+                  <AnimatePresence mode="wait">
+                    {/* Email Form UI */}
+                    {escalationState === 'form' && (
+                      <motion.div
+                        key="escalation-form"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="bg-white rounded-lg p-3 space-y-2"
+                      >
+                        <p className="text-gray-700 text-sm text-center">
+                          {escalationTrigger.current === 'human_help'
+                            ? 'Leave your email and we\u2019ll follow up personally.'
+                            : 'Sorry that wasn\u2019t helpful. Want us to follow up?'}
+                        </p>
+                        <form onSubmit={handleEmailSubmit} className="space-y-2">
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="your@email.com"
+                            disabled={isSubmittingEmail}
+                            className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-md text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400 focus:bg-white disabled:opacity-50"
+                          />
+                          {escalationError && (
+                            <div className="text-red-500 text-xs text-center">{escalationError}</div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="submit"
+                              disabled={isSubmittingEmail || !email.trim()}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+                            >
+                              {isSubmittingEmail ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Send className="w-4 h-4" />
+                              )}
+                              <span>{isSubmittingEmail ? 'Sending...' : 'Send'}</span>
+                            </button>
+                          </div>
+                        </form>
+                        <button
+                          onClick={() => setEscalationState('hidden')}
+                          className="w-full text-gray-400 hover:text-gray-600 text-xs transition-colors"
+                        >
+                          No thanks
+                        </button>
+                      </motion.div>
+                    )}
+
+                    {/* Success message - shown after email submitted */}
+                    {escalationState === 'success' && (
+                      <motion.div
+                        key="escalation-success"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-center justify-center gap-2 text-white text-sm py-1"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>We&apos;ll be in touch!</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Footer links: human help + branding */}
+          {(() => {
+            const showHumanHelp = hasConversation && escalationState === 'hidden'
+            return (showHumanHelp || showBranding) ? (
+              <div className={`flex items-center ${
+                showHumanHelp && showBranding ? 'justify-between' : 'justify-center'
+              }`}>
+                {showHumanHelp && (
+                  <button
+                    onClick={() => {
+                      escalationTrigger.current = 'human_help'
+                      setEscalationState('form')
+                      posthog?.capture('human_help_clicked', {
+                        session_id: sessionId,
+                        page_url: effectivePageUrl
+                      })
+                    }}
+                    className="flex items-center gap-1 text-xs text-white/50 hover:text-white/80 transition-colors"
+                  >
+                    <Mail className="w-3 h-3" />
+                    <span>Need help? Talk to a human</span>
+                  </button>
+                )}
+                {showBranding && (
+                  <a
+                    href="https://easyask.io"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-white/70 hover:text-white transition-colors"
+                  >
+                    Powered by EasyAsk
+                  </a>
+                )}
+              </div>
+            ) : null
+          })()}
         </div>
       )}
     </div>
