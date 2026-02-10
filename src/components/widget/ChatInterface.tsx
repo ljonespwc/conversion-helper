@@ -777,7 +777,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
       {/* ====================================================================
           FIXED FOOTER: Escalation Form + Branding (Very Bottom)
           ==================================================================== */}
-      {(escalationState !== 'hidden' || showBranding || hasConversation) && (
+      {(escalationState !== 'hidden' || showBranding || !!sessionId) && (
         <div className="flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 py-1.5 px-3">
           {/* Escalation Form/Success - animated tray */}
           <AnimatePresence>
@@ -865,7 +865,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
 
           {/* Footer links: human help + branding */}
           {(() => {
-            const showHumanHelp = hasConversation && escalationState === 'hidden'
+            const showHumanHelp = !!sessionId && escalationState === 'hidden'
             return (showHumanHelp || showBranding) ? (
               <div className={`flex items-center ${
                 showHumanHelp && showBranding ? 'justify-between' : 'justify-center'
