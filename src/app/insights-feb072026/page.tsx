@@ -57,8 +57,140 @@ const standoutConversations = [
   },
 ]
 
+const galleryConversations = [
+  {
+    title: 'The Relationship Counselor',
+    subtitle: '14 questions — SSR student applies stress concepts to boyfriend drama',
+    why: 'A student uses nutrition coaching frameworks to process real relationship stress. The AI adapts PN\'s 6-step coaching process to "managing feeling sad about boyfriend\'s actions" — a use case nobody designed for.',
+    tags: ['14 questions', 'SSR student', 'Personal crisis'],
+    messages: [
+      { role: 'user' as const, text: 'what are the factors that influence our sleep, stress management, and recovery.' },
+      { role: 'ai' as const, text: 'Biological factors: genetics, chronotype, exercise, aging, hormones. Psychological: mindset, thoughts, feelings, expectations. Social/Environmental: work schedules, safety, home environment, travel, noise/light...' },
+      { role: 'ellipsis' as const, text: '5 questions about change, sphere of control, stress' },
+      { role: 'user' as const, text: 'i am sad about my boyfriend behavior and it is bothering me. is that feeling kind of stress?' },
+      { role: 'ai' as const, text: 'Yes, feeling sad and bothered can absolutely be a type of stress — specifically emotional stress or social stress. All emotions can be stressors. Emotional stress arises when we can\'t process or express emotions in healthy ways.' },
+      { role: 'user' as const, text: 'how to get away from trauma bonding' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about "trauma bonding." However, related concepts include: fear conditioning, fawning response (people-pleasing due to trauma), and social threat (feeling devalued, harmed, abandoned)...' },
+      { role: 'user' as const, text: 'how to adapt PN 6 step process to manage feeling sad about boyfriend action' },
+      { role: 'ai' as const, text: 'The PN 6-step process: 1. Assess and Gather Data (understand your feelings). 2. Understand and Explore (deeper reasons, values being unmet). 3. Strategize and Plan (communication, boundaries, self-care). 4. Choose and Test a Next Action. 5. Observe and Monitor. 6. Analyze and Evaluate.' },
+    ],
+  },
+  {
+    title: 'The Neuroscience Deep-Dive',
+    subtitle: '6 questions — SSR student pushes into carrier proteins and BCAA timing',
+    why: 'Questions so specific they\'d challenge a human tutor. The student asks whether morning BCAA supplementation would clear by evening to allow tryptophan transport to the brain — genuine critical thinking the AI handles gracefully.',
+    tags: ['6 questions', 'SSR student', 'Advanced science'],
+    messages: [
+      { role: 'user' as const, text: 'Explain zeitgebers in more detail' },
+      { role: 'ai' as const, text: 'Zeitgebers are internal and external cues that regulate our circadian rhythms. The term means "time-keeper" in German. Key examples: photic signals (light/darkness), temperature, food, physical activity, stress, social interaction...' },
+      { role: 'user' as const, text: 'How do you pronounce it?' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+      { role: 'user' as const, text: 'Are carrier proteins influenced by diet?' },
+      { role: 'ai' as const, text: 'Yes. BCAAs compete with tryptophan for the same carrier proteins. A diet high in other large neutral amino acids can reduce tryptophan reaching the brain. Carbohydrates stimulate insulin, which clears competing amino acids, increasing tryptophan availability...' },
+      { role: 'user' as const, text: 'If you consume supplemental BCAA in the morning, would it clear by evening, thus allowing tryptophan to be available to the brain?' },
+      { role: 'ai' as const, text: 'The content doesn\'t give a specific timeline for BCAA clearance. The ratio of tryptophan to other amino acids matters most. Consuming carbohydrates can help by stimulating insulin to clear competing amino acids...' },
+    ],
+  },
+  {
+    title: 'The Coaching Trenches',
+    subtitle: '7 questions — student escalates real coaching frustrations',
+    why: 'Raw, unfiltered coaching frustration. The student goes from textbook scenario to "they\'re too lazy to even think about it!" — each follow-up more exasperated than the last. Then pivots to a personal conflict about going to bed early while their partner thinks they\'re a bad partner.',
+    tags: ['7 questions', 'SSR student', 'Client resistance'],
+    messages: [
+      { role: 'user' as const, text: 'so what can i do if a client just gets mad every time i ask why?' },
+      { role: 'ai' as const, text: 'Strategies: 1. Explore benefits of the current situation ("What is good about not changing?"). 2. Validate and acknowledge. 3. Use reflective listening. 4. Rephrase to "What" or "How" questions. 5. Understand the underlying problem...' },
+      { role: 'user' as const, text: 'or when you ask why or try any of these other methods, they just say "i don\'t know"' },
+      { role: 'ai' as const, text: '1. Acknowledge "I don\'t know" as valid. 2. Embrace ambivalence/resistance as normal. 3. Revisit "What is GOOD about NOT changing?" 4. Use the "Downward Arrow" technique gently. 5. Remember every behavior solves a problem.' },
+      { role: 'user' as const, text: 'they\'re too lazy to even think about it' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+      { role: 'user' as const, text: 'so when i go with these options, and they don\'t do the work to think about it, then what should i do?' },
+      { role: 'ai' as const, text: 'Reframe — not "laziness" but ambivalence/resistance. 1. Embrace it. 2. Help them express and describe. 3. Treat resistance as valid "competing commitments." 4. Ask "What is GOOD about NOT changing?" 5. Be an ambivalence investigator.' },
+    ],
+  },
+  {
+    title: 'The Philosopher',
+    subtitle: '7 questions — opens with "are you an AI?" then pushes into existential psychology',
+    why: 'Starts by testing the AI\'s self-awareness, asks it to explain a philosophical quote about imagined sorrows, then tries to introduce Rogers\' theory of congruence — pushing beyond what any indexed content covers. Rated 5 stars despite hitting the AI\'s limits.',
+    tags: ['7 questions', 'Rating 5', 'AI awareness', 'Psychology'],
+    messages: [
+      { role: 'user' as const, text: 'are you an Ai? do you reply freely?' },
+      { role: 'ai' as const, text: 'Yes, I am an AI. I reply based on the information I have been trained on and the instructions I have been given to assist you.' },
+      { role: 'user' as const, text: 'Explain this simply: "I have known many sorrows, most of which never happened."' },
+      { role: 'ai' as const, text: 'This quote means a person spent a lot of time feeling sad or worried about things that they thought might happen, but never actually occurred. It\'s about how suffering comes from worrying about potential problems that never materialize...' },
+      { role: 'user' as const, text: 'for existential stressors how do you define them scientifically in theories of psychology' },
+      { role: 'ai' as const, text: 'Existential stressors are primarily about ideas, worries, beliefs, and thoughts concerning our place in the world. Categories: not enough control/certainty, too much freedom/responsibility, identity transitions, loss and grief, fear of death, ignoring needs/emotions...' },
+      { role: 'user' as const, text: 'I find: Not meeting expectations... ignore certain needs... are components of rogers theory of congruence...' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+    ],
+  },
+  {
+    title: 'The 8-Fallback Nightmare',
+    subtitle: '10 questions — rating 1 — 8 consecutive fallbacks after one good answer',
+    why: 'The clearest failure case in the dataset. After one successful answer about CEU eligibility, the AI hit "I don\'t have specific information" 8 times in a row on reasonable follow-ups. This conversation led directly to discovering and fixing the conversation history pollution bug.',
+    tags: ['10 questions', 'Rating 1', '8 fallbacks', 'Bug discovered'],
+    messages: [
+      { role: 'user' as const, text: 'Am I eligible for a continuing education units?' },
+      { role: 'ai' as const, text: 'Yes! The certification qualifies for CEUs with NASM, ACSM, ACE, AFAA, and more. You can earn credits that count toward professional development.' },
+      { role: 'user' as const, text: 'What type of career can I pursue' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+      { role: 'user' as const, text: 'What can I expect after becoming certified' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+      { role: 'ellipsis' as const, text: '6 more questions — all received the same fallback response' },
+      { role: 'user' as const, text: 'How can I make income through this cert' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+    ],
+  },
+  {
+    title: 'South Africa vs. The World',
+    subtitle: '6 questions — rating 5 — methodical international evaluator',
+    why: 'A prospect from South Africa doing real due diligence: is it recognized internationally? What levels exist? Does it cover digestion and macros in depth? How does it compare to the Nutrition Institute (SA)? The AI handles the competitive comparison gracefully without trashing competitors.',
+    tags: ['6 questions', 'Rating 5', 'South Africa', 'Comparison'],
+    messages: [
+      { role: 'user' as const, text: 'Is the Nutrition course recognised in South Africa? Is there a cut off date to get certified?' },
+      { role: 'ai' as const, text: 'Yes, the PN Level 1 is recognized internationally and valid worldwide. Over 175,000 professionals in 150+ countries. Certification is valid for two years — recertify via a free 50-question exam...' },
+      { role: 'user' as const, text: 'Does the course go in depth about Digestion, carbs, fats, protein, vitamins, minerals, hydration?' },
+      { role: 'ai' as const, text: 'Yes, comprehensively: Chapter 8 covers GI tract/digestion, Chapter 11 covers macronutrients, Chapter 12 covers micronutrients (vitamins/minerals), Chapter 13 covers water and fluid balance...' },
+      { role: 'user' as const, text: 'How does precision nutrition compare to the nutrition institute (SA)?' },
+      { role: 'ai' as const, text: 'I don\'t have specific information comparing to "the Nutrition Institute (SA)." However, the biggest difference vs academic programs: PN Level 1 is designed to help you start coaching right away. ~5 months vs 4+ years for a degree. Priced at $599 USD...' },
+    ],
+  },
+  {
+    title: 'The Vocabulary Hunter',
+    subtitle: '7 questions — rating 5 — using AI as a course dictionary and translator',
+    why: 'Student treats the widget as a personal dictionary for course jargon. Asks to define "alexithymia," explain "interspersing," and even tries to get Spanish translations. Shows an entirely unintended but highly useful application.',
+    tags: ['7 questions', 'Rating 5', 'Vocabulary', 'Spanish'],
+    messages: [
+      { role: 'user' as const, text: 'alexithymia' },
+      { role: 'ai' as const, text: 'Alexithymia is a condition where individuals have difficulty identifying and describing their own emotions. They may prefer external rules because they can\'t intuitively sense their own needs. As a coach, these clients may prioritize external evidence over bodily sensations...' },
+      { role: 'user' as const, text: 'Explain this simply: interspersing' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+      { role: 'user' as const, text: 'Explain this simply: interspersing periods of focus' },
+      { role: 'ai' as const, text: '"Interspersing periods of focus" means alternating times of high concentration with periods of rest. Some methods suggest 90 minutes of focus then a break. The Pomodoro Technique uses 25 minutes focused + 5 minutes rest...' },
+      { role: 'user' as const, text: 'Translate this to Spanish: wrangle their schedule' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+    ],
+  },
+  {
+    title: 'The Returning Student',
+    subtitle: '5 questions — has old materials, discovers they\'re current',
+    why: 'A customer service scenario on a sales page. Student had L1 materials from years ago, asks if they\'re outdated. Through conversation, discovers they have the 4th edition — which is the current version. Then asks where to log in. The AI handled post-purchase support it wasn\'t designed for.',
+    tags: ['5 questions', 'Returning student', 'Version check'],
+    messages: [
+      { role: 'user' as const, text: 'I had L1 materials from a few years ago, can I start program now or are my materials outdated now?' },
+      { role: 'ai' as const, text: 'The current PN Level 1 Certification is Version 4, completely up-to-date. Your purchase includes lifetime access to the version you purchased. Given that Version 4 is current, your older materials might be an earlier version...' },
+      { role: 'user' as const, text: 'I have 4th edition materials' },
+      { role: 'ai' as const, text: 'I don\'t have specific information about that in my content.' },
+      { role: 'user' as const, text: 'Is 4th edition the current version' },
+      { role: 'ai' as const, text: 'Yes, the 4th edition is indeed the current version. It is completely up-to-date with the latest scientific research and coaching methodologies. No immediate plans for Version 5...' },
+      { role: 'user' as const, text: 'Where do I gain online access to my program' },
+      { role: 'ai' as const, text: 'You can gain online access at my.precisionnutrition.com. On this homepage, you\'ll find all online materials including chapter exams, videos, workbook questions, and supplemental reading...' },
+    ],
+  },
+]
+
 export default function InsightsReport() {
   const [expandedConvos, setExpandedConvos] = useState<Set<number>>(new Set())
+  const [expandedGallery, setExpandedGallery] = useState<Set<number>>(new Set())
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -72,6 +204,15 @@ export default function InsightsReport() {
 
   const toggleConvo = (index: number) => {
     setExpandedConvos(prev => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
+
+  const toggleGallery = (index: number) => {
+    setExpandedGallery(prev => {
       const next = new Set(prev)
       if (next.has(index)) next.delete(index)
       else next.add(index)
@@ -1009,6 +1150,26 @@ export default function InsightsReport() {
           border-radius: 4px;
         }
 
+        .ir-convo-why {
+          padding: 16px 24px;
+          background: rgba(245, 158, 11, 0.05);
+          border-top: 1px solid var(--border-subtle);
+          font-size: 13px;
+          color: var(--text-secondary);
+          line-height: 1.7;
+          font-weight: 300;
+        }
+
+        .ir-convo-why-label {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          color: var(--accent-amber);
+          margin-bottom: 6px;
+          font-weight: 500;
+        }
+
         /* ---- Findings ---- */
         .ir-findings-grid {
           display: grid;
@@ -1613,9 +1774,71 @@ export default function InsightsReport() {
           </div>
         </section>
 
-        {/* ===== 09 — KEY FINDINGS ===== */}
-        <section className="ir-section" style={{ borderBottom: 'none' }}>
+        {/* ===== 09 — RESPONSE GALLERY ===== */}
+        <section className="ir-section">
           <p className="ir-section-num">09</p>
+          <h2>Response <em>Gallery</em></h2>
+          <p className="ir-section-desc">
+            Eight conversations chosen for being novel, unexpected, or revealing.
+            Students using AI as a therapist, a dictionary, a science tutor &mdash;
+            and the bug that broke everything.
+          </p>
+
+          <div className="ir-convo-list">
+            {galleryConversations.map((convo, idx) => (
+              <div className="ir-convo" key={idx}>
+                <div className="ir-convo-header" onClick={() => toggleGallery(idx)}>
+                  <div>
+                    <p className="ir-convo-title">{convo.title}</p>
+                    <p className="ir-convo-subtitle">{convo.subtitle}</p>
+                    <div className="ir-convo-tags" style={{ marginTop: 8 }}>
+                      {convo.tags.map((tag, j) => (
+                        <span className="ir-convo-tag" key={j}>{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <span
+                    className="ir-convo-toggle"
+                    style={{ transform: expandedGallery.has(idx) ? 'rotate(45deg)' : 'none' }}
+                  >
+                    +
+                  </span>
+                </div>
+                {expandedGallery.has(idx) && (
+                  <div className="ir-convo-body">
+                    {convo.messages.map((msg, j) => {
+                      if (msg.role === 'ellipsis') {
+                        return (
+                          <div className="ir-msg-ellipsis" key={j}>
+                            <span>[...] {msg.text}</span>
+                          </div>
+                        )
+                      }
+                      return (
+                        <div className="ir-msg" key={j}>
+                          <div className={`ir-msg-avatar ${msg.role === 'user' ? 'ir-msg-avatar-user' : 'ir-msg-avatar-ai'}`}>
+                            {msg.role === 'user' ? 'V' : 'AI'}
+                          </div>
+                          <p className={`ir-msg-text ${msg.role === 'user' ? 'ir-msg-text-user' : 'ir-msg-text-ai'}`}>
+                            {msg.text}
+                          </p>
+                        </div>
+                      )
+                    })}
+                    <div className="ir-convo-why">
+                      <p className="ir-convo-why-label">Why this conversation</p>
+                      <p>{convo.why}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ===== 10 — KEY FINDINGS ===== */}
+        <section className="ir-section" style={{ borderBottom: 'none' }}>
+          <p className="ir-section-num">10</p>
           <h2>Key <em>Findings</em></h2>
           <p className="ir-section-desc">
             Ten takeaways from three weeks of real conversation data.
