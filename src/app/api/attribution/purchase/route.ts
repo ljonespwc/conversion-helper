@@ -7,6 +7,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -14,12 +24,12 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!api_key || !visitor_id) {
-      return NextResponse.json({ ok: false, error: 'api_key and visitor_id are required' }, { status: 400 })
+      return NextResponse.json({ ok: false, error: 'api_key and visitor_id are required' }, { status: 400, headers: corsHeaders })
     }
 
     // Validate API key format
     if (!isValidKeyFormat(api_key)) {
-      return NextResponse.json({ ok: false, error: 'Invalid API key' }, { status: 401 })
+      return NextResponse.json({ ok: false, error: 'Invalid API key' }, { status: 401, headers: corsHeaders })
     }
 
     // Look up organization by publishable key
@@ -30,7 +40,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (orgError || !org) {
-      return NextResponse.json({ ok: false, error: 'Invalid API key' }, { status: 401 })
+      return NextResponse.json({ ok: false, error: 'Invalid API key' }, { status: 401, headers: corsHeaders })
     }
 
     // Look up visitor by cookie value (visitor_id text field, not the id UUID)
@@ -43,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     if (!visitor) {
       // Fire-and-forget style — don't expose that visitor wasn't found
-      return NextResponse.json({ ok: true })
+      return NextResponse.json({ ok: true }, { headers: corsHeaders })
     }
 
     // Find the visitor's most recent conversation session for attribution
@@ -76,9 +86,9 @@ export async function POST(request: NextRequest) {
       console.error('Purchase event insert error:', insertError)
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: corsHeaders })
   } catch {
     // Fire-and-forget — always return ok from client perspective
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: corsHeaders })
   }
 }
