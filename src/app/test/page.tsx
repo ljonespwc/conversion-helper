@@ -199,6 +199,7 @@ export default function TestPage() {
           apiKey={publishableKey}
           viewportWidth={viewportWidth}
           forceActive={true}
+          isTest={true}
         />
       </div>
     </div>

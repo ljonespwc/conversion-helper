@@ -16,6 +16,7 @@ interface UseChatOptions {
   timezone?: string
   groupId?: string
   visitorId?: string
+  isTest?: boolean
   onError?: (error: Error) => void
   onResponse?: (response: string) => void
 }
@@ -45,7 +46,7 @@ const getStorageKey = (apiKey: string) =>
   `${STORAGE_KEY_PREFIX}${apiKey?.substring(0, 20) || 'default'}`
 
 export function useChat(options: UseChatOptions): UseChatReturn {
-  const { pageUrl, apiKey, timezone, groupId, visitorId, onError, onResponse } = options
+  const { pageUrl, apiKey, timezone, groupId, visitorId, isTest, onError, onResponse } = options
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -189,6 +190,7 @@ export function useChat(options: UseChatOptions): UseChatReturn {
           timezone,
           group_id: groupId,
           visitor_id: visitorId,
+          ...(isTest && { is_test: true }),
           ...(options?.skipFileSearch && { skip_file_search: true }),
           ...(options?.quickAction && { quick_action: options.quickAction })
         })

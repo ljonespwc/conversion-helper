@@ -89,18 +89,18 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const pageUrl = searchParams.get('pageUrl')
 
-    // Build base query - always filter by organization_id, exclude archived
+    // Build base query - always filter by organization_id, exclude test sessions
     // Optionally also filter by specific page_url if provided
     let totalQuery = withPageFilter(
       supabase
         .from('conversation_sessions')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
-        .is('archived_at', null),
+        .neq('is_test', true),
       pageUrl
     )
 
-    // Get total sessions (filtered by organization, excluding archived)
+    // Get total sessions (filtered by organization, excluding test sessions)
     const { count: total } = await totalQuery
 
     // Get today's sessions (filtered by organization)
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
         .from('conversation_sessions')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
-        .is('archived_at', null)
+        .neq('is_test', true)
         .gte('created_at', today.toISOString()),
       pageUrl
     )
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
         .from('conversation_sessions')
         .select('session_id')
         .eq('organization_id', organizationId)
-        .is('archived_at', null),
+        .neq('is_test', true),
       pageUrl
     )
 
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
         .from('conversation_sessions')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
-        .is('archived_at', null)
+        .neq('is_test', true)
         .gte('ended_at', fiveMinutesAgo.toISOString()),
       pageUrl
     )
@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
         .from('conversation_sessions')
         .select('*')
         .eq('organization_id', organizationId)
-        .is('archived_at', null)
+        .neq('is_test', true)
         .order('created_at', { ascending: false })
         .limit(200),
       pageUrl
@@ -270,13 +270,13 @@ export async function GET(request: NextRequest) {
     const { data: openersData } = await uniqueOpenersQuery
     const uniqueOpeners = new Set(openersData?.map(r => r.visitor_id)).size
 
-    // Get ratings from sessions (1-5 star rating, excluding archived)
+    // Get ratings from sessions (1-5 star rating, excluding test sessions)
     let ratingsQuery = withPageFilter(
       supabase
         .from('conversation_sessions')
         .select('user_rating')
         .eq('organization_id', organizationId)
-        .is('archived_at', null)
+        .neq('is_test', true)
         .not('user_rating', 'is', null),
       pageUrl
     )
@@ -392,7 +392,7 @@ export async function GET(request: NextRequest) {
             .from('conversation_sessions')
             .select('*', { count: 'exact', head: true })
             .eq('organization_id', organizationId)
-            .is('archived_at', null)
+            .neq('is_test', true)
             .gte('created_at', firstOpenAt),
           pageUrl
         )

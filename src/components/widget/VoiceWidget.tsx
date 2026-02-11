@@ -20,9 +20,10 @@ interface VoiceWidgetProps {
   initialCollapsed?: boolean
   visitorId?: string
   forceActive?: boolean
+  isTest?: boolean
 }
 
-export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0, initialCollapsed = false, visitorId, forceActive = false }: VoiceWidgetProps) {
+export default function VoiceWidget({ isOpen = false, onClose, embedded = false, pageUrl, position = 'bottom-right', timezone, isDemo = false, apiKey, groupId, viewportWidth = 0, initialCollapsed = false, visitorId, forceActive = false, isTest = false }: VoiceWidgetProps) {
   const posthog = usePostHog()
   const [internalOpen, setInternalOpen] = useState(false)
   const [isWidened, setIsWidened] = useState(false)
@@ -181,6 +182,7 @@ export default function VoiceWidget({ isOpen = false, onClose, embedded = false,
             viewportWidth={viewportWidth}
             visitorId={visitorId}
             pageGoal={pageGoal}
+            isTest={isTest}
           />
         )}
       </AnimatePresence>

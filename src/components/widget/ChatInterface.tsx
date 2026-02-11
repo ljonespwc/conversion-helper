@@ -38,6 +38,7 @@ interface ChatInterfaceProps {
   groupId?: string
   visitorId?: string
   pageGoal?: string | null
+  isTest?: boolean
   onConversationStart?: () => void
   onSessionRestored?: () => void
 }
@@ -285,6 +286,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
   groupId,
   visitorId,
   pageGoal,
+  isTest = false,
   onConversationStart,
   onSessionRestored
 }, ref) {
@@ -314,6 +316,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
     timezone,
     groupId,
     visitorId,
+    isTest,
     onError: (err) => console.error('Chat error:', err),
     onResponse: () => {
       setShowSparkleBurst(true)
