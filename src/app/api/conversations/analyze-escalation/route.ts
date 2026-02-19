@@ -153,16 +153,20 @@ async function sendEscalationNotification(
 
     // Get page title for clearer emails (especially for group IDs and wildcards)
     let pageDisplay = session.page_url || 'Unknown'
+    let pageEscalationEmail: string | undefined
     if (session.page_url) {
       const { data: page } = await supabase
         .from('widget_pages')
-        .select('page_title')
+        .select('page_title, escalation_email')
         .eq('page_url', session.page_url)
         .single()
       if (page?.page_title) {
         pageDisplay = `${page.page_title} (${session.page_url})`
       }
+      pageEscalationEmail = page?.escalation_email
     }
+
+    const toEmail = pageEscalationEmail || org.notification_email
 
     const transcript = messages
       .map(m => `${m.role.toUpperCase()}: ${m.message}`)
@@ -187,7 +191,7 @@ async function sendEscalationNotification(
 
     await resend.emails.send({
       from: 'EasyAsk <support@easyask.io>',
-      to: org.notification_email,
+      to: toEmail,
       ...(ccEmail && { cc: ccEmail }),
       subject: `New escalation from ${session.user_email}`,
       text: `A visitor submitted an escalation request.
@@ -202,7 +206,7 @@ ${transcript}${flaggedSection}
 `
     })
 
-    console.log(`📧 Escalation notification sent to ${org.notification_email}${ccEmail ? ` (cc: ${ccEmail})` : ''}`)
+    console.log(`📧 Escalation notification sent to ${toEmail}${ccEmail ? ` (cc: ${ccEmail})` : ''}`)
   } catch (err) {
     console.error('Failed to send escalation notification:', err)
   }

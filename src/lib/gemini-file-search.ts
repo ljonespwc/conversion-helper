@@ -112,7 +112,7 @@ export async function queryPageContent(
     // Get the widget page to find the organization's store
     const { data: widgetPageData, error: widgetPageError } = await supabase
       .from('widget_pages')
-      .select('organization_id, page_title, page_goal')
+      .select('organization_id, page_title, page_goal, escalation_email, show_email_in_fallback')
       .eq('page_url', normalizedPageUrl)
       .single();
 
@@ -234,7 +234,9 @@ export async function queryPageContent(
       })
     }
 
-    const fallbackMessage = "I don't have specific information about that in my content. Could you try rephrasing, or is there something else I can help with?"
+    const fallbackMessage = widgetPageData.show_email_in_fallback && widgetPageData.escalation_email
+      ? `I don't have that information available. For further help, reach out to us at [${widgetPageData.escalation_email}](mailto:${widgetPageData.escalation_email}) — or try rephrasing your question.`
+      : "I don't have specific information about that in my content. Could you try rephrasing, or is there something else I can help with?"
 
     // When no grounding chunks, File Search didn't engage at all.
     // Retry once without conversation history — gives File Search a clean semantic signal.

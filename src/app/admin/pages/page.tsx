@@ -17,6 +17,8 @@ interface WidgetPage {
   is_active: boolean
   widget_line1: string | null
   widget_line2: string | null
+  escalation_email: string | null
+  show_email_in_fallback: boolean
   created_at: string
   updated_at: string
 }
@@ -41,9 +43,11 @@ interface UserInfo {
   organizations: Organization
 }
 
-interface WidgetTextState {
+interface PageSettingsState {
   widget_line1: string
   widget_line2: string
+  escalation_email: string
+  show_email_in_fallback: boolean
 }
 
 // =============================================================================
@@ -105,76 +109,6 @@ function Badge({ children, className = '' }: BadgeProps): JSX.Element {
   )
 }
 
-interface WidgetTextEditorProps {
-  widgetText: WidgetTextState
-  onChange: (text: WidgetTextState) => void
-  onSave: () => void
-  onCancel: () => void
-  saving: boolean
-  line1Placeholder?: string
-  line2Placeholder?: string
-}
-
-function WidgetTextEditor({
-  widgetText,
-  onChange,
-  onSave,
-  onCancel,
-  saving,
-  line1Placeholder = 'e.g., Questions?',
-  line2Placeholder = 'e.g., Ask our AI assistant'
-}: WidgetTextEditorProps): JSX.Element {
-  return (
-    <div className="space-y-3">
-      <div>
-        <label className="block text-xs font-medium text-gray-500 mb-1">
-          Line 1 (Primary text)
-        </label>
-        <input
-          type="text"
-          value={widgetText.widget_line1}
-          onChange={(e) => onChange({ ...widgetText, widget_line1: e.target.value })}
-          placeholder={line1Placeholder}
-          className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-900 text-sm placeholder-gray-500"
-        />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-500 mb-1">
-          Line 2 (Secondary text)
-        </label>
-        <input
-          type="text"
-          value={widgetText.widget_line2}
-          onChange={(e) => onChange({ ...widgetText, widget_line2: e.target.value })}
-          placeholder={line2Placeholder}
-          className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-900 text-sm placeholder-gray-500"
-        />
-      </div>
-      <div className="flex items-center gap-2 mt-3">
-        <button
-          onClick={onSave}
-          disabled={saving}
-          className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
-        >
-          {saving ? 'Saving...' : (
-            <>
-              <Check className="w-4 h-4" />
-              Save
-            </>
-          )}
-        </button>
-        <button
-          onClick={onCancel}
-          disabled={saving}
-          className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-lg transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  )
-}
-
 // =============================================================================
 // Main Component
 // =============================================================================
@@ -199,9 +133,9 @@ export default function PagesPage(): JSX.Element {
   const [editingTitle, setEditingTitle] = useState('')
   const [savingTitle, setSavingTitle] = useState(false)
 
-  // Widget text editing state
-  const [editingWidgetText, setEditingWidgetText] = useState<WidgetTextState | null>(null)
-  const [savingWidgetText, setSavingWidgetText] = useState(false)
+  // Page settings editing state
+  const [editingPageSettings, setEditingPageSettings] = useState<PageSettingsState | null>(null)
+  const [savingPageSettings, setSavingPageSettings] = useState(false)
 
   useEffect(() => {
     fetchUserInfo()
@@ -381,39 +315,52 @@ export default function PagesPage(): JSX.Element {
   function handleToggleExpand(page: WidgetPage): void {
     if (expandedPageId === page.id) {
       setExpandedPageId(null)
-      setEditingWidgetText(null)
+      setEditingPageSettings(null)
     } else {
       setExpandedPageId(page.id)
-      setEditingWidgetText({
+      setEditingPageSettings({
         widget_line1: page.widget_line1 || '',
-        widget_line2: page.widget_line2 || ''
+        widget_line2: page.widget_line2 || '',
+        escalation_email: page.escalation_email || '',
+        show_email_in_fallback: page.show_email_in_fallback
       })
     }
   }
 
-  async function handleSaveWidgetText(pageId: string): Promise<void> {
-    if (!editingWidgetText) return
+  async function handleSavePageSettings(pageId: string): Promise<void> {
+    if (!editingPageSettings) return
 
-    setSavingWidgetText(true)
+    // Validate escalation email if provided
+    const email = editingPageSettings.escalation_email.trim()
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Please enter a valid email address')
+      return
+    }
+
+    setSavingPageSettings(true)
     try {
       await patchWidgetPage(pageId, {
-        widget_line1: editingWidgetText.widget_line1 || null,
-        widget_line2: editingWidgetText.widget_line2 || null
+        widget_line1: editingPageSettings.widget_line1 || null,
+        widget_line2: editingPageSettings.widget_line2 || null,
+        escalation_email: email || null,
+        show_email_in_fallback: editingPageSettings.show_email_in_fallback
       })
       setPages(prevPages =>
         prevPages.map(p => p.id === pageId ? {
           ...p,
-          widget_line1: editingWidgetText.widget_line1 || null,
-          widget_line2: editingWidgetText.widget_line2 || null
+          widget_line1: editingPageSettings.widget_line1 || null,
+          widget_line2: editingPageSettings.widget_line2 || null,
+          escalation_email: email || null,
+          show_email_in_fallback: editingPageSettings.show_email_in_fallback
         } : p)
       )
       setExpandedPageId(null)
-      setEditingWidgetText(null)
+      setEditingPageSettings(null)
     } catch (err) {
-      console.error('Error updating widget text:', err)
-      showError(err, 'Failed to update widget text')
+      console.error('Error updating page settings:', err)
+      showError(err, 'Failed to update page settings')
     } finally {
-      setSavingWidgetText(false)
+      setSavingPageSettings(false)
     }
   }
 
@@ -651,43 +598,102 @@ export default function PagesPage(): JSX.Element {
                     {expandedPageId === page.id ? (
                       <>
                         <ChevronUp className="w-4 h-4" />
-                        <span>Hide widget text settings</span>
+                        <span>Hide page settings</span>
                       </>
                     ) : (
                       <>
                         <ChevronDown className="w-4 h-4" />
-                        <span>Customize widget button text</span>
+                        <span>Page settings</span>
                       </>
                     )}
                   </button>
                 </div>
 
-                {/* Expanded Widget Text Settings */}
-                {expandedPageId === page.id && editingWidgetText && (
+                {/* Expanded Page Settings */}
+                {expandedPageId === page.id && editingPageSettings && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <h4 className="text-sm font-medium text-gray-600 mb-3">Widget Button Text</h4>
                     <p className="text-xs text-gray-500 mb-3">
                       Customize the text shown on the widget button for this page. Leave blank to use your organization defaults.
                     </p>
 
-                    <WidgetTextEditor
-                      widgetText={editingWidgetText}
-                      onChange={setEditingWidgetText}
-                      onSave={() => handleSaveWidgetText(page.id)}
-                      onCancel={() => {
-                        setExpandedPageId(null)
-                        setEditingWidgetText(null)
-                      }}
-                      saving={savingWidgetText}
-                      line1Placeholder={userInfo?.organizations?.widget_line1 || 'e.g., Questions?'}
-                      line2Placeholder={userInfo?.organizations?.widget_line2 || 'e.g., Ask our AI assistant'}
-                    />
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          Line 1 (Primary text)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingPageSettings.widget_line1}
+                          onChange={(e) => setEditingPageSettings({ ...editingPageSettings, widget_line1: e.target.value })}
+                          placeholder={userInfo?.organizations?.widget_line1 || 'e.g., Questions?'}
+                          className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-900 text-sm placeholder-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">
+                          Line 2 (Secondary text)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingPageSettings.widget_line2}
+                          onChange={(e) => setEditingPageSettings({ ...editingPageSettings, widget_line2: e.target.value })}
+                          placeholder={userInfo?.organizations?.widget_line2 || 'e.g., Ask our AI assistant'}
+                          className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-900 text-sm placeholder-gray-500"
+                        />
+                      </div>
+                    </div>
 
-                    {(page.widget_line1 || page.widget_line2) && (
-                      <span className="text-xs text-amber-600 mt-3 block">
-                        Custom text active
-                      </span>
-                    )}
+                    {/* Escalation Email Settings */}
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <h4 className="text-sm font-medium text-gray-600 mb-3">Escalation Email</h4>
+                      <p className="text-xs text-gray-500 mb-3">
+                        Escalation notifications are sent to this address. Overrides the default from Settings. Toggle on to also show it to visitors when the AI can&apos;t answer.
+                      </p>
+                      <div className="space-y-3">
+                        <input
+                          type="email"
+                          value={editingPageSettings.escalation_email}
+                          onChange={(e) => setEditingPageSettings({ ...editingPageSettings, escalation_email: e.target.value })}
+                          placeholder={userInfo?.organizations?.notification_email || 'support@yourcompany.com'}
+                          className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent text-gray-900 text-sm placeholder-gray-500"
+                        />
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs text-gray-600">Show email in fallback message</label>
+                          <ToggleSwitch
+                            enabled={editingPageSettings.show_email_in_fallback}
+                            onToggle={() => setEditingPageSettings({ ...editingPageSettings, show_email_in_fallback: !editingPageSettings.show_email_in_fallback })}
+                            title={editingPageSettings.show_email_in_fallback ? 'Email shown in fallback' : 'Email hidden from fallback'}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save / Cancel */}
+                    <div className="flex items-center gap-2 mt-6">
+                      <button
+                        onClick={() => handleSavePageSettings(page.id)}
+                        disabled={savingPageSettings}
+                        className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        {savingPageSettings ? 'Saving...' : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            Save
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setExpandedPageId(null)
+                          setEditingPageSettings(null)
+                        }}
+                        disabled={savingPageSettings}
+                        className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

@@ -107,7 +107,7 @@ export async function PATCH(
 
     const { id } = params
     const body = await request.json()
-    const { is_active, page_title, widget_line1, widget_line2 } = body
+    const { is_active, page_title, widget_line1, widget_line2, escalation_email, show_email_in_fallback } = body
 
     // Build update object based on what fields are provided
     const updates: {
@@ -115,6 +115,8 @@ export async function PATCH(
       page_title?: string
       widget_line1?: string | null
       widget_line2?: string | null
+      escalation_email?: string | null
+      show_email_in_fallback?: boolean
     } = {}
 
     // Validate and add is_active if provided
@@ -162,6 +164,34 @@ export async function PATCH(
       }
       // Store empty strings as null (to trigger fallback to org-level)
       updates.widget_line2 = widget_line2 && widget_line2.trim() ? widget_line2.trim() : null
+    }
+
+    // Validate and add escalation_email if provided
+    if (escalation_email !== undefined) {
+      if (escalation_email !== null && typeof escalation_email !== 'string') {
+        return NextResponse.json(
+          { error: 'escalation_email must be a string or null' },
+          { status: 400 }
+        )
+      }
+      if (escalation_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(escalation_email)) {
+        return NextResponse.json(
+          { error: 'escalation_email must be a valid email address' },
+          { status: 400 }
+        )
+      }
+      updates.escalation_email = escalation_email && escalation_email.trim() ? escalation_email.trim() : null
+    }
+
+    // Validate and add show_email_in_fallback if provided
+    if (show_email_in_fallback !== undefined) {
+      if (typeof show_email_in_fallback !== 'boolean') {
+        return NextResponse.json(
+          { error: 'show_email_in_fallback must be a boolean' },
+          { status: 400 }
+        )
+      }
+      updates.show_email_in_fallback = show_email_in_fallback
     }
 
     // Ensure at least one field is being updated
