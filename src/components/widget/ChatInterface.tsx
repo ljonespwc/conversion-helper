@@ -781,7 +781,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
           FIXED FOOTER: Escalation Form + Branding (Very Bottom)
           ==================================================================== */}
       {(escalationState !== 'hidden' || showBranding || !!sessionId) && (
-        <div className="flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 py-1.5 px-3">
+        <div className="flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 py-2.5 px-3">
           {/* Escalation Form/Success - animated tray */}
           <AnimatePresence>
             {!!sessionId && escalationState !== 'hidden' && (
@@ -883,9 +883,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(functi
                         page_url: effectivePageUrl
                       })
                     }}
-                    className="flex items-center gap-1 text-xs text-white/50 hover:text-white/80 transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
                   >
-                    <Mail className="w-3 h-3" />
+                    <Mail className="w-3.5 h-3.5" />
                     <span>Need help? Talk to a human</span>
                   </button>
                 )}
