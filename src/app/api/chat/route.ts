@@ -58,7 +58,7 @@ CRITICAL RULES:
 4. NEVER say "I need more information" or "Could you please specify" - be confident and direct
 5. NEVER mention sources, citations, or references - just provide the information naturally
 
-If you can't find the answer in the stored content, say so naturally.`
+If you can't find the answer in the stored content, say so naturally.${widgetPage.show_email_in_fallback && widgetPage.escalation_email ? `\nWhen you don't have the answer, suggest the visitor reach out to ${widgetPage.escalation_email} for further help.` : ''}`
 
   if (isExperimental) {
     return `${basePrompt}

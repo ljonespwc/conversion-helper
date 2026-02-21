@@ -347,6 +347,8 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
   page_url: string; // The matched pattern URL (canonical identifier)
   page_goal: string | null;
   organization_name: string;
+  escalation_email: string | null;
+  show_email_in_fallback: boolean;
 } | null> {
   try {
     // If organization ID is provided, use pattern matching (or group ID direct matching)
@@ -354,7 +356,7 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
       // Fetch all widget pages for this organization
       const { data: pages, error } = await supabase
         .from('widget_pages')
-        .select('organization_id, page_title, page_url, page_goal, organizations(name)')
+        .select('organization_id, page_title, page_url, page_goal, escalation_email, show_email_in_fallback, organizations(name)')
         .eq('organization_id', organizationId);
 
       if (error) {
@@ -402,7 +404,9 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
         page_title: matchedPage.page_title,
         page_url: matchedPage.page_url,
         page_goal: matchedPage.page_goal,
-        organization_name: organizations?.name || ''
+        organization_name: organizations?.name || '',
+        escalation_email: matchedPage.escalation_email || null,
+        show_email_in_fallback: matchedPage.show_email_in_fallback ?? false
       };
     }
 
@@ -411,7 +415,7 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
 
     const { data, error } = await supabase
       .from('widget_pages')
-      .select('organization_id, page_title, page_url, page_goal, organizations(name)')
+      .select('organization_id, page_title, page_url, page_goal, escalation_email, show_email_in_fallback, organizations(name)')
       .eq('page_url', normalizedUrl)
       .single();
 
@@ -429,7 +433,9 @@ export async function getWidgetPage(pageUrl: string, organizationId?: string, gr
       page_title: data.page_title,
       page_url: data.page_url,
       page_goal: data.page_goal,
-      organization_name: organizations?.name || ''
+      organization_name: organizations?.name || '',
+      escalation_email: data.escalation_email || null,
+      show_email_in_fallback: data.show_email_in_fallback ?? false
     };
   } catch (error) {
     console.error('Error getting widget page:', error);
