@@ -134,14 +134,24 @@ export async function GET(request: NextRequest) {
     let avgDuration = 0
     if (durationSessions && durationSessions.length > 0) {
       const sessionIds = durationSessions.map(s => s.session_id)
-      const { data: sessionMessages } = await supabase
-        .from('conversation_messages')
-        .select('session_id, timestamp')
-        .in('session_id', sessionIds)
-        .not('timestamp', 'is', null)
+
+      // Batch .in() queries to avoid URL length limits with large session counts
+      const IN_BATCH_SIZE = 100
+      let allSessionMessages: Array<{ session_id: string; timestamp: number }> = []
+      for (let i = 0; i < sessionIds.length; i += IN_BATCH_SIZE) {
+        const batch = sessionIds.slice(i, i + IN_BATCH_SIZE)
+        const { data: batchMessages } = await supabase
+          .from('conversation_messages')
+          .select('session_id, timestamp')
+          .in('session_id', batch)
+          .not('timestamp', 'is', null)
+        if (batchMessages) {
+          allSessionMessages = allSessionMessages.concat(batchMessages)
+        }
+      }
 
       // Group timestamps by session
-      const grouped = groupBySessionId(sessionMessages || [])
+      const grouped = groupBySessionId(allSessionMessages)
 
       const MAX_GAP_MS = 30 * 60 * 1000 // 30 minutes — gaps larger than this are separate visits
       let totalDuration = 0
