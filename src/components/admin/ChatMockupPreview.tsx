@@ -1,7 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { forwardRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -27,16 +26,14 @@ export interface ChatMockupPreviewProps {
   messages: ChatMockupMessage[]
   innerMonologue: string
   tagline: string
-  // Visual
+  // Visual (simplified)
   platform: 'x' | 'linkedin'
-  backgroundMode: 'solid' | 'gradient' | 'image-outline'
   backgroundColor: string
-  gradientPreset: string
-  gradientDirection: 'to bottom' | '135deg'
-  fontFamily: string
-  borderColor: string
-  borderThickness: number
-  borderRadius: number
+  backgroundMode: 'solid' | 'gradient'
+  backgroundGradient: string
+  accentColor: string
+  accentMode: 'solid' | 'gradient'
+  accentGradient: string
 }
 
 // ============================================================================
@@ -64,91 +61,6 @@ export function getGradientCSS(preset: string, direction: string = 'to bottom'):
   return `linear-gradient(${direction}, ${colors.join(', ')})`
 }
 
-export interface VisualPreset {
-  backgroundMode: 'solid' | 'gradient' | 'image-outline'
-  backgroundColor: string
-  gradientPreset: string
-  gradientDirection: 'to bottom' | '135deg'
-  fontFamily: string
-  borderColor: string
-  borderThickness: number
-  borderRadius: number
-}
-
-export const VISUAL_PRESETS: Record<string, VisualPreset> = {
-  clean: {
-    backgroundMode: 'solid',
-    backgroundColor: '#ffffff',
-    gradientPreset: 'arctic',
-    gradientDirection: 'to bottom',
-    fontFamily: 'Inter',
-    borderColor: '#E5E7EB',
-    borderThickness: 1,
-    borderRadius: 16,
-  },
-  dark: {
-    backgroundMode: 'gradient',
-    backgroundColor: '#1a1a2e',
-    gradientPreset: 'midnight',
-    gradientDirection: 'to bottom',
-    fontFamily: 'DM Sans',
-    borderColor: '#374151',
-    borderThickness: 0,
-    borderRadius: 16,
-  },
-  warm: {
-    backgroundMode: 'gradient',
-    backgroundColor: '#ffecd2',
-    gradientPreset: 'peach',
-    gradientDirection: 'to bottom',
-    fontFamily: 'Nunito',
-    borderColor: '#f5c6aa',
-    borderThickness: 2,
-    borderRadius: 20,
-  },
-  corporate: {
-    backgroundMode: 'gradient',
-    backgroundColor: '#e6e9f0',
-    gradientPreset: 'arctic',
-    gradientDirection: 'to bottom',
-    fontFamily: 'IBM Plex Sans',
-    borderColor: '#cbd5e1',
-    borderThickness: 1,
-    borderRadius: 12,
-  },
-  bold: {
-    backgroundMode: 'gradient',
-    backgroundColor: '#fa709a',
-    gradientPreset: 'sunset',
-    gradientDirection: 'to bottom',
-    fontFamily: 'Space Grotesk',
-    borderColor: '#f59e0b',
-    borderThickness: 0,
-    borderRadius: 16,
-  },
-}
-
-export function getVisualPreset(name: string): VisualPreset | undefined {
-  return VISUAL_PRESETS[name]
-}
-
-export const FONT_OPTIONS = [
-  'Inter',
-  'DM Sans',
-  'Space Grotesk',
-  'Lora',
-  'JetBrains Mono',
-  'Nunito',
-  'Playfair Display',
-  'IBM Plex Sans',
-] as const
-
-export function buildGoogleFontUrl(font: string): string | null {
-  if (font === 'Inter') return null // System default
-  const encoded = font.replace(/ /g, '+')
-  return `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;600;700&display=swap`
-}
-
 export function getPlatformDimensions(platform: 'x' | 'linkedin'): { width: number; height: number } {
   return platform === 'x'
     ? { width: 1200, height: 675 }
@@ -174,22 +86,22 @@ export function getNextVolumeNumber(examples: { volume_number: number }[]): numb
 }
 
 // ============================================================================
-// Markdown Components (copied from ChatInterface.tsx:65-78)
+// Markdown Components (dark background optimized)
 // ============================================================================
 
-const markdownComponents = {
-  h1: ({ children }: { children?: React.ReactNode }) => <h1 className="text-lg font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h1>,
-  h2: ({ children }: { children?: React.ReactNode }) => <h2 className="text-base font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h2>,
-  h3: ({ children }: { children?: React.ReactNode }) => <h3 className="text-sm font-bold text-gray-800 mt-2 mb-1 first:mt-0">{children}</h3>,
-  h4: ({ children }: { children?: React.ReactNode }) => <h4 className="text-sm font-semibold text-gray-800 mt-2 mb-1 first:mt-0">{children}</h4>,
+const socialMarkdownComponents = {
+  h1: ({ children }: { children?: React.ReactNode }) => <h1 className="text-xl font-bold text-white/90 mt-3 mb-2 first:mt-0">{children}</h1>,
+  h2: ({ children }: { children?: React.ReactNode }) => <h2 className="text-lg font-bold text-white/90 mt-3 mb-2 first:mt-0">{children}</h2>,
+  h3: ({ children }: { children?: React.ReactNode }) => <h3 className="text-base font-bold text-white/80 mt-2 mb-1 first:mt-0">{children}</h3>,
+  h4: ({ children }: { children?: React.ReactNode }) => <h4 className="text-base font-semibold text-white/80 mt-2 mb-1 first:mt-0">{children}</h4>,
   p: ({ children }: { children?: React.ReactNode }) => <p className="mb-2 last:mb-0">{children}</p>,
-  strong: ({ children }: { children?: React.ReactNode }) => <strong className="font-semibold text-orange-600">{children}</strong>,
-  em: ({ children }: { children?: React.ReactNode }) => <em className="italic text-gray-600">{children}</em>,
-  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-disc list-outside pl-5 mb-2 space-y-1">{children}</ul>,
-  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-outside pl-5 mb-2 space-y-1">{children}</ol>,
-  li: ({ children }: { children?: React.ReactNode }) => <li className="text-gray-700 pl-1">{children}</li>,
-  code: ({ children }: { children?: React.ReactNode }) => <code className="bg-gray-100 px-1.5 py-0.5 rounded text-orange-600 text-xs">{children}</code>,
-  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-orange-600 underline hover:text-orange-700">{children}</a>,
+  strong: ({ children }: { children?: React.ReactNode }) => <strong className="font-semibold text-amber-400">{children}</strong>,
+  em: ({ children }: { children?: React.ReactNode }) => <em className="italic text-white/60">{children}</em>,
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-disc list-outside pl-6 mb-2 space-y-1.5">{children}</ul>,
+  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-outside pl-6 mb-2 space-y-1.5">{children}</ol>,
+  li: ({ children }: { children?: React.ReactNode }) => <li className="text-white/70 pl-1">{children}</li>,
+  code: ({ children }: { children?: React.ReactNode }) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-amber-400 text-sm">{children}</code>,
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline hover:text-amber-300">{children}</a>,
 }
 
 // ============================================================================
@@ -211,51 +123,30 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
     platform,
     backgroundMode,
     backgroundColor,
-    gradientPreset,
-    gradientDirection,
-    fontFamily,
-    borderColor,
-    borderThickness,
-    borderRadius,
+    backgroundGradient,
+    accentColor,
+    accentMode,
+    accentGradient,
   } = props
 
   const { width, height } = getPlatformDimensions(platform)
   const isLinkedIn = platform === 'linkedin'
 
-  // Load Google Font dynamically
-  useEffect(() => {
-    const url = buildGoogleFontUrl(fontFamily)
-    if (!url) return
-
-    const linkId = 'mockup-google-font'
-    let link = document.getElementById(linkId) as HTMLLinkElement | null
-    if (link) {
-      link.href = url
-    } else {
-      link = document.createElement('link')
-      link.id = linkId
-      link.rel = 'stylesheet'
-      link.href = url
-      document.head.appendChild(link)
-    }
-  }, [fontFamily])
-
-  // Determine background style for widget area
-  const widgetBackgroundStyle: React.CSSProperties = {}
+  // Card background
+  const cardBackgroundStyle: React.CSSProperties = {}
   if (backgroundMode === 'solid') {
-    widgetBackgroundStyle.backgroundColor = backgroundColor
-  } else if (backgroundMode === 'gradient') {
-    widgetBackgroundStyle.background = getGradientCSS(gradientPreset, gradientDirection)
+    cardBackgroundStyle.backgroundColor = backgroundColor
+  } else {
+    cardBackgroundStyle.background = getGradientCSS(backgroundGradient, 'to bottom')
   }
 
-  // Determine text colors based on background brightness
-  const isDarkBg = backgroundMode === 'gradient' && ['midnight', 'monochrome', 'forest', 'slate', 'ocean'].includes(gradientPreset)
-  const contextTextColor = isDarkBg ? 'text-gray-200' : 'text-gray-700'
-  const contextHeadingColor = isDarkBg ? 'text-white' : 'text-gray-900'
-  const footerTextColor = isDarkBg ? 'text-gray-300' : 'text-gray-600'
-  const footerHeadingColor = isDarkBg ? 'text-white' : 'text-gray-900'
-  const seriesTextColor = isDarkBg ? 'text-gray-300' : 'text-gray-500'
-  const seriesHeadingColor = isDarkBg ? 'text-white' : 'text-gray-900'
+  // Accent line style
+  const accentLineStyle: React.CSSProperties = {}
+  if (accentMode === 'solid') {
+    accentLineStyle.backgroundColor = accentColor
+  } else {
+    accentLineStyle.background = getGradientCSS(accentGradient, 'to right')
+  }
 
   return (
     <div
@@ -264,148 +155,164 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
       style={{
         width: `${width}px`,
         height: `${height}px`,
-        borderWidth: `${borderThickness}px`,
-        borderColor: borderColor,
-        borderStyle: borderThickness > 0 ? 'solid' : 'none',
-        borderRadius: `${borderRadius}px`,
+        borderRadius: '16px',
         overflow: 'hidden',
         position: 'relative',
-        ...widgetBackgroundStyle,
+        ...cardBackgroundStyle,
       }}
       className="flex flex-col"
     >
-      {/* Image Outline backdrop for image-outline mode */}
-      {backgroundMode === 'image-outline' && (
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',
-          }}
-        />
-      )}
+      {/* Accent line at top */}
+      <div
+        className="absolute top-0 left-0 right-0 h-1"
+        style={accentLineStyle}
+      />
 
-      <div className="relative flex flex-col h-full" style={{ padding: isLinkedIn ? '32px 40px' : '20px 32px' }}>
+      {/* Content */}
+      <div
+        className="flex flex-col h-full"
+        style={{ padding: isLinkedIn ? '40px 56px' : '32px 48px' }}
+      >
         {/* ================================================================
-            Layer 0: Series Header
+            Header
             ================================================================ */}
-        <div className={`text-center ${isLinkedIn ? 'mb-5' : 'mb-3'}`}>
-          <h1 className={`${seriesHeadingColor} ${isLinkedIn ? 'text-2xl' : 'text-xl'} font-bold tracking-tight`}>
-            Typing... <span className="font-normal text-orange-500">|</span> Vol. {volumeNumber}
+        <div className="flex items-baseline gap-3 mb-4">
+          <h1
+            className="text-[2rem] font-black text-white tracking-tight"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            Typing...
           </h1>
-          {seriesTagline && (
-            <p className={`${seriesTextColor} ${isLinkedIn ? 'text-base' : 'text-sm'} mt-1 italic`}>
-              {seriesTagline}
-            </p>
-          )}
+          <span className="text-white/30 text-lg font-light">|</span>
+          <span className="text-white/40 text-lg font-medium tracking-wide">Vol. {volumeNumber}</span>
         </div>
+        {seriesTagline && (
+          <p className="text-white/30 text-sm -mt-3 mb-4">{seriesTagline}</p>
+        )}
 
         {/* ================================================================
-            Layer 1: Context Card
+            Context Card
             ================================================================ */}
-        <div className={`${isLinkedIn ? 'mb-4 px-5 py-3' : 'mb-3 px-4 py-2.5'} rounded-xl ${isDarkBg ? 'bg-white/10 backdrop-blur-sm' : 'bg-gray-50/80'}`}>
-          <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1">
-            <div>
-              <span className={`${contextHeadingColor} font-semibold ${isLinkedIn ? 'text-base' : 'text-sm'}`}>{businessName || 'Business Name'}</span>
-              {pageContext && (
-                <span className={`${contextTextColor} ${isLinkedIn ? 'text-sm' : 'text-xs'}`}> &middot; {pageContext}</span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {dayTime && (
-                <span className={`${contextTextColor} ${isLinkedIn ? 'text-sm' : 'text-xs'}`}>{dayTime}</span>
-              )}
-              {archetypeTag && (
-                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${isDarkBg ? 'bg-orange-500/20 text-orange-300' : 'bg-orange-100 text-orange-700'}`}>
-                  {archetypeTag}
-                </span>
-              )}
-            </div>
+        <div className="rounded-xl px-5 py-4 mb-5" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          {/* Row 1: Archetype + Time */}
+          <div className="flex items-center gap-3 mb-2">
+            {archetypeTag && (
+              <span
+                className="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+                style={{ backgroundColor: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}
+              >
+                {archetypeTag}
+              </span>
+            )}
+            {dayTime && (
+              <>
+                <span className="text-white/25 text-xs">&middot;</span>
+                <span className="text-white/35 text-xs">{dayTime}</span>
+              </>
+            )}
           </div>
+
+          {/* Row 2: Setup line */}
           {setupLine && (
-            <p className={`${contextTextColor} ${isLinkedIn ? 'text-sm' : 'text-xs'} italic mt-1.5`}>
+            <p
+              className="text-white/70 text-[15px] leading-relaxed"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
               {setupLine}
             </p>
           )}
+
+          {/* Row 3: Business breadcrumb */}
+          {(businessName || pageContext) && (
+            <div className="flex items-center gap-2 mt-2">
+              {businessName && <span className="text-white/25 text-[11px]">{businessName}</span>}
+              {businessName && pageContext && <span className="text-white/15">&rarr;</span>}
+              {pageContext && <span className="text-white/25 text-[11px]">{pageContext}</span>}
+            </div>
+          )}
         </div>
 
         {/* ================================================================
-            Layer 2: Widget Mockup
+            Chat Bubbles
             ================================================================ */}
-        <div className="flex-1 min-h-0 flex flex-col" data-testid="widget-background">
-          {/* Image Outline backdrop effect */}
-          {backgroundMode === 'image-outline' && (
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                transform: 'scale(1.05)',
-                filter: 'blur(20px)',
-                opacity: 0.4,
-                zIndex: 0,
-              }}
-            />
-          )}
-
-          <div className={`relative flex flex-col flex-1 min-h-0 rounded-2xl overflow-hidden border ${isDarkBg ? 'border-white/20' : 'border-orange-400/50'}`} style={{ zIndex: 1 }}>
-            {/* Widget Header — gradient bar */}
-            <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400">
-              <div className="w-6" /> {/* Spacer */}
-              <h2 className="text-base font-semibold text-white truncate">
-                {businessName || 'Business Name'}
-              </h2>
-              <button className="p-1 rounded-full border border-white/30" aria-hidden="true" tabIndex={-1}>
-                <X className="w-3.5 h-3.5 text-white" />
-              </button>
-            </div>
-
-            {/* Messages area */}
-            <div
-              className="flex-1 overflow-hidden bg-white p-3 space-y-2.5"
-              style={{ fontFamily: fontFamily !== 'Inter' ? `'${fontFamily}', sans-serif` : undefined }}
-            >
-              {messages.map((msg, idx) => (
-                <div key={idx} className="w-full" data-testid={msg.role === 'visitor' ? 'visitor-bubble' : 'easyask-bubble'}>
+        <div className="flex-1 flex flex-col gap-4 min-h-0" data-testid="widget-background">
+          {messages.map((msg, idx) => {
+            if (msg.role === 'visitor') {
+              return (
+                <div key={idx} className="flex items-start gap-3 justify-start" data-testid="visitor-bubble">
+                  {/* Visitor avatar */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
+                    style={{ backgroundColor: 'rgba(245,158,11,0.2)' }}
+                  >
+                    <span className="text-sm" style={{ color: '#fbbf24' }}>&#x1F464;</span>
+                  </div>
+                  {/* Visitor bubble */}
                   <div
                     data-testid="message-bubble"
-                    className={`w-full rounded-2xl px-4 py-3 ${
-                      msg.role === 'visitor'
-                        ? 'bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white'
-                        : 'bg-orange-50 border border-gray-200 text-gray-800'
-                    }`}
+                    className="relative max-w-[65%] px-5 py-3.5 rounded-2xl rounded-bl-sm"
+                    style={{ backgroundColor: '#f59e0b', color: '#000' }}
                   >
-                    {msg.role === 'visitor' ? (
-                      <p className="text-sm leading-relaxed">{msg.content}</p>
-                    ) : (
-                      <div className="text-sm leading-relaxed">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {msg.content}
-                        </ReactMarkdown>
-                      </div>
-                    )}
+                    <p className="text-sm leading-relaxed font-semibold">{msg.content}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Branding footer */}
-            <div className="flex-shrink-0 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 py-1.5 px-3">
-              <p className="text-xs text-white/70 text-center">
-                Powered by EasyAsk
-              </p>
-            </div>
-          </div>
+              )
+            } else {
+              return (
+                <div key={idx} className="flex items-start gap-3 justify-end" data-testid="easyask-bubble">
+                  {/* AI bubble */}
+                  <div
+                    data-testid="message-bubble"
+                    className="relative max-w-[65%] px-5 py-3.5 rounded-2xl rounded-br-sm"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}
+                  >
+                    <div className="text-sm leading-relaxed font-normal">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={socialMarkdownComponents}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                  {/* AI avatar */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                  >
+                    <span className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>&#x1F916;</span>
+                  </div>
+                </div>
+              )
+            }
+          })}
         </div>
 
         {/* ================================================================
-            Layer 3: Footer Overlay
+            Punchline Footer
             ================================================================ */}
-        <div className={`${isLinkedIn ? 'mt-4' : 'mt-3'} text-center`}>
+        <div className="mt-auto pt-4">
           {innerMonologue && (
-            <p className={`${footerTextColor} ${isLinkedIn ? 'text-base' : 'text-sm'} italic`}>
-              &ldquo;<span style={{ fontSize: '1.2em' }}>{innerMonologue}</span>&rdquo;
-            </p>
+            <div
+              className="rounded-xl px-5 py-3.5"
+              style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.1)' }}
+            >
+              <span
+                className="text-[10px] font-bold uppercase block mb-1.5"
+                style={{ color: 'rgba(251,191,36,0.6)', letterSpacing: '0.2em' }}
+              >
+                &#x1F4AD; What the AI was actually thinking
+              </span>
+              <p
+                className="text-white/70 text-[15px] italic leading-relaxed"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                &ldquo;{innerMonologue}&rdquo;
+              </p>
+            </div>
           )}
           {tagline && (
-            <p className={`${footerHeadingColor} ${isLinkedIn ? 'text-base' : 'text-sm'} font-bold mt-1`}>
+            <p
+              className="text-center mt-3 text-white/25 text-xs font-bold uppercase"
+              style={{ letterSpacing: '0.25em' }}
+            >
               {tagline}
             </p>
           )}

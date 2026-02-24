@@ -6,9 +6,6 @@ import ChatMockupPreview, {
   type ChatMockupMessage,
   type ChatMockupPreviewProps,
   GRADIENT_PRESETS,
-  VISUAL_PRESETS,
-  FONT_OPTIONS,
-  getVisualPreset,
   getPlatformDimensions,
   getNextVolumeNumber,
 } from '@/components/admin/ChatMockupPreview'
@@ -90,14 +87,12 @@ export default function ChatMockupPage() {
 
   // Form state — visual
   const [platform, setPlatform] = useState<'x' | 'linkedin'>('x')
-  const [backgroundMode, setBackgroundMode] = useState<'solid' | 'gradient' | 'image-outline'>('solid')
-  const [backgroundColor, setBackgroundColor] = useState('#ffffff')
-  const [gradientPreset, setGradientPreset] = useState('arctic')
-  const [gradientDirection, setGradientDirection] = useState<'to bottom' | '135deg'>('to bottom')
-  const [fontFamily, setFontFamily] = useState('Inter')
-  const [borderColor, setBorderColor] = useState('#E5E7EB')
-  const [borderThickness, setBorderThickness] = useState(0)
-  const [borderRadius, setBorderRadius] = useState(16)
+  const [backgroundMode, setBackgroundMode] = useState<'solid' | 'gradient'>('solid')
+  const [backgroundColor, setBackgroundColor] = useState('#111111')
+  const [backgroundGradient, setBackgroundGradient] = useState('midnight')
+  const [accentColor, setAccentColor] = useState('#f59e0b')
+  const [accentMode, setAccentMode] = useState<'solid' | 'gradient'>('gradient')
+  const [accentGradient, setAccentGradient] = useState('ember')
 
   // UI state
   const [stylingOpen, setStylingOpen] = useState(false)
@@ -185,23 +180,6 @@ export default function ChatMockupPage() {
     }
 
     setExampleDropdownOpen(false)
-  }
-
-  // ============================================================================
-  // Visual Preset
-  // ============================================================================
-
-  function applyPreset(name: string) {
-    const preset = getVisualPreset(name)
-    if (!preset) return
-    setBackgroundMode(preset.backgroundMode)
-    setBackgroundColor(preset.backgroundColor)
-    setGradientPreset(preset.gradientPreset)
-    setGradientDirection(preset.gradientDirection)
-    setFontFamily(preset.fontFamily)
-    setBorderColor(preset.borderColor)
-    setBorderThickness(preset.borderThickness)
-    setBorderRadius(preset.borderRadius)
   }
 
   // ============================================================================
@@ -313,14 +291,12 @@ export default function ChatMockupPage() {
     innerMonologue,
     tagline,
     platform,
-    backgroundMode,
     backgroundColor,
-    gradientPreset,
-    gradientDirection,
-    fontFamily,
-    borderColor,
-    borderThickness,
-    borderRadius,
+    backgroundMode,
+    backgroundGradient,
+    accentColor,
+    accentMode,
+    accentGradient,
   }
 
   const { width: canvasWidth, height: canvasHeight } = getPlatformDimensions(platform)
@@ -635,28 +611,11 @@ export default function ChatMockupPage() {
                     </div>
                   </div>
 
-                  {/* Visual Presets */}
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Presets</label>
-                    <div className="flex gap-1.5">
-                      {Object.keys(VISUAL_PRESETS).map(name => (
-                        <button
-                          key={name}
-                          data-testid={`preset-${name}`}
-                          onClick={() => applyPreset(name)}
-                          className="flex-1 py-1.5 text-xs rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-orange-300 transition-colors capitalize"
-                        >
-                          {name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Background Mode */}
+                  {/* Background */}
                   <div>
                     <label className="block text-xs text-gray-500 mb-1.5">Background</label>
                     <div className="flex gap-1.5 mb-2">
-                      {(['solid', 'gradient', 'image-outline'] as const).map(mode => (
+                      {(['solid', 'gradient'] as const).map(mode => (
                         <button
                           key={mode}
                           onClick={() => setBackgroundMode(mode)}
@@ -666,7 +625,7 @@ export default function ChatMockupPage() {
                               : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                         >
-                          {mode === 'image-outline' ? 'Outline' : mode}
+                          {mode}
                         </button>
                       ))}
                     </div>
@@ -689,82 +648,73 @@ export default function ChatMockupPage() {
                     )}
 
                     {backgroundMode === 'gradient' && (
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-6 gap-1.5">
-                          {Object.entries(GRADIENT_PRESETS).map(([name, colors]) => (
-                            <button
-                              key={name}
-                              onClick={() => setGradientPreset(name)}
-                              className={`h-8 rounded-md border-2 transition-colors ${
-                                gradientPreset === name ? 'border-orange-500' : 'border-transparent'
-                              }`}
-                              style={{ background: `linear-gradient(to bottom, ${colors.join(', ')})` }}
-                              title={name}
-                            />
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => setGradientDirection(d => d === 'to bottom' ? '135deg' : 'to bottom')}
-                          className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-                        >
-                          Direction: {gradientDirection === 'to bottom' ? '↓ Vertical' : '↘ Diagonal'}
-                        </button>
+                      <div className="grid grid-cols-6 gap-1.5">
+                        {Object.entries(GRADIENT_PRESETS).map(([name, colors]) => (
+                          <button
+                            key={name}
+                            onClick={() => setBackgroundGradient(name)}
+                            className={`h-8 rounded-md border-2 transition-colors ${
+                              backgroundGradient === name ? 'border-orange-500' : 'border-transparent'
+                            }`}
+                            style={{ background: `linear-gradient(to bottom, ${colors.join(', ')})` }}
+                            title={name}
+                          />
+                        ))}
                       </div>
                     )}
                   </div>
 
-                  {/* Font */}
+                  {/* Accent Line */}
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Chat bubble font</label>
-                    <select
-                      data-testid="font-select"
-                      value={fontFamily}
-                      onChange={e => setFontFamily(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400"
-                    >
-                      {FONT_OPTIONS.map(f => (
-                        <option key={f} value={f}>{f}</option>
+                    <label className="block text-xs text-gray-500 mb-1.5">Accent Line</label>
+                    <div className="flex gap-1.5 mb-2">
+                      {(['solid', 'gradient'] as const).map(mode => (
+                        <button
+                          key={mode}
+                          onClick={() => setAccentMode(mode)}
+                          className={`flex-1 py-1.5 text-xs rounded-lg border transition-colors capitalize ${
+                            accentMode === mode
+                              ? 'border-orange-400 bg-orange-50 text-orange-700'
+                              : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {mode}
+                        </button>
                       ))}
-                    </select>
-                  </div>
+                    </div>
 
-                  {/* Border */}
-                  <div className="space-y-2">
-                    <label className="block text-xs text-gray-500">Border</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="block text-xs text-gray-400 mb-0.5">Color</label>
+                    {accentMode === 'solid' && (
+                      <div className="flex items-center gap-2">
                         <input
                           type="color"
-                          value={borderColor}
-                          onChange={e => setBorderColor(e.target.value)}
-                          className="w-full h-8 rounded border border-gray-200 cursor-pointer"
+                          value={accentColor}
+                          onChange={e => setAccentColor(e.target.value)}
+                          className="w-8 h-8 rounded border border-gray-200 cursor-pointer"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-400 mb-0.5">Thickness</label>
                         <input
-                          data-testid="border-thickness"
-                          type="number"
-                          min={0}
-                          max={12}
-                          value={borderThickness}
-                          onChange={e => setBorderThickness(parseInt(e.target.value) || 0)}
-                          className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded text-center"
+                          type="text"
+                          value={accentColor}
+                          onChange={e => setAccentColor(e.target.value)}
+                          className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded font-mono"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs text-gray-400 mb-0.5">Radius</label>
-                        <input
-                          type="number"
-                          min={0}
-                          max={32}
-                          value={borderRadius}
-                          onChange={e => setBorderRadius(parseInt(e.target.value) || 0)}
-                          className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded text-center"
-                        />
+                    )}
+
+                    {accentMode === 'gradient' && (
+                      <div className="grid grid-cols-6 gap-1.5">
+                        {Object.entries(GRADIENT_PRESETS).map(([name, colors]) => (
+                          <button
+                            key={name}
+                            onClick={() => setAccentGradient(name)}
+                            className={`h-8 rounded-md border-2 transition-colors ${
+                              accentGradient === name ? 'border-orange-500' : 'border-transparent'
+                            }`}
+                            style={{ background: `linear-gradient(to right, ${colors.join(', ')})` }}
+                            title={name}
+                          />
+                        ))}
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -775,7 +725,7 @@ export default function ChatMockupPage() {
         {/* ================================================================
             Right Panel: Live Preview
             ================================================================ */}
-        <div className="flex-1 bg-gray-100 p-6 overflow-auto flex flex-col items-center">
+        <div className="flex-1 bg-[#0a0a0a] p-6 overflow-auto flex flex-col items-center">
           {/* Preview container — scales to fit */}
           <div
             ref={scaleWrapperRef}
