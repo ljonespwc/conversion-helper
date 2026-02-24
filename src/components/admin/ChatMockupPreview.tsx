@@ -28,6 +28,7 @@ export interface ChatMockupPreviewProps {
   tagline: string
   // Visual (simplified)
   platform: 'x' | 'linkedin'
+  sizeMode: 'compact' | 'extended'
   backgroundColor: string
   backgroundMode: 'solid' | 'gradient'
   backgroundGradient: string
@@ -61,10 +62,15 @@ export function getGradientCSS(preset: string, direction: string = 'to bottom'):
   return `linear-gradient(${direction}, ${colors.join(', ')})`
 }
 
-export function getPlatformDimensions(platform: 'x' | 'linkedin'): { width: number; height: number } {
-  return platform === 'x'
-    ? { width: 1200, height: 675 }
-    : { width: 1200, height: 1200 }
+export function getPlatformDimensions(platform: 'x' | 'linkedin', sizeMode: 'compact' | 'extended' = 'compact'): { width: number; height: number } {
+  if (platform === 'x') {
+    return sizeMode === 'compact'
+      ? { width: 1200, height: 675 }
+      : { width: 1200, height: 900 }
+  }
+  return sizeMode === 'compact'
+    ? { width: 1200, height: 1200 }
+    : { width: 1200, height: 1500 }
 }
 
 export function validateMessages(msgs: unknown[]): boolean {
@@ -121,6 +127,7 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
     innerMonologue,
     tagline,
     platform,
+    sizeMode,
     backgroundMode,
     backgroundColor,
     backgroundGradient,
@@ -129,7 +136,7 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
     accentGradient,
   } = props
 
-  const { width, height } = getPlatformDimensions(platform)
+  const { width, height } = getPlatformDimensions(platform, sizeMode)
   const isLinkedIn = platform === 'linkedin'
 
   // Card background
@@ -298,7 +305,7 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
                 className="text-[10px] font-bold uppercase block mb-1.5"
                 style={{ color: 'rgba(251,191,36,0.6)', letterSpacing: '0.2em' }}
               >
-                &#x1F4AD; What the AI was actually thinking
+                &#x1F4AD; What the EasyAsk Assistant was actually thinking
               </span>
               <p
                 className="text-white/70 text-[15px] italic leading-relaxed"

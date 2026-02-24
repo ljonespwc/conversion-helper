@@ -87,6 +87,7 @@ export default function ChatMockupPage() {
 
   // Form state — visual
   const [platform, setPlatform] = useState<'x' | 'linkedin'>('x')
+  const [sizeMode, setSizeMode] = useState<'compact' | 'extended'>('compact')
   const [backgroundMode, setBackgroundMode] = useState<'solid' | 'gradient'>('solid')
   const [backgroundColor, setBackgroundColor] = useState('#111111')
   const [backgroundGradient, setBackgroundGradient] = useState('midnight')
@@ -211,7 +212,7 @@ export default function ChatMockupPage() {
 
     try {
       const { default: html2canvas } = await import('html2canvas-pro')
-      const { width, height } = getPlatformDimensions(platform)
+      const { width, height } = getPlatformDimensions(platform, sizeMode)
 
       // Temporarily remove scale transform so html2canvas captures at true 1200px dimensions
       const wrapper = scaleWrapperRef.current
@@ -291,6 +292,7 @@ export default function ChatMockupPage() {
     innerMonologue,
     tagline,
     platform,
+    sizeMode,
     backgroundColor,
     backgroundMode,
     backgroundGradient,
@@ -299,7 +301,7 @@ export default function ChatMockupPage() {
     accentGradient,
   }
 
-  const { width: canvasWidth, height: canvasHeight } = getPlatformDimensions(platform)
+  const { width: canvasWidth, height: canvasHeight } = getPlatformDimensions(platform, sizeMode)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -595,7 +597,7 @@ export default function ChatMockupPage() {
                             : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        X (16:9)
+                        X ({sizeMode === 'compact' ? '16:9' : '4:3'})
                       </button>
                       <button
                         data-testid="platform-linkedin"
@@ -606,9 +608,42 @@ export default function ChatMockupPage() {
                             : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        LinkedIn (1:1)
+                        LinkedIn ({sizeMode === 'compact' ? '1:1' : '4:5'})
                       </button>
                     </div>
+                  </div>
+
+                  {/* Size Mode Toggle */}
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1.5">Size</label>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setSizeMode('compact')}
+                        className={`flex-1 py-2 text-sm rounded-lg border transition-colors ${
+                          sizeMode === 'compact'
+                            ? 'border-orange-400 bg-orange-50 text-orange-700 font-medium'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Compact
+                      </button>
+                      <button
+                        onClick={() => setSizeMode('extended')}
+                        className={`flex-1 py-2 text-sm rounded-lg border transition-colors ${
+                          sizeMode === 'extended'
+                            ? 'border-orange-400 bg-orange-50 text-orange-700 font-medium'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        Extended
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {platform === 'x'
+                        ? sizeMode === 'compact' ? '1200×675 (16:9)' : '1200×900 (4:3)'
+                        : sizeMode === 'compact' ? '1200×1200 (1:1)' : '1200×1500 (4:5)'
+                      }
+                    </p>
                   </div>
 
                   {/* Background */}
