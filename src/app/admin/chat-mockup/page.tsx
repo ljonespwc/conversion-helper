@@ -610,7 +610,7 @@ export default function ChatMockupPage() {
                             : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        LinkedIn ({sizeMode === 'compact' ? '1:1' : '4:5'})
+                        LinkedIn ({sizeMode === 'compact' ? '1.91:1' : '4:3'})
                       </button>
                     </div>
                   </div>
@@ -643,7 +643,7 @@ export default function ChatMockupPage() {
                     <p className="text-xs text-gray-400 mt-1">
                       {platform === 'x'
                         ? sizeMode === 'compact' ? '1200×675 (16:9)' : '1200×900 (4:3)'
-                        : sizeMode === 'compact' ? '1200×1200 (1:1)' : '1200×1500 (4:5)'
+                        : sizeMode === 'compact' ? '1200×627 (1.91:1)' : '1200×900 (4:3)'
                       }
                     </p>
                   </div>

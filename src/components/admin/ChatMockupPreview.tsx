@@ -98,8 +98,8 @@ export function getPlatformDimensions(platform: 'x' | 'linkedin', sizeMode: 'com
       : { width: 1200, height: 900 }
   }
   return sizeMode === 'compact'
-    ? { width: 1200, height: 1200 }
-    : { width: 1200, height: 1500 }
+    ? { width: 1200, height: 627 }
+    : { width: 1200, height: 900 }
 }
 
 export function validateMessages(msgs: unknown[]): boolean {
