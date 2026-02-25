@@ -6,7 +6,7 @@
   window.__EASYASK_LOADED__ = true;
 
   // Configuration
-  var ORIGIN = 'https://easyask.io';
+  var ORIGIN = 'https://www.easyask.io';
   var Z_INDEX = 2147483647;
 
   // Read configuration from script tag
