@@ -41,23 +41,52 @@ export interface ChatMockupPreviewProps {
 // Constants & Helpers (exported for testing)
 // ============================================================================
 
+// Solid color presets for card backgrounds
+export const SOLID_COLOR_PRESETS: Record<string, string> = {
+  'near-black': '#111111',
+  charcoal: '#1a1a1a',
+  graphite: '#222222',
+  navy: '#0d1117',
+  slate: '#1e293b',
+  ink: '#0f172a',
+  plum: '#1a0a2e',
+  forest: '#0a1a14',
+  espresso: '#1c1210',
+  storm: '#171c26',
+}
+
+// Apple TV style subtle dark gradients (single-hue depth)
 export const GRADIENT_PRESETS: Record<string, string[]> = {
+  obsidian: ['#1a1a1a', '#0d0d0d'],
+  deep_space: ['#0d1117', '#060a10'],
+  midnight: ['#0f0c29', '#0a0820'],
+  carbon: ['#1c1c1e', '#111112'],
+  slate: ['#1e293b', '#0f172a'],
+  ocean_floor: ['#0c1929', '#060e18'],
+  twilight: ['#1a1025', '#0d0815'],
+  ember_dark: ['#1c1210', '#0e0908'],
+  evergreen: ['#0a1a14', '#05100b'],
+  steel: ['#1a1d23', '#0e1015'],
+  noir: ['#141414', '#000000'],
+  dusk: ['#1a1520', '#0d0a12'],
+}
+
+// Accent line gradients (can be bolder)
+export const ACCENT_GRADIENT_PRESETS: Record<string, string[]> = {
+  ember: ['#f12711', '#f5af19'],
   sunrise: ['#FF6B6B', '#FFA07A'],
   ocean: ['#667eea', '#764ba2'],
-  mint: ['#a8edea', '#fed6e3'],
-  midnight: ['#0f0c29', '#302b63', '#24243e'],
-  peach: ['#ffecd2', '#fcb69f'],
-  arctic: ['#e6e9f0', '#eef1f5'],
   sunset: ['#fa709a', '#fee140'],
-  forest: ['#134e5e', '#71b280'],
   lavender: ['#c471f5', '#fa71cd'],
-  slate: ['#2c3e50', '#4ca1af'],
-  ember: ['#f12711', '#f5af19'],
-  monochrome: ['#434343', '#000000'],
+  forest: ['#134e5e', '#71b280'],
+  arctic: ['#e6e9f0', '#eef1f5'],
+  gold: ['#f59e0b', '#d97706'],
+  mint: ['#a8edea', '#fed6e3'],
+  peach: ['#ffecd2', '#fcb69f'],
 }
 
 export function getGradientCSS(preset: string, direction: string = 'to bottom'): string {
-  const colors = GRADIENT_PRESETS[preset]
+  const colors = GRADIENT_PRESETS[preset] || ACCENT_GRADIENT_PRESETS[preset]
   if (!colors) return ''
   return `linear-gradient(${direction}, ${colors.join(', ')})`
 }

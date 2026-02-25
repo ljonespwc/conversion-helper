@@ -5,7 +5,9 @@ import { ChevronDown, ChevronRight, Copy, Check, Plus, Trash2, Filter } from 'lu
 import ChatMockupPreview, {
   type ChatMockupMessage,
   type ChatMockupPreviewProps,
+  SOLID_COLOR_PRESETS,
   GRADIENT_PRESETS,
+  ACCENT_GRADIENT_PRESETS,
   getPlatformDimensions,
   getNextVolumeNumber,
 } from '@/components/admin/ChatMockupPreview'
@@ -666,19 +668,34 @@ export default function ChatMockupPage() {
                     </div>
 
                     {backgroundMode === 'solid' && (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={backgroundColor}
-                          onChange={e => setBackgroundColor(e.target.value)}
-                          className="w-8 h-8 rounded border border-gray-200 cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={backgroundColor}
-                          onChange={e => setBackgroundColor(e.target.value)}
-                          className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded font-mono"
-                        />
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {Object.entries(SOLID_COLOR_PRESETS).map(([name, color]) => (
+                            <button
+                              key={name}
+                              onClick={() => setBackgroundColor(color)}
+                              className={`h-8 rounded-md border-2 transition-colors ${
+                                backgroundColor === color ? 'border-orange-500' : 'border-transparent'
+                              }`}
+                              style={{ backgroundColor: color }}
+                              title={name}
+                            />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={backgroundColor}
+                            onChange={e => setBackgroundColor(e.target.value)}
+                            className="w-8 h-8 rounded border border-gray-200 cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={backgroundColor}
+                            onChange={e => setBackgroundColor(e.target.value)}
+                            className="flex-1 px-2 py-1 text-xs border border-gray-200 rounded font-mono"
+                          />
+                        </div>
                       </div>
                     )}
 
@@ -736,8 +753,8 @@ export default function ChatMockupPage() {
                     )}
 
                     {accentMode === 'gradient' && (
-                      <div className="grid grid-cols-6 gap-1.5">
-                        {Object.entries(GRADIENT_PRESETS).map(([name, colors]) => (
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {Object.entries(ACCENT_GRADIENT_PRESETS).map(([name, colors]) => (
                           <button
                             key={name}
                             onClick={() => setAccentGradient(name)}
