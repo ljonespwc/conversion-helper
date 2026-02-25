@@ -178,7 +178,7 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
       {/* Content */}
       <div
         className="flex flex-col h-full"
-        style={{ padding: isLinkedIn ? '40px 56px' : '32px 48px' }}
+        style={{ padding: isLinkedIn ? '40px 56px 56px' : '32px 48px 48px' }}
       >
         {/* ================================================================
             Header
@@ -295,36 +295,40 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
         {/* ================================================================
             Punchline Footer
             ================================================================ */}
-        <div className="mt-auto pt-4">
-          {innerMonologue && (
+        {innerMonologue && (
+          <div
+            className="mt-auto pt-4"
+          >
             <div
-              className="rounded-xl px-5 py-3.5"
+              className="rounded-xl px-6 py-5"
               style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.1)' }}
             >
               <span
-                className="text-[10px] font-bold uppercase block mb-1.5"
+                className="text-xs font-bold uppercase block mb-2"
                 style={{ color: 'rgba(251,191,36,0.6)', letterSpacing: '0.2em' }}
               >
-                &#x1F4AD; What the EasyAsk Assistant was actually thinking
+                &#x1F4AD; What the AI didn&#x27;t say
               </span>
               <p
-                className="text-white/70 text-[15px] italic leading-relaxed"
+                className="text-white/80 text-lg leading-relaxed"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 &ldquo;{innerMonologue}&rdquo;
               </p>
             </div>
-          )}
-          {tagline && (
-            <p
-              className="text-center mt-3 text-white/25 text-xs font-bold uppercase"
-              style={{ letterSpacing: '0.25em' }}
-            >
-              {tagline}
-            </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Tagline — pinned to bottom of card */}
+      {tagline && (
+        <p
+          className="absolute bottom-4 left-0 right-0 text-center text-white/25 text-xs font-bold uppercase"
+          style={{ letterSpacing: '0.25em' }}
+        >
+          {tagline}
+        </p>
+      )}
     </div>
   )
 })
