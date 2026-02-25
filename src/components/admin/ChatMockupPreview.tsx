@@ -197,47 +197,17 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
           <p className="text-white/30 text-sm -mt-3 mb-4">{seriesTagline}</p>
         )}
 
-        {/* ================================================================
-            Context Card
-            ================================================================ */}
-        <div className="rounded-xl px-5 py-4 mb-5" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          {/* Row 1: Archetype + Time */}
-          <div className="flex items-center gap-3 mb-2">
-            {archetypeTag && (
-              <span
-                className="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
-                style={{ backgroundColor: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}
-              >
-                {archetypeTag}
-              </span>
-            )}
-            {dayTime && (
-              <>
-                <span className="text-white/25 text-xs">&middot;</span>
-                <span className="text-white/35 text-xs">{dayTime}</span>
-              </>
-            )}
-          </div>
-
-          {/* Row 2: Setup line */}
-          {setupLine && (
-            <p
-              className="text-white/70 text-[15px] leading-relaxed"
-              style={{ fontFamily: 'Georgia, serif' }}
+        {/* Context: Business pill */}
+        {businessName && (
+          <div className="flex items-center justify-center mb-5">
+            <span
+              className="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+              style={{ backgroundColor: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}
             >
-              {setupLine}
-            </p>
-          )}
-
-          {/* Row 3: Business breadcrumb */}
-          {(businessName || pageContext) && (
-            <div className="flex items-center gap-2 mt-2">
-              {businessName && <span className="text-white/25 text-[11px]">{businessName}</span>}
-              {businessName && pageContext && <span className="text-white/15">&rarr;</span>}
-              {pageContext && <span className="text-white/25 text-[11px]">{pageContext}</span>}
-            </div>
-          )}
-        </div>
+              {businessName}
+            </span>
+          </div>
+        )}
 
         {/* ================================================================
             Chat Bubbles
@@ -300,7 +270,7 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
             className="mt-auto pt-4"
           >
             <div
-              className="rounded-xl px-6 py-5"
+              className="rounded-xl px-6 py-5 text-center"
               style={{ backgroundColor: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.1)' }}
             >
               <span
