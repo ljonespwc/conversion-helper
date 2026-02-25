@@ -86,6 +86,33 @@ export function validateMessages(msgs: unknown[]): boolean {
   })
 }
 
+export function splitEmojiSegments(text: string): { text: string; isEmoji: boolean }[] {
+  const segments: { text: string; isEmoji: boolean }[] = []
+  const chars = Array.from(text)
+  let buf = ''
+  let bufIsEmoji = false
+
+  for (const ch of chars) {
+    // Check if character is outside BMP (code point > 0xFFFF) or in common emoji ranges
+    const cp = ch.codePointAt(0) || 0
+    const isEmoji = cp > 0xFFFF || (cp >= 0x2600 && cp <= 0x27BF) || (cp >= 0x2702 && cp <= 0x27B0) || cp === 0xFE0F || cp === 0x200D || cp === 0x20E3
+    if (buf.length === 0) {
+      buf = ch
+      bufIsEmoji = isEmoji
+    } else if (isEmoji === bufIsEmoji) {
+      buf += ch
+    } else {
+      segments.push({ text: buf, isEmoji: bufIsEmoji })
+      buf = ch
+      bufIsEmoji = isEmoji
+    }
+  }
+  if (buf.length > 0) {
+    segments.push({ text: buf, isEmoji: bufIsEmoji })
+  }
+  return segments
+}
+
 export function getNextVolumeNumber(examples: { volume_number: number }[]): number {
   if (examples.length === 0) return 1
   return Math.max(...examples.map(e => e.volume_number)) + 1
@@ -183,30 +210,33 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
         {/* ================================================================
             Header
             ================================================================ */}
-        <div className="flex items-baseline gap-3 mb-4">
-          <h1
-            className="text-[2rem] font-black text-white tracking-tight"
-            style={{ fontFamily: 'Georgia, serif' }}
-          >
-            Typing...
-          </h1>
-          <span className="text-white/30 text-lg font-light">|</span>
-          <span className="text-white/40 text-lg font-medium tracking-wide">Vol. {volumeNumber}</span>
+        <div className="flex items-baseline justify-between mb-4">
+          <div className="flex items-baseline gap-3">
+            <h1
+              className="text-[2rem] font-black text-white tracking-tight"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Typing...
+            </h1>
+            <span className="text-white/30 text-lg font-light">|</span>
+            <span className="text-white/40 text-lg font-medium tracking-wide">Vol. {volumeNumber}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {businessName && (
+              <span
+                className="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
+                style={{ backgroundColor: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}
+              >
+                {businessName}
+              </span>
+            )}
+            {dayTime && (
+              <span className="text-white/30 text-sm">{dayTime}</span>
+            )}
+          </div>
         </div>
         {seriesTagline && (
-          <p className="text-white/30 text-sm -mt-3 mb-4">{seriesTagline}</p>
-        )}
-
-        {/* Context: Business pill */}
-        {businessName && (
-          <div className="flex items-center justify-center mb-5">
-            <span
-              className="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
-              style={{ backgroundColor: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}
-            >
-              {businessName}
-            </span>
-          </div>
+          <p className="text-white/30 text-sm -mt-3 mb-12">{seriesTagline}</p>
         )}
 
         {/* ================================================================
@@ -216,13 +246,13 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
           {messages.map((msg, idx) => {
             if (msg.role === 'visitor') {
               return (
-                <div key={idx} className="flex items-start gap-3 justify-start" data-testid="visitor-bubble">
+                <div key={idx} className="flex items-end gap-3 justify-start" data-testid="visitor-bubble">
                   {/* Visitor avatar */}
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
-                    style={{ backgroundColor: 'rgba(245,158,11,0.2)' }}
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: 'rgba(245,158,11,0.3)' }}
                   >
-                    <span className="text-sm" style={{ color: '#fbbf24' }}>&#x1F464;</span>
+                    <span className="text-lg">&#x1F464;</span>
                   </div>
                   {/* Visitor bubble */}
                   <div
@@ -230,20 +260,20 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
                     className="relative max-w-[65%] px-5 py-3.5 rounded-2xl rounded-bl-sm"
                     style={{ backgroundColor: '#f59e0b', color: '#000' }}
                   >
-                    <p className="text-sm leading-relaxed font-semibold">{msg.content}</p>
+                    <p className="text-base leading-relaxed font-semibold">{msg.content}</p>
                   </div>
                 </div>
               )
             } else {
               return (
-                <div key={idx} className="flex items-start gap-3 justify-end" data-testid="easyask-bubble">
+                <div key={idx} className="flex items-end gap-3 justify-end" data-testid="easyask-bubble">
                   {/* AI bubble */}
                   <div
                     data-testid="message-bubble"
                     className="relative max-w-[65%] px-5 py-3.5 rounded-2xl rounded-br-sm"
                     style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}
                   >
-                    <div className="text-sm leading-relaxed font-normal">
+                    <div className="text-base leading-relaxed font-normal">
                       <ReactMarkdown remarkPlugins={[remarkGfm]} components={socialMarkdownComponents}>
                         {msg.content}
                       </ReactMarkdown>
@@ -251,10 +281,10 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
                   </div>
                   {/* AI avatar */}
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
                   >
-                    <span className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>&#x1F916;</span>
+                    <span className="text-lg">&#x2728;</span>
                   </div>
                 </div>
               )
@@ -283,7 +313,11 @@ const ChatMockupPreview = forwardRef<HTMLDivElement, ChatMockupPreviewProps>(fun
                 className="text-white/80 text-lg leading-relaxed"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
-                &ldquo;{innerMonologue}&rdquo;
+                {splitEmojiSegments(innerMonologue).map((seg, i) =>
+                  seg.isEmoji
+                    ? <span key={i} style={{ fontStyle: 'normal' }}>{seg.text}</span>
+                    : <span key={i} style={{ fontStyle: 'italic' }}>{seg.text}</span>
+                )}
               </p>
             </div>
           </div>
