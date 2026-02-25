@@ -723,6 +723,40 @@ Fixed bug where recent conversations showed "0 messages" in admin dashboard.
 
 ---
 
+## ✅ Safari Widget Fix for Group ID Pages (2026-02-25)
+
+Two fixes for the widget not appearing on Safari for group_id-based pages (e.g., `my.precisionnutrition.com`).
+
+### Fix 1: Widget ORIGIN Mismatch
+`widget.js` used `ORIGIN = 'https://easyask.io'` but Vercel redirects to `www.easyask.io`. This caused:
+- Iframe loaded via unnecessary 301 redirect
+- All parent→iframe postMessages failed (origin mismatch)
+
+**Fix:** Changed `ORIGIN` to `'https://www.easyask.io'` in `public/widget.js`.
+
+### Fix 2: Safari ITP Breaks Domain Validation for Group ID Requests
+Safari's Intelligent Tracking Prevention truncates the `Referer` header to origin-only (`https://www.easyask.io` instead of `https://www.easyask.io/widget?url=...&group_id=98`) in third-party iframes. The `getRequestOrigin()` function couldn't extract the customer's URL from the truncated Referer, returned `easyask.io` as the origin, and domain validation failed → `{ page: null }` → widget hidden.
+
+**Why URL-matching pages were unaffected:** They skip domain validation entirely (no group_id branch).
+
+**Why Chrome was unaffected:** Chrome sends the full Referer for same-origin requests in third-party iframes.
+
+**Fix:** When `getRequestOrigin()` returns an easyask.io origin (meaning Referer was truncated), fall back to the `url`/`page_url` parameter already being passed to the API. Domain is still validated against the org's `website_url`.
+
+**Files modified:**
+- `public/widget.js` — ORIGIN change
+- `src/app/api/widget-pages/route.ts` — Safari Referer fallback for group_id validation
+- `src/app/api/chat/route.ts` — Same fallback (chat also validates domain for group_id)
+
+### Fix 3: Archived Sessions Still Visible in Conversation List
+Archiving set `archived_at` but `/api/stats` didn't filter archived sessions from the `recentQuery`. Previously unnoticed because archived sessions were old enough to fall beyond the 200-session limit.
+
+**Fix:** Added `.is('archived_at', null)` to the `recentQuery` only. Analytics stats (totals, ratings, duration, etc.) intentionally still include archived sessions.
+
+**File modified:** `src/app/api/stats/route.ts`
+
+---
+
 ## 🔮 Upcoming Priorities
 
 ### Performance: Smart Caching Strategy (When Needed)
