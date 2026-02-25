@@ -73,7 +73,20 @@ export async function GET(request: NextRequest) {
 
       // Security: When using group_id, validate that the request comes from
       // a domain that matches the organization's website_url
-      const requestOrigin = getRequestOrigin(request)
+      let requestOrigin = getRequestOrigin(request)
+
+      // Safari ITP truncates Referer to origin-only in third-party iframes,
+      // so getRequestOrigin returns the easyask.io origin instead of the
+      // customer's URL. Fall back to the url query parameter for validation.
+      if (!requestOrigin || requestOrigin.includes('easyask.io')) {
+        if (pageUrl) {
+          try {
+            const parsed = new URL(pageUrl)
+            requestOrigin = `${parsed.protocol}//${parsed.host}`
+          } catch { /* keep existing requestOrigin */ }
+        }
+      }
+
       if (requestOrigin && !isAllowedDomain(requestOrigin, org.website_url)) {
         // Domain mismatch - don't expose that group_id exists, just return null
         return NextResponse.json({ page: null }, { headers: NO_CACHE_HEADERS })

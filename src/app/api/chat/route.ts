@@ -313,7 +313,20 @@ export async function POST(request: Request) {
     // Security: When using group_id, validate that the request comes from
     // a domain that matches the organization's website_url
     if (group_id) {
-      const requestOrigin = getRequestOrigin(request)
+      let requestOrigin = getRequestOrigin(request)
+
+      // Safari ITP truncates Referer to origin-only in third-party iframes,
+      // so getRequestOrigin returns the easyask.io origin instead of the
+      // customer's URL. Fall back to the page_url from the request body.
+      if (!requestOrigin || requestOrigin.includes('easyask.io')) {
+        if (page_url) {
+          try {
+            const parsed = new URL(page_url)
+            requestOrigin = `${parsed.protocol}//${parsed.host}`
+          } catch { /* keep existing requestOrigin */ }
+        }
+      }
+
       if (requestOrigin && !isAllowedDomain(requestOrigin, org.website_url)) {
         return NextResponse.json({ error: 'Domain not authorized' }, { status: 403 })
       }
