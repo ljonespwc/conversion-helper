@@ -203,6 +203,7 @@ export async function GET(request: NextRequest) {
         .select('*')
         .eq('organization_id', organizationId)
         .neq('is_test', true)
+        .is('archived_at', null)
         .order('created_at', { ascending: false })
         .limit(200),
       pageUrl
