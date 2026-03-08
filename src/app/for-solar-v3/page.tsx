@@ -302,9 +302,9 @@ export default function ForSolarV3Page() {
           </h2>
           <div className="mt-8 space-y-5 text-lg text-stone-600 leading-[1.8]">
             <p>
-              Solar has a documented misrepresentation problem. Provincial bodies and consumer protection agencies across
-              Canada have flagged it. The most common issue: overstating rebate amounts, misrepresenting BC Hydro net
-              metering rules, describing incentives that don&apos;t apply to a specific homeowner&apos;s situation.
+              Solar has a documented misrepresentation problem in BC. The most common issue: overstating rebate amounts,
+              misrepresenting BC Hydro net metering rules, describing incentives that don&apos;t apply to a specific
+              homeowner&apos;s situation.
             </p>
             <p>
               A generic AI chatbot on your site faces the same risk from the inside. It&apos;ll confidently answer
