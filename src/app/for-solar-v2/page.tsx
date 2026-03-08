@@ -137,14 +137,14 @@ export default function ForSolarV2Page() {
               But there&apos;s a worse outcome than silence: a generic AI chatbot that makes things up.
             </p>
             <p>
-              Solar is an industry with documented, widespread problems around incentive misrepresentation. The FTC has warned about it. Provincial regulators have flagged it. Homeowners have been burned. When a generic chatbot invents a CleanBC rebate amount or describes a BC Hydro net metering rule that doesn&apos;t apply to their situation, it doesn&apos;t just fail to close the deal — it signals that your company can&apos;t be trusted to give straight answers about something this expensive.
+              Solar is an industry with documented, widespread problems around incentive misrepresentation. The FTC has warned about it. Provincial regulators have flagged it. Homeowners have been burned. When a generic chatbot invents a CleanBC rebate amount or describes a BC Hydro net metering rule that doesn&apos;t apply to their situation, it loses the deal and signals your company can&apos;t be trusted to give straight answers about something this expensive.
             </p>
           </div>
           <div className="my-10 p-6 rounded-2xl bg-rose-50 border border-rose-200 text-xl font-semibold text-rose-900 text-center">
             One confident wrong answer about incentives and they&apos;re gone. You&apos;ll never know why.
           </div>
           <p className="text-lg font-medium text-gray-900">
-            The fix isn&apos;t just &ldquo;have chat.&rdquo; It&apos;s having chat that answers from your content — not from whatever the AI learned somewhere on the internet.
+            The fix is chat that answers from your content, not whatever the AI learned on the internet.
           </p>
         </div>
       </section>
