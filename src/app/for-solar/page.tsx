@@ -125,7 +125,7 @@ export default function ForSolarPage() {
             </div>
 
             <p>
-              That&apos;s not just bad customer service. In solar, where FTC regulators and provincial bodies have documented widespread misrepresentation of incentives, a chatbot making things up on your website is a liability you don&apos;t want.
+              Bad customer service is the least of it. In solar, where FTC regulators and provincial bodies have documented widespread misrepresentation of incentives, a chatbot making things up on your website is a liability you don&apos;t want.
             </p>
             <p>
               EasyAsk answers only from content you give it. Point it at your rebate guide, your BC Hydro net metering explainer, your financing FAQ. It answers from that. Nothing else. When a question falls outside your content, it says so and captures the homeowner&apos;s contact information and exact question so you can follow up with the accurate answer.
@@ -262,7 +262,7 @@ export default function ForSolarPage() {
               {
                 num: '3',
                 title: 'You get a routed lead',
-                body: 'You get a routed lead with the exact question they asked, not a cold form fill, but a warm contact with context on where they are in the decision.',
+                body: 'Their contact info arrives with the exact question they asked, so you know what they\u2019re stuck on before the first call.',
               },
             ].map((step) => (
               <div key={step.num} className="relative flex items-start gap-4 md:gap-6">
