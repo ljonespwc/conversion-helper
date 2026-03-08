@@ -303,7 +303,7 @@ export default function ForSolarV2Page() {
                 What happens with EasyAsk:
               </h3>
               <p className="text-base text-gray-700 leading-relaxed">
-                They type their question into the chat widget. EasyAsk answers from your net metering explainer. Accurate, specific, in your language. They book a call. You see the full conversation in your dashboard Monday morning with context on where they are in the decision.
+                They type their question into the chat widget. EasyAsk answers from your net metering explainer. Accurate and specific, in your language. They book a call. You see the full conversation in your dashboard Monday morning with context on where they are in the decision.
               </p>
             </div>
           </div>
