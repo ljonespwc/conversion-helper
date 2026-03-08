@@ -44,7 +44,7 @@ export default function ForSolarV2Page() {
             They&apos;ve decided to go solar. Now they&apos;re deciding who to trust.
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
-            EasyAsk answers your homeowners&apos; BC-specific questions — rebates, warranties, net metering — from your actual documentation, so the first impression is expertise, not silence.
+            EasyAsk answers your homeowners&apos; BC-specific questions (rebates, warranties, net metering) from your actual documentation, so the first impression is expertise, not silence.
           </p>
           <a
             href="#cta-form"
@@ -103,9 +103,9 @@ export default function ForSolarV2Page() {
               '"Do I qualify for the Canada Greener Homes Grant, and how does it work alongside CleanBC?"',
               '"How long does permitting take in Victoria? What about Nanaimo or Kelowna?"',
               '"What panel brand do you install, and what\'s the warranty?"',
-              '"What happens to my BC Hydro bill — how does net metering actually work?"',
+              '"What happens to my BC Hydro bill? How does net metering actually work?"',
               '"Is my roof suitable, or do I need work done first?"',
-              '"How does financing work — what\'s the monthly payment on a $25,000 system?"',
+              '"How does financing work? What\'s the monthly payment on a $25,000 system?"',
               '"Are you HRAI certified? What credentials should I be checking for?"',
               '"Do you handle the interconnection paperwork, or do I?"',
             ].map((question) => (
@@ -229,7 +229,7 @@ export default function ForSolarV2Page() {
             This content is sitting in your Dropbox, your email drafts, your sales folder. It&apos;s what your best salesperson knows cold. EasyAsk puts it to work on your website, 24/7.
           </p>
           <p className="mt-6 text-xl font-semibold text-gray-900 text-center">
-            Your knowledge. Their question. An answer that sounds like you wrote it — because you did.
+            Your knowledge. Their question. An answer that sounds like you wrote it, because you did.
           </p>
         </div>
       </section>
@@ -245,7 +245,7 @@ export default function ForSolarV2Page() {
               {
                 num: '1',
                 title: 'Gather your materials',
-                body: 'Panel specs, rebate guides, BC Hydro net metering explainer, financing terms, warranty documentation, permitting FAQ. Most installers have these already — it\'s a few hours the first time to pull them together.',
+                body: 'Panel specs, rebate guides, BC Hydro net metering explainer, financing terms, warranty documentation, permitting FAQ. Most installers have these already. It\'s a few hours the first time to pull them together.',
               },
               {
                 num: '2',
@@ -255,7 +255,7 @@ export default function ForSolarV2Page() {
               {
                 num: '3',
                 title: 'EasyAsk is live on your site',
-                body: 'Homeowners get accurate, specific answers from your content — at midnight, on weekends, while you\'re commissioning a system across town. Questions it can\'t answer get routed to you with the homeowner\'s contact info and the exact question they asked.',
+                body: 'Homeowners get accurate, specific answers from your content. At midnight, on weekends, while you\'re commissioning a system across town. Questions it can\'t answer get routed to you with the homeowner\'s contact info and the exact question they asked.',
               },
             ].map((step) => (
               <div key={step.num} className="text-center">
@@ -303,7 +303,7 @@ export default function ForSolarV2Page() {
                 What happens with EasyAsk:
               </h3>
               <p className="text-base text-gray-700 leading-relaxed">
-                They type their question into the chat widget. EasyAsk answers from your net metering explainer — accurate, specific, in your language. They book a call. You see the full conversation in your dashboard Monday morning with context on where they are in the decision.
+                They type their question into the chat widget. EasyAsk answers from your net metering explainer. Accurate, specific, in your language. They book a call. You see the full conversation in your dashboard Monday morning with context on where they are in the decision.
               </p>
             </div>
           </div>
@@ -319,20 +319,20 @@ export default function ForSolarV2Page() {
           <div className="mt-12 space-y-4">
             {[
               {
-                q: 'A chatbot feels impersonal — I built my business on personal service.',
-                a: "The homeowner at 10 PM on a Sunday isn't getting personal service from you right now. They're getting nothing. A tool that answers from your own documentation — and tells them honestly when it can't help — is closer to personal than a contact form. The personalized service starts when you call them back Monday with the exact context on what they're trying to figure out.",
+                q: 'A chatbot feels impersonal. I built my business on personal service.',
+                a: "The homeowner at 10 PM on a Sunday isn't getting personal service from you right now. They're getting nothing. A tool that answers from your own documentation (and tells them honestly when it can't help) is closer to personal than a contact form. The personalized service starts when you call them back Monday with the exact context on what they're trying to figure out.",
               },
               {
                 q: 'I had a chatbot once and it gave wrong answers.',
-                a: "That's the core problem with generic AI tools — trained on the internet, they'll invent answers when they don't know something. EasyAsk only uses content you provide. If it doesn't have an answer, it says so and captures the homeowner's information instead of guessing. That's a different category of tool.",
+                a: "That's the core problem with generic AI tools. Trained on the internet, they'll invent answers when they don't know something. EasyAsk only uses content you provide. If it doesn't have an answer, it says so and captures the homeowner's information instead of guessing. That's a different category of tool.",
               },
               {
                 q: 'What if it says something wrong about BC rebates?',
                 a: "It can't invent information you didn't give it. If you gave it an accurate BC Hydro net metering document, it answers BC Hydro net metering questions accurately. If you didn't give it a document on something, it says it can't find that information and routes the question to you. The accuracy is a function of your materials, which you control.",
               },
               {
-                q: 'My team follows up on all leads — we have a process.',
-                a: "Your process probably runs during business hours. EasyAsk handles the questions that come in when your process is offline — evenings, weekends, statutory holidays. It doesn't change how you handle the warm leads it sends you. It creates warm leads your process was never reaching before.",
+                q: 'My team follows up on all leads. We have a process.',
+                a: "Your process probably runs during business hours. EasyAsk handles the questions that come in when your process is offline: evenings, weekends, statutory holidays. It doesn't change how you handle the warm leads it sends you. It creates warm leads your process was never reaching before.",
               },
               {
                 q: 'How long does setup actually take?',
@@ -340,7 +340,7 @@ export default function ForSolarV2Page() {
               },
               {
                 q: 'What does it cost?',
-                a: 'EasyAsk for solar starts at $199/month. No setup fee, no annual contract. The personalized demo is free — there\'s nothing to buy until you\'ve seen it working on your actual site.',
+                a: 'EasyAsk for solar starts at $199/month. No setup fee, no annual contract. The personalized demo is free. There\'s nothing to buy until you\'ve seen it working on your actual site.',
               },
             ].map((item) => (
               <details
@@ -369,7 +369,7 @@ export default function ForSolarV2Page() {
             See what your documentation can do at midnight
           </h2>
           <p className="mt-4 text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
-            Fill in the form below with your name, email, and website URL. If you want to include any of your materials — your rebate guide, your panel specs, your financing FAQ — reply to the confirmation email and we&apos;ll build those into the demo.
+            Fill in the form below with your name, email, and website URL. If you want to include any of your materials (your rebate guide, your panel specs, your financing FAQ), reply to the confirmation email and we&apos;ll build those into the demo.
           </p>
           <p className="mt-3 text-base text-gray-400 max-w-xl mx-auto">
             We&apos;ll build a personalized version of EasyAsk on your site and send you the link, usually within 24 hours. There&apos;s nothing to buy. You just watch it answer the questions your homeowners actually ask.
@@ -382,7 +382,7 @@ export default function ForSolarV2Page() {
               </div>
               <h3 className="mt-4 text-xl font-bold text-white">Done.</h3>
               <p className="mt-3 text-base text-gray-300 leading-relaxed">
-                We&apos;ll build a demo of EasyAsk on your site and send you the link — usually within 24 hours. If you want to share your rebate guide, panel specs, or financing FAQ, reply to the confirmation email and we&apos;ll build those into the demo so you can see it answering from your actual content.
+                We&apos;ll build a demo of EasyAsk on your site and send you the link, usually within 24 hours. If you want to share your rebate guide, panel specs, or financing FAQ, reply to the confirmation email and we&apos;ll build those into the demo so you can see it answering from your actual content.
               </p>
             </div>
           ) : (
@@ -411,7 +411,7 @@ export default function ForSolarV2Page() {
                 Show me on my site
               </button>
               <p className="mt-2 text-xs text-gray-500">
-                Free personalized demo — usually ready in 24 hours
+                Free personalized demo, usually ready in 24 hours
               </p>
               <p className="mt-4 text-sm text-gray-500">
                 No credit card · No commitment · Built in Vancouver for BC solar
