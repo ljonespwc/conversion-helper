@@ -18,9 +18,9 @@ export default function ForSolarV3Page() {
 
   const faqs = [
     {
-      question: "I already have a contact form — homeowners can reach out whenever they want.",
+      question: "I already have a contact form. Homeowners can reach out whenever they want.",
       answer:
-        "A contact form captures intent. EasyAsk captures a conversation. The homeowner who fills out a form at 10 PM gets a callback on Monday. The one who types their question and gets an accurate answer in 30 seconds stays warm — and you see the full conversation context when you call them back.",
+        "A contact form captures intent. EasyAsk captures a conversation. The homeowner who fills out a form at 10 PM gets a callback on Monday. The one who types their question and gets an accurate answer in 30 seconds stays warm, and you see the full conversation context when you call them back.",
     },
     {
       question: "I had a chatbot before and it gave wrong answers.",
@@ -38,14 +38,14 @@ export default function ForSolarV3Page() {
         "It can't invent information you didn't give it. Feed it an accurate BC Hydro net metering document and it answers those questions accurately. Feed it nothing on a topic and it won't answer. The accuracy is a direct function of your materials, which you control.",
     },
     {
-      question: "My team follows up on all leads — we have a process.",
+      question: "My team follows up on all leads. We have a process.",
       answer:
-        "Your process runs during business hours. EasyAsk handles the conversations that happen when your process is offline — evenings, weekends, statutory holidays. It doesn't change how you handle the warm leads it sends you. It creates warm leads your process was never reaching before.",
+        "Your process runs during business hours. EasyAsk handles the conversations that happen when your process is offline: evenings, weekends, statutory holidays. It doesn't change how you handle the warm leads it sends you. It creates warm leads your process was never reaching before.",
     },
     {
       question: "What does it cost?",
       answer:
-        "$199/month for BC solar installers. No setup fee, no annual contract. The personalized demo is free — there's nothing to buy until you've seen it working on your actual site.",
+        "$199/month for BC solar installers. No setup fee, no annual contract. The personalized demo is free. There's nothing to buy until you've seen it working on your actual site.",
     },
   ]
 
@@ -96,7 +96,7 @@ export default function ForSolarV3Page() {
           </h1>
           <p className="mt-6 text-lg text-stone-500 leading-relaxed max-w-2xl mx-auto">
             Homeowners don&apos;t stop researching at 5 PM. When they land on your site with questions about BC Hydro
-            net metering, CleanBC rebates, or your financing terms — and find nothing but a contact form — they go back
+            net metering, CleanBC rebates, or your financing terms (and find nothing but a contact form), they go back
             to Google. EasyAsk answers from your own content, at midnight, and routes the warm lead to you with the full
             conversation.
           </p>
@@ -141,7 +141,7 @@ export default function ForSolarV3Page() {
 
           <div className="mt-8 space-y-5 text-lg text-stone-600 leading-[1.8]">
             <p>
-              Tuesday, 9:17 PM. A homeowner in Victoria got your name last week — from a Google ad, a CleanBC referral,
+              Tuesday, 9:17 PM. A homeowner in Victoria got your name last week, from a Google ad, a CleanBC referral,
               a neighbor who got solar done. Tonight she has time to look you up.
             </p>
             <p>
@@ -150,7 +150,7 @@ export default function ForSolarV3Page() {
               still running for 2025?
             </p>
             <p>She scrolls your about page. Your project gallery. Your FAQ. None of it answers her specific questions.</p>
-            <p>She fills out your contact form. Or she doesn&apos;t — and she just goes back to Google.</p>
+            <p>She fills out your contact form. Or she doesn&apos;t. She just goes back to Google.</p>
             <div className="text-xl font-semibold text-stone-900 py-4 border-l-4 border-amber-400 pl-6 bg-amber-50 rounded-r-lg my-8">
               You won&apos;t know she was there until Monday morning. By then she&apos;s already booked a site visit
               with an installer who got back to her over the weekend.
@@ -195,19 +195,19 @@ export default function ForSolarV3Page() {
 
           <div className="mt-10 max-w-3xl mx-auto space-y-5 text-lg text-stone-600 leading-[1.8]">
             <p>
-              Solar leads in BC average around $200 each — Google Ads, CleanBC referrals, word-of-mouth campaigns. A
+              Solar leads in BC average around $200 each: Google Ads, CleanBC referrals, word-of-mouth campaigns. A
               residential install runs $20,000–$30,000. At a typical close rate, you need multiple qualified leads to
               close one deal.
             </p>
             <p>Which means you can&apos;t afford to lose leads to an unanswered website visit.</p>
             <p>
-              But that&apos;s exactly what&apos;s happening. Not to every lead — just the ones who arrive evenings and
+              But that&apos;s exactly what&apos;s happening. Not to every lead, just the ones who arrive evenings and
               weekends, when nobody&apos;s online. The ones who had a question your FAQ didn&apos;t answer and
               didn&apos;t bother with the contact form. The ones you&apos;ll never see.
             </p>
             <p>
-              If EasyAsk captures two of those leads a month — two homeowners who would have left, who instead got an
-              accurate answer and booked a call — that&apos;s one extra deal every few months. At $20,000 a close,
+              If EasyAsk captures two of those leads a month (two homeowners who would have left, who instead got an
+              accurate answer and booked a call), that&apos;s one extra deal every few months. At $20,000 a close,
               that&apos;s not a question of whether the tool pays for itself. The math is not close.
             </p>
           </div>
@@ -232,7 +232,7 @@ export default function ForSolarV3Page() {
               {
                 icon: "📋",
                 title: "Answers BC-specific questions from your own documentation",
-                body: "CleanBC eligibility, BC Hydro net metering rules, Canada Greener Homes Grant, municipal permitting timelines. EasyAsk answers from the materials you upload — it can't invent information you didn't give it.",
+                body: "CleanBC eligibility, BC Hydro net metering rules, Canada Greener Homes Grant, municipal permitting timelines. EasyAsk answers from the materials you upload. It can't invent information you didn't give it.",
               },
               {
                 icon: "🕙",
@@ -308,7 +308,7 @@ export default function ForSolarV3Page() {
             </p>
             <p>
               A generic AI chatbot on your site faces the same risk from the inside. It&apos;ll confidently answer
-              &quot;how much is the CleanBC rebate?&quot; with a number it learned from the internet — which may have
+              &quot;how much is the CleanBC rebate?&quot; with a number it learned from the internet, which may have
               changed, may not apply to your service area, or may be wrong for the product you install.
             </p>
             <p>
@@ -341,7 +341,7 @@ export default function ForSolarV3Page() {
               {
                 num: 1,
                 title: "Gather your materials",
-                body: 'Panel spec sheets, your rebate and incentive explainer, BC Hydro net metering documentation, financing terms, warranty information, permitting FAQ. Most BC solar installers already have these — it takes a few hours to pull them together the first time.',
+                body: 'Panel spec sheets, your rebate and incentive explainer, BC Hydro net metering documentation, financing terms, warranty information, permitting FAQ. Most BC solar installers already have these. It takes a few hours to pull them together the first time.',
               },
               {
                 num: 2,
@@ -351,7 +351,7 @@ export default function ForSolarV3Page() {
               {
                 num: 3,
                 title: "Go live",
-                body: "EasyAsk is live on your site — answering homeowners at midnight, on weekends, while you're commissioning a system across town. Questions it can't answer from your materials get routed to you with the homeowner's contact info and the exact question they asked.",
+                body: "EasyAsk is live on your site, answering homeowners at midnight, on weekends, while you're commissioning a system across town. Questions it can't answer from your materials get routed to you with the homeowner's contact info and the exact question they asked.",
               },
             ].map((step, i, arr) => (
               <div
@@ -388,8 +388,8 @@ export default function ForSolarV3Page() {
           <div className="mt-8 text-lg text-stone-600 leading-[1.8] text-left max-w-2xl mx-auto space-y-5">
             <p>
               EasyAsk for BC solar starts at $199/month. One residential solar install in BC averages $20,000–$30,000.
-              If EasyAsk captures one lead per month that would have gone cold — one homeowner who had a question at 10
-              PM, got a real answer, and booked a site visit instead of going back to Google — that&apos;s one extra
+              If EasyAsk captures one lead per month that would have gone cold (one homeowner who had a question at 10
+              PM, got a real answer, and booked a site visit instead of going back to Google), that&apos;s one extra
               deal per quarter. At $20,000, that&apos;s roughly a 10x return on the annual subscription in a single
               close.
             </p>
@@ -458,11 +458,11 @@ export default function ForSolarV3Page() {
           </h2>
           <p className="mt-4 text-lg text-stone-500 leading-relaxed">
             Fill in the form with your name, email, and website URL. We&apos;ll build a personalized demo of EasyAsk on
-            your site — answering the BC-specific questions your homeowners actually ask — and send you the link within
+            your site, answering the BC-specific questions your homeowners actually ask, and send you the link within
             24 hours.
           </p>
           <p className="mt-3 text-base text-stone-400">
-            If you want to include your materials in the demo — your rebate guide, panel specs, financing FAQ — reply to
+            If you want to include your materials in the demo (your rebate guide, panel specs, financing FAQ), reply to
             the confirmation email and we&apos;ll build those in. The demo shows EasyAsk working from your content, not
             a generic template.
           </p>
@@ -470,7 +470,7 @@ export default function ForSolarV3Page() {
 
           {submitted ? (
             <div className="mt-8 bg-teal-50 rounded-xl p-6 text-teal-800 text-base leading-relaxed border border-teal-200 text-left">
-              Done. We&apos;ll build a demo of EasyAsk on your site and send you the link — usually within 24 hours. If
+              Done. We&apos;ll build a demo of EasyAsk on your site and send you the link, usually within 24 hours. If
               you want to share your BC rebate guide, panel specs, or financing FAQ, reply to this email and we&apos;ll
               build those into the demo so you can see it answering from your actual content.
             </div>
