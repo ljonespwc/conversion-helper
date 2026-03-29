@@ -17,6 +17,22 @@ const config: Config = {
           dark: '#9a3412',
           light: '#fff7ed',
         },
+        // Hooli Intel brand tokens
+        toyo: {
+          DEFAULT: '#E54D2E',
+          dark: '#CC3D20',
+          light: '#FFF4F1',
+        },
+        ink: {
+          DEFAULT: '#1A1A1A',
+          secondary: '#4A4A4A',
+          muted: '#8A8A8A',
+        },
+        surface: {
+          DEFAULT: '#FAFAF9',
+          alt: '#F5F5F3',
+        },
+        'border-subtle': '#E8E8E6',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
