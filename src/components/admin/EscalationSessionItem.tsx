@@ -80,7 +80,11 @@ export default function EscalationSessionItem({
 
   function getPagePath(): string {
     if (!escalation.page_url) return 'No page'
-    return new URL(escalation.page_url).pathname
+    try {
+      return new URL(escalation.page_url).pathname
+    } catch {
+      return escalation.page_url
+    }
   }
 
   function getToggleButtonClass(): string {
