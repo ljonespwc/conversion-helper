@@ -469,6 +469,9 @@ export async function POST(request: Request) {
 
     if (skip_file_search) {
       // Direct Gemini call without File Search (e.g. translate action)
+      // Use a minimal prompt — the production system prompt restricts the model
+      // to "stored content only" which blocks translation since there's no File Search.
+      const skipPrompt = 'You are a helpful assistant. Perform the requested task directly.'
       const contents = conversationHistory[session_id]
         .filter(m => m.role !== 'system')
         .map(m => ({
@@ -483,7 +486,7 @@ export async function POST(request: Request) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents,
-            ...(systemPrompt && { systemInstruction: { parts: [{ text: systemPrompt }] } }),
+            systemInstruction: { parts: [{ text: skipPrompt }] },
             generationConfig: { temperature: 0.4, maxOutputTokens: 2500 }
           })
         }
