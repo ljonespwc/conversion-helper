@@ -1,0 +1,40 @@
+import { NextResponse } from 'next/server'
+import Stripe from 'stripe'
+import { createClient } from '@supabase/supabase-js'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function POST(req: Request) {
+  try {
+    const { organizationId } = await req.json()
+
+    if (!organizationId) {
+      return NextResponse.json({ error: 'Organization ID required' }, { status: 400 })
+    }
+
+    const { data: org, error } = await supabase
+      .from('organizations')
+      .select('stripe_customer_id')
+      .eq('id', organizationId)
+      .single()
+
+    if (error || !org?.stripe_customer_id) {
+      return NextResponse.json({ error: 'No billing account found' }, { status: 404 })
+    }
+
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: org.stripe_customer_id,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/admin`,
+    })
+
+    return NextResponse.json({ url: portalSession.url })
+  } catch (err) {
+    console.error('Portal session error:', err)
+    return NextResponse.json({ error: 'Failed to create portal session' }, { status: 500 })
+  }
+}
