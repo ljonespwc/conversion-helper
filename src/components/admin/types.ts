@@ -121,6 +121,7 @@ export interface PageThemeResult {
   themes: QuestionTheme[]
   generated_at: string | null
   message_count: number
+  date_range_label?: string
 }
 
 export type IndexedPageSyncStatus = 'synced' | 'orphaned' | 'missing_from_google' | 'id_mismatch'

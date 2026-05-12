@@ -53,6 +53,51 @@ function withPageFilter<T extends { or: (filter: string) => T }>(
   return pageUrl ? applyPageUrlFilter(query, pageUrl) : query
 }
 
+interface DateRange {
+  start: string
+  end: string
+}
+
+function parseDateRange(request: NextRequest): DateRange | null {
+  const startDate = request.nextUrl.searchParams.get('startDate')
+  const endDate = request.nextUrl.searchParams.get('endDate')
+
+  if (!startDate || !endDate) return null
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) return null
+
+  const start = new Date(`${startDate}T00:00:00.000Z`)
+  const endExclusive = new Date(`${endDate}T00:00:00.000Z`)
+  endExclusive.setUTCDate(endExclusive.getUTCDate() + 1)
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(endExclusive.getTime()) || start >= endExclusive) {
+    return null
+  }
+
+  const tomorrow = new Date()
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
+  if (endExclusive > tomorrow) {
+    return null
+  }
+
+  return {
+    start: start.toISOString(),
+    end: endExclusive.toISOString()
+  }
+}
+
+function withDateRange<T extends {
+  gte: (column: string, value: string) => T
+  lt: (column: string, value: string) => T
+}>(
+  query: T,
+  dateRange: DateRange | null,
+  column: string = 'created_at'
+): T {
+  return dateRange
+    ? query.gte(column, dateRange.start).lt(column, dateRange.end)
+    : query
+}
+
 // Create Supabase client with service role key
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -88,16 +133,20 @@ export async function GET(request: NextRequest) {
     // Get pageUrl query param for filtering to specific page
     const searchParams = request.nextUrl.searchParams
     const pageUrl = searchParams.get('pageUrl')
+    const dateRange = parseDateRange(request)
 
     // Build base query - always filter by organization_id, exclude test sessions
     // Optionally also filter by specific page_url if provided
-    let totalQuery = withPageFilter(
-      supabase
+    let totalQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('conversation_sessions')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
         .neq('is_test', true),
-      pageUrl
+        pageUrl
+      ),
+      dateRange
     )
 
     // Get total sessions (filtered by organization, excluding test sessions)
@@ -107,26 +156,32 @@ export async function GET(request: NextRequest) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    let todayQuery = withPageFilter(
-      supabase
+    let todayQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('conversation_sessions')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
         .neq('is_test', true)
         .gte('created_at', today.toISOString()),
-      pageUrl
+        pageUrl
+      ),
+      dateRange
     )
 
     const { count: todayCount } = await todayQuery
 
     // Calculate average session duration from message timestamps
-    let durationQuery = withPageFilter(
-      supabase
+    let durationQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('conversation_sessions')
         .select('session_id')
         .eq('organization_id', organizationId)
         .neq('is_test', true),
-      pageUrl
+        pageUrl
+      ),
+      dateRange
     )
 
     const { data: durationSessions } = await durationQuery
@@ -183,22 +238,26 @@ export async function GET(request: NextRequest) {
     // Get active sessions (last 5 minutes, filtered by organization)
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
 
-    let activeQuery = withPageFilter(
-      supabase
+    let activeQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('conversation_sessions')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
         .neq('is_test', true)
         .gte('ended_at', fiveMinutesAgo.toISOString()),
-      pageUrl
+        pageUrl
+      ),
+      dateRange
     )
 
     const { count: activeNow } = await activeQuery
 
     // Get recent sessions (limited to avoid massive .in() queries for messages)
     // 200 sessions is enough for the dashboard view and keeps queries performant
-    let recentQuery = withPageFilter(
-      supabase
+    let recentQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('conversation_sessions')
         .select('*')
         .eq('organization_id', organizationId)
@@ -206,7 +265,9 @@ export async function GET(request: NextRequest) {
         .is('archived_at', null)
         .order('created_at', { ascending: false })
         .limit(200),
-      pageUrl
+        pageUrl
+      ),
+      dateRange
     )
 
     const { data: recentSessions, error: sessionsError } = await recentQuery
@@ -247,49 +308,64 @@ export async function GET(request: NextRequest) {
     }
 
     // Get widget opens counts
-    let totalOpensQuery = withPageFilter(
-      supabase
+    let totalOpensQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('widget_opens')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId),
-      pageUrl
+        pageUrl
+      ),
+      dateRange,
+      'opened_at'
     )
 
     const { count: totalOpens } = await totalOpensQuery
 
-    let todayOpensQuery = withPageFilter(
-      supabase
+    let todayOpensQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('widget_opens')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
         .gte('opened_at', today.toISOString()),
-      pageUrl
+        pageUrl
+      ),
+      dateRange,
+      'opened_at'
     )
 
     const { count: todayOpens } = await todayOpensQuery
 
     // Count unique visitors who opened the widget
-    let uniqueOpenersQuery = withPageFilter(
-      supabase
+    let uniqueOpenersQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('widget_opens')
         .select('visitor_id')
         .eq('organization_id', organizationId)
         .not('visitor_id', 'is', null),
-      pageUrl
+        pageUrl
+      ),
+      dateRange,
+      'opened_at'
     )
 
     const { data: openersData } = await uniqueOpenersQuery
     const uniqueOpeners = new Set(openersData?.map(r => r.visitor_id)).size
 
     // Get ratings from sessions (1-5 star rating, excluding test sessions)
-    let ratingsQuery = withPageFilter(
-      supabase
+    let ratingsQuery = withDateRange(
+      withPageFilter(
+        supabase
         .from('conversation_sessions')
         .select('user_rating')
         .eq('organization_id', organizationId)
         .neq('is_test', true)
         .not('user_rating', 'is', null),
-      pageUrl
+        pageUrl
+      ),
+      dateRange
     )
 
     const { data: ratingsData } = await ratingsQuery
@@ -308,25 +384,36 @@ export async function GET(request: NextRequest) {
     const messagesBySession = groupBySessionId(allMessages || [])
 
     // Purchase attribution metrics
-    let purchaseCountQuery = supabase
+    let purchaseCountQuery = withDateRange(
+      supabase
       .from('purchase_events')
       .select('*', { count: 'exact', head: true })
-      .eq('organization_id', organizationId)
+      .eq('organization_id', organizationId),
+      dateRange
+    )
 
-    let purchaseAmountQuery = supabase
+    let purchaseAmountQuery = withDateRange(
+      supabase
       .from('purchase_events')
       .select('amount')
-      .eq('organization_id', organizationId)
+      .eq('organization_id', organizationId),
+      dateRange
+    )
 
     if (pageUrl) {
       // Filter purchases by visitors who had sessions on this page
       const baseUrl = getBaseUrl(pageUrl)
-      const { data: pageVisitors } = await supabase
-        .from('conversation_sessions')
-        .select('visitor_id')
-        .eq('organization_id', organizationId)
-        .not('visitor_id', 'is', null)
-        .or(`page_url.eq.${baseUrl},page_url.like.${baseUrl}?*`)
+      const pageVisitorsQuery = withDateRange(
+        supabase
+          .from('conversation_sessions')
+          .select('visitor_id')
+          .eq('organization_id', organizationId)
+          .not('visitor_id', 'is', null)
+          .or(`page_url.eq.${baseUrl},page_url.like.${baseUrl}?*`),
+        dateRange
+      )
+
+      const { data: pageVisitors } = await pageVisitorsQuery
 
       const visitorIds = [...new Set(pageVisitors?.map(v => v.visitor_id).filter(Boolean) || [])]
       if (visitorIds.length > 0) {
@@ -384,28 +471,35 @@ export async function GET(request: NextRequest) {
     // so the numerator and denominator cover the same time window
     let conversionRate = 0
     if (opensCount > 0) {
-      let firstOpenQuery = withPageFilter(
-        supabase
+      let firstOpenQuery = withDateRange(
+        withPageFilter(
+          supabase
           .from('widget_opens')
           .select('opened_at')
           .eq('organization_id', organizationId)
           .order('opened_at', { ascending: true })
           .limit(1),
-        pageUrl
+          pageUrl
+        ),
+        dateRange,
+        'opened_at'
       )
 
       const { data: firstOpenData } = await firstOpenQuery
       const firstOpenAt = firstOpenData?.[0]?.opened_at
 
       if (firstOpenAt) {
-        let convsSinceTrackingQuery = withPageFilter(
-          supabase
+        let convsSinceTrackingQuery = withDateRange(
+          withPageFilter(
+            supabase
             .from('conversation_sessions')
             .select('*', { count: 'exact', head: true })
             .eq('organization_id', organizationId)
             .neq('is_test', true)
             .gte('created_at', firstOpenAt),
-          pageUrl
+            pageUrl
+          ),
+          dateRange
         )
 
         const { count: convsSinceTracking } = await convsSinceTrackingQuery

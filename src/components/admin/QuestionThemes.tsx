@@ -1,8 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Sparkles, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Sparkles, Loader2, ChevronDown, ChevronRight, Download } from 'lucide-react'
 import type { PageThemeResult, WidgetPage } from './types'
+import DateRangeFilter, {
+  formatDateRangeLabel,
+  getDefaultDateRange,
+  type DateRangeValue
+} from './DateRangeFilter'
 
 interface QuestionThemesProps {
   pageUrl: string | null
@@ -21,10 +26,12 @@ function relativeTime(dateStr: string): string {
 }
 
 function ThemeList({ result }: { result: PageThemeResult }) {
+  const dateLabel = result.date_range_label || 'Last 30 days'
+
   if (result.message_count < 3) {
     return (
       <p className="text-sm text-gray-500 italic py-2">
-        Not enough questions (need at least 3 in the last 30 days).
+        Not enough questions (need at least 3 for {dateLabel.toLowerCase()}).
       </p>
     )
   }
@@ -41,7 +48,7 @@ function ThemeList({ result }: { result: PageThemeResult }) {
     <div className="space-y-3">
       {result.generated_at && (
         <p className="text-xs text-gray-400">
-          Last generated: {relativeTime(result.generated_at)} · Based on {result.message_count} questions
+          Last generated: {relativeTime(result.generated_at)} · {dateLabel} · Based on {result.message_count} questions
         </p>
       )}
       {result.themes.map((theme, i) => (
@@ -68,15 +75,89 @@ function ThemeList({ result }: { result: PageThemeResult }) {
   )
 }
 
+function buildThemesMarkdown(
+  pages: PageThemeResult[],
+  range: DateRangeValue,
+  pageUrl: string | null
+): string {
+  const generatedAt = new Date().toLocaleString()
+  const dateLabel = formatDateRangeLabel(range)
+  const scope = pageUrl ? pages[0]?.page_title || pageUrl : 'All Pages'
+
+  const sections = pages.map(result => {
+    const lines = [
+      `## ${result.page_title}`,
+      '',
+      `Page: ${result.page_url}`,
+      `Questions analyzed: ${result.message_count}`,
+      ''
+    ]
+
+    if (result.themes.length === 0) {
+      lines.push('No themes generated.')
+      return lines.join('\n')
+    }
+
+    result.themes.forEach((theme, index) => {
+      lines.push(`### ${index + 1}. ${theme.name} (${theme.count})`)
+      lines.push('')
+      lines.push(theme.description)
+      if (theme.examples.length > 0) {
+        lines.push('')
+        lines.push('Examples:')
+        theme.examples.forEach(example => {
+          lines.push(`- "${example}"`)
+        })
+      }
+      lines.push('')
+    })
+
+    return lines.join('\n')
+  })
+
+  return [
+    '# EasyAsk Question Themes',
+    '',
+    `Generated: ${generatedAt}`,
+    `Date range: ${dateLabel}`,
+    `Scope: ${scope}`,
+    '',
+    ...sections
+  ].join('\n')
+}
+
 export default function QuestionThemes({ pageUrl, widgetPages }: QuestionThemesProps) {
   const [pageThemes, setPageThemes] = useState<PageThemeResult[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set())
+  const [dateRange, setDateRange] = useState<DateRangeValue>(() => getDefaultDateRange())
+  const [lastGeneratedPages, setLastGeneratedPages] = useState<PageThemeResult[]>([])
+  const [lastGeneratedRange, setLastGeneratedRange] = useState<DateRangeValue | null>(null)
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    setLastGeneratedPages([])
+    setLastGeneratedRange(null)
     fetchThemes()
   }, [pageUrl])
+
+  useEffect(() => {
+    if (lastGeneratedPages.length === 0) {
+      setDownloadUrl(null)
+      return
+    }
+
+    const markdown = buildThemesMarkdown(
+      lastGeneratedPages,
+      lastGeneratedRange || dateRange,
+      pageUrl
+    )
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }))
+    setDownloadUrl(url)
+
+    return () => URL.revokeObjectURL(url)
+  }, [lastGeneratedPages, lastGeneratedRange, dateRange, pageUrl])
 
   async function fetchThemes() {
     setLoading(true)
@@ -102,11 +183,18 @@ export default function QuestionThemes({ pageUrl, widgetPages }: QuestionThemesP
       const response = await fetch('/api/admin/question-themes/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageUrl: pageUrl || undefined })
+        body: JSON.stringify({
+          pageUrl: pageUrl || undefined,
+          dateRangeMode: dateRange.mode,
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate
+        })
       })
       const data = await response.json()
       if (data.pages) {
         setPageThemes(data.pages)
+        setLastGeneratedPages(data.pages)
+        setLastGeneratedRange(dateRange)
         setExpandedPages(new Set(data.pages.map((p: PageThemeResult) => p.page_url)))
       }
     } catch (error) {
@@ -129,28 +217,52 @@ export default function QuestionThemes({ pageUrl, widgetPages }: QuestionThemesP
   }
 
   const hasThemes = pageThemes.length > 0
+  const dateLabel = formatDateRangeLabel(dateRange)
 
   return (
     <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-orange-500" />
-          <h2 className="text-lg font-semibold text-gray-900">Question Themes</h2>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Question Themes</h2>
+            <p className="text-xs text-gray-500 mt-1">
+              Default analysis uses the last 30 days.
+            </p>
+          </div>
         </div>
-        <button
-          onClick={runAnalysis}
-          disabled={generating}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
-        >
-          {generating ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            'Run Analysis'
-          )}
-        </button>
+      </div>
+
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <DateRangeFilter value={dateRange} onChange={setDateRange} />
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2">
+            <button
+              onClick={runAnalysis}
+              disabled={generating}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                `Run Analysis (${dateLabel})`
+              )}
+            </button>
+            {downloadUrl && (
+              <a
+                href={downloadUrl}
+                download={`easyask-question-themes-${new Date().toISOString().slice(0, 10)}.md`}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 hover:border-orange-300 text-gray-700 text-sm font-medium transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download Themes
+              </a>
+            )}
+          </div>
+        </div>
       </div>
 
       {loading ? (

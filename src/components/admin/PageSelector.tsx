@@ -8,12 +8,14 @@ interface PageSelectorProps {
   pages: WidgetPage[]
   selectedPage: WidgetPage | null
   onPageSelect: (page: WidgetPage | null) => void
+  label?: string
 }
 
 export default function PageSelector({
   pages,
   selectedPage,
   onPageSelect,
+  label = 'Viewing Stats For:',
 }: PageSelectorProps): React.ReactElement | null {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -34,7 +36,7 @@ export default function PageSelector({
       >
         <Globe className="w-5 h-5 text-orange-500 flex-shrink-0" />
         <div className="flex-1 text-left min-w-0">
-          <p className="text-xs text-gray-500">Viewing Stats For:</p>
+          <p className="text-xs text-gray-500">{label}</p>
           <p className="text-sm font-medium text-gray-900 truncate">
             {selectedPage ? selectedPage.page_title : 'All Pages'}
           </p>

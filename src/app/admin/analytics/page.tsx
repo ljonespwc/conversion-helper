@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MessageCircle, Users, TrendingUp, Activity, ThumbsUp, ThumbsDown, MousePointerClick, ArrowRightLeft, ShoppingBag, DollarSign } from 'lucide-react'
+import { MessageCircle, Users, TrendingUp, Activity, ThumbsUp, ThumbsDown, MousePointerClick, ArrowRightLeft, ShoppingBag, DollarSign, RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/Header'
 import StatsCard from '@/components/admin/StatsCard'
 import PageSelector from '@/components/admin/PageSelector'
+import DateRangeFilter, { getDefaultDateRange, type DateRangeValue } from '@/components/admin/DateRangeFilter'
 import { usePostHog } from 'posthog-js/react'
 import type { Stats, WidgetPage } from '@/components/admin/types'
 
@@ -24,7 +25,11 @@ export default function AnalyticsPage(): React.ReactElement {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<{ email?: string | null; id: string } | null>(null)
   const [widgetPages, setWidgetPages] = useState<WidgetPage[]>([])
-  const [selectedPage, setSelectedPage] = useState<WidgetPage | null>(null)
+  const [draftPage, setDraftPage] = useState<WidgetPage | null>(null)
+  const [appliedPage, setAppliedPage] = useState<WidgetPage | null>(null)
+  const [draftDateRange, setDraftDateRange] = useState<DateRangeValue>(() => getDefaultDateRange())
+  const [appliedDateRange, setAppliedDateRange] = useState<DateRangeValue>(() => getDefaultDateRange())
+  const [refreshCount, setRefreshCount] = useState(0)
 
   useEffect(() => {
     checkUser()
@@ -33,7 +38,7 @@ export default function AnalyticsPage(): React.ReactElement {
 
   useEffect(() => {
     fetchStats()
-  }, [selectedPage, widgetPages.length])
+  }, [appliedPage, appliedDateRange, refreshCount])
 
   async function checkUser(): Promise<void> {
     const supabase = createClient()
@@ -57,9 +62,15 @@ export default function AnalyticsPage(): React.ReactElement {
     try {
       setLoading(true)
       const timestamp = Date.now()
-      const url = selectedPage
-        ? `/api/stats?pageUrl=${encodeURIComponent(selectedPage.page_url)}&_t=${timestamp}`
-        : `/api/stats?_t=${timestamp}`
+      const params = new URLSearchParams({
+        _t: String(timestamp),
+        startDate: appliedDateRange.startDate,
+        endDate: appliedDateRange.endDate
+      })
+      if (appliedPage) {
+        params.set('pageUrl', appliedPage.page_url)
+      }
+      const url = `/api/stats?${params.toString()}`
       const response = await fetch(url, { cache: 'no-store' })
       const data = await response.json()
       setStats(data)
@@ -71,10 +82,19 @@ export default function AnalyticsPage(): React.ReactElement {
   }
 
   function handlePageSelect(page: WidgetPage | null): void {
-    setSelectedPage(page)
+    setDraftPage(page)
+  }
+
+  function applyFilters(): void {
+    setAppliedPage(draftPage)
+    setAppliedDateRange(draftDateRange)
+    setRefreshCount(count => count + 1)
     posthog?.capture('analytics_page_filtered', {
-      page_title: page?.page_title ?? 'All Pages',
-      page_url: page?.page_url ?? null
+      page_title: draftPage?.page_title ?? 'All Pages',
+      page_url: draftPage?.page_url ?? null,
+      date_range_mode: draftDateRange.mode,
+      start_date: draftDateRange.startDate,
+      end_date: draftDateRange.endDate
     })
   }
 
@@ -94,11 +114,24 @@ export default function AnalyticsPage(): React.ReactElement {
               </p>
             </div>
 
-            <PageSelector
-              pages={widgetPages}
-              selectedPage={selectedPage}
-              onPageSelect={handlePageSelect}
-            />
+            <div className="grid gap-3 w-full sm:w-auto lg:min-w-[520px]">
+              <PageSelector
+                pages={widgetPages}
+                selectedPage={draftPage}
+                onPageSelect={handlePageSelect}
+                label="Page Filter:"
+              />
+              <DateRangeFilter value={draftDateRange} onChange={setDraftDateRange} />
+              <button
+                type="button"
+                onClick={applyFilters}
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                {loading ? 'Updating Analytics...' : 'Update Analytics'}
+              </button>
+            </div>
           </div>
         </div>
 
